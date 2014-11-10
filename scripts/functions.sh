@@ -3,14 +3,17 @@
 ORGANISATION=inasafe
 PROJECT=inasafe-django
 
+# Root directory of this git project
+PROJECT_DIR=$(readlink -fn -- "${BASH_SOURCE%/*}/..")
+
 # Configurable options (though we recommend not changing these)
-POSTGIS_PORT=49361
+POSTGIS_PORT=1419
 POSTGIS_CONTAINER_NAME=${PROJECT}-postgis
 
-QGIS_SERVER_PORT=49362
+QGIS_SERVER_PORT=1420
 QGIS_SERVER_CONTAINER_NAME=${PROJECT}-qgis-server
 
-DJANGO_SERVER_PORT=49360
+DJANGO_SERVER_PORT=1421
 DJANGO_CONTAINER_NAME=${PROJECT}
 
 DJANGO_DEV_SERVER_SSH_PORT=1422
@@ -81,7 +84,8 @@ function manage {
         --hostname="${PROJECT}-manage" \
         ${OPTIONS} \
         --link ${POSTGIS_CONTAINER_NAME}:${POSTGIS_CONTAINER_NAME} \
-        -v /home/${USER}/production-sites/${PROJECT}:/home/web \
+        -v ${PROJECT_DIR}:/home/web \
+        -v /tmp/${PROJECT}-tmp:/tmp/${PROJECT}-tmp \
         --entrypoint="/usr/bin/python" \
         -i -t ${ORGANISATION}/${PROJECT} \
          /home/web/django_project/manage.py "$@"
@@ -97,7 +101,7 @@ function bash_prompt {
         --hostname="${PROJECT}-bash" \
         ${OPTIONS} \
         --link ${POSTGIS_CONTAINER_NAME}:${POSTGIS_CONTAINER_NAME} \
-        -v /home/${USER}/production-sites/${PROJECT}:/home/web \
+        -v ${PROJECT_DIR}:/home/web \
         --entrypoint="/bin/bash" \
         -i -t ${ORGANISATION}/${PROJECT} \
         -s
@@ -108,6 +112,7 @@ function run_django_server {
     echo "${@}"
     echo "------------------------------------------"
 
+    mkdir /tmp/${PROJECT}-tmp
     docker kill ${DJANGO_CONTAINER_NAME}
     docker rm ${DJANGO_CONTAINER_NAME}
     docker run \
@@ -116,7 +121,7 @@ function run_django_server {
         --hostname="${DJANGO_CONTAINER_NAME}" \
         ${OPTIONS} \
         --link ${POSTGIS_CONTAINER_NAME}:${POSTGIS_CONTAINER_NAME} \
-        -v /home/${USER}/production-sites/${PROJECT}:/home/web \
+        -v ${PROJECT_DIR}:/home/web \
         -v /tmp/${PROJECT}-tmp:/tmp/${PROJECT}-tmp \
         -p 49360:49360 \
         -d -t ${ORGANISATION}/${PROJECT} $@
@@ -140,7 +145,7 @@ function run_django_dev_server {
     echo "python manage.py runserver 0.0.0.0:${DJANGO_DEV_SERVER_HTTP_PORT}"
     echo "------------------------------------------"
 
-    PROJECT_DIR=$(readlink -fn -- "${BASH_SOURCE%/*}/..")
+    mkdir /tmp/${PROJECT}-tmp
     docker kill ${DJANGO_DEV_CONTAINER_NAME}
     docker rm ${DJANGO_DEV_CONTAINER_NAME}
     docker run \
