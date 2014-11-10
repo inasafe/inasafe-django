@@ -21,7 +21,7 @@ DATABASES = {
 
 # Project apps
 INSTALLED_APPS += (
-    'frontend'
+    'frontend',
 )
 
 
@@ -46,7 +46,7 @@ PIPELINE_CSS = {
         'source_filenames': (
             'css/bootstrap.min.css',
         ),
-        'output_filename': 'css/contrib.css',
+    'output_filename': 'css/contrib.css',
         'extra_context': {
             'media': 'screen, projection',
         },

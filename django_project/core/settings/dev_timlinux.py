@@ -7,7 +7,7 @@ DATABASES = {
         'NAME': 'gis',
         'USER': 'docker',
         'PASSWORD': 'docker',
-        'HOST': 'inasafe-postgis',
+        'HOST': 'inasafe-django-postgis',
         # Set to empty string for default.
         'PORT': '5432',
     }

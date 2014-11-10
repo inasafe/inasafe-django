@@ -1,3 +1,6 @@
+# Vim leftovers
+*.*~
+
 # project specifc
 django_project/core/settings/secret.py
 xmlrunner
