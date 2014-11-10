@@ -5,6 +5,7 @@ for disasters. This django project provides various resources related to the
 InaSAFE project in particular:
 
 * A user map
+* more to come
 
 **Please note that this project is in the early phase of its development.**
 
@@ -63,7 +64,7 @@ You can simply run the provided script and it will build and deploy the docker
 images for you.
 
 ``
-cd inasafe
+cd inasafe-django
 scripts\create_docker_env.sh
 ``
 
@@ -90,7 +91,7 @@ npm -g install yuglify
 
 ```
 cd django_project/core/settings
-cp dev_dodobas.py dev_${USER}.py
+cp dev_timlinux.py dev_${USER}.py
 ```
 
 Now edit dev_<your username> setting your database connection details as
