@@ -54,9 +54,6 @@ on the official docker page to get it set up.
 First checkout out the source tree:
 
 ```
-mkdir -p ~/production-sites
-mkdir /tmp/inasafe-tmp
-cd ~/production-sites
 git clone git://github.com/inasafe/inasafe-django.git
 ```
 
