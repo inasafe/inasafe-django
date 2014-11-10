@@ -2,7 +2,7 @@
 
 ## Build your dev docker image
 
-This image extents the production one, adding ssh to it. You must
+This image extends the production one, adding ssh to it. You must
 have built the production one first!
 
 ```
