@@ -1,4 +1,4 @@
-# Welcome to the inasafe code base!
+# Welcome to the InaSAFE Web code base!
 
 [InaSAFE](http://insafe.org) is a contingency planning and preparedness tool 
 for disasters. This django project provides various resources related to the
