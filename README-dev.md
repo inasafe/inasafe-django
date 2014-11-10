@@ -1,4 +1,4 @@
-# Setup pycharm to work with a remove docker development environment
+# Setup pycharm to work with a remote docker development environment
 
 ## Build your dev docker image
 
