@@ -15,7 +15,7 @@ You can visit a running instance of this project at
 
 These badges reflect the current status of our development branch:
 
-Tests status: [![Build Status](https://travis-ci.org/inasafe/inasafe-django.svg)](https://travis-ci.org/inasafe/inasafe-django)
+Tests status: [![Build Status](https://travis-ci.org/AIFDR/inasafe-django.svg)](https://travis-ci.org/AIFDR/inasafe-django)
 
 Coverage status: [![Coverage Status](https://coveralls.io/repos/inasafe/inasafe-django/badge.png?branch=develop)](https://coveralls.io/r/inasafe/inasafe-django?branch=develop)
 
