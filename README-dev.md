@@ -95,7 +95,18 @@ Now set these options:
   * Remote path: /home/web
 * click OK to save your run configuration
 
-Now you can run the server using the green triangle next to the Django server label in the run configurations pull down. Debug will aslo work and you will be able to step through views etc as you work.
+Now you can run the server using the green triangle next to the Django server
+label in the run configurations pull down. Debug will also work and you will be
+able to step through views etc as you work.
 
 
+## Developer FAQ
 
+**Q**: I get ``ImportError: Could not import settings core.settings.dev_timlinux``
+when starting the server.
+
+**A:** ``django_project/core/settings/secret.py is either corrupt or you don't
+have permissions to read it as the user you are running ``runserver`` as. A 
+common cause of this is if you are running the server in both production
+mode and developer mode on the same host. Simply remove the file or change
+ownership permissions so that you can read/write it.
