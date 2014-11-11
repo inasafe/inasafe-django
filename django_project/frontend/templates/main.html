@@ -1,22 +1,16 @@
 {% extends 'base.html' %}
 
-{% block title %}Healthsites{% endblock %}
+{% block title %}InaSAFE{% endblock %}
 
 {% block content %}
 
-<nav class="navbar navbar-default navbar-fixed-top navbar-inverse" role="navigation" xmlns="http://www.w3.org/1999/html">
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation" xmlns="http://www.w3.org/1999/html">
 <div class="container-fluid">
-  <img height="40px" class="pull-left" style="padding-top: 8px; padding-right: 8px;" src="/static/js/images/marker-icon.png"/>
   <a id="about" class="navbar-brand"
           data-toggle="modal"
           href="about"
           data-target="#about-modal"
-          >Healthsites.io</a>
-<!--
-  <button id="new_locality" type="button" class="btn btn-default navbar-btn"
-          data-mapclick-text="Click on the map"
-          data-savelocality-text="Save Locality">Add a new Locality</button>
--->
+          >InaSAFE</a>
   <a id="help-button" class="btn btn-default navbar-btn pull-right"
           data-toggle="modal"
           href="help"
@@ -56,6 +50,6 @@
 {% block extra_js %}
 
 <script type="text/javascript">
-new APP();
+
 </script>
 {% endblock %}
