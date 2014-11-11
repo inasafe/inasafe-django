@@ -100,7 +100,7 @@ database somewhere that you can use for your development work. See
 [http://postgis.net/install/](http://postgis.net/install/) for details on doing
 that.
 
-### Running collect and migrate static
+### Running migrate, collect static, and development server
 
 Prepare your database and static resources by doing this:
 
@@ -108,8 +108,9 @@ Prepare your database and static resources by doing this:
 virtualenv venv
 source venv/bin/activate
 cd django_project
-python manage.py migrate
+python manage.py migrate --settings=core.settings.dev_${USER}
 python manage.py collectstatic --noinput --settings=core.settings.dev_${USER}
+python manage.py runserver --settings=core.settings.dev_${USER}
 ```
 
 **Note:** You can also develop in docker using the instructions provided in
