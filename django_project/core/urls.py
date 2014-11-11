@@ -16,7 +16,7 @@ urlpatterns = patterns(
 
     # include application urls
     url(r'', include('frontend.urls')),
-    url(r'^user-map/', include('user_map.urls')),
+    url(r'^user-map/', include('user_map.urls', namespace='user_map')),
 
 )
 
