@@ -4,12 +4,11 @@ from .dev import *  # noqa
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'gis',
-        'USER': 'postgres',
-        'PASSWORD': '',
+        'NAME': 'test_db',
         'HOST': 'localhost',
-        # Set to empty string for default.
-        'PORT': '',
+        'PORT': '5432',
+        'USER': 'postgres',
+        'PASSWORD': ''
     }
 }
 
