@@ -50,5 +50,14 @@ PIPELINE_CSS = {
         'extra_context': {
             'media': 'screen, projection',
         },
+    },
+    'main': {
+        'source_filenames': (
+            'css/main.css',
+        ),
+    'output_filename': 'css/main.css',
+        'extra_context': {
+            'media': 'screen, projection',
+        },
     }
 }
