@@ -5,19 +5,48 @@ html {
 
 
 body {
-    padding-top: 50px;
     margin: 0;
     height: 100%;
     width: 100%;
 }
 
-
-#map {
-    height: 100%;
-    width: 100%;
+.navbar-brand {
+  color: #EF5829 !important;
+  font-size: 20pt;
+}
+.navbar-nav {
+  font-size: 14pt;
+}
+.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
+  color: #EF5829;  /*Sets the text hover color on navbar*/
 }
 
-#localityModal {
-    right:30px;
-    left:auto !important;
+
+#main-content {
+  opacity: 0.85;
+  filter: alpha(opacity=85); /* For IE8 and earlier */
+  background: url('../img/launch_2.jpg') no-repeat center top fixed  ;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
 }
+
+#realtime-assesment {
+  padding-top: 70px;
+}
+
+#user-map {
+  padding-top: 70px;
+}
+
+#about {
+  padding-top: 70px;
+}
+
+.footer {
+  color: rgb(120, 120, 120);
+  margin-bottom: 20px;
+}
+
+.centered {text-align: center;}

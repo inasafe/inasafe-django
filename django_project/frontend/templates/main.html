@@ -3,53 +3,99 @@
 {% block title %}InaSAFE{% endblock %}
 
 {% block content %}
+  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">InaSAFE</a>
+      </div>
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="#realtime-assesment">REALTIME</a></li>
+          <li><a href="#user-map">USER MAP</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="#about">ABOUT</a></li>
+        </ul>
+      </div>
+    </div>
+    <div style="clear: both;"></div>
+    <div style="min-height: 10px; background-color: #EF5829"></div>
+  </nav>
 
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation" xmlns="http://www.w3.org/1999/html">
-<div class="container-fluid">
-  <a id="about" class="navbar-brand"
-          data-toggle="modal"
-          href="about"
-          data-target="#about-modal"
-          >InaSAFE</a>
-  <a id="help-button" class="btn btn-default navbar-btn pull-right"
-          data-toggle="modal"
-          href="help"
-          data-target="#help-modal">Help</a>
-</div>
-</nav>
-
-<div id="map"></div>
-
-<div class="github-fork-ribbon-wrapper left-bottom">
-  <div class="github-fork-ribbon">
-      <a href="https://github.com/inasafe/inasafe">Fork me on GitHub</a>
+  <div id="main-content">
+    <div class="autoheight">
+    </div>
   </div>
-</div>
 
-<!-- About Modal -->
-<div class="modal fade" id="about-modal" tabindex="-1" role="dialog"
-     aria-labelledby="about-modal" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-      </div> <!-- /.modal-content -->
-    </div> <!-- /.modal-dialog -->
-</div> <!-- /.modal -->
+  <div class="container" style="min-height: 10px; background-color: #EF5829"></div>
 
+  <div id="realtime-assesment">
+    <div class="container autoheight">
+        <h2 style="text-align: center">Realtime Assessment</h2>
+        <hr>
+       <img src="static/img/earthquake.png" class="img-responsive"
+            style="width: 60%; height: 60%; float: left">
+      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,
+    </div>
+  </div>
 
-<!-- Help Modal -->
-<div class="modal fade" id="help-modal" tabindex="-1" role="dialog"
-     aria-labelledby="help-modal" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-      </div> <!-- /.modal-content -->
-    </div> <!-- /.modal-dialog -->
-</div> <!-- /.modal -->
+  <div class="container" style="min-height: 10px; background-color:#EF5829"></div>
 
-{% endblock %}
+  <div id="user-map">
+    <div class="container autoheight">
+      <h2 style="text-align: center">User Map</h2>
+      <hr>
+      <img src="static/img/user-map.png" class="img-responsive" style="width: 60%; height: 60%; float: left">
+      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,
+    </div>
+  </div>
+
+  <div class="container" style="min-height: 10px; background-color:#EF5829"></div>
+
+  <div id="about">
+    <div class="container autoheight">
+      <h2 style="text-align: center">About</h2>
+      <hr>
+      <img src="static/img/inasafe_diagram.png" class="img-responsive"
+           style="width: 50%; height: 50%; float: left">
+      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,
+    </div>
+  </div>
+
+   <div class="container">
+    <hr>
+    <div class="footer centered">
+      © 2014 InaSAFE. All rights reserved.
+    </div>
+  </div>
+{% endblock content %}
 
 {% block extra_js %}
+  <script type="text/javascript">
+    var $root = $('html, body');
 
-<script type="text/javascript">
+    $('a').click(function() {
+        $root.animate({
+            scrollTop: $( $.attr(this, 'href') ).offset().top
+        }, 500);
+        return false;
+    });
 
-</script>
-{% endblock %}
+    var setElementHeight = function () {
+      var height = $(window).height();
+      $('.autoheight').css('min-height', height);
+    };
+
+    $(window).on("resize", function () {
+        setElementHeight();
+    }).resize();
+
+  </script>
+
+{% endblock extra_js %}
