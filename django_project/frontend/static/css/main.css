@@ -12,15 +12,17 @@ body {
 
 .navbar-brand {
   color: #EF5829 !important;
+  font-family: "Brandon", sans-serif;
   font-size: 20pt;
+  font-weight: bold;
 }
 .navbar-nav {
-  font-size: 14pt;
+  font-family: "Open Sans Bold", sans-serif;
+  font-size: 12pt;
 }
 .navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
   color: #EF5829;  /*Sets the text hover color on navbar*/
 }
-
 
 #main-content {
   opacity: 0.85;
@@ -32,16 +34,20 @@ body {
   background-size: cover;
 }
 
+.title {
+  font-family: "Open Sans Bold", sans-serif;
+  font-size: 20px;
+}
 #realtime-assesment {
-  padding-top: 70px;
+  padding-top: 60px;
 }
 
 #user-map {
-  padding-top: 70px;
+  padding-top: 60px;
 }
 
 #about {
-  padding-top: 70px;
+  padding-top: 60px;
 }
 
 .footer {
@@ -49,4 +55,13 @@ body {
   margin-bottom: 20px;
 }
 
+.quotes {
+  display: none;
+  font-family: "Open Sans Bold", sans-serif;
+  font-size: 14pt;
+  font-weight: bold;
+  color: #FFFFFF;
+  text-align: center;
+  text-shadow: 0px 0px 3px #000, -1px -1px #000, 1px 1px #000;;
+}
 .centered {text-align: center;}
