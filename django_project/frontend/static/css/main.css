@@ -25,7 +25,7 @@ body {
 }
 
 #main-content {
-  opacity: 0.85;
+  opacity: 0.9;
   filter: alpha(opacity=85); /* For IE8 and earlier */
   background: url('../img/launch_2.jpg') no-repeat center top fixed  ;
   -webkit-background-size: cover;
@@ -35,8 +35,12 @@ body {
 }
 
 .title {
+  padding-top: 10px;
   font-family: "Open Sans Bold", sans-serif;
-  font-size: 20px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #EF5829;
+  text-align: center  ;
 }
 #realtime-assesment {
   padding-top: 60px;
@@ -64,4 +68,20 @@ body {
   text-align: center;
   text-shadow: 0px 0px 3px #000, -1px -1px #000, 1px 1px #000;;
 }
-.centered {text-align: center;}
+.centered {
+  text-align: center;
+}
+
+.btn-default {
+  border-color     : #EF5829;
+  background-color : #EF5829;
+  color: #FDFDFD;
+  font-weight: bolder;
+}
+
+.btn-default:hover {
+  border-color     : #EF5829;
+  background-color : #FF7849;
+  color: #FDFDFD;
+  font-weight: bolder
+}
