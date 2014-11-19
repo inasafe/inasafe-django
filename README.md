@@ -27,7 +27,9 @@ Development status: [![Stories in Ready](https://badge.waffle.io/inasafe/inasafe
 Data: [Open Database License](http://opendatacommons.org/licenses/odbl/)
 Code: [Free BSD License](http://www.freebsd.org/copyright/freebsd-license.html)
 
-Out intention is to foster wide spread usage of the data and the code that we provide. Please use this code and data in the interests of humanity and not for nefarious purposes.
+Out intention is to foster wide spread usage of the data and the code that we 
+provide. Please use this code and data in the interests of humanity and not for 
+nefarious purposes.
 
 # Setup instructions
 
