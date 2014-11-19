@@ -46,7 +46,7 @@ PIPELINE_CSS = {
         'source_filenames': (
             'css/bootstrap.min.css',
         ),
-    'output_filename': 'css/contrib.css',
+        'output_filename': 'css/contrib.css',
         'extra_context': {
             'media': 'screen, projection',
         },
@@ -55,7 +55,7 @@ PIPELINE_CSS = {
         'source_filenames': (
             'css/main.css',
         ),
-    'output_filename': 'css/main.css',
+        'output_filename': 'css/main.css',
         'extra_context': {
             'media': 'screen, projection',
         },
