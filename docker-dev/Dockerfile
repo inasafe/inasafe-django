@@ -1,5 +1,5 @@
 #--------- Generic stuff all our Dockerfiles should start with so we get caching ------------
-FROM inasafe/inasafe-django
+FROM aifdr/inasafe-django
 MAINTAINER Tim Sutton<tim@linfiniti.com>
 
 # Use local cached debs from host (saves your bandwidth!)

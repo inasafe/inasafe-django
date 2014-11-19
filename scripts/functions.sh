@@ -150,12 +150,10 @@ function restart_postgis_server {
         -d -t \
         kartoza/postgis
 
-
     # Todo:  prevent multiple entries in pgpass
     #echo "localhost:${POSTGIS_PORT}:*:${USER}:${PASSWORD}" >> ~/.pgpass
 
     sleep 20
-
 }
 
 function restart_qgis_server {
