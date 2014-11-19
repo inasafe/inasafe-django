@@ -18,9 +18,9 @@ These badges reflect the current status of our development branch:
 
 Tests status: [![Build Status](https://travis-ci.org/AIFDR/inasafe-django.svg)](https://travis-ci.org/AIFDR/inasafe-django)
 
-Coverage status: [![Coverage Status](https://coveralls.io/repos/inasafe/inasafe-django/badge.png?branch=develop)](https://coveralls.io/r/inasafe/inasafe-django?branch=develop)
+Coverage status: [![Coverage Status](https://coveralls.io/repos/AIFDR/inasafe-django/badge.png?branch=develop)](https://coveralls.io/r/AIFDR/inasafe-django?branch=develop)
 
-Development status: [![Stories in Ready](https://badge.waffle.io/inasafe/inasafe-django.svg?label=ready&title=Ready)](http://waffle.io/inasafe/inasafe-django) [![Stories in Ready](https://badge.waffle.io/inasafe/inasafe-django.svg?label=In%20Progress&title=In%20Progress)](http://waffle.io/inasafe/inasafe-django)
+Development status: [![Stories in Ready](https://badge.waffle.io/AIFDR/inasafe-django.svg?label=ready&title=Ready)](http://waffle.io/AIFDR/inasafe-django) [![Stories in Ready](https://badge.waffle.io/AIFDR/inasafe-django.svg?label=In%20Progress&title=In%20Progress)](http://waffle.io/AIFDR/inasafe-django)
 
 # License
 
