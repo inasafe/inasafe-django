@@ -17,7 +17,6 @@ mode), its the same procedure except you need to export the ``TEST_MODE``
 environment variable e.g.::
 
 ``
-cd healthsites
 TEST_MODE=1 scripts\create_docker_env.sh
 ``
 
