@@ -5,7 +5,6 @@
 source ${BASH_SOURCE%/*}/functions.sh
 
 restart_postgis_server
-restart_qgis_server
 
 # Now collect migrate and collect static
 manage migrate
