@@ -1,2 +1,2 @@
 #!/bin/sh
- docker build -t inasafe/inasafe-django .
+ docker build -t aifdr/inasafe-django .
