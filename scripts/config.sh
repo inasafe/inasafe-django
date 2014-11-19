@@ -1,5 +1,5 @@
 #!/bin/bash
-ORGANISATION=inasafe
+ORGANISATION=aifdr
 PROJECT=inasafe-django
 PG_USER=docker
 PG_PASS=docker
