@@ -1,0 +1,86 @@
+#
+# Staging server with UWSGI configured to run on port 1719
+#
+# Usage:
+# fig -f fig-staging.yml <command>
+#
+# Typical useage:
+#
+# fig -f fig-staging.yml build
+# fig -f fig-staging.yml up -d staginguwsgi
+# fig -f fig-staging.yml run stagingmigrate
+# fig -f fig-staging.yml run stagingcollectstatic
+
+# To get an interactive shell in the django context:
+#
+# fig -f fig-staging.yml run stagingshell
+
+stagingdb:
+  image: kartoza/postgis
+  environment:
+    - USERNAME=docker
+    - PASS=docker
+
+staginguwsgi:
+  build: docker-prod
+  hostname: staginguwsgi
+  environment:
+    - DATABASE_NAME=gis
+    - DATABASE_USERNAME=docker
+    - DATABASE_PASSWORD=docker
+    - DATABASE_HOST=db
+    - DJANGO_SETTINGS_MODULE=core.settings.staging_docker
+  volumes:
+    - .:/home/web
+  ports:
+    - "1819:49360"
+  links:
+    - stagingdb:db
+
+stagingmigrate:
+  build: docker-prod
+  hostname: stagingmigrate
+  entrypoint: /usr/bin/python
+  command: "manage.py migrate"
+  environment:
+    - DATABASE_NAME=gis
+    - DATABASE_USERNAME=docker
+    - DATABASE_PASSWORD=docker
+    - DATABASE_HOST=db
+    - DJANGO_SETTINGS_MODULE=core.settings.staging_docker
+  volumes:
+    - .:/home/web
+  links:
+    - stagingdb:db
+
+stagingcollectstatic:
+  build: docker-prod
+  hostname: stagingcollectstatic
+  entrypoint: /usr/bin/python
+  command: "manage.py collectstatic --noinput"
+  environment:
+    - DATABASE_NAME=gis
+    - DATABASE_USERNAME=docker
+    - DATABASE_PASSWORD=docker
+    - DATABASE_HOST=db
+    - DJANGO_SETTINGS_MODULE=core.settings.staging_docker
+  volumes:
+    - .:/home/web
+  links:
+    - stagingdb:db
+
+stagingshell:
+  build: docker-prod
+  hostname: stagingshell
+  entrypoint: /bin/bash
+  command: -i
+  environment:
+    - DATABASE_NAME=gis
+    - DATABASE_USERNAME=docker
+    - DATABASE_PASSWORD=docker
+    - DATABASE_HOST=db
+    - DJANGO_SETTINGS_MODULE=core.settings.staging_docker
+  volumes:
+    - .:/home/web
+  links:
+    - stagingdb:db
