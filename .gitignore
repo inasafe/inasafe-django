@@ -74,3 +74,4 @@ node_modules
 # Working data not intended to be versioned
 data_for_import
 scrap.html
+.pycharm_helpers
