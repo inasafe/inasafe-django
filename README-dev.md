@@ -25,8 +25,7 @@ This image extends the production one, adding ssh to it. You must
 have built the production one first!
 
 ```
-cd docker-dev
-./build.sh
+fig build uwsgi
 ```
 
 ### Run the dev container
@@ -34,32 +33,11 @@ cd docker-dev
 We provide a script to start the container:
 
 ```
-scripts/run_django_dev_server.sh
+fig -f fig-dev.yml build
+fig -f fig-dev.yml up -d dev
+fig -f fig-dev.yml run devmigrate
+fig -f fig-dev.yml run devcollectstatic
 ```
-
-Which should produce output like this:
-
-```
-Running django development server with option
-Access it via ssh on port 1422 of your host
-Use these connection details:
-
-  user: docker
-  password: docker
-
-to log into the container via ssh or when setting up your
-pycharm remote python environment.
-
-Access it via http on port 1480 of your host
-after starting the dev server like this:
-
-python manage.py runserver 0.0.0.0:1480
-------------------------------------------
-
-```
-
-Note the port numbers displayed may vary on your system from the example 
-shown above.
 
 ### Create a remote interpreter in pycharm
 
@@ -74,11 +52,11 @@ Now use these credentials:
 
 * SSH Credentials (tick)
 * Host: localhost
-* Port: 1422 (or whatever the instructions above give as the ssh port)
+* Port: (use the ssh port specified in the fig-dev.yml file)
 * User name: docker
 * Auth type: password (and tick 'save password')
 * Password: docker
-* Python interpreter path: /usr/bin/python
+* Python interpreter path: ``/usr/bin/python``
 
 When prompted about host authenticity, click Yes
 
@@ -88,7 +66,7 @@ In settings, django support:
 * Set django project root to the path on your host that holds django code e.g.
   ``<path to code base>/django_project``
 * Set the settings option to your setting profile e.g.
-  ``core/settings/dev_timlinux.py``
+  ``core/settings/dev_docker.py``
 * manage script (leave default)
 
 
@@ -102,9 +80,8 @@ Now set these options:
 
 * **Name:** Django Server
 * **Host:** 0.0.0.0
-* **Port:** 1480 (or whatever is defined in the docker run output above)
-* **Additional options:** ``--settings=core.settings.dev_timlinux`` (replace with
-  your dev_``<user name>`` file as needed)
+* **Port:** (use the http port specified in the fig-dev.yml file)
+* **Additional options:** ``--settings=core.settings.dev_docker``
 * **Environment vars:** Leave as default unless you need to add something to the env
 * **Python interpreter:** Ensure it is set you your remote interpreter (should be
   set to that by default)
@@ -113,7 +90,7 @@ Now set these options:
   filesystem and the filesystem in the remote (docker) host. Click the ellipsis
   and add a run that points to your git checkout on your local host and the
   /home/web directory in the docker host. e.g.
-  * **Local path:** <path to your code checkout>
+  * **Local path:** <path to your git repo>
   * **Remote path:** /home/web
 * click OK to save your run configuration
 
@@ -124,7 +101,7 @@ able to step through views etc as you work.
 
 ## Developer FAQ
 
-**Q**: I get ``ImportError: Could not import settings core.settings.dev_timlinux``
+**Q**: I get ``ImportError: Could not import settings core.settings.dev_docker``
 when starting the server.
 
 **A:** ``django_project/core/settings/secret.py is either corrupt or you don't
@@ -133,25 +110,4 @@ common cause of this is if you are running the server in both production
 mode and developer mode on the same host. Simply remove the file or change
 ownership permissions so that you can read/write it.
 
-**Q**: I get ``django.db.utils.OperationalError: FATAL: database "gis" does not exist"``
-when running the ``scripts/create_docker_env.sh`` script.  I checked at the 
-the databases in the postgis container and, it has the "gis" database.
-
-**A**: Your computer may be taking a long time to initialise the postgis 
-database - try increasing the sleep interval in ``scripts/functions.sh``.
-
-**Q**: I have updated the code base and need to rebuild and deploy the 
-container - what is the best way to do that?
-
-**A:**: Just do this:
-
-```
-cd docker-prod
-./build.sh
-cd -
-scripts/restart_django_server.sh
-```
-
-You may want to rebuild and restart your development docker container too. 
-Please see README-docker.md for more details on sysadmin tasks.
 

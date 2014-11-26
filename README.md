@@ -46,10 +46,6 @@ We assume you are running nginx on the host and we will set up a reverse
 proxy to pass django requests into the uwsgi container. Static files will
 be served directly using nginx on the host.
 
-A convenience script is provided under ``scripts\create_docker_env.sh`` which
-should get everything set up for you. Note you need at least docker 1.2 - use
-the [installation notes](http://docs.docker.com/installation/ubuntulinux/) 
-on the official docker page to get it set up.
 
 ### Check out the source
 
@@ -57,23 +53,40 @@ on the official docker page to get it set up.
 First checkout out the source tree:
 
 ```
-git clone git://github.com/inasafe/inasafe-django.git
+git clone git://github.com/aifdr/inasafe-django.git
 ```
 
 ### Build your docker images and run them
 
-You can simply run the provided script and it will build and deploy the docker
-images for you.
+You need to have http://docker.io and http://www.fig.sh/ installed first.
 
-``
-cd inasafe-django
-scripts\create_docker_env.sh
-``
+Note you need at least docker 1.2 - use
+the [installation notes](http://docs.docker.com/installation/ubuntulinux/) 
+on the official docker page to get it set up.
+
+Fig will build and deploy the docker images for you. Note if you are using 
+``apt-cacher-ng`` (we recommend it as it will dramatically speed up build 
+times), be sure to edit ``docker-prod/71-apt-cacher-ng`` and comment out 
+existing lines, adding your own server. Alternatively if you wish to fetch 
+packages are downloaded directly from the internet, ensure that all lines are 
+commented out in your hosts:
+
+* ``docker-prod/71-apt-cacher-ng``
+* ``docker-dev/71-apt-cacher-ng``
+
+
+```
+fig build
+fig up -d uwsgi
+fig run migrate
+fig run collectstatic
+```
 
 ### Setup nginx reverse proxy
 
 You should create a new nginx virtual host - please see 
-``inasafe-nginx.conf`` in the root directory of the source for an example.
+``inasafe_django_nginx.conf`` in the root directory of the source for an 
+example.
 
 
 ## For local development
