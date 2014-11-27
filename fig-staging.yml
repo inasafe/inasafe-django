@@ -17,6 +17,8 @@
 
 stagingdb:
   image: kartoza/postgis
+  volumes:
+      - ./postgres_data:/var/lib/postgresql
   environment:
     - USERNAME=docker
     - PASS=docker
@@ -31,7 +33,7 @@ staginguwsgi:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.staging_docker
   volumes:
-    - .:/home/web
+    - ./django_project:/home/web/django_project
   ports:
     - "1819:49360"
   links:
@@ -49,7 +51,7 @@ stagingmigrate:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.staging_docker
   volumes:
-    - .:/home/web
+    - ./django_project:/home/web/django_project
   links:
     - stagingdb:db
 
@@ -65,11 +67,12 @@ stagingcollectstatic:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.staging_docker
   volumes:
-    - .:/home/web
+    - ./django_project:/home/web/django_project
   links:
     - stagingdb:db
 
 stagingshell:
+  # Note you have to press enter after starting the shell to get to your prompt
   build: docker-prod
   hostname: stagingshell
   entrypoint: /bin/bash
@@ -81,6 +84,6 @@ stagingshell:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.staging_docker
   volumes:
-    - .:/home/web
+    - ./django_project:/home/web/django_project
   links:
     - stagingdb:db

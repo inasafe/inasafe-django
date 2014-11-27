@@ -25,6 +25,8 @@
 #
 devdb:
   image: kartoza/postgis
+  volumes:
+      - ./postgres_data:/var/lib/postgresql
   environment:
     - USERNAME=docker
     - PASS=docker
@@ -38,10 +40,10 @@ dev:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
   volumes:
-    - .:/home/web
+    - ./django_project:/home/web/django_project
   ports:
     - "1822:22"
-    - "1823:8000"
+    - "8000:8000"
   links:
     - devdb:db
 
@@ -57,7 +59,7 @@ devmigrate:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
   volumes:
-    - .:/home/web
+    - ./django_project:/home/web/django_project
   links:
     - devdb:db
 
@@ -73,11 +75,12 @@ devcollectstatic:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
   volumes:
-    - .:/home/web
+    - ./django_project:/home/web/django_project
   links:
     - devdb:db
 
 devshell:
+  # Note you have to press enter after starting the shell to get to your prompt
   build: docker-dev
   hostname: devshell
   entrypoint: /bin/bash
@@ -89,6 +92,6 @@ devshell:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
   volumes:
-    - .:/home/web
+    - ./django_project:/home/web/django_project
   links:
     - devdb:db

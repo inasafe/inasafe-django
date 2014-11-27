@@ -75,3 +75,7 @@ node_modules
 data_for_import
 scrap.html
 .pycharm_helpers
+.sudo_as_admin_successful
+
+# Pg cluster for docker
+postgres_data/9.3

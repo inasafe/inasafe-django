@@ -9,7 +9,7 @@ uwsgi:
 	@echo "--------------------------"
 	@echo "Running in production mode"
 	@echo "--------------------------"
-	@fig up -d uwsgi
+	@fig up -d --no-recreate uwsgi
 
 build:
 	@echo
@@ -18,7 +18,15 @@ build:
 	@echo "--------------------------"
 	@fig build
 
-dev: devdb devssh devmigrate devcollectstatic
+dev: devssh devmigrate devcollectstatic
+
+devkill:
+	@echo
+	@echo "-----------------------------------"
+	@echo "Killing developer environment"
+	@echo "-----------------------------------"
+	@fig -f fig-dev.yml kill
+	@fig -f fig-dev.yml rm
 
 devdb:
 	@echo
@@ -64,4 +72,5 @@ devbuild: build
 	@echo "--------------------------"
 	@echo "Building in developer mode"
 	@echo "--------------------------"
+	@fig build
 	@fig -f fig-dev.yml build

@@ -17,6 +17,9 @@ EXPOSE 22 8000
 ADD start.sh /start.sh
 RUN chmod 0755 /start.sh
 
+ADD REQUIREMENTS-dev.txt /REQUIREMENTS-dev.txt
+RUN pip install -r /REQUIREMENTS-dev.txt
+
 WORKDIR /home/web/django_project
 ENTRYPOINT ["/start.sh"]
 
