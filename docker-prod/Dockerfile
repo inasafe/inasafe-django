@@ -37,7 +37,7 @@ ADD uwsgi_params /uwsgi_params
 # Open port 49360 as we will be running our uwsgi socket on that
 EXPOSE 49360
 
-
+WORKDIR /home/web/django_project
 # You could put --protocol=http as a parameter (to test it directly)
 # when running e.g. docker run inasafe/inasafe --protocol=http
 # or any other wsgi parameters and they will be tagged on to the

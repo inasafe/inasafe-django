@@ -41,7 +41,7 @@ dev:
     - .:/home/web
   ports:
     - "1822:22"
-    - "1823:1723"
+    - "1823:8000"
   links:
     - devdb:db
 

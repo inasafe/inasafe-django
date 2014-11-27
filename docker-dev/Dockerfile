@@ -17,6 +17,7 @@ EXPOSE 22 8000
 ADD start.sh /start.sh
 RUN chmod 0755 /start.sh
 
+WORKDIR /home/web/django_project
 ENTRYPOINT ["/start.sh"]
 
 # You should be able to log in to this container and set it up as a remote
