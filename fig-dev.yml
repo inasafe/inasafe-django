@@ -1,6 +1,7 @@
 #
 # Development server with ssh configured to run on port 1822
 # and the django runserver on port 1823
+# The database run on port 15432
 #
 # Usage:
 # fig -f fig-dev.yml <command>
@@ -28,6 +29,8 @@ devdb:
   environment:
     - USERNAME=docker
     - PASS=docker
+  ports:
+    - "15432:5432"
 
 dev:
   build: docker-dev
@@ -38,7 +41,7 @@ dev:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
   volumes:
-    - .:/home/web
+    - django_project:/home/web
   ports:
     - "1822:22"
     - "1823:1723"
@@ -49,7 +52,7 @@ devmigrate:
   build: docker-dev
   hostname: devmigrate
   entrypoint: /usr/bin/python
-  command: "manage.py migrate"
+  command: "/home/web/manage.py migrate"
   environment:
     - DATABASE_NAME=gis
     - DATABASE_USERNAME=docker
@@ -57,7 +60,7 @@ devmigrate:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
   volumes:
-    - .:/home/web
+    - django_project:/home/web
   links:
     - devdb:db
 
@@ -65,7 +68,7 @@ devcollectstatic:
   build: docker-dev
   hostname: devcollectstatic
   entrypoint: /usr/bin/python
-  command: "manage.py collectstatic --noinput"
+  command: "/home/web/manage.py collectstatic --noinput"
   environment:
     - DATABASE_NAME=gis
     - DATABASE_USERNAME=docker
@@ -73,7 +76,7 @@ devcollectstatic:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
   volumes:
-    - .:/home/web
+    - django_project:/home/web
   links:
     - devdb:db
 
@@ -89,6 +92,6 @@ devshell:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
   volumes:
-    - .:/home/web
+    - django_project:/home/web
   links:
     - devdb:db

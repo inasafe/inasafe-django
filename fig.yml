@@ -4,7 +4,7 @@
 # Usage:
 # fig -f fig-.yml <command>
 #
-# Typical useage:
+# Typical usage:
 #
 # fig build
 # fig up -d uwsgi
@@ -32,7 +32,7 @@ uwsgi:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
   volumes:
-    - .:/home/web
+    - django_project:/home/web
   ports:
     - "1818:49360"
   links:
@@ -42,7 +42,7 @@ migrate:
   build: docker-prod
   hostname: migrate
   entrypoint: /usr/bin/python
-  command: "manage.py migrate"
+  command: "/home/web/manage.py migrate"
   environment:
     - DATABASE_NAME=gis
     - DATABASE_USERNAME=docker
@@ -50,7 +50,7 @@ migrate:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
   volumes:
-    - .:/home/web
+    - django_project:/home/web
   links:
     - db:db
 
@@ -58,7 +58,7 @@ collectstatic:
   build: docker-prod
   hostname: collectstatic
   entrypoint: /usr/bin/python
-  command: "manage.py collectstatic --noinput"
+  command: "/home/web/manage.py collectstatic --noinput"
   environment:
     - DATABASE_NAME=gis
     - DATABASE_USERNAME=docker
@@ -66,7 +66,7 @@ collectstatic:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
   volumes:
-    - .:/home/web
+    - django_project:/home/web
   links:
     - db:db
 
@@ -82,6 +82,6 @@ shell:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
   volumes:
-    - .:/home/web
+    - django_project:/home/web
   links:
     - db:db

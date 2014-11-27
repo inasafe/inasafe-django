@@ -52,7 +52,7 @@ Now use these credentials:
 
 * SSH Credentials (tick)
 * Host: localhost
-* Port: (use the ssh port specified in the fig-dev.yml file)
+* Port: (use the ssh port specified in the fig-dev.yml file - the default is 1822)
 * User name: docker
 * Auth type: password (and tick 'save password')
 * Password: docker
