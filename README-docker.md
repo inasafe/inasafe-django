@@ -60,7 +60,7 @@ Running arbitrary management commands is easy (assuming you have docker >= 1.3)
 e.g.:
 
 ```
-docker exec inasafedjango_web_1 /usr/local/bin/python /home/web/django_project/manage.py --help
+docker exec foo_web_1 /usr/local/bin/python /home/web/django_project/manage.py --help
 ```
 
 **Note:** rm should not destroy any data since it only removes containers
@@ -109,7 +109,7 @@ Running arbitrary management commands is easy (assuming you have docker >= 1.3)
 e.g.:
 
 ```
-docker exec inasafedjango_stagingweb_1 /usr/local/bin/python /home/web/django_project/manage.py --help
+docker exec foo_stagingweb_1 /usr/local/bin/python /home/web/django_project/manage.py --help
 ```
 
 ## Setup nginx reverse proxy
