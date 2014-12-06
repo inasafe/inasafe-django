@@ -7,7 +7,7 @@
 # Typical useage:
 #
 # fig build
-# fig up -d uwsgi
+# fig up -d web
 # fig run migrate
 # fig run collectstatic
 
@@ -19,12 +19,12 @@
 db:
   image: kartoza/postgis
   volumes:
-    - ./postgres_data:/var/lib/postgresql
+    - ./pg/postgres_data:/var/lib/postgresql
   environment:
     - USERNAME=docker
     - PASS=docker
 
-uwsgi:
+web:
   build: docker-prod
   hostname: uwsgi
   environment:
@@ -40,51 +40,3 @@ uwsgi:
   links:
     - db:db
 
-migrate:
-  build: docker-prod
-  hostname: migrate
-  entrypoint: /usr/bin/python
-  command: "manage.py migrate"
-  environment:
-    - DATABASE_NAME=gis
-    - DATABASE_USERNAME=docker
-    - DATABASE_PASSWORD=docker
-    - DATABASE_HOST=db
-    - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
-  volumes:
-    - ./django_project:/home/web/django_project
-  links:
-    - db:db
-
-collectstatic:
-  build: docker-prod
-  hostname: collectstatic
-  entrypoint: /usr/bin/python
-  command: "manage.py collectstatic --noinput"
-  environment:
-    - DATABASE_NAME=gis
-    - DATABASE_USERNAME=docker
-    - DATABASE_PASSWORD=docker
-    - DATABASE_HOST=db
-    - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
-  volumes:
-    - ./django_project:/home/web/django_project
-  links:
-    - db:db
-
-shell:
-  # Note you have to press enter after starting the shell to get to your prompt
-  build: docker-prod
-  hostname: shell
-  entrypoint: /bin/bash
-  command: -i
-  environment:
-    - DATABASE_NAME=gis
-    - DATABASE_USERNAME=docker
-    - DATABASE_PASSWORD=docker
-    - DATABASE_HOST=db
-    - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
-  volumes:
-    - ./django_project:/home/web/django_project
-  links:
-    - db:db

@@ -12,13 +12,7 @@
 #
 # fig -f fig-dev.yml build
 # fig -f fig-dev.yml up -d dev
-# fig -f fig-dev.yml run devmigrate
-# fig -f fig-dev.yml run devcollectstatic
 
-
-# To get an interactive shell in the django context:
-#
-# fig -f fig-dev.yml run devshell
 
 #
 # Local development server
@@ -26,7 +20,7 @@
 devdb:
   image: kartoza/postgis
   volumes:
-      - ./postgres_data:/var/lib/postgresql
+      - ./pg/postgres_dev_data:/var/lib/postgresql
   environment:
     - USERNAME=docker
     - PASS=docker
@@ -47,51 +41,3 @@ dev:
   links:
     - devdb:db
 
-devmigrate:
-  build: docker-dev
-  hostname: devmigrate
-  entrypoint: /usr/bin/python
-  command: "manage.py migrate"
-  environment:
-    - DATABASE_NAME=gis
-    - DATABASE_USERNAME=docker
-    - DATABASE_PASSWORD=docker
-    - DATABASE_HOST=db
-    - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
-  volumes:
-    - ./django_project:/home/web/django_project
-  links:
-    - devdb:db
-
-devcollectstatic:
-  build: docker-dev
-  hostname: devcollectstatic
-  entrypoint: /usr/bin/python
-  command: "manage.py collectstatic --noinput"
-  environment:
-    - DATABASE_NAME=gis
-    - DATABASE_USERNAME=docker
-    - DATABASE_PASSWORD=docker
-    - DATABASE_HOST=db
-    - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
-  volumes:
-    - ./django_project:/home/web/django_project
-  links:
-    - devdb:db
-
-devshell:
-  # Note you have to press enter after starting the shell to get to your prompt
-  build: docker-dev
-  hostname: devshell
-  entrypoint: /bin/bash
-  command: -i
-  environment:
-    - DATABASE_NAME=gis
-    - DATABASE_USERNAME=docker
-    - DATABASE_PASSWORD=docker
-    - DATABASE_HOST=db
-    - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
-  volumes:
-    - ./django_project:/home/web/django_project
-  links:
-    - devdb:db
