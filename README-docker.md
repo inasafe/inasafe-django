@@ -11,7 +11,9 @@ site has been deployed under docker. Three deployment modes are supported:
   DJANGO_SETTINGS_MODULE is used when running in production mode.
 * **staging**: Configure your staging environment in core.settings.staging_docker -
   this DJANGO_SETTINGS_MODULE is used when running in production mode.
-* development
+* **development**: Configure your development environment in core.settings.dev_docker -
+  this DJANGO_SETTINGS_MODULE is used when running in production mode. Please see
+  README-dev.md for more information on setting up a developer environment.
 
 **Note:** We really recommend that you use docker 1.3 or great so that you
   can take advantage of the exec command as well as other newer features.
