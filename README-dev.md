@@ -1,5 +1,8 @@
 # Developer Documentation
 
+**Note:** This documentation is intentionally generic so that it can
+be copy-pasted between projects - do not put project specific details here.
+
 ## Application architecture under docker
 
 The following diagram provides and overview of the core architecture
@@ -42,10 +45,10 @@ Now use these credentials:
 * SSH Credentials (tick)
 * Host: localhost
 * Port: (use the ssh port specified in the fig-dev.yml file)
-* User name: docker
+* User name: root
 * Auth type: password (and tick 'save password')
 * Password: docker
-* Python interpreter path: ``/usr/bin/python``
+* Python interpreter path: ``/usr/local/bin/python``
 
 When prompted about host authenticity, click Yes
 
@@ -79,8 +82,8 @@ Now set these options:
   filesystem and the filesystem in the remote (docker) host. Click the ellipsis
   and add a run that points to your git checkout on your local host and the
   /home/web directory in the docker host. e.g.
-  * **Local path:** <path to your git repo>
-  * **Remote path:** /home/web
+  * **Local path:** <path to your git repo>/django_project
+  * **Remote path:** /home/web/django_project
 * click OK to save your run configuration
 
 Now you can run the server using the green triangle next to the Django server

@@ -8,8 +8,9 @@ MAINTAINER Tim Sutton<tim@linfiniti.com>
 ADD 71-apt-cacher-ng /etc/apt/apt.conf.d/71-apt-cacher-ng
 
 RUN apt-get -y update
-RUN apt-get -y install openssh-server
+RUN apt-get -y install openssh-server rpl
 RUN mkdir /var/run/sshd
+RUN rpl "PermitRootLogin without-password" "PermitRootLogin yes" /etc/ssh/sshd_config
 
 #-------------Application Specific Stuff ----------------------------------------------------
 # Open port 22 so linked containers can see it and 8000 for django test server

@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-default: prod
+default: run
 
 run: build web
 
@@ -51,6 +51,61 @@ collectstatic:
 	@echo "--------------------------"
 	@fig run web python manage.py collectstatic --noinput
 
+
+#
+# Staging
+#
+staging: stagingbuild stagingweb
+
+stagingdeploy: stagingrun
+	@echo
+	@echo "--------------------------"
+	@echo "Bringing up fresh staging instance "
+	@echo "--------------------------"
+	#TODO - replace with something more precise
+	@echo "Waiting 20 secs to ensure db is running"
+	@sleep 20
+	@fig -f fig-staging.yml run stagingweb python manage.py migrate
+	@fig -f fig-staging.yml run stagingweb python manage.py collectstatic --noinput
+
+stagingrm:
+	@echo
+	@echo "--------------------------"
+	@echo "Killing staging instance!!! "
+	@echo "--------------------------"
+	@fig -f fig-staging.yml kill
+	@fig -f fig-staging.yml rm
+
+stagingweb:
+	@echo
+	@echo "--------------------------"
+	@echo "Running in staging mode"
+	@echo "--------------------------"
+	@fig -f fig-staging.yml up -d stagingweb
+
+stagingbuild:
+	@echo
+	@echo "--------------------------"
+	@echo "Building in staging mode"
+	@echo "--------------------------"
+	@fig -f fig-staging.yml build
+
+stagingmigrate:
+	@echo
+	@echo "--------------------------"
+	@echo "Running migrate static in staging mode"
+	@echo "--------------------------"
+	@fig -f fig-staging.yml run stagingweb python manage.py migrate
+
+stagingcollectstatic:
+	@echo
+	@echo "--------------------------"
+	@echo "Collecting static in staging mode"
+	@echo "--------------------------"
+	@fig -f fig-staging.yml run stagingweb python manage.py collectstatic --noinput
+
+
+
 # You need the production mode stuff in place
 # before being able to use the dev stuff
 # so we call build first
@@ -93,15 +148,14 @@ devmigrate:
 	@echo "--------------------------"
 	@echo "Migrating in developer mode"
 	@echo "--------------------------"
-	@fig -f fig-dev.yml run dev /usr/bin/python manage.py migrate
+	@fig -f fig-dev.yml run dev /usr/local/bin/ manage.py migrate
 
 devcollectstatic:
 	@echo
 	@echo "-----------------------------------"
 	@echo "Collecting static in developer mode"
 	@echo "-----------------------------------"
-	@fig -f fig-dev.yml run dev python manage.py collectstatic --noinput
-
+	@fig -f fig-dev.yml run dev /usr/local/bin/python manage.py collectstatic --noinput
 
 devbuild: build
 	@echo
@@ -110,3 +164,11 @@ devbuild: build
 	@echo "--------------------------"
 	@fig build
 	@fig -f fig-dev.yml build
+
+devshell:
+	@echo
+	@echo "--------------------------"
+	@echo "Starting shell in developer mode"
+	@echo "--------------------------"
+	@echo "Press enter to start your shell"
+	@fig -f fig-dev.yml run dev /bin/bash
