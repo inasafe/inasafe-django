@@ -28,8 +28,8 @@ images for you in **production mode**.
 ```
 fig build
 fig up -d web
-fig run web python manage.py migrate
-fig run web python manage.py collectstatic --noinput
+fig run web /usr/local/bin/python manage.py migrate
+fig run web /usr/local/bin/python manage.py collectstatic --noinput
 ```
 
 Alternatively you can use make commands if your OS has Gnu Make installed:
@@ -78,12 +78,12 @@ To create a staging site (or run any of the provided management scripts in
 staging mode), its the same procedure except you need to use the
 ``fig-staging.yml`` environment variable e.g.::
 
-``
+```
 fig -f fig-staging.yml build
 fig -f fig-staging.yml up -d stagingweb
-fig -f fig-staging.yml run stagingcollectstatic
-fig -f fig-staging.yml run stagingmigrate
-``
+fig -f fig-staging.yml run stagingweb /usr/local/bin/python manage.py migrate
+fig -f fig-staging.yml run stagingweb /usr/local/bin/python collectstatic --noinput
+```
 
 #### Using make
 
@@ -94,7 +94,7 @@ provided for staging:
 * **staging** - setup and run the staging web service
 * **stagingcollectstatic**  - collect static in staging instance
 * **stagingmigrate** - run django migrations in staging instance
-* **stagingweb** - run django uwsgi instance (will bring up db too if needed)
+* **stagingweb** - run staging django uwsgi instance (will bring up db too if needed)
 * **stagingbuild** - build staging containers
 * **stagingdeploy** - run db, web, wait 20 seconds, collect static and do migrations
 * **stagingrm** - completely remove staging from your system (use with caution)
