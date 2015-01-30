@@ -1,0 +1,34 @@
+{% load staticfiles %}
+{% spaceless %}
+  <div align='center'>
+    {% if user.image != "" %}
+      <img class='img-responsive' width='200px' src='{{ MEDIA_URL }}{{ user.image }}'>
+    {% endif %}
+
+    <p class='centered'><b>{{ user.name }}</b></p>
+
+    {% if user.website != "" %}
+      <p align='center'><a href='{{ user.website }}' target='_blank'>Website</a><p align='center'>
+    {% endif %}
+
+    {% if user.osm_username != "" %}
+      <p align='center'><a href='http://www.openstreetmap.org/user/{{ user.osm_username }}' target='_blank'>OSM Profile</a><p align='center'>
+    {% endif %}
+
+    {% for inasafe_role in user.inasafe_roles.all %}
+      {% if inasafe_role.name == "Trainer" and user.is_certified_inasafe_trainer %}
+          <img class='img-rounded' style='margin: 0px 4px 0px 4px' height='20px' width='20px' src='{% static inasafe_cert_trainer_badge %}' data-toggle='tooltip' title='InaSAFE Certified Trainer'>
+      {% else %}
+        <img class='img-rounded' style='margin: 0px 4px 0px 4px' height='20px' width='20px' src='{% static inasafe_role.badge %}' data-toggle='tooltip' title='InaSAFE {{ inasafe_role.name }}'>
+      {% endif %}
+    {% endfor %}
+
+    {% for osm_role in user.osm_roles.all %}
+       {% if osm_role.name == "Trainer" and user.is_certified_osm_trainer %}
+          <img class='img-rounded' style='margin: 0px 4px 0px 4px' height='20px' width='20px' src='{% static osm_role.badge %}' data-toggle='tooltip' title='OSM Certified Trainer'>
+      {% else %}
+        <img class='img-rounded' style='margin: 0px 4px 0px 4px' height='20px' width='20px' src='{% static osm_role.badge %}' data-toggle='tooltip' title='OSM {{ osm_role.name }}'>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endspaceless %}
