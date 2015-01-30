@@ -6,4 +6,4 @@ django-model-utils
 django-pipeline<1.4
 nodeenv
 raven
-django-user-map
+pillow
