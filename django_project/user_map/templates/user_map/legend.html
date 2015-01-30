@@ -1,0 +1,8 @@
+{% load staticfiles %}
+<script id="legend" type="text/template">
+  <h4>Legend</h4>
+  {% for project in projects %}
+      <img height='25' width='20' src='{% static project.icon %}'> {{project.name }}<br>
+  {% endfor %}
+</script>
+
