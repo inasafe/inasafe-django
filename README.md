@@ -1,6 +1,6 @@
 # Welcome to the InaSAFE Web code base!
 
-[InaSAFE](http://insafe.org) is a contingency planning and preparedness tool 
+[InaSAFE](http://insafe.org) is a contingency planning and preparedness tool
 for disasters. This django project provides various resources related to the
 InaSAFE project in particular:
 
@@ -9,7 +9,7 @@ InaSAFE project in particular:
 
 **Please note that this project is in the early phase of its development.**
 
-You can visit a running instance of this project at 
+You can visit a running instance of this project at
 [users.inasafe.org](http://inasafe.org).
 
 # Status
@@ -27,8 +27,8 @@ Development status: [![Stories in Ready](https://badge.waffle.io/AIFDR/inasafe-d
 Data: [Open Database License](http://opendatacommons.org/licenses/odbl/)
 Code: [Free BSD License](http://www.freebsd.org/copyright/freebsd-license.html)
 
-Out intention is to foster wide spread usage of the data and the code that we 
-provide. Please use this code and data in the interests of humanity and not for 
+Out intention is to foster wide spread usage of the data and the code that we
+provide. Please use this code and data in the interests of humanity and not for
 nefarious purposes.
 
 # Setup instructions
@@ -61,14 +61,14 @@ git clone git://github.com/aifdr/inasafe-django.git
 You need to have http://docker.io and http://www.fig.sh/ installed first.
 
 Note you need at least docker 1.2 - use
-the [installation notes](http://docs.docker.com/installation/ubuntulinux/) 
+the [installation notes](http://docs.docker.com/installation/ubuntulinux/)
 on the official docker page to get it set up.
 
-Fig will build and deploy the docker images for you. Note if you are using 
-``apt-cacher-ng`` (we recommend it as it will dramatically speed up build 
-times), be sure to edit ``docker-prod/71-apt-cacher-ng`` and comment out 
-existing lines, adding your own server. Alternatively if you wish to fetch 
-packages are downloaded directly from the internet, ensure that all lines are 
+Fig will build and deploy the docker images for you. Note if you are using
+``apt-cacher-ng`` (we recommend it as it will dramatically speed up build
+times), be sure to edit ``docker-prod/71-apt-cacher-ng`` and comment out
+existing lines, adding your own server. Alternatively if you wish to fetch
+packages are downloaded directly from the internet, ensure that all lines are
 commented out in your hosts:
 
 * ``docker-prod/71-apt-cacher-ng``
@@ -77,16 +77,29 @@ commented out in your hosts:
 
 ```
 fig build
-fig up -d uwsgi
-fig run migrate
-fig run collectstatic
+fig up -d web
+fig run web python manage.py migrate
+fig run web python manage.py collectstatic --noinput
+```
+
+Or if you are on a system that supports Make you can use the convenience script:
+
+```
+make deploy
 ```
 
 ### Setup nginx reverse proxy
 
-You should create a new nginx virtual host - please see 
-``inasafe_django_nginx.conf`` in the root directory of the source for an 
+You should create a new nginx virtual host - please see
+``inasafe_django_nginx.conf`` in the root directory of the source for an
 example.
+
+Take care also that nginx on your host has recursive read, execute permissions
+down to the static folder in <project base>/django_project/static. For example:
+
+```
+chmod a+X /home/timlinux/dev/python/inasafe-django/django_project/static
+```
 
 
 ## For local development
@@ -110,8 +123,8 @@ cp dev_timlinux.py dev_${USER}.py
 ```
 
 Now edit dev_<your username> setting your database connection details as
-needed. We assume you have created a postgres (with postgis extentions) 
-database somewhere that you can use for your development work. See 
+needed. We assume you have created a postgres (with postgis extentions)
+database somewhere that you can use for your development work. See
 [http://postgis.net/install/](http://postgis.net/install/) for details on doing
 that.
 
