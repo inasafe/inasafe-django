@@ -1,0 +1,2 @@
+-r docker-prod/REQUIREMENTS.txt
+-r docker-dev/REQUIREMENTS-dev.txt
