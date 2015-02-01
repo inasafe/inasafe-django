@@ -435,6 +435,7 @@ def download(request):
         headers.append(verbose_name_field)
     headers.append('InaSAFE Role(s)')
     headers.append('OSM Role(s)')
+    headers.append('OSM Username')
     writer.writerow(headers)
 
     for idx, user in enumerate(users):
@@ -444,6 +445,7 @@ def download(request):
             row.append(field_value)
         row.append(user.get_inasafe_roles())
         row.append(user.get_osm_roles())
+        row.append(user.osm_username)
         writer.writerow(row)
 
     return response
