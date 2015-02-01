@@ -62,7 +62,7 @@ class RegistrationForm(forms.ModelForm):
             attrs={'placeholder': 'johndoe'})
     )
     location = forms.PointField(
-        label='Click your location on the map',
+        label='Draw a marker as your location on the map',
         widget=LeafletWidget())
     email_updates = forms.BooleanField(
         required=False,
