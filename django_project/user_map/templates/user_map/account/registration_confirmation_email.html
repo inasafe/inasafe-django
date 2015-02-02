@@ -1,7 +1,7 @@
-Dear {{ user.name }},
+Dear {{ user_name }},
 
-Thank you for adding yourself to the {{ project_name }} User Map at
-{{ site_name }}. To activate your account, please click this link:
+Thank you for adding yourself to the {{ project_name }} User Map. To activate
+your account, please click this link:
 {{ protocol}}://{{ domain }}{% url 'user_map:confirm_registration' uid=uid key=key %}
 
 Please note that the following information in your user record will be freely downloadable
@@ -19,4 +19,5 @@ to the centre of your nearest town / state or province or country).
 
 Thank you for taking the time to register yourself on our site!
 
-Regards
+Regards,
+The InaSAFE Team

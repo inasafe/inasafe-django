@@ -139,9 +139,8 @@ def register(request):
                 'project_name': PROJECT_NAME,
                 'protocol': 'http',
                 'domain': domain,
-                'site_name': site_name,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'user': user,
+                'user_name': user.name,
                 'key': user.key
             }
             email = loader.render_to_string(
