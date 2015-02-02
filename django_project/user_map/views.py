@@ -425,7 +425,8 @@ def download(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename="users.csv"'
 
-    users = User.objects.all()
+    users = User.objects.filter(
+        is_confirmed=True, is_active=True)
     writer = csv.writer(response)
 
     fields = ['name', 'website', 'location']
