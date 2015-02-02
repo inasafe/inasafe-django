@@ -1,17 +1,20 @@
 # Developer Documentation
 
+**Note:** This documentation is intentionally generic so that it can
+be copy-pasted between projects - do not put project specific details here.
+
 ## Application architecture under docker
 
 The following diagram provides and overview of the core architecture
 components (Database, uwsgi server, web server):
- 
+
 ![dockerdjangoarchitecture - new page 1](https://cloud.githubusercontent.com/assets/178003/5024388/750b85c8-6b12-11e4-97b0-c73b2d07e539.png)
- 
+
 
 The blue box is there to provide a means to develop on the same environment
-as you deploy and would not be relevant for server side deployments. 
+as you deploy and would not be relevant for server side deployments.
 Everything is managed using docker containers, with pycharm
-making ssh connections into the developer container and using the 
+making ssh connections into the developer container and using the
 python interpreter found therein.
 
 **Note:** You don't need to use this architecture, you can deploy as a standard
@@ -19,24 +22,13 @@ django app using virtualenv and locally installed postgis, nginx etc.
 
 ## Setup pycharm to work with a remove docker development environment
 
-### Build your dev docker image
+### Build and run your dev docker image
 
 This image extends the production one, adding ssh to it. You must
 have built the production one first!
 
 ```
-fig build uwsgi
-```
-
-### Run the dev container
-
-We provide a script to start the container:
-
-```
-fig -f fig-dev.yml build
-fig -f fig-dev.yml up -d dev
-fig -f fig-dev.yml run devmigrate
-fig -f fig-dev.yml run devcollectstatic
+make dev
 ```
 
 ### Create a remote interpreter in pycharm
@@ -53,10 +45,10 @@ Now use these credentials:
 * SSH Credentials (tick)
 * Host: localhost
 * Port: (use the ssh port specified in the fig-dev.yml file)
-* User name: docker
+* User name: root
 * Auth type: password (and tick 'save password')
 * Password: docker
-* Python interpreter path: ``/usr/bin/python``
+* Python interpreter path: ``/usr/local/bin/python``
 
 When prompted about host authenticity, click Yes
 
@@ -90,8 +82,8 @@ Now set these options:
   filesystem and the filesystem in the remote (docker) host. Click the ellipsis
   and add a run that points to your git checkout on your local host and the
   /home/web directory in the docker host. e.g.
-  * **Local path:** <path to your git repo>
-  * **Remote path:** /home/web
+  * **Local path:** <path to your git repo>/django_project
+  * **Remote path:** /home/web/django_project
 * click OK to save your run configuration
 
 Now you can run the server using the green triangle next to the Django server
@@ -105,7 +97,7 @@ able to step through views etc as you work.
 when starting the server.
 
 **A:** ``django_project/core/settings/secret.py is either corrupt or you don't
-have permissions to read it as the user you are running ``runserver`` as. A 
+have permissions to read it as the user you are running ``runserver`` as. A
 common cause of this is if you are running the server in both production
 mode and developer mode on the same host. Simply remove the file or change
 ownership permissions so that you can read/write it.

@@ -1,3 +1,4 @@
+# noinspection PyUnresolvedReferences
 from .prod import *  # noqa
 import os
 print os.environ
@@ -6,7 +7,9 @@ ALLOWED_HOSTS = ['*']
 
 ADMINS = (
     ('Tim Sutton', 'tim@kartoza.com'),
-    ('Akbar Gumbira', 'akbargumbira@gmail.com'))
+    ('Ismail Sunni', 'ismail@kartoza.com'),
+    ('Christian Christellis', 'christian@kartoza.com'),
+    ('Akbar Gumbira', 'akbargumbira@gmail.com'),)
 
 DATABASES = {
     'default': {
@@ -19,3 +22,20 @@ DATABASES = {
         'TEST_NAME': 'unittests',
     }
 }
+
+MEDIA_ROOT = '/home/web/media'
+STATIC_ROOT = '/home/web/static'
+
+# See fig.yml file for postfix container definition
+#
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# Host for sending e-mail.
+EMAIL_HOST = 'smtp'
+# Port for sending e-mail.
+EMAIL_PORT = 25
+# SMTP authentication information for EMAIL_HOST.
+# See fig.yml for where these are defined
+EMAIL_HOST_USER = 'noreply@kartoza.com'
+EMAIL_HOST_PASSWORD = 'docker'
+EMAIL_USE_TLS = False
+EMAIL_SUBJECT_PREFIX = '[InaSAFE]'
