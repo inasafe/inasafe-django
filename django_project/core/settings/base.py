@@ -83,4 +83,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'django.contrib.admin',
+    'django.contrib.sites'
 )
+
+SITE_ID = 1
