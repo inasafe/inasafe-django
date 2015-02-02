@@ -1,38 +1,124 @@
 # Managing your docker deployed site
 
-This document explains how to do various sysadmin related tasks when your 
-site has been deployed under docker.
+**Note:** This documentation is intentionally generic so that it can
+be copy-pasted between projects - do not put project specific details here.
+
+This document explains how to do various sysadmin related tasks when your
+site has been deployed under docker. Three deployment modes are supported:
+
+* **production**: no debug etc is enabled, has its own discrete database. Configure
+  your production environment in core.settings.prod_docker - this
+  DJANGO_SETTINGS_MODULE is used when running in production mode.
+* **staging**: Configure your staging environment in core.settings.staging_docker -
+  this DJANGO_SETTINGS_MODULE is used when running in production mode.
+* **development**: Configure your development environment in core.settings.dev_docker -
+  this DJANGO_SETTINGS_MODULE is used when running in production mode. Please see
+  README-dev.md for more information on setting up a developer environment.
+
+**Note:** We really recommend that you use docker 1.3 or great so that you
+  can take advantage of the exec command as well as other newer features.
 
 ## Build your docker images and run them
+
+### Production
 
 You can simply run the provided script and it will build and deploy the docker
 images for you in **production mode**.
 
-``
+```
 fig build
-fig up -d uwsgi
-fig run collectstatic
-fig run migrate
-``
+fig up -d web
+fig run web /usr/local/bin/python manage.py migrate
+fig run web /usr/local/bin/python manage.py collectstatic --noinput
+```
 
-To create a staging site (or run any of the provided management scripts in 
-staging mode), its the same procedure except you need to use the 
+Alternatively you can use make commands if your OS has Gnu Make installed:
+
+```
+make deploy
+```
+
+#### Using make
+
+Using the make commands is probably simpler - the following make commands are
+provided for production:
+
+
+* **run** - builds then runs db and uwsgi services
+* **web** - run django uwsgi instance (will bring up db too if needed)
+* **collectstatic** - collect static in production instance
+* **migrate** - run django migrations in production instance
+* **build** - build production containers
+* **deploy** - run db, web, wait 20 seconds, collect static and do migrations
+* **rm** - completely remove staging from your system (use with caution)
+
+e.g. ``make web``
+
+#### Arbitrary commands
+
+Running arbitrary management commands is easy (assuming you have docker >= 1.3)
+e.g.:
+
+```
+docker exec foo_web_1 /usr/local/bin/python /home/web/django_project/manage.py --help
+```
+
+**Note:** rm should not destroy any data since it only removes containers
+and not host volumes for db and django. All commands should be non-destructive
+to existing data - though **smart people make backups before changing things**.
+
+
+### Staging
+
+**Please use a separate git checkout for your staging database!**
+
+#### Using fig
+
+To create a staging site (or run any of the provided management scripts in
+staging mode), its the same procedure except you need to use the
 ``fig-staging.yml`` environment variable e.g.::
 
-``
+```
 fig -f fig-staging.yml build
-fig -f fig-staging.yml up -d staginguwsgi
-fig -f fig-staging.yml run stagingcollectstatic
-fig -f fig-staging.yml run stagingmigrate
-``
+fig -f fig-staging.yml up -d stagingweb
+fig -f fig-staging.yml run stagingweb /usr/local/bin/python manage.py migrate
+fig -f fig-staging.yml run stagingweb /usr/local/bin/python collectstatic --noinput
+```
+
+#### Using make
+
+Using the make commands is probably simpler - the following make commands are
+provided for staging:
+
+
+* **staging** - setup and run the staging web service
+* **stagingcollectstatic**  - collect static in staging instance
+* **stagingmigrate** - run django migrations in staging instance
+* **stagingweb** - run staging django uwsgi instance (will bring up db too if needed)
+* **stagingbuild** - build staging containers
+* **stagingdeploy** - run db, web, wait 20 seconds, collect static and do migrations
+* **stagingrm** - completely remove staging from your system (use with caution)
+
+
+**Note:** stagingrm should not destroy any data since it only removes containers
+and not host volumes for db and django.
+
+#### Arbitrary commands
+
+Running arbitrary management commands is easy (assuming you have docker >= 1.3)
+e.g.:
+
+```
+docker exec foo_stagingweb_1 /usr/local/bin/python /home/web/django_project/manage.py --help
+```
 
 ## Setup nginx reverse proxy
 
-You should create a new nginx virtual host - please see 
-``*-nginx.conf`` in the root directory of the source for an example. There is 
+You should create a new nginx virtual host - please see
+``*-nginx.conf`` in the root directory of the source for an example. There is
 one provided for production and one for staging.
 
-Simply add the example file to your ``/etc/nginx/sites-enabled/`` directory 
+Simply add the example file to your ``/etc/nginx/sites-enabled/`` directory
 and then modify the contents to match your local filesystem paths. Then use
 
 ```
@@ -45,151 +131,6 @@ e.g.
 ```
 sudo /etc/init.d/nginx restart
 ```
-
-## Management scripts
-
-The following scripts are supplied:
-
-### Create docker env
-
-**Usage example:** ``fig build``
-
-**Arguments:** [-f fig-dev.yml|fig-staging.yml]
- 
-**Description:** Running this script will create the docker images needed to
-deploy your application. The -f argument is optional (if omitted, commands will
-be run in production mode).
-
-### Run in production mode
-
-**Usage example:** ``fig up -d uwsgi``
-
-**Arguments:** 
-
-* ``-d`` - specifies that containers should be run in the background as daemons.
-
-**Description:** Running this script will deploy your application in 
-**production** mode. Note that we recommend running production mode in a 
-separate checkout from your staging mode.
-
-After creating the images (or fetching them if they are being used from 
-the docker hub repository), container instances will be deployed and you should
-then do any initialisation that needs to be carried out (
-e.g. migrations, collect static) see below for details.
-
-Once the command is run, you should see a number of docker containers running
-and linking to each other when you run the ``docker ps`` command. You 
-should also be able to visit the site in your web browser after ensuring that
-your nginx proxy configuration is correct (see above).
-
-### Run in staging mode
-
-**Usage example:** ``fig -f fig-staging.yml up -d staginguwsgi``
-
-**Arguments:** 
-* ``-f`` - specifies that the fig staging config should be used.
-* ``-d`` - specifies that containers should be run in the background as daemons.
-
-**Description:** Running this script will deploy your application in staging 
-mode. Note that we recommend running staging mode in a separate checkout.
-
-After creating the images (or fetching them if they are being used from 
-the docker hub repository), container instances will be deployed and you should
-then do any initialisation that needs to be carried out (
-e.g. migrations, collect static) see below for details.
-
-Once the command is run, you should see a number of docker containers running
-and linking to each other when you run the ``docker ps`` command. You 
-should also be able to visit the site in your web browser after ensuring that
-your nginx proxy configuration is correct (see above).
-
-
-### Collect static
-
-**Usage:** ``fig [-f fig-staging.yml|fig-dev.yml]<collectstatic|stagingcollectstatic|devcollectstatic>``
-
-**Example Usage:** 
-
-* ``fig collectstatic``
-* ``fig -f fig-staging.yml stagingcollectstatic``
-
-**Arguments:** 
-* ``-f`` - specifies that the fig staging config should be used.
-* ``-d`` - specifies that containers should be run in the background as daemons.
- 
- 
-**Description:** Running this script will create a short lived docker container
-based on your production django image. It will mount your code tree under 
-``/home/web`` via a docker shared volume and create a link to your database
-container, using docker's ``--link`` directive. It will then run 
-
-```django manage.py collectstatic --noinput --settings=core.settings.prod_docker```
-
-or 
-
-```django manage.py collectstatic --noinput --settings=core.settings.staging_docker```
-
-or
-
-```django manage.py collectstatic --noinput --settings=core.settings.dev_docker```
-
-Depending on whether you supply the staging, dev or production fig yml file.
-
-### Run migrations
-
-
-**Usage:** ``fig [-f fig-staging.yml|fig-dev.yml]<migrate|stagingmigrate|devmigrate>``
-
-**Example Usage:** 
-
-* ``fig migrate``
-* ``fig -f fig-staging.yml stagingcollectstatic``
-
-**Arguments:** 
-* ``-f`` - specifies that the fig staging config should be used.
-* ``-d`` - specifies that containers should be run in the background as daemons.
- 
- 
-**Description:** Running this script will create a short lived docker container
-based on your production django image. It will mount your code tree under 
-``/home/web`` via a docker shared volume and create a link to your database
-container, using docker's ``--link`` directive. It will then run 
-
-```django manage.py migrate --noinput --settings=core.settings.prod_docker```
-
-or 
-
-```django manage.py migrate --noinput --settings=core.settings.staging_docker```
-
-or
-
-```django manage.py migrate --noinput --settings=core.settings.dev_docker```
-
-Depending on whether you supply the staging, dev or production fig yml file.
-
-
-### Bash prompt
-
-**Usage:** ``fig [-f fig-staging.yml|fig-dev.yml.yml]<shell|stagingshell|devshell>``
-
-**Example Usage:** 
-
-* ``fig shell``
-* ``fig -f fig-staging.yml stagingshell``
-
-**Arguments:** 
-* ``-f`` - specifies that the fig staging config should be used.
-* ``-d`` - specifies that containers should be run in the background as daemons.
- 
- 
-**Description:** Running this script will create a short lived docker container
-based on your production django image. It will mount your code tree under 
-``/home/web`` via a docker shared volume and create a link to your database
-container, using docker's ``--link`` directive. It will then drop you into a
-bash prompt (note that you may need to press ``enter`` after running the 
-command in order to activate the shell). The bash environment that you land up
-in will depend on whether you supply the staging, dev or production fig 
-``yml`` file.
 
 
 ### Managing containers
