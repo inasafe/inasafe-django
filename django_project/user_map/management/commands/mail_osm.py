@@ -1,5 +1,5 @@
 # coding=utf-8
-import sqlite3
+import csv
 
 from django.core.management.base import BaseCommand
 from django.core.mail import send_mass_mail
@@ -7,32 +7,28 @@ from django.template import loader
 
 
 class Command(BaseCommand):
-    help = 'Email all the users from the old User Map'
+    help = 'Email all the OSM trainers from csv file'
 
-    def read_sqlite_db(self, db_path):
-        """Get the old users' email from an sqlite db.
+    def read_csv(self, csv_path):
+        """Get the osm user email from the csv file.
 
-        :param db_path: The path to sqlite db.
-        :type db_path: str
+        :param csv_path: The path to csv file.
+        :type csv_path: str
         """
-        connection = sqlite3.connect(db_path)
-
         users = []
-        with connection:
-            cur = connection.cursor()
-            cur.execute("SELECT * FROM user")
-            rows = cur.fetchall()
+        with open(csv_path) as csv_file:
+            reader = csv.DictReader(csv_file)
+            for row in reader:
+                users.append(row['email'])
 
-            for row in rows:
-                users.append(row[3])  # the email
         return users
 
     def handle(self, *args, **options):
-        """How to use:
+        """How to use thiss:
 
-        python manage.py mail_old_users <the absolute path to the sqlite db>
+        python manage.py mail_osm <the absolute path to csv file>
         """
-        users = self.read_sqlite_db(args[0])
+        users = self.read_csv(args[0])
         email = loader.render_to_string(
             'user_map/mail/old_users_email.html')
         subject = 'The New Face of InaSAFE User Map'
@@ -43,6 +39,7 @@ class Command(BaseCommand):
             message = (subject, email, sender, [user])
             messages.append(message)
         messages = tuple(messages)
+        # print messages
         send_mass_mail(messages)
 
         self.stdout.write('The email is sent successfully!')
