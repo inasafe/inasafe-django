@@ -30,7 +30,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """How to use:
 
-        python manage.py <the absolute path to sqlite db>
+        python manage.py mail_old_users <the absolute path to the sqlite db>
         """
         users = self.read_sqlite_db(args[0])
         email = loader.render_to_string(

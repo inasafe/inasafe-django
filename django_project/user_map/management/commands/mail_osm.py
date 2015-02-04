@@ -26,7 +26,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """How to use thiss:
 
-        python manage.py <the absolute path to sqlite db>
+        python manage.py mail_osm <the absolute path to csv file>
         """
         users = self.read_csv(args[0])
         email = loader.render_to_string(
