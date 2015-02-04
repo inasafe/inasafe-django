@@ -24,7 +24,11 @@ class Command(BaseCommand):
             rows = cur.fetchall()
 
             for row in rows:
-                users.append(row[3])  # the email
+                user = {
+                    'name': row[2],
+                    'email': row[3]
+                }
+                users.append(user)
         return users
 
     def handle(self, *args, **options):
@@ -40,7 +44,12 @@ class Command(BaseCommand):
 
         messages = []
         for user in users:
-            message = (subject, email, sender, [user])
+            context = {
+                'name': user['name']
+            }
+            email = loader.render_to_string(
+                'user_map/mail/old_users_email.html', context)
+            message = (subject, email, sender, [user['email']])
             messages.append(message)
         messages = tuple(messages)
         send_mass_mail(messages)
