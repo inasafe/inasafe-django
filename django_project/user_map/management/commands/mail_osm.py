@@ -7,7 +7,7 @@ from django.template import loader
 
 
 class Command(BaseCommand):
-    help = 'Email all the users from the old User Map'
+    help = 'Email all the OSM trainers from csv file'
 
     def read_csv(self, csv_path):
         """Get the osm user email from the csv file.
