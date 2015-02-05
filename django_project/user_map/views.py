@@ -91,18 +91,22 @@ def get_users(request):
     """
 
     if request.method == 'GET':
+
         # Get data:
-        project = str(request.GET['project'])
+        project = str(request.GET.get('project', ''))
 
         if project.lower() == 'inasafe':
             users = User.objects.filter(
                 is_confirmed=True,
                 is_active=True,
                 osm_roles=None)
-        else:
+        elif project.lower() == 'openstreetmap':
             inasafe_users = User.objects.filter(osm_roles=None).values('id')
             users = User.objects.filter(
-                is_confirmed=True).exclude(id__in=inasafe_users)
+                is_confirmed=True,
+                is_active=True).exclude(id__in=inasafe_users)
+        else:
+            users = []
 
         context = {
             'users': users,
