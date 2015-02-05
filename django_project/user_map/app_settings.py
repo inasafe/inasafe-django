@@ -31,7 +31,7 @@ default_projects = [
     dict(
         name='OpenStreetMap',
         icon='user_map/img/osm-icon.png',
-        shadow_icon='user_map/img/shadow-icon.png')]
+        shadow_icon='user_map/img/osm-shadow.png')]
 PROJECTS = getattr(
     settings, 'USER_MAP_PROJECTS', default_projects)
 
