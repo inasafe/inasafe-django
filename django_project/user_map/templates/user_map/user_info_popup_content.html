@@ -25,7 +25,7 @@
 
     {% for osm_role in user.osm_roles.all %}
        {% if osm_role.name == "Trainer" and user.is_certified_osm_trainer %}
-          <img class='img-rounded' style='margin: 0px 4px 0px 4px' height='20px' width='20px' src='{% static osm_role.badge %}' data-toggle='tooltip' title='OSM Certified Trainer'>
+          <img class='img-rounded' style='margin: 0px 4px 0px 4px' height='20px' width='20px' src='{% static osm_cert_trainer_badge %}' data-toggle='tooltip' title='OSM Certified Trainer'>
       {% else %}
         <img class='img-rounded' style='margin: 0px 4px 0px 4px' height='20px' width='20px' src='{% static osm_role.badge %}' data-toggle='tooltip' title='OSM {{ osm_role.name }}'>
       {% endif %}
