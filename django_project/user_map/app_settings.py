@@ -72,7 +72,7 @@ OSM_CERTIFIED_TRAINER_BADGE = getattr(
 
 # MAIL SENDER
 default_mail_sender = 'noreply@inasafe.org'
-DEFAULT_FROM_MAIL = getattr(settings, 'DEFAULT_FROM_MAIL', default_mail_sender)
+DEFAULT_FROM_MAIL = getattr(settings, 'DEFAULT_FROM_EMAIL', default_mail_sender)
 
 # LEAFLET CONFIG
 default_leaflet_tiles = (

@@ -5,6 +5,8 @@ from django.core.management.base import BaseCommand
 from django.core.mail import send_mass_mail
 from django.template import loader
 
+from user_map.app_settings import DEFAULT_FROM_MAIL
+
 
 class Command(BaseCommand):
     help = 'Email all the users from the old User Map'
@@ -40,7 +42,7 @@ class Command(BaseCommand):
         email = loader.render_to_string(
             'user_map/mail/old_users_email.html')
         subject = 'The New Face of InaSAFE User Map'
-        sender = 'InaSAFE - No Reply'
+        sender = 'InaSAFE - No Reply <%s>' % DEFAULT_FROM_MAIL
 
         messages = []
         for user in users:
