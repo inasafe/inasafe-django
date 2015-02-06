@@ -107,7 +107,7 @@ class User(AbstractBaseUser):
         help_text='Whether this user is a certified InaSAFE trainer or not.',
         default=False)
     is_certified_osm_trainer = models.BooleanField(
-        verbose_name='Admin Status',
+        verbose_name='Certified OSM Trainer',
         help_text='Whether this user is a certified OSM trainer or not.',
         default=False)
     is_active = models.BooleanField(
