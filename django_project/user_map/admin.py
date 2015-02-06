@@ -18,6 +18,7 @@ class UserAdmin(LeafletGeoAdmin):
         ('Basic Information', {
             'fields': [
                 'name', 'email', 'website', 'inasafe_roles', 'osm_roles',
+                'is_certified_inasafe_trainer', 'is_certified_osm_trainer',
                 'email_updates']}),
         ('Location', {'fields': ['location']}),
         ('Advanced Information', {
