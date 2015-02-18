@@ -15,8 +15,8 @@ urlpatterns = patterns(
     # url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
 
     # include application urls
-    url(r'', include('frontend.urls')),
-    url(r'^user-map/', include('user_map.urls')),
+    # url(r'', include('frontend.urls', namespace='front_end')),
+    url(r'', include('user_map.urls', namespace='user_map')),
 
 )
 

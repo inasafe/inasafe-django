@@ -9,52 +9,24 @@ class TestViews(TestCase):
         self.client = Client()
 
     def test_home_view(self):
-        resp = self.client.get(reverse('home'))
-
-        self.assertEqual(resp.status_code, 200)
-
-        self.assertEqual(resp.context['debug'], False)
-
+        response = self.client.get(reverse('front_end:home'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['debug'], False)
         self.assertListEqual(
-            [tmpl.name for tmpl in resp.templates], [
+            [template.name for template in response.templates], [
                 'main.html', u'base.html', u'pipeline/css.html',
-                u'pipeline/js.html', u'pipeline/js.html'
-            ]
+                u'pipeline/css.html', u'pipeline/js.html', u'pipeline/js.html']
         )
 
     def test_home_view_no_googleanalytics(self):
         # specifically set DEBUG to True
         settings.DEBUG = True
-
-        resp = self.client.get(reverse('home'))
-
-        self.assertEqual(resp.status_code, 200)
-
-        self.assertEqual(resp.context['debug'], True)
-        self.assertTrue(resp.content.find('GoogleAnalyticsObject') == -1)
+        response = self.client.get(reverse('front_end:home'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['debug'], True)
+        self.assertTrue(response.content.find('GoogleAnalyticsObject') == -1)
         self.assertListEqual(
-            [tmpl.name for tmpl in resp.templates], [
+            [template.name for template in response.templates], [
                 'main.html', u'base.html', u'pipeline/css.html',
-                u'pipeline/js.html', u'pipeline/js.html'
-            ]
-        )
-
-    def test_about_view(self):
-        resp = self.client.get(reverse('about'))
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertListEqual(
-            [tmpl.name for tmpl in resp.templates], [
-                'about.html'
-            ]
-        )
-
-    def test_help_view(self):
-        resp = self.client.get(reverse('help'))
-
-        self.assertEqual(resp.status_code, 200)
-        self.assertListEqual(
-            [tmpl.name for tmpl in resp.templates], [
-                'help.html'
-            ]
+                u'pipeline/css.html', u'pipeline/js.html', u'pipeline/js.html']
         )

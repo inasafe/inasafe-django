@@ -4,7 +4,7 @@ from .test import *  # noqa
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'gis',
+        'NAME': 'test_db',
         'USER': 'postgres',
         'PASSWORD': '',
         'HOST': 'localhost',
