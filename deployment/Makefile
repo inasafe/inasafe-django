@@ -12,6 +12,7 @@ deploy: run migrate collectstatic
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Bringing up fresh instance "
+	@echo "You can access it on http://localhost:61100"
 	@echo "------------------------------------------------------------------"
 
 build:
@@ -60,14 +61,6 @@ rm: kill
 	@echo "Removing production instance!!! "
 	@echo "------------------------------------------------------------------"
 	@fig -p inasafe rm
-
-sentry:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Running sentry production mode"
-	@echo "------------------------------------------------------------------"
-	@fig  -p inasafe up -d sentry
-	@dipall
 
 logs:
 	@echo
@@ -120,10 +113,13 @@ qgis:
 #    S T A G I N G     C O M M A N D S
 # ----------------------------------------------------------------------------
 
+staging-run: staging-build staging-web
+
 staging-deploy: staging-run staging-migrate staging-collectstatic
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Bringing up fresh staging instance "
+	@echo "You can access it on http://localhost:61101"
 	@echo "------------------------------------------------------------------"
 
 staging-build:
@@ -156,7 +152,7 @@ staging-collectstatic:
 	#@fig -p inasafe-staging run uwsgi python manage.py collectstatic --noinput
 	#We need to run collect static in the same context as the running
 	# uwsgi container it seems so I use docker exec here
-	@docker exec -t -i inasafe_uwsgi_1 python manage.py collectstatic --noinput
+	@docker exec -t -i inasafestaging_uwsgi_1 python manage.py collectstatic --noinput
 
 staging-kill:
 	@echo
@@ -173,14 +169,6 @@ staging-rm: kill
 	@echo "------------------------------------------------------------------"
 	@fig -p inasafe-staging rm
 
-staging-sentry:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Running sentry staging mode"
-	@echo "------------------------------------------------------------------"
-	@fig  -p inasafe-staging up -d sentry
-	@dipall
-
 staging-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
@@ -195,7 +183,7 @@ staging-nginxlogs:
 	@echo "------------------------------------------------------------------"
 	@fig -p inasafe-staging logs web
 
-shell:
+staging-shell:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Shelling in in staging mode"
@@ -207,7 +195,7 @@ staging-dbshell:
 	@echo "------------------------------------------------------------------"
 	@echo "Shelling in in staging database"
 	@echo "------------------------------------------------------------------"
-	@docker exec -t -i inasafe_db_1 psql -U docker -h localhost gis
+	@docker exec -t -i inasafestaging_db_1 psql -U docker -h localhost gis
 
 staging-qgis:
 	@echo
@@ -217,8 +205,8 @@ staging-qgis:
 	@echo "------------------------------------------------------------------"
 	@xhost +; docker run --rm --name="qgis-desktop-2-4" \
 	-i -t \
-	--link inasafe_db_1:db \
-	--link inasafe_qgisserver_1:qgisserver \
+	--link inasafestaging_db_1:db \
+	--link inasafestaging_qgisserver_1:qgisserver \
 	--volumes-from inasafe_qgisserver_1 \
 	-v ${HOME}:/home/$(USER) \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \

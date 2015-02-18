@@ -23,10 +23,8 @@ images for you in **production mode**.
 cd deployment
 # allow pg volume to be written to
 sudo chmod -R a+rwX pg/postgres_data/
-make build
-make migrate
-make collectstatic
-make run
+make deploy
+sudo chmod -R a+rwX static
 ```
 
 Now point your browser at the ip of the web container on port 8080 or to the
@@ -44,10 +42,10 @@ exit
 ## Staging
 
 The procedure is exactly the same as production, but you should preceed 
-each command with 'staging' e.g. ``make staging-run``.
+each command with 'staging' e.g. ``make staging-deploy``.
 
-**Note:** VERY IMPORTANT - for staging deployment you should use a separate
-git checkout  from the production checkout as the code from the git checkout
+**Note:** VERY IMPORTANT - for staging deployment you should use a **separate
+git checkout**  from the production checkout as the code from the git checkout
 is shared into the source tree.
 
 ## Using make
