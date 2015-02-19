@@ -1,23 +1,7 @@
 #
 # Production server with UWSGI configured to run on port 8080
-#
-# Usage:
-# fig -f fig-.yml <command>
-#
-# Typical useage:
-#
-# fig build
-# fig up -d web
-#
-# See accompanying Make commands for easy collectstatic etc.
-# Our main nginx service
-nginx:
-  image: nginx
-  hostname: nginx
-  volumes:
-    - ./nginx-conf:/etc/nginx/conf.d
-  ports:
-    - "80:80"
+# Please use the accompanying make targets to run rather than
+# calling fig commands directly on this file.
 
 smtp:
   image: catatnight/postfix
@@ -65,9 +49,22 @@ web:
     - ./static:/home/web/static:ro
     - ./media:/home/web/media:ro
     - ./logs:/var/log/nginx
-    - ./reports:/home/web/reports
   links:
     - uwsgi:uwsgi
   ports:
     - "61100:8080"
 
+# Exactly the same as web but for staging we use a different port.
+stagingweb:
+  image: nginx
+  hostname: nginx
+  volumes:
+    - ./sites-enabled:/etc/nginx/conf.d:ro
+    # I dont use volumes_from as I want to use the ro modifier
+    - ./static:/home/web/static:ro
+    - ./media:/home/web/media:ro
+    - ./logs:/var/log/nginx
+  links:
+    - uwsgi:uwsgi
+  ports:
+    - "61101:8080"

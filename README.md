@@ -33,74 +33,10 @@ nefarious purposes.
 
 # Setup instructions
 
-## Simple deployment under docker
+## Production, Staging
 
-### Overview
-
-You need two docker containers:
-
-* A postgis container
-* A uwsgi container
-
-We assume you are running nginx on the host and we will set up a reverse
-proxy to pass django requests into the uwsgi container. Static files will
-be served directly using nginx on the host.
-
-
-### Check out the source
-
-
-First checkout out the source tree:
-
-```
-git clone git://github.com/aifdr/inasafe-django.git
-```
-
-### Build your docker images and run them
-
-You need to have http://docker.io and http://www.fig.sh/ installed first.
-
-Note you need at least docker 1.2 - use
-the [installation notes](http://docs.docker.com/installation/ubuntulinux/)
-on the official docker page to get it set up.
-
-Fig will build and deploy the docker images for you. Note if you are using
-``apt-cacher-ng`` (we recommend it as it will dramatically speed up build
-times), be sure to edit ``docker-prod/71-apt-cacher-ng`` and comment out
-existing lines, adding your own server. Alternatively if you wish to fetch
-packages are downloaded directly from the internet, ensure that all lines are
-commented out in your hosts:
-
-* ``docker-prod/71-apt-cacher-ng``
-* ``docker-dev/71-apt-cacher-ng``
-
-
-```
-fig build
-fig up -d web
-fig run web python manage.py migrate
-fig run web python manage.py collectstatic --noinput
-```
-
-Or if you are on a system that supports Make you can use the convenience script:
-
-```
-make deploy
-```
-
-### Setup nginx reverse proxy
-
-You should create a new nginx virtual host - please see
-``inasafe_django_nginx.conf`` in the root directory of the source for an
-example.
-
-Take care also that nginx on your host has recursive read, execute permissions
-down to the static folder in <project base>/django_project/static. For example:
-
-```
-chmod a+X /home/timlinux/dev/python/inasafe-django/django_project/static
-```
-
+We provide for simple deployment under docker. Please see the 
+deployment/README-docker.md file for details.
 
 ## For local development
 
@@ -110,12 +46,9 @@ chmod a+X /home/timlinux/dev/python/inasafe-django/django_project/static
 virtualenv venv
 source venv/bin/activate
 pip install -r REQUIREMENTS-dev.txt
-nodeenv -p --node=0.10.31
-npm -g install yuglify
 ```
 
 ### Create your dev profile
-
 
 ```
 cd django_project/core/settings
@@ -140,10 +73,3 @@ python manage.py migrate --settings=core.settings.dev_${USER}
 python manage.py collectstatic --noinput --settings=core.settings.dev_${USER}
 python manage.py runserver --settings=core.settings.dev_${USER}
 ```
-
-**Note:** You can also develop in docker using the instructions provided in
-[README-dev.md](https://github.com/aifdr/inasafe-django/blob/develop/README-dev.md).
-
-
-
-
