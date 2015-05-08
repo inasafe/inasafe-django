@@ -45,6 +45,7 @@ class TestInasafeRole(TestCase):
         message = 'The role is not deleted.'
         self.assertIsNone(role.id, message)
 
+
 class TestOsmRole(TestCase):
     """Class to test OSM Role model."""
     def setUp(self):

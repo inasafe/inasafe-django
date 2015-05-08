@@ -40,9 +40,10 @@ class UserMapViewTests(TestCase):
 
     def test_get_users(self):
         """Test for get_users view."""
+        # This user belongs to openstreetmap project as it has osm roles
         response = self.client.get(
             reverse('user_map:get_users'),
-            {'project': 'Test InaSAFE'})
+            {'project': 'openstreetmap'})
         self.assertEqual(response['Content-Type'], 'application/json')
         self.assertContains(response, 'FeatureCollection')
         self.assertContains(response, self.user.name)
@@ -51,7 +52,7 @@ class UserMapViewTests(TestCase):
         """Test get_users view."""
         response = self.client.post(
             reverse('user_map:get_users'),
-            {'project': 'Test InaSAFE'})
+            {'project': 'inasafe'})
         self.assertEqual(response.status_code, 404)
 
     def test_show_register_page(self):

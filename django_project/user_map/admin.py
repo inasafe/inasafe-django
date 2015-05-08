@@ -4,7 +4,9 @@
 from django.contrib.gis import admin
 from leaflet.admin import LeafletGeoAdmin
 
-from user_map.models import User, InasafeRole, OsmRole
+from user_map.models.user import User
+from user_map.models.inasafe_role import InasafeRole
+from user_map.models.osm_role import OsmRole
 
 
 class UserAdmin(LeafletGeoAdmin):
