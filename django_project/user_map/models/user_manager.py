@@ -6,7 +6,6 @@ from django.contrib.gis.geos import Point
 from django.utils.crypto import get_random_string
 
 
-
 class CustomUserManager(BaseUserManager, GeoManager):
     """Custom user manager for user map."""
     class Meta:

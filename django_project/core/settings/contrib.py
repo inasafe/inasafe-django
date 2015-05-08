@@ -10,13 +10,6 @@ INSTALLED_APPS += (
     'bootstrapform'
 )
 
-# enable cached storage - requires uglify.js (node.js)
-STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
-MIDDLEWARE_CLASSES += (
-   'django.middleware.gzip.GZipMiddleware',
-   'pipeline.middleware.MinifyHTMLMiddleware',
-)
-
 # User map sets up auth where users are identified by their email,
 # not by their user name.
 AUTH_USER_MODEL = 'user_map.User'

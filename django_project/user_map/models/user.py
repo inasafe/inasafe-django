@@ -199,7 +199,6 @@ class User(AbstractBaseUser):
         """
         return self.is_admin
 
-
     def save(self, *args, **kwargs):
         """Override save method."""
         if not self.pk:
