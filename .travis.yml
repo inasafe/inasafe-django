@@ -30,7 +30,7 @@ before_script:
 
 script:
   - flake8
-  - coverage run manage.py test
+  - coverage run manage.py test --settings=core.settings.test_travis
 
 after_success:
   - coveralls
