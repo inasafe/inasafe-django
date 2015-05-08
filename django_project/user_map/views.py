@@ -26,12 +26,12 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.sites.models import get_current_site
 
-from user_map.forms import (
+from user_map.forms.user import (
     RegistrationForm,
     LoginForm,
     BasicInformationForm,
     CustomPasswordResetForm)
-from user_map.models import User
+from user_map.models.user import User
 from user_map.app_settings import (
     PROJECT_NAME,
     PROJECTS,
@@ -137,7 +137,6 @@ def register(request):
             form.save_m2m()
 
             current_site = get_current_site(request)
-            site_name = current_site.name
             domain = current_site.domain
             context = {
                 'project_name': PROJECT_NAME,
@@ -289,7 +288,7 @@ def update_user(request):
                 request.POST, request.FILES, instance=request.user)
             change_password_form = PasswordChangeForm(user=request.user)
             if basic_info_form.is_valid():
-                user = basic_info_form.save()
+                basic_info_form.save()
                 basic_info_form.save_m2m()
                 messages.success(
                     request, 'You have successfully changed your information!')
@@ -303,7 +302,7 @@ def update_user(request):
                 data=request.POST, user=request.user)
             basic_info_form = BasicInformationForm(instance=request.user)
             if change_password_form.is_valid():
-                user = change_password_form.save()
+                change_password_form.save()
 
                 messages.success(
                     request, 'You have successfully changed your password! '
