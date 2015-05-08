@@ -18,8 +18,6 @@ addons:
 install:
   - pip install coveralls
   - pip install -r REQUIREMENTS-dev.txt
-  - nodeenv -p --node=0.10.31
-  - npm -g install yuglify
 
 
 before_script:
