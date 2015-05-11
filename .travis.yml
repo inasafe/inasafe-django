@@ -31,3 +31,7 @@ script:
 
 after_success:
   - coveralls
+
+email:
+ - tim@kartoza.com
+ - akbargumbira@gmail.com
