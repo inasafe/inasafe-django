@@ -20,14 +20,14 @@ build:
 	@echo "------------------------------------------------------------------"
 	@echo "Building in production mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe build
+	@docker-compose -p inasafe build
 
 web:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Running in production mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe up -d web
+	@docker-compose -p inasafe up -d web
 	@dipall
 
 migrate:
@@ -35,14 +35,14 @@ migrate:
 	@echo "------------------------------------------------------------------"
 	@echo "Running migrate static in production mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe run uwsgi python manage.py migrate
+	@docker-compose -p inasafe run uwsgi python manage.py migrate
 
 collectstatic:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Collecting static in production mode"
 	@echo "------------------------------------------------------------------"
-	#@fig -p inasafe run uwsgi python manage.py collectstatic --noinput
+	#@docker-compose -p inasafe run uwsgi python manage.py collectstatic --noinput
 	#We need to run collect static in the same context as the running
 	# uwsgi container it seems so I use docker exec here
 	@docker exec -t -i inasafe_uwsgi_1 python manage.py collectstatic --noinput
@@ -53,35 +53,35 @@ kill:
 	@echo "Killing in production mode"
 	@echo "------------------------------------------------------------------"
 
-	@fig -p inasafe kill
+	@docker-compose -p inasafe kill
 
 rm: kill
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Removing production instance!!! "
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe rm
+	@docker-compose -p inasafe rm
 
 logs:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Showing uwsgi logs in production mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe logs uwsgi
+	@docker-compose -p inasafe logs uwsgi
 
 nginxlogs:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Showing nginx logs in production mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe logs web
+	@docker-compose -p inasafe logs web
 
 shell:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Shelling in in production mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe run uwsgi /bin/bash
+	@docker-compose -p inasafe run uwsgi /bin/bash
 
 dbshell:
 	@echo
@@ -127,14 +127,14 @@ staging-build:
 	@echo "------------------------------------------------------------------"
 	@echo "Building in staging mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe-staging build
+	@docker-compose -p inasafe-staging build
 
 staging-web:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Running in staging mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe-staging up -d stagingweb
+	@docker-compose -p inasafe-staging up -d stagingweb
 	@dipall
 
 staging-migrate:
@@ -142,14 +142,14 @@ staging-migrate:
 	@echo "------------------------------------------------------------------"
 	@echo "Running migrate static in staging mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe-staging run uwsgi python manage.py migrate
+	@docker-compose -p inasafe-staging run uwsgi python manage.py migrate
 
 staging-collectstatic:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Collecting static in staging mode"
 	@echo "------------------------------------------------------------------"
-	#@fig -p inasafe-staging run uwsgi python manage.py collectstatic --noinput
+	#@docker-compose -p inasafe-staging run uwsgi python manage.py collectstatic --noinput
 	#We need to run collect static in the same context as the running
 	# uwsgi container it seems so I use docker exec here
 	@docker exec -t -i inasafestaging_uwsgi_1 python manage.py collectstatic --noinput
@@ -160,35 +160,35 @@ staging-kill:
 	@echo "Killing in staging mode"
 	@echo "------------------------------------------------------------------"
 
-	@fig -p inasafe-staging kill
+	@docker-compose -p inasafe-staging kill
 
 staging-rm: kill
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Removing staging instance!!! "
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe-staging rm
+	@docker-compose -p inasafe-staging rm
 
 staging-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Showing uwsgi logs in staging mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe-staging logs uwsgi
+	@docker-compose -p inasafe-staging logs uwsgi
 
 staging-nginxlogs:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Showing nginx logs in staging mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe-staging logs web
+	@docker-compose -p inasafe-staging logs web
 
 staging-shell:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Shelling in in staging mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe-staging run uwsgi /bin/bash
+	@docker-compose -p inasafe-staging run uwsgi /bin/bash
 
 staging-dbshell:
 	@echo
