@@ -3,6 +3,9 @@ from .dev import *  # noqa
 import os
 print os.environ
 
+
+DEBUG = True
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',

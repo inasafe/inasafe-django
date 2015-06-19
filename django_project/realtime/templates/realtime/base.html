@@ -1,0 +1,42 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <link rel="shortcut icon" href="{% static FAVICON_PATH %}">
+  <title>{% block title %} {{ PROJECT_NAME }} Realtime {% endblock %}</title>
+
+  {% block head_resources %}
+    <!--Base Stylesheet -->
+    <link rel="stylesheet" href="{% static 'realtime/css/bootstrap.css' %}" type="text/css"/>
+    <link rel="stylesheet" href="{% static 'realtime/css/user-map.css' %}" type="text/css"/>
+
+    <!-- Base Javascript -->
+    <script language="javascript" type="text/javascript" src="{% static 'realtime/js/jquery.js' %}"></script>
+    <script language="javascript" type="text/javascript" src="{% static 'realtime/js/bootstrap.min.js' %}"></script>
+    <script language="javascript" type="text/javascript" src="{% static 'realtime/js/validate.js' %}"></script>
+  {% endblock head_resources %}
+</head>
+
+<body>
+  <div class="realtime_navbar ">
+    {% block navbar %}
+    {% endblock navbar %}
+   </div>
+
+<div class="realtime_filter ">
+    {% block main_content %}
+    {% endblock main_content %}
+
+    {% block filter_content %}
+    {% endblock filter_content %}
+  </div>
+
+  {% block footer %}
+  {% endblock footer %}
+
+  {% block js_container %}
+  {% endblock js_container %}
+  </body>
+</html>

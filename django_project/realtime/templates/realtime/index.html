@@ -1,0 +1,48 @@
+{% extends "realtime/base.html" %}
+{% load staticfiles %}
+{% load leaflet_tags %}
+
+{% block head_resources %}
+  {{ block.super }}
+  {% leaflet_js %}
+  {% leaflet_css %}
+  <link rel="stylesheet" href="{% static 'realtime/css/MarkerCluster.css' %}"/>
+  <link rel="stylesheet" href="{% static 'realtime/css/MarkerCluster.user-map.css' %}"/>
+  <!--[if lte IE 8]>
+    <link rel="stylesheet" href="{% static 'realtime/css/MarkerCluster.user-map.ie.css' %}" />
+  <![endif]-->
+  <script language="javascript" type="text/javascript" src="{% static 'realtime/js/leaflet.markercluster-src.js' %}"></script>
+  <script language="javascript" type="text/javascript" src="{% static 'realtime/js/user-map.js' %}"></script>
+{% endblock head_resources %}
+
+{% block main_content %}
+  <!-- Leaflet Map div -->
+  {% leaflet_map "map" %}
+
+  <!-- All the templates from view-->
+
+{% endblock main_content %}
+
+{% block filter_content %}
+    {{ form | safe}}
+    <input type="submit" value="Update">
+{% endblock filter_content %}
+
+{% block js_container %}
+  <script type="text/javascript">
+      var map, base_map, data_privacy_content, data_privacy_control,
+              user_menu_control;
+    var is_authenticated = '{{ user.is_authenticated }}' == 'True';
+
+    //Initialize Basemap Layer
+    base_map = createBasemap(
+        '{{ leaflet_tiles.url }}',
+        '{{ leaflet_tiles.attribution | safe }}');
+
+    //Create Map with prepared base_map
+    map = L.map('map', {
+      layers: [base_map]
+    });
+    map.fitWorld().zoomIn();
+  </script>
+{% endblock js_container %}
