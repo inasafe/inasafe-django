@@ -1,0 +1,7 @@
+# coding=utf-8
+__author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
+__date__ = '19/06/15'
+
+
+def add_reports(requests):
+    pass
