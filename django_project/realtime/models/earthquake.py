@@ -37,6 +37,18 @@ class Earthquake(models.Model):
         verbose_name='Location Description',
         help_text='The description of the location e.g "Bali".',
         max_length=255)
+
+    objects = models.GeoManager()
+
+
+class EarthquakeReport(models.Model):
+    """Earthquake Report Model."""
+
+    class Meta:
+        """Meta class."""
+        app_label = 'realtime'
+
+    earthquake = models.ForeignKey(Earthquake)
     report_pdf = models.FileField(
         verbose_name='PDF Report',
         help_text='The impact report stored as PDF',
@@ -52,5 +64,3 @@ class Earthquake(models.Model):
         help_text='The thumbnail of the report stored as PNG File',
         upload_to='reports/thumbnail',
         null=True)
-
-    objects = models.GeoManager()
