@@ -11,6 +11,7 @@ class EarthquakeAdmin(LeafletGeoAdmin):
     """Admin Class for User Model."""
     list_display = ('shake_id', 'time', 'location_description', 'magnitude',
                     'depth')
+    list_filter = ('location_description', )
     search_fields = ['shake_id', 'location_description']
 
 admin.site.register(Earthquake, EarthquakeAdmin)
