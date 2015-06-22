@@ -13,6 +13,7 @@
   <![endif]-->
   <script language="javascript" type="text/javascript" src="{% static 'realtime/js/leaflet.markercluster-src.js' %}"></script>
   <script language="javascript" type="text/javascript" src="{% static 'realtime/js/user-map.js' %}"></script>
+  <script language="javascript" type="text/javascript" src="{% static 'realtime/js/realtime.js' %}"></script>
 {% endblock head_resources %}
 
 {% block main_content %}
@@ -44,5 +45,40 @@
       layers: [base_map]
     });
     map.fitWorld().zoomIn();
+//marker london
+    var marker = L.marker([51.5, -0.09]).addTo(map);
+
+    // Create Data Privacy Control
+    data_privacy_control = createDataPrivacyControl();
+    map.addControl(new data_privacy_control);
+
+    // Create User Menu Control and add some tooltips
+    var user_menu = (is_authenticated? ['edit', 'delete', 'download'] : ['add', 'download', 'forgot']);
+    user_menu_control = createUserMenuControl(user_menu);
+    map.addControl(new user_menu_control);
+    $(".user-menu-control").tooltip({placement: 'right', container: 'body'});
+
+    // Create Legend Control:
+    legend_control = createLegendControl();
+    map.addControl(new legend_control);
+
+    //get json with all events
+    var get_events_url = '{% url "realtime:get_earthquakes" %}';
+
+    // Create Legend Control:
+    legend_control = createLegendControl();
+    map.addControl(new legend_control);
+
+      oneCluster = new L.markerClusterGroup({
+       iconCreateFunction: (function(class_name) {
+           return function (cluster) {
+             return L.divIcon({
+               html: '<div><span>' + cluster.getChildCount() + '</span></div>',
+               className:class_name,
+               iconSize: L.point(40, 40)});
+           }
+       })(class_name)
+     });
+
   </script>
 {% endblock js_container %}

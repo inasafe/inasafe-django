@@ -1,0 +1,17 @@
+{
+  "events": {
+    "type": "EventCollection",
+    "features": [ {% for event in events %}
+      {
+        "type": "Feature",
+        "properties": {
+          "shake_id": "{{ event.shake_id }}"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [{{ event.location.x }}, {{ event.location.y }}]
+        }
+      }{% if not forloop.last %},{% endif %}{% endfor %}
+    ]
+  }
+}
