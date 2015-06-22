@@ -36,7 +36,7 @@ migrate:
 	@echo "------------------------------------------------------------------"
 	@echo "Running migrate static in production mode"
 	@echo "------------------------------------------------------------------"
-	@fig -p inasafe run uwsgi python manage.py migrate
+	@docker-compose -p $(PROJECT_ID) run uwsgi python manage.py migrate
 
 collectstatic:
 	@echo
