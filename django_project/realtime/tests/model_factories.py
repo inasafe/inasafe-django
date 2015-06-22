@@ -4,9 +4,7 @@ import datetime
 import random
 
 from django.contrib.gis.geos import Point
-
 from factory import DjangoModelFactory
-
 from ..models.earthquake import Earthquake
 
 

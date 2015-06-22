@@ -9,7 +9,16 @@ urlpatterns = [
         name='earthquake_list'),
     url(r'^api/v1/earthquake/(?P<shake_id>[-\w]+)/$',
         earthquake.earthquake_detail,
-        name='earthquake_detail')
+        name='earthquake_detail'),
+    url(r'^api/v1/earthquake-report/'
+        r'(?P<shake_id>[-\d]+)/$',
+        earthquake.earthquake_report_list,
+        name='earthquake_report_list'),
+    url(r'^api/v1/earthquake-report/'
+        r'(?P<shake_id>[-\d]+)/'
+        r'(?P<language>[-\w]+)/$',
+        earthquake.earthquake_report_detail,
+        name='earthquake_report_detail')
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
