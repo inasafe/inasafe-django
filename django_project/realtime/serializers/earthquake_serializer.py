@@ -16,8 +16,5 @@ class EarthquakeSerializer(serializers.GeoModelSerializer):
             'time',
             'depth',
             'location',
-            'location_description',
-            'report_pdf',
-            'report_image',
-            'report_thumbnail'
+            'location_description'
         )

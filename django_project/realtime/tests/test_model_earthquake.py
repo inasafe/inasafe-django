@@ -2,7 +2,7 @@
 """Module related to test for all the models in realtime apps."""
 from django.test import TestCase
 
-from .model_factories import EarthquakeFactory
+from realtime.tests.model_factories import EarthquakeFactory
 
 
 class TestEarthquake(TestCase):
