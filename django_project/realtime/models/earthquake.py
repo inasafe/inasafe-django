@@ -39,3 +39,28 @@ class Earthquake(models.Model):
         max_length=255)
 
     objects = models.GeoManager()
+
+
+class EarthquakeReport(models.Model):
+    """Earthquake Report Model."""
+
+    class Meta:
+        """Meta class."""
+        app_label = 'realtime'
+
+    earthquake = models.ForeignKey(Earthquake)
+    report_pdf = models.FileField(
+        verbose_name='PDF Report',
+        help_text='The impact report stored as PDF',
+        upload_to='reports/pdf',
+        null=True)
+    report_image = models.ImageField(
+        verbose_name='Image Report',
+        help_text='The impact report stored as PNG File',
+        upload_to='reports/png',
+        null=True)
+    report_thumbnail = models.ImageField(
+        verbose_name='Image Report Thumbnail',
+        help_text='The thumbnail of the report stored as PNG File',
+        upload_to='reports/thumbnail',
+        null=True)

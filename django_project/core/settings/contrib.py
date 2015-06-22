@@ -7,7 +7,8 @@ INSTALLED_APPS += (
     'pipeline',
     'user_map',
     'leaflet',
-    'bootstrapform'
+    'bootstrapform',
+    'rest_framework'
 )
 
 # User map sets up auth where users are identified by their email,
