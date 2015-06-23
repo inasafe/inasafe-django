@@ -62,7 +62,8 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
 class EarthquakeSerializer(GeoModelSerializer):
     context = None
     reports = EarthquakeReportSerializer(
-        many=True, required=False, context=context)
+        many=True, required=False, context=context, write_only=False,
+        read_only=True)
 
     class Meta:
         model = Earthquake
