@@ -1,6 +1,6 @@
 # coding=utf-8
-from realtime.models.earthquake import Earthquake, EarthquakeReport
 from django.core.urlresolvers import reverse
+from realtime.models.earthquake import Earthquake, EarthquakeReport
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoModelSerializer
 

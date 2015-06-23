@@ -1,16 +1,18 @@
 # coding=utf-8
-import os
-import pytz
 import datetime
 
+import os
+import pytz
 from django.contrib.gis.geos.point import Point
 from django.core.files.base import File
-from realtime.models.earthquake import Earthquake, EarthquakeReport
 from django.core.urlresolvers import reverse
-from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
-    EarthquakeReportSerializer
+from django.conf import settings
 from rest_framework import status
 from rest_framework.test import APITestCase
+from core.settings.utils import ABS_PATH
+from realtime.models.earthquake import Earthquake, EarthquakeReport
+from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
+    EarthquakeReportSerializer
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '20/06/15'
@@ -18,10 +20,17 @@ __date__ = '20/06/15'
 
 class TestEarthquake(APITestCase):
 
+    default_media_path = None
+
     def data_path(self, filename):
         return u'realtime/tests/data/'+filename
 
     def setUp(self):
+        if settings.TESTING:
+            # move to media root for testing purposes
+            self.default_media_path = settings.MEDIA_ROOT
+            settings.MEDIA_ROOT = ABS_PATH('media_test')
+
         Earthquake.objects.create(
             shake_id='20150619200628',
             magnitude=4.6,
@@ -58,6 +67,9 @@ class TestEarthquake(APITestCase):
         earthquakes = Earthquake.objects.all()
         for earthquake in earthquakes:
             earthquake.delete()
+
+        if settings.TESTING:
+            settings.MEDIA_ROOT = self.default_media_path
 
     def test_earthquake_serializer(self):
         shake_dict = {

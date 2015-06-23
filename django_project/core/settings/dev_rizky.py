@@ -12,8 +12,3 @@ DATABASES = {
         'PORT': 6543
     }
 }
-
-TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
-
-if TESTING:
-    MEDIA_ROOT = ABS_PATH('media_test')

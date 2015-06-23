@@ -4,6 +4,11 @@ from realtime.views import earthquake
 from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
+    # default url
+    url(r'',
+        earthquake.earthquake_list,
+        name='earthquake_list'),
+
     url(r'^api/v1/earthquake/$',
         earthquake.earthquake_list,
         name='earthquake_list'),

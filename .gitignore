@@ -89,3 +89,4 @@ deployment/pg/postgres_dev_data/9.3
 # static files
 deployment/static
 media/
+media_settings/
