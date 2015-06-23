@@ -45,7 +45,8 @@
       layers: [base_map]
     });
     map.fitWorld().zoomIn();
-//marker london
+
+    //test marker london
     var marker = L.marker([51.5, -0.09]).addTo(map);
 
     // Create Data Privacy Control
@@ -62,23 +63,57 @@
     legend_control = createLegendControl();
     map.addControl(new legend_control);
 
-    //get json with all events
-    var get_events_url = '{% url "realtime:get_earthquakes" %}';
+    //url to get json of events
+    var get_events_url = '{% url "realtime:earthquake_feature_list" %}';
 
     // Create Legend Control:
-    legend_control = createLegendControl();
-    map.addControl(new legend_control);
+//    legend_control = createLegendControl();
+//    map.addControl(new legend_control);
+//
+//      oneCluster = new L.markerClusterGroup({
+//       iconCreateFunction: (function(class_name) {
+//           return function (cluster) {
+//             return L.divIcon({
+//               html: '<div><span>' + cluster.getChildCount() + '</span></div>',
+//               className:class_name,
+//               iconSize: L.point(40, 40)});
+//           }
+//       })(class_name)
+//     });
+    project_icon_path = "{% static 'realtime/img/inasafe-icon.png' %}";
+    project_shadow_icon_path = "{% static  'realtime/img/shadow-icon.png' %}";
+    earthquakeIcon = createIconMarker(
+            project_icon_path, project_shadow_icon_path);
 
-      oneCluster = new L.markerClusterGroup({
-       iconCreateFunction: (function(class_name) {
-           return function (cluster) {
-             return L.divIcon({
-               html: '<div><span>' + cluster.getChildCount() + '</span></div>',
-               className:class_name,
-               iconSize: L.point(40, 40)});
-           }
-       })(class_name)
-     });
+    function getEarthquakeEventsJson(event_json)
+      {
+          console.log('mainGetEarthquakeEventsJs');
+          console.log(event_json);
+          for (var i = 0; i < event_json.features.length; ++i) {
+              console.log('getEarthquakeEventsJs');
+              console.log(event_json.features[i]);
+              L.geoJson(event_json.features[i], {
+                  onEachFeature: onEachFeature,
+                  pointToLayer: function (feature, latlng) {
+                      return L.marker(latlng, {icon: earthquakeIcon});
+                  }
+              }).addTo(map);
+          }
+      }
+
+    function onEachFeature(feature, layer)
+      {
+        // Set the popup content if it does have the content
+        if (feature.properties && feature.properties.popupContent) {
+          layer.bindPopup(feature.properties.popupContent);
+        }
+      }
+      //create markers from JSON url
+      $.ajax({
+          dataType: "json",
+          url: get_events_url,
+          success: getEarthquakeEventsJson
+        });
 
   </script>
 {% endblock js_container %}

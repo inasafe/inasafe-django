@@ -18,3 +18,19 @@ class EarthquakeSerializer(serializers.GeoModelSerializer):
             'location',
             'location_description'
         )
+
+
+class EarthquakeGeoJsonSerializer(serializers.GeoFeatureModelSerializer):
+
+    class Meta:
+        model = Earthquake
+        geo_field = "location"
+        id = 'shake_id'
+        fields = (
+            'shake_id',
+            'magnitude',
+            'time',
+            'depth',
+            'location',
+            'location_description'
+        )

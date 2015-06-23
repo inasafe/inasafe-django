@@ -7,7 +7,10 @@ from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
 from rest_framework import status
 from realtime.models.earthquake import Earthquake
-from realtime.serializers.earthquake_serializer import EarthquakeSerializer
+from realtime.serializers.earthquake_serializer import (
+    EarthquakeSerializer,
+    EarthquakeGeoJsonSerializer
+    )
 from realtime.app_settings import LEAFLET_TILES
 from realtime.forms import FilterForm
 from realtime.tests.model_factories import EarthquakeFactory
@@ -46,7 +49,7 @@ def index(request):
 
 
 def get_earthquakes(request):
-    """Return a json document of earthquakes of the project.
+    """Return a json document of earthquakes.
     :param request: A django request object.
     :type request: request
     """
@@ -73,6 +76,26 @@ def populate(request):
         earthquake = EarthquakeFactory.create()
         earthquake.save()
         return index(request)
+
+
+@api_view(['GET', 'POST'])
+def earthquake_feature_list(request, format=None):
+    """
+    List all code snippets, or create a new snippet.
+    """
+    if request.method == 'GET':
+        earthquake = Earthquake.objects.all()
+        serializer = EarthquakeGeoJsonSerializer(earthquake, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        data = JSONParser().parse(request)
+        serializer = EarthquakeGeoJsonSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET', 'POST'])
 def earthquake_list(request, format=None):
