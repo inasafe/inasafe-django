@@ -66,24 +66,24 @@
     //url to get json of events
     var get_events_url = '{% url "realtime:earthquake_feature_list" %}';
 
-    // Create Legend Control:
-//    legend_control = createLegendControl();
-//    map.addControl(new legend_control);
-//
-//      oneCluster = new L.markerClusterGroup({
-//       iconCreateFunction: (function(class_name) {
-//           return function (cluster) {
-//             return L.divIcon({
-//               html: '<div><span>' + cluster.getChildCount() + '</span></div>',
-//               className:class_name,
-//               iconSize: L.point(40, 40)});
-//           }
-//       })(class_name)
-//     });
+    var class_name = 'marker-cluster marker-cluster-project' + 1;
+    markers = new L.markerClusterGroup({
+       iconCreateFunction: (function(class_name) {
+           return function (cluster) {
+             return L.divIcon({
+               html: '<div><span>' + cluster.getChildCount() + '</span></div>',
+               className:class_name,
+               iconSize: L.point(40, 40)});
+           }
+       })(class_name)
+       });
+
     project_icon_path = "{% static 'realtime/img/inasafe-icon.png' %}";
     project_shadow_icon_path = "{% static  'realtime/img/shadow-icon.png' %}";
     earthquakeIcon = createIconMarker(
             project_icon_path, project_shadow_icon_path);
+
+    //var markers = new L.MarkerClusterGroup();
 
     function getEarthquakeEventsJson(event_json)
       {
@@ -97,8 +97,9 @@
                   pointToLayer: function (feature, latlng) {
                       return L.marker(latlng, {icon: earthquakeIcon});
                   }
-              }).addTo(map);
+              }).addTo(markers);
           }
+          map.addLayer(markers)
       }
 
     function onEachFeature(feature, layer)
