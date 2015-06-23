@@ -17,9 +17,11 @@ __date__ = '19/06/15'
 def earthquake_list(request, format=None):
     """Earthquake list.
     """
+    context = {'request': request}
     if request.method == 'GET':
         earthquake = Earthquake.objects.all()
-        serializer = EarthquakeSerializer(earthquake, many=True)
+        serializer = EarthquakeSerializer(
+            earthquake, many=True, context=context)
         return Response(serializer.data)
 
     elif request.method == 'POST':
@@ -38,13 +40,14 @@ def earthquake_list(request, format=None):
 def earthquake_detail(request, shake_id, format=None):
     """Earthquake details.
     """
+    context = {'request': request}
     try:
         earthquake = Earthquake.objects.get(shake_id=shake_id)
     except Earthquake.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = EarthquakeSerializer(earthquake)
+        serializer = EarthquakeSerializer(earthquake, context=context)
         return Response(serializer.data)
 
     elif request.method == 'PUT':
@@ -64,6 +67,7 @@ def earthquake_detail(request, shake_id, format=None):
 def earthquake_report_list(request, shake_id, format=None):
     """Earthquake report list.
     """
+    context = {'request': request}
     try:
         earthquake = Earthquake.objects.get(shake_id=shake_id)
     except Earthquake.DoesNotExist:
@@ -71,7 +75,8 @@ def earthquake_report_list(request, shake_id, format=None):
 
     if request.method == 'GET':
         reports = EarthquakeReport.objects.filter(earthquake=earthquake)
-        serializer = EarthquakeReportSerializer(reports, many=True)
+        serializer = EarthquakeReportSerializer(
+            reports, many=True, context=context)
         return Response(serializer.data)
 
     elif request.method == 'POST':
@@ -95,6 +100,7 @@ def earthquake_report_list(request, shake_id, format=None):
 def earthquake_report_detail(request, shake_id, language, format=None):
     """Earthquake report details.
     """
+    context = {'request': request}
     try:
         report = EarthquakeReport.objects.get(
             earthquake__shake_id=shake_id, language=language)
@@ -102,7 +108,7 @@ def earthquake_report_detail(request, shake_id, language, format=None):
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     if request.method == 'GET':
-        serializer = EarthquakeReportSerializer(report)
+        serializer = EarthquakeReportSerializer(report, context=context)
         return Response(serializer.data)
 
     elif request.method == 'PUT':

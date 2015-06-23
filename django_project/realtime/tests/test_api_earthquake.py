@@ -1,10 +1,10 @@
 # coding=utf-8
+import os
+import pytz
 import datetime
 
 from django.contrib.gis.geos.point import Point
 from django.core.files.base import File
-import os
-import pytz
 from realtime.models.earthquake import Earthquake, EarthquakeReport
 from django.core.urlresolvers import reverse
 from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
@@ -38,6 +38,7 @@ class TestEarthquake(APITestCase):
         report_png = earthquake.shake_id+'-id.png'
         report_thumb = earthquake.shake_id+'-thumb-id.png'
         report = EarthquakeReport()
+        report.language = 'id'
         report.earthquake = earthquake
         with open(self.data_path(report_pdf)) as pdf:
             report.report_pdf = File(pdf)
