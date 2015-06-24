@@ -97,6 +97,7 @@ class TestEarthquake(APITestCase):
 
     def test_earthquake_report_serializer(self):
         report_dict = {
+            'shake_id': u'20150619200628',
             'language': u'en',
             'report_pdf': File(
                 open(
