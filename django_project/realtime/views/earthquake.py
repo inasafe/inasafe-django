@@ -73,7 +73,8 @@ class EarthquakeReportList(mixins.ListModelMixin,
                            mixins.CreateModelMixin,
                            GenericAPIView):
     """
-    Provides GET and POST requests to retrieve and save Earthquake Report models.
+    Provides GET and POST requests to retrieve and save Earthquake
+    Report models.
 
     ### Filters
 
