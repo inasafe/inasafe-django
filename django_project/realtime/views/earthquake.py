@@ -50,8 +50,12 @@ def index(request):
 
 def get_earthquakes(request):
     """Return a json document of earthquakes.
+
     :param request: A django request object.
     :type request: request
+
+    :returns: JSON file of all events.
+    :type: JSON.
     """
     if request.method == 'GET':
 
@@ -69,6 +73,7 @@ def get_earthquakes(request):
 
 def populate(request):
     """saves an earthquake to the db.(just for testing)
+
     :param request: A django request object.
     :type request: request
     """
@@ -80,8 +85,13 @@ def populate(request):
 
 @api_view(['GET', 'POST'])
 def earthquake_feature_list(request, format=None):
-    """
-    List all code snippets, or create a new snippet.
+    """Get GEOJson representation of all events.
+
+    :param request: A django request object.
+    :type request: request
+
+    :returns: GeoJSON file of all events.
+    :type: GeoJSON.
     """
     if request.method == 'GET':
         earthquake = Earthquake.objects.all()

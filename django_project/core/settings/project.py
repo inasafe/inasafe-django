@@ -39,6 +39,12 @@ PIPELINE_JS = {
             'js/csrf-ajax.js',
         ),
         'output_filename': 'js/appjs.js'
+    },
+    'dynatablejs': {
+        'source_filenames': (
+            'js/jquery.dynatable.js',
+        ),
+        'output_filename': 'js/jquery.dynatable.js'
     }
 }
 
@@ -57,6 +63,15 @@ PIPELINE_CSS = {
             'css/main.css',
         ),
         'output_filename': 'css/main.css',
+        'extra_context': {
+            'media': 'screen, projection',
+        },
+    },
+    'dynatablejs': {
+        'source_filenames': (
+            'css/jquery.dynatable.css',
+        ),
+        'output_filename': 'css/jquery.dynatable.css',
         'extra_context': {
             'media': 'screen, projection',
         },
