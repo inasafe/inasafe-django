@@ -40,6 +40,12 @@ class Earthquake(models.Model):
 
     objects = models.GeoManager()
 
+    def __unicode__(self):
+        shake_string = u'Shake event [%s]' % self.shake_id
+        if self.location_description.strip():
+            shake_string += u' in %s' % self.location_description
+        return shake_string
+
 
 class EarthquakeReport(models.Model):
     """Earthquake Report Model."""

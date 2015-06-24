@@ -22,12 +22,13 @@ class CustomSerializerMethodField(serializers.SerializerMethodField):
 class EarthquakeReportSerializer(serializers.ModelSerializer):
 
     shake_id = serializers.SlugRelatedField(
-        read_only=True,
+        queryset=Earthquake.objects.all(),
+        read_only=False,
         slug_field='shake_id',
         source='earthquake'
     )
 
-    def get_shake_report_url(self, serializer_field, obj):
+    def get_url(self, serializer_field, obj):
         """
         :param serializer_field:
         :type serializer_field: CustomSerializerMethodField
@@ -45,13 +46,34 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
         else:
             return relative_uri
 
-    report_url = CustomSerializerMethodField('get_shake_report_url')
+    # auto bind to get_url method
+    url = CustomSerializerMethodField()
+
+    def get_shake_url(self, serializer_field, obj):
+        """
+        :param serializer_field:
+        :type serializer_field: CustomSerializerMethodField
+        :param obj:
+        :type obj: EarthquakeReport
+        :return:
+        """
+        relative_uri = reverse(
+            'realtime:earthquake_detail',
+            kwargs={'shake_id': obj.earthquake.shake_id})
+        if self.context and 'request' in self.context:
+            return self.context['request'].build_absolute_uri(relative_uri)
+        else:
+            return relative_uri
+
+    # auto bind to get_shake_url method
+    shake_url = CustomSerializerMethodField()
 
     class Meta:
         model = EarthquakeReport
         fields = (
-            'report_url',
+            'url',
             'shake_id',
+            'shake_url',
             'language',
             'report_pdf',
             'report_image',
@@ -60,14 +82,34 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
 
 
 class EarthquakeSerializer(GeoModelSerializer):
-    context = None
     reports = EarthquakeReportSerializer(
-        many=True, required=False, context=context, write_only=False,
+        many=True, required=False, write_only=False,
         read_only=True)
+
+    def get_url(self, serializer_field, obj):
+        """
+        :param serializer_field:
+        :type serializer_field: CustomSerializerMethodField
+        :param obj:
+        :type obj: EarthquakeReport
+        :return:
+        """
+        relative_uri = reverse(
+            'realtime:earthquake_detail',
+            kwargs={
+                'shake_id': obj.shake_id})
+        if self.context and 'request' in self.context:
+            return self.context['request'].build_absolute_uri(relative_uri)
+        else:
+            return relative_uri
+
+    # auto bind to get_url method
+    url = CustomSerializerMethodField()
 
     class Meta:
         model = Earthquake
         fields = (
+            'url',
             'shake_id',
             'magnitude',
             'time',
