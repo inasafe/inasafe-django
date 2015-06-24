@@ -1,16 +1,20 @@
 # coding=utf-8
 import datetime
 
-from django.contrib.gis.geos.point import Point
-from django.core.files.base import File
 import os
 import pytz
-from realtime.models.earthquake import Earthquake, EarthquakeReport
+from django.contrib.gis.geos.point import Point
+from django.core.files.base import File
 from django.core.urlresolvers import reverse
-from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
-    EarthquakeReportSerializer
+from django.conf import settings
+from realtime.serializers.pagination_serializer import \
+    PageNumberPaginationSerializer
 from rest_framework import status
 from rest_framework.test import APITestCase
+from core.settings.utils import ABS_PATH
+from realtime.models.earthquake import Earthquake, EarthquakeReport
+from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
+    EarthquakeReportSerializer
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '20/06/15'
@@ -18,10 +22,17 @@ __date__ = '20/06/15'
 
 class TestEarthquake(APITestCase):
 
+    default_media_path = None
+
     def data_path(self, filename):
         return u'realtime/tests/data/'+filename
 
     def setUp(self):
+        if settings.TESTING:
+            # move to media root for testing purposes
+            self.default_media_path = settings.MEDIA_ROOT
+            settings.MEDIA_ROOT = ABS_PATH('media_test')
+
         Earthquake.objects.create(
             shake_id='20150619200628',
             magnitude=4.6,
@@ -38,6 +49,7 @@ class TestEarthquake(APITestCase):
         report_png = earthquake.shake_id+'-id.png'
         report_thumb = earthquake.shake_id+'-thumb-id.png'
         report = EarthquakeReport()
+        report.language = 'id'
         report.earthquake = earthquake
         with open(self.data_path(report_pdf)) as pdf:
             report.report_pdf = File(pdf)
@@ -57,6 +69,9 @@ class TestEarthquake(APITestCase):
         earthquakes = Earthquake.objects.all()
         for earthquake in earthquakes:
             earthquake.delete()
+
+        if settings.TESTING:
+            settings.MEDIA_ROOT = self.default_media_path
 
     def test_earthquake_serializer(self):
         shake_dict = {
@@ -112,8 +127,12 @@ class TestEarthquake(APITestCase):
         response = self.client.get(reverse('realtime:earthquake_list'))
         expected_shake_id = '20150619200628'
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-        self.assertEqual(response.data[0]['shake_id'], expected_shake_id)
+        serializer = PageNumberPaginationSerializer(
+            serializer_class=EarthquakeSerializer, data=response.data)
+        actual_results = serializer.results
+        self.assertEqual(serializer.count, 1)
+        self.assertEqual(actual_results[0]['shake_id'],
+                         expected_shake_id)
 
     def test_earthquake_detail(self):
         kwargs = {'shake_id': '20150619200628'}
@@ -151,12 +170,15 @@ class TestEarthquake(APITestCase):
 
         response = self.client.post(
             reverse('realtime:earthquake_list'),
-            [shake_json],
+            shake_json,
             format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         response = self.client.get(reverse('realtime:earthquake_list'))
-        self.assertEqual(len(response.data), 2)
+        serializer = PageNumberPaginationSerializer(
+            serializer_class=EarthquakeSerializer,
+            data=response.data)
+        self.assertEqual(serializer.count, 2)
         earthquake = Earthquake.objects.get(shake_id=u'20150619200629')
         serializer = EarthquakeSerializer(earthquake)
         for key, value in shake_json.iteritems():
@@ -214,7 +236,7 @@ class TestEarthquake(APITestCase):
 
         response = self.client.post(
             reverse('realtime:earthquake_list'),
-            [shake_json],
+            shake_json,
             format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -273,12 +295,12 @@ class TestEarthquake(APITestCase):
             reverse(
                 'realtime:earthquake_report_list',
                 kwargs={'shake_id': u'20150619200628'}
-            ),
-            report_multipart,
-            format='multipart'
-        )
+            ))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        serializer = PageNumberPaginationSerializer(
+            serializer_class=EarthquakeReportSerializer,
+            data=response.data)
+        self.assertEqual(serializer.count, 2)
         # delete data
         report = EarthquakeReport.objects.get(
             earthquake__shake_id=u'20150619200628',
@@ -399,12 +421,12 @@ class TestEarthquake(APITestCase):
             reverse(
                 'realtime:earthquake_report_list',
                 kwargs={'shake_id': u'20150619200628'}
-            ),
-            report_multipart,
-            format='multipart'
-        )
+            ))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        serializer = PageNumberPaginationSerializer(
+            serializer_class=EarthquakeReportSerializer,
+            data=response.data)
+        self.assertEqual(serializer.count, 2)
 
         # delete using REST
         response = self.client.delete(

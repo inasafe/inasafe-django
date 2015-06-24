@@ -1,10 +1,13 @@
 # coding=utf-8
 from copy import deepcopy
 
-from django.http import HttpResponse
-from rest_framework.decorators import api_view
+from realtime.filters.earthquake_filter import EarthquakeFilter
+from rest_framework.filters import DjangoFilterBackend, SearchFilter, \
+    OrderingFilter
+from rest_framework.generics import GenericAPIView
+from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, mixins
 from realtime.models.earthquake import Earthquake, EarthquakeReport
 from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
     EarthquakeReportSerializer
@@ -13,99 +16,112 @@ __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '19/06/15'
 
 
-@api_view(['GET', 'POST'])
-def earthquake_list(request, format=None):
-    """Earthquake list.
+class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
+                     GenericAPIView):
     """
-    if request.method == 'GET':
-        earthquake = Earthquake.objects.all()
-        serializer = EarthquakeSerializer(earthquake, many=True)
-        return Response(serializer.data)
+    List or create a given shake event.
+    """
 
-    elif request.method == 'POST':
+    queryset = Earthquake.objects.all()
+    serializer_class = EarthquakeSerializer
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filter_fields = ('depth', 'magnitude', 'shake_id')
+    filter_class = EarthquakeFilter
+    search_fields = ('location_description', )
+    ordering = ('shake_id', )
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+
+class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                       mixins.DestroyModelMixin, GenericAPIView):
+    """
+    Create, update, delete a given shake event.
+    """
+    queryset = Earthquake.objects.all()
+    serializer_class = EarthquakeSerializer
+    lookup_field = 'shake_id'
+    parser_classes = (JSONParser, FormParser, MultiPartParser, )
+
+    def get(self, request, *args, **kwargs):
+        return self.retrieve(request, *args, **kwargs)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+
+class EarthquakeReportList(mixins.ListModelMixin, mixins.CreateModelMixin,
+                           GenericAPIView):
+    """
+    List or create a given shake event report.
+    """
+    queryset = EarthquakeReport.objects.all()
+    serializer_class = EarthquakeReportSerializer
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filter_fields = ('language', )
+    search_fields = ('language', )
+    ordering_fields = ('language', )
+    ordering = ('language', )
+
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
         data = request.data
-        if isinstance(data, list):
-            serializer = EarthquakeSerializer(data=data, many=True)
-        else:
-            serializer = EarthquakeSerializer(data=data)
+        try:
+            earthquake = Earthquake.objects.get(shake_id=kwargs['shake_id'])
+            report = EarthquakeReport.objects.filter(
+                earthquake=earthquake, language=data['language'])
+        except Earthquake.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        if report:
+            serializer = EarthquakeReportSerializer(report[0])
+            return Response(
+                serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = EarthquakeReportSerializer(data=data)
+
         if serializer.is_valid():
+            serializer.validated_data['earthquake'] = earthquake
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET', 'PUT', 'DELETE'])
-def earthquake_detail(request, shake_id, format=None):
-    """Earthquake details.
+class EarthquakeReportDetail(mixins.RetrieveModelMixin,
+                             mixins.UpdateModelMixin,
+                             mixins.DestroyModelMixin, GenericAPIView):
     """
-    try:
-        earthquake = Earthquake.objects.get(shake_id=shake_id)
-    except Earthquake.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+    Create, update, delete a given shake event report.
+    """
+    queryset = EarthquakeReport.objects.all()
+    serializer_class = EarthquakeReportSerializer
+    parser_classes = (JSONParser, FormParser, MultiPartParser, )
 
-    if request.method == 'GET':
-        serializer = EarthquakeSerializer(earthquake)
-        return Response(serializer.data)
-
-    elif request.method == 'PUT':
-        data = request.data
-        serializer = EarthquakeSerializer(earthquake, data=data)
-        if serializer.is_valid():
-            serializer.save()
+    def get(self, request, *args, **kwargs):
+        try:
+            instance = EarthquakeReport.objects.get(
+                earthquake__shake_id=kwargs['shake_id'],
+                language=kwargs['language'])
+            serializer = self.get_serializer(instance)
             return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except EarthquakeReport.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-    elif request.method == 'DELETE':
-        earthquake.delete()
-        return HttpResponse(status=status.HTTP_204_NO_CONTENT)
-
-
-@api_view(['GET', 'POST'])
-def earthquake_report_list(request, shake_id, format=None):
-    """Earthquake report list.
-    """
-    try:
-        earthquake = Earthquake.objects.get(shake_id=shake_id)
-    except Earthquake.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        reports = EarthquakeReport.objects.filter(earthquake=earthquake)
-        serializer = EarthquakeReportSerializer(reports, many=True)
-        return Response(serializer.data)
-
-    elif request.method == 'POST':
-        data = request.data
-        if isinstance(data, list):
-            serializer = EarthquakeReportSerializer(data=data, many=True)
-        else:
-            serializer = EarthquakeReportSerializer(data=data)
-        if serializer.is_valid():
-            if isinstance(serializer.validated_data, list):
-                for d in serializer.validated_data:
-                    d['earthquake'] = earthquake
-            else:
-                serializer.validated_data['earthquake'] = earthquake
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['GET', 'PUT', 'DELETE'])
-def earthquake_report_detail(request, shake_id, language, format=None):
-    """Earthquake report details.
-    """
-    try:
-        report = EarthquakeReport.objects.get(
-            earthquake__shake_id=shake_id, language=language)
-    except EarthquakeReport.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = EarthquakeReportSerializer(report)
-        return Response(serializer.data)
-
-    elif request.method == 'PUT':
+    def put(self, request, shake_id, language):
+        try:
+            report = EarthquakeReport.objects.get(
+                earthquake__shake_id=shake_id, language=language)
+        except EarthquakeReport.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
         data = request.data
         # delete previous files
         new_report = deepcopy(report)
@@ -117,6 +133,12 @@ def earthquake_report_detail(request, shake_id, language, format=None):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    elif request.method == 'DELETE':
+    def delete(self, request, shake_id, language):
+        try:
+            report = EarthquakeReport.objects.get(
+                earthquake__shake_id=shake_id, language=language)
+        except EarthquakeReport.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         report.delete()
-        return HttpResponse(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_204_NO_CONTENT)

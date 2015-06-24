@@ -1,10 +1,22 @@
 # coding=utf-8
+from django.core.urlresolvers import reverse
 from realtime.models.earthquake import Earthquake, EarthquakeReport
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoModelSerializer
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '19/06/15'
+
+
+class CustomSerializerMethodField(serializers.SerializerMethodField):
+    """Custom Serializer Method Field.
+
+    Includes serializing field in the method executions
+    """
+
+    def to_representation(self, value):
+        method = getattr(self.parent, self.method_name)
+        return method(self, value)
 
 
 class EarthquakeReportSerializer(serializers.ModelSerializer):
@@ -15,9 +27,30 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
         source='earthquake'
     )
 
+    def get_shake_report_url(self, serializer_field, obj):
+        """
+        :param serializer_field:
+        :type serializer_field: CustomSerializerMethodField
+        :param obj:
+        :type obj: EarthquakeReport
+        :return:
+        """
+        relative_uri = reverse(
+            'realtime:earthquake_report_detail',
+            kwargs={
+                'shake_id': obj.earthquake.shake_id,
+                'language': obj.language})
+        if self.context and 'request' in self.context:
+            return self.context['request'].build_absolute_uri(relative_uri)
+        else:
+            return relative_uri
+
+    report_url = CustomSerializerMethodField('get_shake_report_url')
+
     class Meta:
         model = EarthquakeReport
         fields = (
+            'report_url',
             'shake_id',
             'language',
             'report_pdf',
@@ -27,7 +60,10 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
 
 
 class EarthquakeSerializer(GeoModelSerializer):
-    reports = EarthquakeReportSerializer(many=True, required=False)
+    context = None
+    reports = EarthquakeReportSerializer(
+        many=True, required=False, context=context, write_only=False,
+        read_only=True)
 
     class Meta:
         model = Earthquake
