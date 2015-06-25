@@ -18,6 +18,8 @@ urlpatterns = patterns(
     url(r'', include('frontend.urls', namespace='front_end')),
     url(r'^user-map/', include('user_map.urls', namespace='user_map')),
     url(r'^realtime/', include('realtime.urls', namespace='realtime')),
+    # url pattern for realtime reports
+    url(r'', include('realtime.report_urls', namespace='realtime_report'))
 
 )
 

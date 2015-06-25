@@ -40,6 +40,12 @@ class Earthquake(models.Model):
 
     objects = models.GeoManager()
 
+    def __unicode__(self):
+        shake_string = u'Shake event [%s]' % self.shake_id
+        if self.location_description.strip():
+            shake_string += u' in %s' % self.location_description
+        return shake_string
+
 
 class EarthquakeReport(models.Model):
     """Earthquake Report Model."""
@@ -48,7 +54,16 @@ class EarthquakeReport(models.Model):
         """Meta class."""
         app_label = 'realtime'
 
-    earthquake = models.ForeignKey(Earthquake)
+    earthquake = models.ForeignKey(
+        Earthquake,
+
+        related_name='reports')
+    language = models.CharField(
+        verbose_name='Language ID',
+        help_text='The language ID of the report',
+        max_length=4,
+        default='id'
+    )
     report_pdf = models.FileField(
         verbose_name='PDF Report',
         help_text='The impact report stored as PDF',
@@ -64,3 +79,10 @@ class EarthquakeReport(models.Model):
         help_text='The thumbnail of the report stored as PNG File',
         upload_to='reports/thumbnail',
         null=True)
+
+    def delete(self, using=None):
+        # delete stored files
+        self.report_pdf.delete()
+        self.report_image.delete()
+        self.report_thumbnail.delete()
+        super(EarthquakeReport, self).delete(using=using)

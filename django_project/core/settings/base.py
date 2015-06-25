@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Django settings for inasafe project.
+import sys
 
 from .utils import ABS_PATH
 
@@ -73,6 +74,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 TEMPLATE_DIRS = (
     # project level templates
     ABS_PATH('core', 'base_templates'),
+    ABS_PATH('realtime', 'templates')
 )
 
 INSTALLED_APPS = (
@@ -87,3 +89,6 @@ INSTALLED_APPS = (
 )
 
 SITE_ID = 1
+
+# variable to use to indicate testing
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
