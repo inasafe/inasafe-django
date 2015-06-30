@@ -14,16 +14,16 @@ class CustomUserManager(BaseUserManager, GeoManager):
 
     def create_user(
             self,
-            name,
-            email,
-            location,
-            email_updates,
-            website='',
-            password=None):
+            username=None,
+            email=None,
+            password=None,
+            location=None,
+            email_updates=None,
+            website=''):
         """Create and save a User.
 
-        :param name: The name of the user.
-        :type name: str
+        :param username: The name of the user.
+        :type username: str
 
         :param email: The email of the user.
         :type email: str
@@ -40,7 +40,7 @@ class CustomUserManager(BaseUserManager, GeoManager):
         :param password: The password of the user.
         :type password: str
         """
-        if not name:
+        if not username:
             raise ValueError('User must have name.')
 
         if not email:
@@ -49,11 +49,11 @@ class CustomUserManager(BaseUserManager, GeoManager):
         if not location:
             raise ValueError('User must have location.')
 
-        if not email_updates:
+        if email_updates is None:
             raise ValueError('User must have email_updates status.')
 
         user = self.model(
-            name=name,
+            name=username,
             email=self.normalize_email(email),
             location=location,
             email_updates=email_updates,

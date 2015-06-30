@@ -1,9 +1,9 @@
 # coding=utf-8
-"""Configurations file for User Map.
+"""Configurations file for Realtime.
 
 ..note: By design, you can override these settings from your project's
-    settings.py with prefix 'USER_MAP' on the variable e.g
-    'USER_MAP_USER_ICONS'.
+    settings.py with prefix 'REALTIME' on the variable e.g
+    'REALTIME_USER_ICONS'.
 
     For mailing. as the default, it wil use 'DEFAULT_FROM_MAIL' setting from
     the project.
@@ -12,15 +12,15 @@ from django.conf import settings
 
 # PROJECT_NAME: The project name for this apps e.g InaSAFE
 default_project_name = 'InaSAFE'
-PROJECT_NAME = getattr(settings, 'USER_MAP_PROJECT_NAME', default_project_name)
+PROJECT_NAME = getattr(settings, 'REALTIME_PROJECT_NAME', default_project_name)
 
 # LOGO/BRAND
-default_brand_logo = 'user_map/img/logo.png'
-BRAND_LOGO = getattr(settings, 'USER_MAP_BRAND_LOGO', default_brand_logo)
+default_brand_logo = 'REALTIME/img/logo.png'
+BRAND_LOGO = getattr(settings, 'REALTIME_BRAND_LOGO', default_brand_logo)
 
 # FAVICON_FILE: Favicon for this apps
-default_favicon_file = 'user_map/img/inasafe-icon.png'
-FAVICON_FILE = getattr(settings, 'USER_MAP_FAVICON_FILE', default_favicon_file)
+default_favicon_file = 'REALTIME/img/inasafe-icon.png'
+FAVICON_FILE = getattr(settings, 'REALTIME_FAVICON_FILE', default_favicon_file)
 
 
 # LEAFLET CONFIG

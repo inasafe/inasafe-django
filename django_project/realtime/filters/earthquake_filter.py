@@ -8,19 +8,28 @@ __date__ = '23/06/15'
 
 class EarthquakeFilter(django_filters.FilterSet):
 
-    magnitude_max = django_filters.NumberFilter(name='magnitude',
+    max_magnitude = django_filters.NumberFilter(name='magnitude',
                                                 lookup_type='lte')
-    magnitude_min = django_filters.NumberFilter(name='magnitude',
+    min_magnitude = django_filters.NumberFilter(name='magnitude',
                                                 lookup_type='gte')
-    time_max = django_filters.DateTimeFilter(name='time', lookup_type='lte')
-    time_min = django_filters.DateTimeFilter(name='time', lookup_type='gte')
-    depth_max = django_filters.NumberFilter(name='depth', lookup_type='lte')
-    depth_min = django_filters.NumberFilter(name='depth', lookup_type='gte')
+    max_time = django_filters.DateTimeFilter(name='time', lookup_type='lte')
+    min_time = django_filters.DateTimeFilter(name='time', lookup_type='gte')
+    max_depth = django_filters.NumberFilter(name='depth', lookup_type='lte')
+    min_depth = django_filters.NumberFilter(name='depth', lookup_type='gte')
+
+    # add redundant filters
+    maximum_magnitude = max_magnitude
+    minimum_magnitude = min_magnitude
+    start_date = min_time
+    end_date = max_time
+
     location_description = django_filters.CharFilter(
         name='location_description', lookup_type='iexact')
 
     class Meta:
         model = Earthquake
-        fields = ['shake_id', 'magnitude_max', 'magnitude_min', 'time_max',
-                  'time_min', 'depth_max', 'depth_min',
+        fields = ['shake_id', 'max_magnitude', 'min_magnitude', 'max_time',
+                  'min_time', 'max_depth', 'min_depth',
+                  'maximum_magnitude', 'minimum_magnitude',
+                  'start_date', 'end_date',
                   'location_description']

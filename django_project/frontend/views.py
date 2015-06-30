@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 import logging
-LOG = logging.getLogger(__name__)
 
 from django.views.generic import TemplateView
 from django.conf import settings
+
+LOG = logging.getLogger(__name__)
 
 
 class MainView(TemplateView):

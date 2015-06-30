@@ -98,3 +98,13 @@ body > .container {
 .leaflet-popup-content p {
   margin: 5px 0px !important;
 }
+
+
+
+/* ******************** */
+/*     Dynatable        */
+/* ******************** */
+th.dynatable-head a, th.dynatable-head a:hover{
+    color: #428bca;
+    text-decoration: none;
+}
