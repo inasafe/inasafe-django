@@ -12,7 +12,8 @@ from django.conf import settings
 
 # PROJECT_NAME: The project name for this apps e.g InaSAFE
 default_project_name = 'InaSAFE'
-PROJECT_NAME = getattr(settings, 'REALTIME_PROJECT_NAME', default_project_name)
+PROJECT_NAME = getattr(settings, 'REALTIME_PROJECT_NAME',
+                       default_project_name)
 
 # LOGO/BRAND
 default_brand_logo = 'REALTIME/img/logo.png'
@@ -20,7 +21,8 @@ BRAND_LOGO = getattr(settings, 'REALTIME_BRAND_LOGO', default_brand_logo)
 
 # FAVICON_FILE: Favicon for this apps
 default_favicon_file = 'REALTIME/img/inasafe-icon.png'
-FAVICON_FILE = getattr(settings, 'REALTIME_FAVICON_FILE', default_favicon_file)
+FAVICON_FILE = getattr(settings, 'REALTIME_FAVICON_FILE',
+                       default_favicon_file)
 
 
 # LEAFLET CONFIG

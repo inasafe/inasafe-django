@@ -2,185 +2,277 @@
 {% load staticfiles %}
 {% load leaflet_tags %}
 {% load bootstrap %}
+{% load pipeline %}
 
 {% block head_resources %}
-  {{ block.super }}
-  {% leaflet_js %}
-  {% leaflet_css %}
-  <link rel="stylesheet" href="{% static 'realtime/css/MarkerCluster.css' %}"/>
-  <link rel="stylesheet" href="{% static 'realtime/css/MarkerCluster.user-map.css' %}"/>
-  <link rel="stylesheet" href="{% static 'realtime/css/jquery.dynatable.css' %}"/>
-  <link rel="stylesheet" href="{% static 'realtime/css/locationfilter.css' %}"/>
-  <!--[if lte IE 8]>
+    {{ block.super }}
+    {% leaflet_js %}
+    {% leaflet_css %}
+    <!--[if lte IE 8]>
     <link rel="stylesheet" href="{% static 'realtime/css/MarkerCluster.user-map.ie.css' %}" />
-  <![endif]-->
-  <script language="javascript" type="text/javascript" src="{% static 'realtime/js/leaflet.markercluster-src.js' %}"></script>
-  <script language="javascript" type="text/javascript" src="{% static 'realtime/js/realtime.js' %}"></script>
-  <script language="javascript" type="text/javascript" src="{% static 'realtime/js/locationfilter.js' %}"></script>
-  {{ form.media }}
+    <![endif]-->
+    {% stylesheet 'realtime_contrib' %}
+    {% stylesheet 'realtime_appcss' %}
+    {% stylesheet 'main' %}
+    {% javascript 'realtime_contrib' %}
+    {% javascript 'realtime_templates' %}
+    {% javascript 'realtime_appjs' %}
+    {{ form.media }}
 {% endblock head_resources %}
 
+{% block navbar %}
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed"
+                        data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">InaSAFE Realtime</a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse clearfix">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#map" class="active">Map</a></li>
+                    <li><a href="#event-filter">Filter</a></li>
+                    <li><a href="#realtime_table_div">Table</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock navbar %}
+
 {% block main_content %}
-  <!-- Leaflet Map div -->
-  {% leaflet_map "map" %}
+    <!-- Leaflet Map div -->
+    {% leaflet_map "map" %}
 
-  <!-- All the templates from view-->
+    <!-- All the templates from view-->
 
+    {#    include popup template#}
+    <div style="display: none;">
+        {% include "realtime/popup_template.html" %}
+    </div>
 {% endblock main_content %}
 
 {% block filter_content %}
-    <div class="container">
+    <div class="row center-block">
         <form id="event-filter">
-            <span class="container">
-                <span class="col-xs-5">
-                    {{ form.start_date|bootstrap_horizontal:'col-xs-5' }}
+            <span class="row">
+                <span class="col-xs-6 col-sm-4">
+                    {{ form.start_date|bootstrap_horizontal:'col-md-5' }}
                 </span>
-                <span class="col-xs-5">
-                    {{ form.end_date|bootstrap_horizontal:'col-xs-5' }}
+                <span class="col-xs-6 col-sm-4">
+                    {{ form.end_date|bootstrap_horizontal:'col-md-5' }}
                 </span>
+                <span class="clearfix"></span>
             </span>
-            <span class="container">
-                <span class="col-xs-5">
-                    {{ form.minimum_magnitude|bootstrap_horizontal:'col-xs-5' }}
+            <span class="row">
+                <span class="col-xs-6 col-sm-4">
+                    {{ form.minimum_magnitude|bootstrap_horizontal:'col-md-5' }}
                 </span>
-                <span class="col-xs-5">
-                    {{ form.maximum_magnitude|bootstrap_horizontal:'col-xs-5' }}
+                <span class="col-xs-6 col-sm-4">
+                    {{ form.maximum_magnitude|bootstrap_horizontal:'col-md-5' }}
                 </span>
+                <span class="clearfix"></span>
             </span>
-            <input id="clear-filter" type="button" value="Clear Filter"
-                   class="btn btn-secondary">
-            <input id="submit-filter" type="submit" value="Update"
-                   class="btn btn-primary">
+            <span class="row">
+                <input id="clear-filter" type="button" value="Clear Filter"
+                       class="col-xs-6 col-sm-2 col-md-1 btn">
+                <input id="submit-filter" type="submit" value="Update"
+                       class="col-xs-6 col-sm-2 col-md-1 btn btn-primary">
+            </span>
         </form>
     </div>
 {% endblock filter_content %}
 
+{% block table_content %}
+    <div class="row center-block" id="realtime_table_div">
+        <table class="table table-striped table-bordered table-hover" id="realtime-table">
+            <thead>
+            <th>Shake Id</th>
+            <th>Magnitude</th>
+            <th>Time</th>
+            <th>Depth</th>
+            <th>Location Description</th>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+{% endblock table_content %}
+
 {% block js_container %}
-  <script type="text/javascript">
-    var base_map;
-    var is_authenticated = '{{ user.is_authenticated }}' == 'True';
+    <script type="text/javascript">
+        var base_map, dynaTable;
 
-    //Initialize Basemap Layer
-    base_map = createBasemap(
-        '{{ leaflet_tiles.url }}',
-        '{{ leaflet_tiles.attribution | safe }}');
+        //Initialize Basemap Layer
+        base_map = createBasemap(
+                '{{ leaflet_tiles.url }}',
+                '{{ leaflet_tiles.attribution | safe }}');
 
-    //Create Map with prepared base_map
-    map = L.map('map', {
-      layers: [base_map]
-    });
-    map.fitWorld().zoomIn();
-
-    //url to get json of events
-    var get_events_url = '{% url "realtime:earthquake_feature_list" %}';
-
-    var class_name = 'marker-cluster marker-cluster-project' + 1;
-    markers = new L.markerClusterGroup({
-       iconCreateFunction: (function(class_name) {
-           return function (cluster) {
-             return L.divIcon({
-               html: '<div><span>' + cluster.getChildCount() + '</span></div>',
-               className:class_name,
-               iconSize: L.point(40, 40)});
-           }
-       })(class_name)
-       }).addTo(map);
-
-    project_icon_path = "{% static 'realtime/img/inasafe-icon.png' %}";
-    project_shadow_icon_path = "{% static 'realtime/img/shadow-icon.png' %}";
-    earthquakeIcon = createIconMarker(
-            project_icon_path, project_shadow_icon_path);
-
-    // create dynatable
-    var jsonTableContents = [];
-    var showEventHandler = createShowEventHandler(map, map_events);
-{#    Use magic number 000 for placeholder#}
-    var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' language=language %}'
-    var showReportHandler = createShowReportHandler(report_url);
-    var button_templates = [
-        {
-            name: 'Show',
-            handler: 'showEventHandler'
-        },
-        {
-            name: 'Report',
-            handler: 'showReportHandler'
-        }
-    ];
-
-    var dynaTable = $('#realtime-table').dynatable({
-        table: {
-            defaultColumnIdStyle: 'underscore',
-        },
-        writers: {
-            _rowWriter: createActionRowWriter(button_templates)
-        },
-        dataset: {
-            records: jsonTableContents
-        }
-    }).data('dynatable');
-
-    // add action column to dynatable
-    addActionColumn('#realtime-table', 'Action');
-
-
-    function getEarthquakeEventsJson(event_json)
-      {
-          markers.clearLayers();
-          L.geoJson(event_json, {
-              onEachFeature: onEachFeature,
-              pointToLayer: function (feature, latlng) {
-                  var marker = L.marker(latlng, {icon: earthquakeIcon});
-                  map_events[feature.properties.shake_id] = marker;
-                  return marker;
-              }
-          }).addTo(markers);
-          jsonTableContents = [];
-          for (var i = 0; i < event_json.features.length; ++i) {
-              jsonTableContents[i] = event_json.features[i].properties;
-          }
-          dynaTable.settings.dataset.originalRecords = jsonTableContents;
-          dynaTable.process();
-      }
-
-    function onEachFeature(feature, layer)
-      {
-        // add feature to map_events index
-{#        map_events[feature.properties.shake_id] = feature;#}
-        // Set the popup content if it does have the content
-        if (feature.properties && feature.properties.popupContent) {
-          layer.bindPopup(feature.properties.popupContent);
-        }
-      }
-
-    // add LocationFilter control
-    var locationFilter = L.locationFilter({
-        enableButton: {
-            enableText: "{{ select_area_text }}",
-            disableText: "{{ remove_area_text }}"
-        },
-        adjustButton: {
-            text: "{{ select_current_zoom_text }}"
-        },
-        buttonPosition: 'topleft'
-    }).addTo(map);
-
-    // add content filter handler
-    var updateFilterHandler = createUpdateFilterHandler(get_events_url,
-            $("#event-filter"),
-            locationFilter,
-            getEarthquakeEventsJson);
-
-    locationFilter.on("change", updateFilterHandler);
-    locationFilter.on("enabled", updateFilterHandler);
-    locationFilter.on("disabled", updateFilterHandler);
-
-    $(document).ready( function() {
-        $.get(get_events_url, getEarthquakeEventsJson);
-        $("#submit-filter").click(updateFilterHandler);
-        $("#clear-filter").click(function(e){
-            $("#event-filter input.form-control").val('');
+        //Create Map with prepared base_map
+        map = L.map('map', {
+            layers: [base_map]
         });
-      });
-  </script>
+        map.fitWorld().zoomIn();
+        // make popup in center when opened
+        map.on('popupopen', function (e) {
+            var px = map.project(e.popup._latlng); // find the pixel location on the map where the popup anchor is
+            px.y -= e.popup._container.clientHeight / 2; // find the height of the popup container, divide by 2, subtract from the Y axis of marker location
+            map.panTo(map.unproject(px), {animate: true}); // pan to new center
+        });
+
+        //url to get json of events
+        var get_events_url = '{% url "realtime:earthquake_feature_list" %}';
+
+        var class_name = 'marker-cluster marker-cluster-project' + 1;
+        markers = new L.markerClusterGroup({
+            iconCreateFunction: (function (class_name) {
+                return function (cluster) {
+                    return L.divIcon({
+                        html: '<div><span>' + cluster.getChildCount() + '</span></div>',
+                        className: class_name,
+                        iconSize: L.point(40, 40)
+                    });
+                }
+            })(class_name)
+        }).addTo(map);
+
+        project_icon_path = "{% static 'realtime/img/inasafe-icon.png' %}";
+        project_shadow_icon_path = "{% static 'realtime/img/shadow-icon.png' %}";
+        earthquakeIcon = createIconMarker(
+                project_icon_path, project_shadow_icon_path);
+
+        // create dynatable
+        var jsonTableContents = [];
+        var showEventHandler = createShowEventHandler(map, markers,
+                map_events);
+        {#    Use magic number 000 for placeholder#}
+        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' language=language %}'
+        var showReportHandler = createShowReportHandler(report_url);
+        var button_templates = [
+            {
+                name: 'Show',
+                handler: 'showEventHandler'
+            },
+            {
+                name: 'Report',
+                handler: 'showReportHandler'
+            }
+        ];
+
+
+        function getEarthquakeEventsJson(event_json) {
+            markers.clearLayers();
+            L.geoJson(event_json, {
+                onEachFeature: onEachFeature,
+                pointToLayer: function (feature, latlng) {
+                    var marker = L.marker(latlng, {icon: earthquakeIcon});
+                    map_events[feature.properties.shake_id] = marker;
+                    return marker;
+                }
+            }).addTo(markers);
+            jsonTableContents = [];
+            for (var i = 0; i < event_json.features.length; ++i) {
+                jsonTableContents[i] = event_json.features[i].properties;
+            }
+            dynaTable.settings.dataset.originalRecords = jsonTableContents;
+            dynaTable.process();
+        }
+
+        function onEachFeature(feature, layer) {
+            // add feature to map_events index
+            // Set the popup content if it does have the content
+            if (feature.properties) {
+                var properties = feature.properties;
+                var popup_content = window.JST.popup_content(properties);
+                layer.bindPopup(popup_content);
+            }
+        }
+
+        // add LocationFilter control
+        var locationFilter = L.locationFilter({
+            enableButton: {
+                enableText: "{{ select_area_text }}",
+                disableText: "{{ remove_area_text }}"
+            },
+            adjustButton: {
+                text: "{{ select_current_zoom_text }}"
+            },
+            buttonPosition: 'topleft'
+        }).addTo(map);
+
+        $(document).ready(function () {
+
+            var $root = $('html, body');
+            var $navbar = $('#navbar');
+
+            // hide navbar if in iframe
+            try{
+                if(window.self !== window.top){
+                    // in iframe, hide navbar, filter and table
+                    $("nav.navbar").hide();
+                    $("#event-filter").hide();
+                    $("#realtime_table_div").hide()
+                }
+            }
+            catch(e){
+
+            }
+
+            $('a').click(function () {
+                $root.animate({
+                    scrollTop: $($.attr(this, 'href')).offset().top - $navbar
+                            .height()
+                }, 500);
+                return false;
+            });
+
+            dynaTable = $('#realtime-table').dynatable({
+                table: {
+                    defaultColumnIdStyle: 'underscore',
+                },
+                writers: {
+                    _rowWriter: createActionRowWriter(button_templates)
+                },
+                dataset: {
+                    records: jsonTableContents
+                }
+            }).data('dynatable');
+
+            // add action column to dynatable
+            addActionColumn('#realtime-table', 'Action');
+
+            // move table control div
+            var $table = $("#realtime-table");
+            var $table_sibling = $table.prev();
+            var $table_responsive = $("<div></div>").addClass("table-responsive");
+            $table_responsive.append($table.detach());
+            $table_responsive.insertAfter($table_sibling);
+
+
+            $.get(get_events_url, function (data) {
+                getEarthquakeEventsJson(data);
+                map.fitBounds(markers.getBounds(), {padding: [100, 100]});
+            });
+
+            // add content filter handler
+            var updateFilterHandler = createUpdateFilterHandler(get_events_url,
+                    $("#event-filter"),
+                    locationFilter,
+                    getEarthquakeEventsJson);
+
+            locationFilter.on("change", updateFilterHandler);
+            locationFilter.on("enabled", updateFilterHandler);
+            locationFilter.on("disabled", updateFilterHandler);
+
+            $("#submit-filter").click(updateFilterHandler);
+            $("#clear-filter").click(function (e) {
+                $("#event-filter input.form-control").val('');
+            });
+        });
+    </script>
 {% endblock js_container %}
