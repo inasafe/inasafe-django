@@ -1,30 +1,22 @@
 # coding=utf-8
-from django.http import HttpResponse
-from django.shortcuts import render, render_to_response
-from django.template import RequestContext, loader
-from rest_framework.decorators import api_view
-from rest_framework.parsers import JSONParser
 from copy import deepcopy
 
-from realtime.filters.earthquake_filter import EarthquakeFilter
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from rest_framework import status, mixins
 from rest_framework.filters import DjangoFilterBackend, SearchFilter, \
     OrderingFilter
 from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
-from rest_framework import status
-from realtime.models.earthquake import Earthquake
-from realtime.serializers.earthquake_serializer import (
-    EarthquakeSerializer,
-    EarthquakeGeoJsonSerializer
-    )
 from realtime.app_settings import LEAFLET_TILES
 from realtime.forms import FilterForm
-from realtime.tests.model_factories import EarthquakeFactory
-from rest_framework import status, mixins
+from realtime.filters.earthquake_filter import EarthquakeFilter
 from realtime.models.earthquake import Earthquake, EarthquakeReport
 from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
-    EarthquakeReportSerializer
+    EarthquakeReportSerializer, EarthquakeGeoJsonSerializer
+from rest_framework_gis.filters import InBBoxFilter
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '19/06/15'
@@ -52,70 +44,16 @@ def index(request):
 
     context = RequestContext(request)
     context['leaflet_tiles'] = leaflet_tiles
+    context['language'] = 'en'
+    context['select_area_text'] = 'Select Area'
+    context['remove_area_text'] = 'Remove Selection'
+    context['select_current_zoom_text'] = 'Select area within current zoom'
     return render_to_response(
-            'realtime/index.html',
-            {'form': form},
-            context_instance=context
-            )
-
-
-def get_earthquakes(request):
-    """Return a json document of earthquakes.
-
-    :param request: A django request object.
-    :type request: request
-
-    :returns: JSON file of all events.
-    :type: JSON.
-    """
-    if request.method == 'GET':
-
-        # Get data:
-        events = Earthquake.objects.all()
-        context = {'events': events}
-        events_json = loader.render_to_string(
-            'realtime/events.json',
-            context_instance=RequestContext(request, context))
-        # Return Response
-        return HttpResponse(events_json, content_type='application/json')
-    else:
-        raise Http404
-
-
-def populate(request):
-    """saves an earthquake to the db.(just for testing)
-
-    :param request: A django request object.
-    :type request: request
-    """
-    if request.method == 'GET':
-        earthquake = EarthquakeFactory.create()
-        earthquake.save()
-        return index(request)
-
-
-@api_view(['GET', 'POST'])
-def earthquake_feature_list(request, format=None):
-    """Get GEOJson representation of all events.
-
-    :param request: A django request object.
-    :type request: request
-
-    :returns: GeoJSON file of all events.
-    :type: GeoJSON.
-    """
-    if request.method == 'GET':
-        earthquake = Earthquake.objects.all()
-        serializer = EarthquakeGeoJsonSerializer(earthquake, many=True)
-        return Response(serializer.data)
-
-    elif request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = EarthquakeGeoJsonSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        'realtime/index.html',
+        {
+            'form': form
+        },
+        context_instance=context)
 
 
 class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
@@ -127,20 +65,29 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
 
     These are the available filters:
 
-    * depth_min
-    * depth_max
-    * magnitude_min
-    * magnitude_max
+    * min_depth
+    * max_depth
+    * min_magnitude or minimum_magnitude
+    * max_magnitude or maximum_magnitude
+    * min_time or time_start
+    * max_time or time_end
     * location_description
+    * in_bbox filled with BBox String in the format SWLon,SWLat,NELon,NELat
+    this is used as geographic box filter
     """
 
     queryset = Earthquake.objects.all()
     serializer_class = EarthquakeSerializer
-    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    parser_classes = [JSONParser, FormParser]
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,
+                       InBBoxFilter)
+    bbox_filter_field = 'location'
+    bbox_filter_include_overlapping = True
     filter_fields = ('depth', 'magnitude', 'shake_id')
     filter_class = EarthquakeFilter
     search_fields = ('location_description', )
     ordering = ('shake_id', )
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -159,6 +106,7 @@ class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     serializer_class = EarthquakeSerializer
     lookup_field = 'shake_id'
     parser_classes = (JSONParser, FormParser, MultiPartParser, )
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -192,6 +140,7 @@ class EarthquakeReportList(mixins.ListModelMixin,
     search_fields = ('earthquake__shake_id', 'language', )
     ordering_fields = ('earthquake__shake_id', 'language', )
     ordering = ('earthquake__shake_id', )
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
     def get(self, request, shake_id=None, *args, **kwargs):
         try:
@@ -247,6 +196,7 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
     queryset = EarthquakeReport.objects.all()
     serializer_class = EarthquakeReportSerializer
     parser_classes = (JSONParser, FormParser, MultiPartParser, )
+    permission_classes = (IsAuthenticatedOrReadOnly, )
 
     def get(self, request, shake_id=None, language=None, *args, **kwargs):
         try:
@@ -291,3 +241,26 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
 
         report.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class EarthquakeFeatureList(EarthquakeList):
+    """
+    Provides GET requests to retrieve Earthquake models
+    in a GEOJSON format.
+
+    ### Filters
+
+    These are the available filters:
+
+    * min_depth
+    * max_depth
+    * min_magnitude or minimum_magnitude
+    * max_magnitude or maximum_magnitude
+    * min_time or time_start
+    * max_time or time_end
+    * location_description
+    * in_bbox filled with BBox String in the format SWLon,SWLat,NELon,NELat
+    this is used as geographic box filter
+    """
+    serializer_class = EarthquakeGeoJsonSerializer
+    pagination_class = None

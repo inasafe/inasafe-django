@@ -15,6 +15,8 @@ def api_root(request, format=None, **kwargs):
         'model_list': {
             'earthquakes': reverse('realtime:earthquake_list', **kwargs),
             'earthquake-reports': reverse(
-                'realtime:earthquake_report_list', **kwargs)
+                'realtime:earthquake_report_list', **kwargs),
+            'earthquake-feature-list': reverse(
+                'realtime:earthquake_feature_list', **kwargs)
         }
     })

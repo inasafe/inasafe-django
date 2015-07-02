@@ -1,8 +1,10 @@
 # coding=utf-8
 import datetime
 
+import shutil
 import os
 import pytz
+from django.contrib.auth import get_user_model
 from django.contrib.gis.geos.point import Point
 from django.core.files.base import File
 from django.core.urlresolvers import reverse
@@ -61,6 +63,15 @@ class TestEarthquake(APITestCase):
             report.report_thumbnail = File(thumb)
             report.save()
 
+        # create test user
+        User = get_user_model()
+        self.user = User.objects.create_user(username='test',
+                                             email='test@test.org',
+                                             password='testsecret',
+                                             location=Point(0, 0),
+                                             email_updates=False)
+        self.client.login(email='test@test.org', password='testsecret')
+
     def tearDown(self):
         reports = EarthquakeReport.objects.all()
         for report in reports:
@@ -71,7 +82,11 @@ class TestEarthquake(APITestCase):
             earthquake.delete()
 
         if settings.TESTING:
+            shutil.rmtree(settings.MEDIA_ROOT)
             settings.MEDIA_ROOT = self.default_media_path
+
+        self.client.logout()
+        self.user.delete()
 
     def test_earthquake_serializer(self):
         shake_dict = {

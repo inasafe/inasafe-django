@@ -4,11 +4,12 @@ from django.conf import settings
 
 from django.contrib import admin
 
-
 urlpatterns = patterns(
     '',
 
     # Enable the admin:
+    url(r'^accounts/login/', 'user_map.views.login'),
+    url(r'^accounts/logout/', 'user_map.views.logout'),
     url(r'^admin/', include(admin.site.urls)),
 
     # uncomment to enable defaut Django auth
@@ -18,9 +19,10 @@ urlpatterns = patterns(
     url(r'', include('frontend.urls', namespace='front_end')),
     url(r'^user-map/', include('user_map.urls', namespace='user_map')),
     url(r'^realtime/', include('realtime.urls', namespace='realtime')),
+    url(r'^realtime/api-auth/', include('rest_framework.urls',
+                                        namespace='rest_framework')),
     # url pattern for realtime reports
-    url(r'', include('realtime.report_urls', namespace='realtime_report'))
-
+    url(r'', include('realtime.report_urls', namespace='realtime_report')),
 )
 
 # expose static files and uploded media if DEBUG is active
