@@ -172,33 +172,6 @@ class User(PermissionsMixin, AbstractBaseUser):
         """
         return self.is_admin
 
-    # # noinspection PyUnusedLocal
-    # def has_perm(self, perm, obj=None):
-    #     """Returns true if the user has the named permission.
-    #
-    #     :param perm: The permission.
-    #     :type perm: str
-    #
-    #     :param obj: The object that will be used to check the permission.
-    #     :type obj: object
-    #
-    #     :return: The permission status.
-    #     :rtype: bool
-    #     """
-    #     return self.is_admin
-    #
-    # # noinspection PyUnusedLocal
-    # def has_module_perms(self, app_label):
-    #     """Returns True if the user has permission to access models of the app.
-    #
-    #     :param app_label: The application.
-    #     :type app_label: str
-    #
-    #     :return: The permission status.
-    #     :rtype: bool
-    #     """
-    #     return self.is_admin
-
     def save(self, *args, **kwargs):
         """Override save method."""
         if not self.pk:

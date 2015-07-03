@@ -1,8 +1,8 @@
 # coding=utf-8
 import datetime
-
 import shutil
-from django.contrib.auth.models import Group, Permission
+
+from django.contrib.auth.models import Group
 import os
 import pytz
 from django.contrib.auth import get_user_model

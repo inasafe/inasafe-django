@@ -1,7 +1,5 @@
 # coding=utf-8
-from django.contrib import admin
-from django.conf.urls import url, include
-from realtime.admin import realtime_admin_site
+from django.conf.urls import url
 from realtime.views.earthquake import (
     index,
     EarthquakeList,

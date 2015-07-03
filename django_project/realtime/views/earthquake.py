@@ -8,8 +8,7 @@ from rest_framework.filters import DjangoFilterBackend, SearchFilter, \
     OrderingFilter
 from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
-    DjangoModelPermissionsOrAnonReadOnly
+from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 from realtime.app_settings import LEAFLET_TILES
 from realtime.forms import FilterForm
