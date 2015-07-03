@@ -12,15 +12,17 @@ from django.conf import settings
 
 # PROJECT_NAME: The project name for this apps e.g InaSAFE
 default_project_name = 'InaSAFE'
-PROJECT_NAME = getattr(settings, 'REALTIME_PROJECT_NAME', default_project_name)
+PROJECT_NAME = getattr(settings, 'REALTIME_PROJECT_NAME',
+                       default_project_name)
 
 # LOGO/BRAND
-default_brand_logo = 'REALTIME/img/logo.png'
+default_brand_logo = 'realtime/img/logo.png'
 BRAND_LOGO = getattr(settings, 'REALTIME_BRAND_LOGO', default_brand_logo)
 
 # FAVICON_FILE: Favicon for this apps
-default_favicon_file = 'REALTIME/img/inasafe-icon.png'
-FAVICON_FILE = getattr(settings, 'REALTIME_FAVICON_FILE', default_favicon_file)
+default_favicon_file = 'realtime/img/inasafe-icon.png'
+FAVICON_FILE = getattr(settings, 'REALTIME_FAVICON_FILE',
+                       default_favicon_file)
 
 
 # LEAFLET CONFIG
@@ -33,3 +35,8 @@ default_leaflet_tiles = (
      'license</a>')
 )
 LEAFLET_TILES = getattr(settings, 'LEAFLET_TILES', default_leaflet_tiles)
+
+# Realtime Group:
+default_realtime_group = 'Realtime REST User'
+REST_GROUP = getattr(
+    settings, 'REALTIME_REST_GROUP', default_realtime_group)

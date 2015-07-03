@@ -1,7 +1,8 @@
 # coding=utf-8
 import datetime
-
 import shutil
+
+from django.contrib.auth.models import Group
 import os
 import pytz
 from django.contrib.auth import get_user_model
@@ -9,6 +10,7 @@ from django.contrib.gis.geos.point import Point
 from django.core.files.base import File
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from realtime.app_settings import REST_GROUP
 from realtime.serializers.pagination_serializer import \
     PageNumberPaginationSerializer
 from rest_framework import status
@@ -70,6 +72,9 @@ class TestEarthquake(APITestCase):
                                              password='testsecret',
                                              location=Point(0, 0),
                                              email_updates=False)
+        realtime_group = Group.objects.get(name=REST_GROUP)
+        self.user.groups.add(realtime_group)
+        self.user.save()
         self.client.login(email='test@test.org', password='testsecret')
 
     def tearDown(self):
@@ -86,6 +91,9 @@ class TestEarthquake(APITestCase):
             settings.MEDIA_ROOT = self.default_media_path
 
         self.client.logout()
+        realtime_group = Group.objects.get(name=REST_GROUP)
+        self.user.groups.remove(realtime_group)
+        self.user.save()
         self.user.delete()
 
     def test_earthquake_serializer(self):

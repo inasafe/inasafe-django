@@ -1,58 +1,76 @@
 {% load staticfiles %}
 {% load bootstrap %}
+{% load pipeline %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <link rel="shortcut icon" href="{% static FAVICON_PATH %}">
-  <title>{% block title %} {{ PROJECT_NAME }} Realtime {% endblock %}</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <link rel="shortcut icon" href="{% static FAVICON_PATH %}">
+    <title>
+        {% block title %} {{ PROJECT_NAME }} Realtime {% endblock %}</title>
 
-  {% block head_resources %}
-    <!--Base Stylesheet -->
-    <link rel="stylesheet" href="{% static 'realtime/css/bootstrap.css' %}" type="text/css"/>
-    <link rel="stylesheet" href="{% static 'realtime/css/realtime.css' %}" type="text/css"/>
-
-    <!-- Base Javascript -->
-    <script language="javascript" type="text/javascript" src="{% static 'realtime/js/jquery.js' %}"></script>
-    <script language="javascript" type="text/javascript" src="{% static 'realtime/js/bootstrap.min.js' %}"></script>
-    <script language="javascript" type="text/javascript" src="{% static 'realtime/js/validate.js' %}"></script>
-    <script language="javascript" type="text/javascript" src="{% static 'realtime/js/jquery.dynatable.js' %}"></script>
-
-  {% endblock head_resources %}
+    {% block head_resources %}
+        {% stylesheet 'contrib' %}
+        {% javascript 'contrib' %}
+    {% endblock head_resources %}
 </head>
 
 <body>
-  <div class="realtime_navbar ">
-    {% block navbar %}
-    {% endblock navbar %}
-   </div>
 
-  <div draggable="true" class="realtime_filter ">
-    {% block main_content %}
-    {% endblock main_content %}
+
+{% block navbar %}
+    <nav class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed"
+                        data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" rel="home" href="
+                {% url 'front_end:home' %}" title="InaSAFE">
+                    <img style="max-width:90px; margin-top: -15px;" src=
+                            "{% static BRAND_LOGO %}">
+                </a>
+                <a class="navbar-brand" href="{% url 'realtime:index' %}"
+                    title="Realtime">
+                    REALTIME
+                </a>
+            </div>
+            <div id="navbar" class="navbar-collapse collapse clearfix">
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#map" class="active">Map</a></li>
+                    <li><a href="#event-filter">Filter</a></li>
+                    <li><a href="#realtime_table_div">Table</a></li>
+                    <li><a href="{% url 'realtime:api_root' %}">API
+                        Browser</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+{% endblock navbar %}
+
+
+{% block main_content %}
+{% endblock main_content %}
+
+<div class="container-fluid">
 
     {% block filter_content %}
     {% endblock filter_content %}
-  </div>
 
-  <div class="container" draggable="true" id="realtime_table_div">
-      <table class="table table-striped table-bordered table-hover" id="realtime-table">
-          <thead>
-            <th>Shake Id</th>
-            <th>Magnitude</th>
-            <th>Time</th>
-            <th>Depth</th>
-            <th>Location Description</th>
-          </thead>
-          <tbody>
-          </tbody>
-      </table>
-    </div>
-  {% block footer %}
-  {% endblock footer %}
+    {% block table_content %}
+    {% endblock table_content %}
+</div>
 
-  {% block js_container %}
-  {% endblock js_container %}
-  </body>
+{% block footer %}
+{% endblock footer %}
+
+{% block js_container %}
+{% endblock js_container %}
+</body>
 </html>

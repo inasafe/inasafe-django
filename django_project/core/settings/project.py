@@ -26,11 +26,13 @@ INSTALLED_APPS += (
 )
 
 
+PIPELINE_TEMPLATE_SEPARATOR = '/'
+
 PIPELINE_JS = {
     'contrib': {
         'source_filenames': (
             'js/jquery-1.11.1.min.js',
-            'js/bootstrap.js'
+            'js/bootstrap.js',
         ),
         'output_filename': 'js/contrib.js',
     },
@@ -40,18 +42,47 @@ PIPELINE_JS = {
         ),
         'output_filename': 'js/appjs.js'
     },
-    'dynatablejs': {
+    'realtime_contrib': {
         'source_filenames': (
-            'js/jquery.dynatable.js',
+            'realtime/js/jquery.dynatable.js',
+            'realtime/js/leaflet.markercluster-src.js',
+            'realtime/js/locationfilter.js',
+            'realtime/js/validate.js',
         ),
-        'output_filename': 'js/jquery.dynatable.js'
-    }
+        'output_filename': 'js/realtime_contrib.js',
+    },
+    'realtime_templates': {
+        'source_filenames': (
+            'realtime/js/templates/*.jst',
+        ),
+        'output_filename': 'js/realtime_templates.js',
+    },
+    'realtime_appjs': {
+        'source_filenames': (
+            'realtime/js/realtime.js',
+        ),
+        'output_filename': 'js/realtime_appjs.js'
+    },
+    'usermap_contrib': {
+        'source_filenames': (
+            'user_map/js/leaflet.markercluster-src.js',
+            'user_map/js/validate.js',
+        ),
+        'output_filename': 'js/usermap_contrib.js',
+    },
+    'usermap_appjs': {
+        'source_filenames': (
+            'user_map/js/user-map.js',
+        ),
+        'output_filename': 'js/usermap_appjs.js'
+    },
 }
 
 PIPELINE_CSS = {
     'contrib': {
         'source_filenames': (
             'css/bootstrap.min.css',
+            'css/inasafe-blog-style.css'
         ),
         'output_filename': 'css/contrib.css',
         'extra_context': {
@@ -67,13 +98,44 @@ PIPELINE_CSS = {
             'media': 'screen, projection',
         },
     },
-    'dynatablejs': {
+    'realtime_contrib': {
         'source_filenames': (
-            'css/jquery.dynatable.css',
+            'realtime/css/jquery.dynatable.css',
+            'realtime/css/locationfilter.css',
+            'realtime/css/MarkerCluster.css',
+            'realtime/css/MarkerCluster.user-map.css'
         ),
-        'output_filename': 'css/jquery.dynatable.css',
+        'output_filename': 'css/realtime_contrib.css',
         'extra_context': {
             'media': 'screen, projection',
         },
-    }
+    },
+    'realtime_appcss': {
+        'source_filenames': (
+            'realtime/css/realtime.css',
+        ),
+        'output_filename': 'css/realtime_appcss.css',
+        'extra_context': {
+            'media': 'screen, projection'
+        }
+    },
+    'usermap_contrib': {
+        'source_filenames': (
+            'user_map/css/MarkerCluster.css',
+        ),
+        'output_filename': 'css/usermap_contrib.css',
+        'extra_context': {
+            'media': 'screen, projection'
+        }
+    },
+    'usermap_appcss': {
+        'source_filenames': (
+            'user_map/css/MarkerCluster.user-map.css',
+            'user_map/css/user-map.css',
+        ),
+        'output_filename': 'css/usermap_appcss.css',
+        'extra_context': {
+            'media': 'screen, projection'
+        }
+    },
 }

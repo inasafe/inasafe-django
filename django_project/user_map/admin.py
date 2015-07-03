@@ -1,5 +1,6 @@
 # coding=utf-8
 """Model Admin Class."""
+from django.contrib.auth.models import Permission
 
 from django.contrib.gis import admin
 from leaflet.admin import LeafletGeoAdmin
@@ -24,7 +25,8 @@ class UserAdmin(LeafletGeoAdmin):
                 'email_updates']}),
         ('Location', {'fields': ['location']}),
         ('Advanced Information', {
-            'fields': ['is_confirmed', 'is_active', 'is_admin', 'last_login']
+            'fields': ['is_confirmed', 'is_active', 'is_admin',
+                       'last_login', 'groups']
         }),
     ]
 
@@ -32,3 +34,5 @@ class UserAdmin(LeafletGeoAdmin):
 admin.site.register(User, UserAdmin)
 admin.site.register(InasafeRole)
 admin.site.register(OsmRole)
+
+admin.site.register(Permission)
