@@ -10,38 +10,41 @@ html, body, #map {
 }
 
 body > .container {
-  margin-top: 70px;
+    margin-top: 70px;
 }
 
 #map .leaflet-top {
-  padding-top: 50px;
+    padding-top: 50px;
 }
 
 .transparent {
-   background-color: rgba(250, 250, 250, 0.5);
+    background-color: rgba(250, 250, 250, 0.5);
 }
 
-.navbar li { color: #000 }
+.navbar li {
+    color: #000
+}
 
 .navbar-header {
-  padding-left: 50px;
+    padding-left: 50px;
 }
 
 .navbar-right {
-  padding-right: 20px;
+    padding-right: 20px;
 }
+
 .navbar-btn {
-  margin-left: 5px;
-  margin-right: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 .footer {
-  color: rgb(120, 120, 120);
-  margin-bottom: 20px;
+    color: rgb(120, 120, 120);
+    margin-bottom: 20px;
 }
 
 .registration-form {
-  max-width: 700px;
+    max-width: 700px;
 }
 
 .form-group .multiple-checkbox ul {
@@ -50,51 +53,68 @@ body > .container {
 }
 
 .login-form {
-  max-width: 500px;
+    max-width: 500px;
 }
 
 .ask-password-reset-form {
-  max-width: 400px;
+    max-width: 400px;
 }
 
 .set-new-password-form {
-  max-width: 500px;
+    max-width: 500px;
 }
 
 .profile-content {
-  max-width: 700px;
+    max-width: 700px;
 }
 
 /* ******************** */
 /*       Misc           */
 /* ******************** */
 
-.centered {text-align: center;}
+.centered {
+    text-align: center;
+}
 
 .info {
-  padding: 10px 20px 10px 10px ;
-  font: 14px/16px Arial, Helvetica, sans-serif;
-  background: white;
-  background: rgba(255,255,255,0.8);
-  box-shadow: 0 0 15px rgba(0,0,0,0.2);
-  border-radius: 5px;
+    padding: 10px 20px 10px 10px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
 }
 
 .info h4 {
-  margin: 4px;
-  color: #777;
+    margin: 4px;
+    color: #777;
 }
 
 .info img {
-  margin: 4px;
+    margin: 4px;
 }
 
 .legend {
-  text-align: left;
-  line-height: 18px;
-  color: #555;
+    text-align: left;
+    line-height: 18px;
+    color: #555;
 }
 
 .leaflet-popup-content p {
-  margin: 5px 0px !important;
+    margin: 5px 0px !important;
+}
+
+.navbar li > a, .nav .open > a{
+    background-color: #2f3338;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.navbar li > a:hover, .nav .open > a:focus, .nav .open >a:active{
+    background-color: #202326;
+}
+
+.navbar a.navbar-brand, .navbar a.navbar-brand:hover{
+    color: #f86a27;
 }

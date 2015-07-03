@@ -8,7 +8,8 @@ from rest_framework.filters import DjangoFilterBackend, SearchFilter, \
     OrderingFilter
 from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, \
+    DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 from realtime.app_settings import LEAFLET_TILES
 from realtime.forms import FilterForm
@@ -87,7 +88,7 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
     filter_class = EarthquakeFilter
     search_fields = ('location_description', )
     ordering = ('shake_id', )
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -106,7 +107,7 @@ class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     serializer_class = EarthquakeSerializer
     lookup_field = 'shake_id'
     parser_classes = (JSONParser, FormParser, MultiPartParser, )
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -140,7 +141,7 @@ class EarthquakeReportList(mixins.ListModelMixin,
     search_fields = ('earthquake__shake_id', 'language', )
     ordering_fields = ('earthquake__shake_id', 'language', )
     ordering = ('earthquake__shake_id', )
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
     def get(self, request, shake_id=None, *args, **kwargs):
         try:
@@ -196,7 +197,7 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
     queryset = EarthquakeReport.objects.all()
     serializer_class = EarthquakeReportSerializer
     parser_classes = (JSONParser, FormParser, MultiPartParser, )
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
     def get(self, request, shake_id=None, language=None, *args, **kwargs):
         try:

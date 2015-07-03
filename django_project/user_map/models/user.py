@@ -3,7 +3,7 @@
 import os
 import uuid
 
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.gis.db import models
 from django.utils.crypto import get_random_string
 from django.core.exceptions import ValidationError
@@ -43,7 +43,7 @@ def image_path(instance, file_name):
         file_name)
 
 
-class User(AbstractBaseUser):
+class User(PermissionsMixin, AbstractBaseUser):
     """User class for InaSAFE User Map."""
 
     class Meta:
@@ -172,32 +172,32 @@ class User(AbstractBaseUser):
         """
         return self.is_admin
 
-    # noinspection PyUnusedLocal
-    def has_perm(self, perm, obj=None):
-        """Returns true if the user has the named permission.
-
-        :param perm: The permission.
-        :type perm: str
-
-        :param obj: The object that will be used to check the permission.
-        :type obj: object
-
-        :return: The permission status.
-        :rtype: bool
-        """
-        return self.is_admin
-
-    # noinspection PyUnusedLocal
-    def has_module_perms(self, app_label):
-        """Returns True if the user has permission to access models of the app.
-
-        :param app_label: The application.
-        :type app_label: str
-
-        :return: The permission status.
-        :rtype: bool
-        """
-        return self.is_admin
+    # # noinspection PyUnusedLocal
+    # def has_perm(self, perm, obj=None):
+    #     """Returns true if the user has the named permission.
+    #
+    #     :param perm: The permission.
+    #     :type perm: str
+    #
+    #     :param obj: The object that will be used to check the permission.
+    #     :type obj: object
+    #
+    #     :return: The permission status.
+    #     :rtype: bool
+    #     """
+    #     return self.is_admin
+    #
+    # # noinspection PyUnusedLocal
+    # def has_module_perms(self, app_label):
+    #     """Returns True if the user has permission to access models of the app.
+    #
+    #     :param app_label: The application.
+    #     :type app_label: str
+    #
+    #     :return: The permission status.
+    #     :rtype: bool
+    #     """
+    #     return self.is_admin
 
     def save(self, *args, **kwargs):
         """Override save method."""

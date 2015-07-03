@@ -20,41 +20,11 @@
     {{ form.media }}
 {% endblock head_resources %}
 
-{% block navbar %}
-    <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed"
-                        data-toggle="collapse" data-target="#navbar"
-                        aria-expanded="false">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="#">InaSAFE Realtime</a>
-            </div>
-            <div id="navbar" class="navbar-collapse collapse clearfix">
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#map" class="active">Map</a></li>
-                    <li><a href="#event-filter">Filter</a></li>
-                    <li><a href="#realtime_table_div">Table</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-{% endblock navbar %}
-
 {% block main_content %}
     <!-- Leaflet Map div -->
     {% leaflet_map "map" %}
 
     <!-- All the templates from view-->
-
-    {#    include popup template#}
-    <div style="display: none;">
-        {% include "realtime/popup_template.html" %}
-    </div>
 {% endblock main_content %}
 
 {% block filter_content %}

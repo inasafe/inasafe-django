@@ -1,5 +1,7 @@
 # coding=utf-8
 import datetime
+import shutil
+from django.conf import settings
 import pytz
 
 from django.contrib.gis.geos.point import Point
@@ -29,6 +31,9 @@ class Command(BaseCommand):
                 report.delete()
             EarthquakeReport.objects.all().delete()
             Earthquake.objects.all().delete()
+
+            shutil.rmtree(settings.MEDIA_ROOT+"/reports")
+
             Earthquake.objects.create(
                 shake_id='20150619200628',
                 magnitude=4.6,

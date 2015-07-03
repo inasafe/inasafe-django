@@ -19,7 +19,8 @@ class CustomUserManager(BaseUserManager, GeoManager):
             password=None,
             location=None,
             email_updates=None,
-            website=''):
+            website='',
+            **kwargs):
         """Create and save a User.
 
         :param username: The name of the user.
@@ -58,7 +59,8 @@ class CustomUserManager(BaseUserManager, GeoManager):
             location=location,
             email_updates=email_updates,
             website=website,
-            key=get_random_string()
+            key=get_random_string(),
+            **kwargs
         )
 
         user.set_password(password)
@@ -66,7 +68,7 @@ class CustomUserManager(BaseUserManager, GeoManager):
 
         return user
 
-    def create_superuser(self, name, email, password):
+    def create_superuser(self, name, email, password, **kwargs):
         """Create and save a superuser.
 
         :param name: The name of the superuser.
@@ -91,5 +93,6 @@ class CustomUserManager(BaseUserManager, GeoManager):
         user.is_confirmed = True
         user.is_active = True
         user.is_admin = True
+        user.is_superuser = True
         user.save(using=self._db)
         return user
