@@ -105,7 +105,7 @@ class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     queryset = Earthquake.objects.all()
     serializer_class = EarthquakeSerializer
     lookup_field = 'shake_id'
-    parser_classes = (JSONParser, FormParser, MultiPartParser, )
+    parser_classes = (JSONParser, FormParser, )
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
     def get(self, request, *args, **kwargs):

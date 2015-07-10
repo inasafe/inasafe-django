@@ -1,6 +1,7 @@
 # coding=utf-8
 import datetime
 import shutil
+import requests
 
 from django.contrib.auth.models import Group
 import os
@@ -55,15 +56,18 @@ class TestEarthquake(APITestCase):
         report = EarthquakeReport()
         report.language = 'id'
         report.earthquake = earthquake
-        with open(self.data_path(report_pdf)) as pdf:
-            report.report_pdf = File(pdf)
-            report.save()
-        with open(self.data_path(report_png)) as png:
-            report.report_image = File(png)
-            report.save()
-        with open(self.data_path(report_thumb)) as thumb:
-            report.report_thumbnail = File(thumb)
-            report.save()
+        if os.path.exists(self.data_path(report_pdf)):
+            with open(self.data_path(report_pdf)) as pdf:
+                report.report_pdf = File(pdf)
+                report.save()
+        if os.path.exists(self.data_path(report_png)):
+            with open(self.data_path(report_png)) as png:
+                report.report_image = File(png)
+                report.save()
+        if os.path.exists(self.data_path(report_thumb)):
+            with open(self.data_path(report_thumb)) as thumb:
+                report.report_thumbnail = File(thumb)
+                report.save()
 
         # create test user
         User = get_user_model()
