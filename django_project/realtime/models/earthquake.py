@@ -46,6 +46,12 @@ class Earthquake(models.Model):
             shake_string += u' in %s' % self.location_description
         return shake_string
 
+    def delete(self, using=None):
+        # delete all report
+        for report in self.reports.all():
+            report.delete(using=using)
+        super(Earthquake, self).delete(using=using)
+
 
 class EarthquakeReport(models.Model):
     """Earthquake Report Model."""
