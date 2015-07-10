@@ -1,7 +1,6 @@
 # coding=utf-8
 import datetime
 import shutil
-import requests
 
 from django.contrib.auth.models import Group
 import os
