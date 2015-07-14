@@ -22,6 +22,11 @@ var map_events = {};
 var map;
 
 /**
+ * Event geo json returned by realtime
+ */
+var event_json;
+
+/**
  * Create basemap instance to be used.
  *
  * @param {string} url The URL for the tiles layer
@@ -151,6 +156,108 @@ function createUpdateFilterHandler(url, form_filter, location_filter, dataHandle
             location_filter_query += "&in_bbox=" + location_filter.getBounds().toBBoxString();
         }
         $.get(url + "?" + form_filter_query + location_filter_query, dataHandler);
+    };
+    return updateFilterHandler;
+}
+
+/**
+ * filter a given geojson input in client side
+ * @param data_input {{}} a geo json collections
+ * @param min_date {string} date formattable string
+ * @param max_date {string} date formattable string
+ * @param min_magnitude {string} float string
+ * @param max_magnitude {string} float string
+ * @return {{features: Array, type: *}}
+ */
+function clientFilter(data_input, min_date, max_date, min_magnitude, max_magnitude){
+    var filtered_features = [];
+    var features = data_input.features;
+    for(var i=0;i<features.length;i++){
+        var feature = features[i];
+
+        // time filter
+        var time = new Date(Date.parse(feature.properties.time));
+        if(min_date && time < new Date(Date.parse(min_date))){
+            continue
+        }
+
+        if(max_date && time > new Date(Date.parse(max_date))){
+            continue
+        }
+
+        // magnitude
+        var magnitude = feature.properties.magnitude;
+        if(min_magnitude && magnitude < parseFloat(min_magnitude)){
+            continue
+        }
+
+        if(max_magnitude && magnitude > parseFloat(max_magnitude)){
+            continue
+        }
+
+        // filtered
+        filtered_features.push(feature);
+    }
+    return {
+        features: filtered_features,
+        type: data_input.type
+    };
+}
+
+/**
+ *
+ * @param data_input {{}} geo json collections
+ * @param bounds {L.latLngBounds}
+ * @return {{features: Array, type: *}}
+ */
+function clientExtentFilter(data_input, bounds){
+    var filtered_features = [];
+    var features = data_input.features;
+    if(bounds.isValid()){
+        for(var i=0;i<features.length;i++){
+            var feature = features[i];
+            var point = L.latLng(
+                feature.geometry.coordinates[1],
+                feature.geometry.coordinates[0]);
+            if(!bounds.contains(point)){
+                continue
+            }
+
+            // filtered
+            filtered_features.push(feature);
+        }
+    }
+    else{
+        filtered_features = features;
+    }
+    return {
+        features: filtered_features,
+        type: data_input.type
+    };
+}
+
+/**
+ * Create update filter handler based on url and dataHandler in the client
+ * side
+ * @param {string} url URL to send filtered data
+ * @param {function} dataHandler Function to handle retrieved data
+ * @return {Function} Update handler function
+ */
+function createClientUpdateFilterHandler(url, form_filter, location_filter, dataHandler) {
+    var updateFilterHandler = function (e) {
+        if (e.preventDefault) {
+            e.preventDefault();
+        }
+        // filter by bounds
+        var filtered = clientExtentFilter(event_json, location_filter.getBounds());
+        filtered = clientFilter(
+            filtered,
+            $("#id_start_date", form_filter).val(),
+            $("#id_end_date", form_filter).val(),
+            $("#id_minimum_magnitude", form_filter).val(),
+            $("#id_maximum_magnitude", form_filter).val()
+        );
+        dataHandler(filtered);
     };
     return updateFilterHandler;
 }
