@@ -22,8 +22,8 @@ __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '19/06/15'
 
 
-def index(request):
-    """Index page of user map.
+def index(request, iframe=False):
+    """Index page of realtime.
 
     :param request: A django request object.
     :type request: request
@@ -48,12 +48,26 @@ def index(request):
     context['select_area_text'] = 'Select Area'
     context['remove_area_text'] = 'Remove Selection'
     context['select_current_zoom_text'] = 'Select area within current zoom'
+    context['iframe'] = iframe
     return render_to_response(
         'realtime/index.html',
         {
-            'form': form
+            'form': form,
+            'iframe': iframe
         },
         context_instance=context)
+
+
+def iframe(request):
+    """Index page of realtime in iframe.
+
+    :param request: A django request object.
+    :type request: request
+
+    :returns: Response will be a leaflet map page.
+    :rtype: HttpResponse
+    """
+    return index(request, iframe=True)
 
 
 class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,

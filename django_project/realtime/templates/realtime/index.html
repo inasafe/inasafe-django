@@ -20,57 +20,93 @@
     {{ form.media }}
 {% endblock head_resources %}
 
-{% block main_content %}
-    <!-- Leaflet Map div -->
-    {% leaflet_map "map" %}
+{% block nav_second %}
+    <nav class="nav-second navbar-collapse collapse">
+        <ul class="menu">
+            <li class="menu-item active">
+                <a href="#">Map</a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'realtime:api_root' %}">API Browser</a>
+            </li>
+        </ul>
+    </nav>
+{% endblock %}
 
-    <!-- All the templates from view-->
+{% block main_content %}
+    <div class="row center-block">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Map</h3>
+            </div>
+            <div class="panel-body">
+                <!-- Leaflet Map div -->
+                {% leaflet_map "map" %}
+
+                <!-- All the templates from view-->
+            </div>
+        </div>
+    </div>
 {% endblock main_content %}
 
 {% block filter_content %}
     <div class="row center-block">
-        <form id="event-filter">
-            <span class="row">
-                <span class="col-xs-6 col-sm-4">
-                    {{ form.start_date|bootstrap_horizontal:'col-md-5' }}
-                </span>
-                <span class="col-xs-6 col-sm-4">
-                    {{ form.end_date|bootstrap_horizontal:'col-md-5' }}
-                </span>
-                <span class="clearfix"></span>
-            </span>
-            <span class="row">
-                <span class="col-xs-6 col-sm-4">
-                    {{ form.minimum_magnitude|bootstrap_horizontal:'col-md-5' }}
-                </span>
-                <span class="col-xs-6 col-sm-4">
-                    {{ form.maximum_magnitude|bootstrap_horizontal:'col-md-5' }}
-                </span>
-                <span class="clearfix"></span>
-            </span>
-            <span class="row">
-                <input id="clear-filter" type="button" value="Clear Filter"
-                       class="col-xs-6 col-sm-2 col-md-1 btn">
-                <input id="submit-filter" type="submit" value="Update"
-                       class="col-xs-6 col-sm-2 col-md-1 btn btn-primary">
-            </span>
-        </form>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Filters</h3>
+            </div>
+            <div class="panel-body">
+                <form id="event-filter">
+                    <span class="row">
+                        <span class="col-xs-6 col-sm-4">
+                            {{ form.start_date|bootstrap_horizontal:'col-md-5' }}
+                        </span>
+                        <span class="col-xs-6 col-sm-4">
+                            {{ form.end_date|bootstrap_horizontal:'col-md-5' }}
+                        </span>
+                        <span class="clearfix"></span>
+                    </span>
+                    <span class="row">
+                        <span class="col-xs-6 col-sm-4">
+                            {{ form.minimum_magnitude|bootstrap_horizontal:'col-md-5' }}
+                        </span>
+                        <span class="col-xs-6 col-sm-4">
+                            {{ form.maximum_magnitude|bootstrap_horizontal:'col-md-5' }}
+                        </span>
+                        <span class="clearfix"></span>
+                    </span>
+                    <span class="row">
+                        <input id="clear-filter" type="button" value="Clear Filter"
+                               class="col-xs-6 col-sm-2 col-md-1 btn">
+                        <input id="submit-filter" type="submit" value="Update"
+                               class="col-xs-6 col-sm-2 col-md-1 btn btn-primary">
+                    </span>
+                </form>
+            </div>
+        </div>
     </div>
 {% endblock filter_content %}
 
 {% block table_content %}
     <div class="row center-block" id="realtime_table_div">
-        <table class="table table-striped table-bordered table-hover" id="realtime-table">
-            <thead>
-            <th>Shake Id</th>
-            <th>Magnitude</th>
-            <th>Time</th>
-            <th>Depth</th>
-            <th>Location Description</th>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Table</h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-striped table-bordered table-hover" id="realtime-table">
+                    <thead>
+                    <th>Time</th>
+                    <th>Location Description</th>
+                    <th>Magnitude</th>
+                    <th>Depth</th>
+                    <th>Shake Id</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 {% endblock table_content %}
 
@@ -111,8 +147,8 @@
             })(class_name)
         }).addTo(map);
 
-        project_icon_path = "{% static 'realtime/img/inasafe-icon.png' %}";
-        project_shadow_icon_path = "{% static 'realtime/img/shadow-icon.png' %}";
+        project_icon_path = "{% static 'realtime/img/earthquake.png' %}";
+        project_shadow_icon_path = "{% static 'realtime/img/earthquake-shadow.png' %}";
         earthquakeIcon = createIconMarker(
                 project_icon_path, project_shadow_icon_path);
 
@@ -150,6 +186,7 @@
                 jsonTableContents[i] = event_json.features[i].properties;
             }
             dynaTable.settings.dataset.originalRecords = jsonTableContents;
+            dynaTable.paginationPerPage.set(100);
             dynaTable.process();
         }
 
@@ -179,19 +216,6 @@
 
             var $root = $('html, body');
             var $navbar = $('#navbar');
-
-            // hide navbar if in iframe
-            try{
-                if(window.self !== window.top){
-                    // in iframe, hide navbar, filter and table
-                    $("nav.navbar").hide();
-                    $("#event-filter").hide();
-                    $("#realtime_table_div").hide()
-                }
-            }
-            catch(e){
-
-            }
 
             $('a').click(function () {
                 $root.animate({
@@ -243,6 +267,15 @@
             $("#clear-filter").click(function (e) {
                 $("#event-filter input.form-control").val('');
             });
+
+            {% if iframe %}
+{#                If in iframe, remove unnecessary informations#}
+                $map = $("#map").detach();
+                $body = $("body");
+                $main_container = $("body>.container").hide();
+                $map.appendTo($body);
+
+            {% endif %}
         });
     </script>
 {% endblock js_container %}

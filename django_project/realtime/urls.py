@@ -6,7 +6,7 @@ from realtime.views.earthquake import (
     EarthquakeDetail,
     EarthquakeReportList,
     EarthquakeReportDetail,
-    EarthquakeFeatureList)
+    EarthquakeFeatureList, iframe)
 from realtime.views import root
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -39,4 +39,5 @@ urlpatterns = format_suffix_patterns(urlpatterns)
 
 urlpatterns += [
     url(r'^$', index, name='index'),
+    url(r'^iframe$', iframe, name='iframe'),
 ]

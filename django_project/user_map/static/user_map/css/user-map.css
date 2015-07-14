@@ -115,6 +115,63 @@ body > .container {
     background-color: #202326;
 }
 
-.navbar a.navbar-brand, .navbar a.navbar-brand:hover{
-    color: #f86a27;
+.navbar .navbar-brand{
+    color: #fff !important;
 }
+
+/* Navbar Styles */
+.navbar-nav>li.active{
+    background: url('images/current-menu.png') no-repeat center 49px;
+}
+
+.navbar-nav .active>a,.navbar-nav .current-page-ancestor>a,.navbar-nav .active>a:hover,.navbar-nav .active>a:focus {
+    background: none!important;
+    color: #ffffff!important;
+}
+
+.second-menu span {
+    display: inline-block;
+    line-height: 39px;
+    background: #46b650;
+    padding: 0 10px;
+    text-transform: uppercase;
+    margin-right: 15px;
+    color: #fff;
+    vertical-align: top;
+}
+
+.second-menu .current-page-ancestor a {
+    font-weight: bold;
+}
+
+.second-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}
+
+.second-menu ul li {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.second-menu li.active>a{
+    font-weight: bold;
+}
+
+.navbar .second-menu ul li a {
+    color: #fff!important;
+    line-height: 39px;
+}
+
+.navbar .second-menu ul li a:hover {
+    text-decoration: none;
+    opacity: 0.7;
+}
+
+.second-menu {
+    background: #f57d35;
+}
+
+/* Navbar Styles  End*/

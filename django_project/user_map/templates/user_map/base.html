@@ -20,6 +20,82 @@
 <body>
 <div class="user_map_navbar ">
     {% block navbar %}
+        <header id="banner-header" class="banner navbar navbar-default
+    topnavbar navbar-static-top default" role="banner">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" rel="home" href="{% url 'front_end:home' %}" title="InaSAFE">
+                        <img id="site-logo" style="max-width:100px;
+                    margin-top:-7px;" src=
+                                "{% static BRAND_LOGO %}">
+                    </a>
+                </div>
+                {% block nav_main %}
+                    <nav class="nav-main navbar-collapse collapse" role="navigation">
+                        <ul class="navbar-nav nav ">
+                            <li class="menu-item">
+                                <a href="{% url 'realtime:index' %}">REALTIME</a>
+                            </li>
+                            <li class="menu-item active">
+                                <a href="{% url 'user_map:index' %}">USER
+                                    MAP</a></li>
+                            <li class="menu-item">
+                                <a href="{% url 'front_end:home' %}#about">ABOUT</a>
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-nav pull-right">
+                            {% if not user.is_authenticated %}
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle"
+                                       data-toggle="dropdown"><b>User
+                                        Management</b>
+                                            <b class="caret"></b></a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="{% url 'user_map:login' %}">
+                                                Log In
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'user_map:register' %}">
+                                                Sign Up
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% endif %}
+                            {% if user.is_authenticated %}
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Hi, {{ user.name }}</b>
+                                        <b class="caret"></b></a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="{% url 'user_map:update_user' %}">Edit Profile</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'user_map:logout' %}">Log Out</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endblock %}
+            </div>
+            <div class="second-menu">
+                <div class="container" style="min-height: 10px">
+                    {% block nav_second %}
+                    {% endblock %}
+                </div>
+            </div>
+            <div style="clear: both;"></div>
+        </header>
     {% endblock navbar %}
 </div>
 

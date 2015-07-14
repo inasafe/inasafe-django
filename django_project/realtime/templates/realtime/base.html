@@ -18,47 +18,55 @@
 
 <body>
 
-
-{% block navbar %}
-    <nav class="navbar navbar-default navbar-fixed-top">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed"
-                        data-toggle="collapse" data-target="#navbar"
-                        aria-expanded="false">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" rel="home" href="
-                {% url 'front_end:home' %}" title="InaSAFE">
-                    <img style="max-width:90px; margin-top: -15px;" src=
-                            "{% static BRAND_LOGO %}">
-                </a>
-                <a class="navbar-brand" href="{% url 'realtime:index' %}"
-                    title="Realtime">
-                    REALTIME
-                </a>
+{% if not iframe %}
+    {% block navbar %}
+        <header id="banner-header" class="banner navbar navbar-default
+    topnavbar navbar-static-top default" role="banner">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" rel="home" href="{% url 'front_end:home' %}" title="InaSAFE">
+                        <img id="site-logo" style="max-width:100px;
+                    margin-top:-7px;" src=
+                                "{% static BRAND_LOGO %}">
+                    </a>
+                </div>
+                {% block nav_main %}
+                    <nav class="nav-main navbar-collapse collapse" role="navigation">
+                        <ul class="navbar-nav nav ">
+                            <li class="menu-item active">
+                                <a href="#">REALTIME</a>
+                            </li>
+                            <li class="menu-item">
+                                <a href="{% url 'user_map:index' %}">USER
+                                    MAP</a></li>
+                            <li class="menu-item">
+                                <a href="{% url 'front_end:home' %}#about">ABOUT</a>
+                            </li>
+                        </ul>
+                    </nav>
+                {% endblock %}
             </div>
-            <div id="navbar" class="navbar-collapse collapse clearfix">
-                <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#map" class="active">Map</a></li>
-                    <li><a href="#event-filter">Filter</a></li>
-                    <li><a href="#realtime_table_div">Table</a></li>
-                    <li><a href="{% url 'realtime:api_root' %}">API
-                        Browser</a></li>
-                </ul>
+            <div class="second-menu">
+                <div class="container">
+                    {% block nav_second %}
+                    {% endblock %}
+                </div>
             </div>
-        </div>
-    </nav>
-{% endblock navbar %}
+            <div style="clear: both;"></div>
+        </header>
+    {% endblock navbar %}
+{% endif %}
 
+<div class="container">
 
-{% block main_content %}
-{% endblock main_content %}
-
-<div class="container-fluid">
+    {% block main_content %}
+    {% endblock main_content %}
 
     {% block filter_content %}
     {% endblock filter_content %}

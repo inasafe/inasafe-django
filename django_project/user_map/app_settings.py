@@ -19,7 +19,7 @@ default_brand_logo = 'user_map/img/logo.png'
 BRAND_LOGO = getattr(settings, 'USER_MAP_BRAND_LOGO', default_brand_logo)
 
 # FAVICON_FILE: Favicon for this apps
-default_favicon_file = 'user_map/img/inasafe-icon.png'
+default_favicon_file = 'user_map/img/favicon.ico'
 FAVICON_FILE = getattr(settings, 'USER_MAP_FAVICON_FILE', default_favicon_file)
 
 # PROJECTS
