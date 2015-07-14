@@ -39,7 +39,7 @@
             <div class="panel-heading">
                 <h3 class="panel-title">Map</h3>
             </div>
-            <div class="panel-body">
+            <div class="panel-body" style="height: 500px">
                 <!-- Leaflet Map div -->
                 {% leaflet_map "map" %}
 
@@ -249,15 +249,25 @@
 
 
             $.get(get_events_url, function (data) {
+                event_json = data;
                 getEarthquakeEventsJson(data);
                 map.fitBounds(markers.getBounds(), {padding: [100, 100]});
             });
 
             // add content filter handler
+            // update via ajax request
+            {% if server_side_filter %}
             var updateFilterHandler = createUpdateFilterHandler(get_events_url,
                     $("#event-filter"),
                     locationFilter,
                     getEarthquakeEventsJson);
+            {% else %}
+            // update via client filters
+            var updateFilterHandler = createClientUpdateFilterHandler(get_events_url,
+                    $("#event-filter"),
+                    locationFilter,
+                    getEarthquakeEventsJson);
+            {% endif %}
 
             locationFilter.on("change", updateFilterHandler);
             locationFilter.on("enabled", updateFilterHandler);

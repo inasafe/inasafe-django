@@ -22,7 +22,7 @@ __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '19/06/15'
 
 
-def index(request, iframe=False):
+def index(request, iframe=False, server_side_filter=False):
     """Index page of realtime.
 
     :param request: A django request object.
@@ -36,6 +36,10 @@ def index(request, iframe=False):
         pass
     else:
         form = FilterForm()
+
+    if request.method == 'GET':
+        iframe = request.GET.get('iframe')
+        server_side_filter = request.GET.get('server_side_filter')
 
     leaflet_tiles = dict(
         url=LEAFLET_TILES[1],
@@ -53,12 +57,13 @@ def index(request, iframe=False):
         'realtime/index.html',
         {
             'form': form,
-            'iframe': iframe
+            'iframe': iframe,
+            'server_side_filter': server_side_filter
         },
         context_instance=context)
 
 
-def iframe(request):
+def iframe_index(request):
     """Index page of realtime in iframe.
 
     :param request: A django request object.
