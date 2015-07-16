@@ -1,5 +1,6 @@
 <div id="popup_template">
     <h3>Shake Event</h3>
+
     <div>
         <span>
             <table class="table-striped table-hover">
@@ -24,9 +25,17 @@
             </table>
         </span>
         <span>
-            <button class="show-report btn btn-primary"
+            <button class="show-report btn btn-primary row-action-container"
+                    title="Open Report"
                     onclick="showReportHandler('<%= shake_id %>')">
-                Open Report
+                <span class="row-action-icon glyphicon glyphicon-file"></span>
+            </button>
+            <button class="download-report btn btn-primary
+            row-action-container"
+                    title="Download Report"
+                    onclick="downloadReportHandler('<%= shake_id %>')">
+                <span class="row-action-icon glyphicon
+                glyphicon-download"></span>
             </button>
         </span>
     </div>
