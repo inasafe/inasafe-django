@@ -389,7 +389,9 @@
 
             $(".submit-filter").click(updateFilterHandler);
             $(".clear-filter").click(function (e) {
+                e.preventDefault();
                 $("#event-filter input.form-control").val('');
+                updateFilterHandler(e);
             });
 
             {% if iframe %}
