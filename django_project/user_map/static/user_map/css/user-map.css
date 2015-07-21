@@ -14,7 +14,7 @@ body > .container {
 }
 
 #map .leaflet-top {
-    padding-top: 50px;
+    padding-top: 70px;
 }
 
 .transparent {
@@ -111,12 +111,101 @@ body > .container {
     border-radius: 5px;
 }
 
-.navbar li > a:hover, .nav .open > a:focus, .nav .open >a:active{
-    background-color: #202326;
+/*.navbar li > a:hover, .nav .open > a:focus, .nav .open >a:active{*/
+    /*background-color: #202326;*/
+/*}*/
+
+.navbar {
+    border: none!important;
+    font-size: 13px!important;
+    font-family: "Ubuntu";
+}
+
+.navbar .container {
+    position: relative;
+}
+
+.navbar .navbar-brand.logo {
+    height: 53px!important;
+    padding-top: 8px!important;
+}
+
+.navbar-nav>li>a {
+    padding-top: 26px!important;
+    padding-bottom: 10px!important;
+}
+
+.navbar-nav {
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.navbar-collapse.in {
+    position: relative;
+    overflow-y: visible;
+}
+
+.navbar-collapse.in #lang_sel {
+    position: absolute;
+    top: -60px;
+    right: 120px;
+}
+
+.navbar-collapse.in .navbar-nav>li>a {
+    padding-top: 10px!important;
 }
 
 .navbar .navbar-brand{
     color: #fff !important;
+}
+
+#lang_sel {
+    float: right;
+}
+
+#lang_sel ul {
+    list-style: none;
+    margin-bottom: 0;
+    padding: 0 20px;
+}
+
+#lang_sel>ul {
+    position: relative;
+}
+
+#lang_sel>ul>li>a {
+    padding-top: 23px!important;
+    padding-bottom: 10px!important;
+    display: block;
+}
+
+#lang_sel ul ul {
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    background: #2f3338;
+    z-index: 400;
+    padding-bottom: 15px;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+#lang_sel:hover ul ul {
+    display: block;
+}
+
+#lang_sel ul a {
+    color: #939CA6!important;
+}
+
+#lang_sel ul a:hover {
+    text-decoration: none;
+    color: #fff!important;
 }
 
 /* Navbar Styles */
@@ -172,6 +261,25 @@ body > .container {
 
 .second-menu {
     background: #f57d35;
+}
+
+.navbar-nav>li>a {
+    color: #939ca6!important;
+    text-shadow: none;
+}
+
+.nopadding {
+    padding-left: 0!important;
+    padding-right: 0!important;
+}
+
+.navbar-nav .active>a,.navbar-nav .active>a:hover,.navbar-nav .active>a:focus,.navbar-nav .current_page_parent>a {
+    color: #ffffff!important;
+}
+
+.navbar-nav>li>a:focus,.navbar-nav>li>a:hover {
+    color: #ffffff!important;
+    background-color: transparent;
 }
 
 /* Navbar Styles  End*/

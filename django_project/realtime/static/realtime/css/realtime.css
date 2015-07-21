@@ -27,6 +27,55 @@ body > .container {
     color: #ffffff!important;
 }
 
+#lang_sel {
+    float: right;
+}
+
+#lang_sel ul {
+    list-style: none;
+    margin-bottom: 0;
+    padding: 0 20px;
+}
+
+#lang_sel>ul {
+    position: relative;
+}
+
+#lang_sel>ul>li>a {
+    padding-top: 23px!important;
+    padding-bottom: 10px!important;
+    display: block;
+}
+
+#lang_sel ul ul {
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    background: #2f3338;
+    z-index: 400;
+    padding-bottom: 15px;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+#lang_sel:hover ul ul {
+    display: block;
+}
+
+#lang_sel ul a {
+    color: #939CA6!important;
+}
+
+#lang_sel ul a:hover {
+    text-decoration: none;
+    color: #fff!important;
+}
+
 .second-menu span {
     display: inline-block;
     line-height: 39px;
