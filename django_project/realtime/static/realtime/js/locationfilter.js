@@ -497,6 +497,6 @@ L.LocationFilter = L.Class.extend({
     }
 });
 
-L.locationFilter = function(options) {
+L.control.locationFilter = function(options) {
     return new L.LocationFilter(options);
 }

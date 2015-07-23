@@ -30,7 +30,9 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" rel="home" href="{% url 'front_end:home' %}" title="InaSAFE">
+                    <a class="navbar-brand" rel="home"
+                       href="http://blogtest.inasafe.org/"
+                       title="InaSAFE">
                         <img id="site-logo" style="max-width:100px;
                     margin-top:-7px;" src=
                                 "{% static BRAND_LOGO %}">
@@ -38,17 +40,41 @@
                 </div>
                 {% block nav_main %}
                     <nav class="nav-main navbar-collapse collapse" role="navigation">
-                        <ul class="navbar-nav nav ">
-                            <li class="menu-item active">
-                                <a href="#">REALTIME</a>
+                        <ul id="menu-default" class="navbar-nav nav">
+                            <li class="menu-item menu-item-type-post_type menu-item-object-page current-menu-item page_item page-item-151 current_page_item menu-item-152 menu-for-users">
+                                <a title="For Users" href="http://blogtest.inasafe.org/for-users/">For Users</a>
                             </li>
-                            <li class="menu-item">
-                                <a href="{% url 'user_map:index' %}">USER
-                                    MAP</a></li>
-                            <li class="menu-item">
-                                <a href="{% url 'front_end:home' %}#about">ABOUT</a>
+                            <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-155 menu-for-contributors dropdown">
+                                <a title="For Contributors" href="#" data-toggle="dropdown" class="dropdown-toggle" aria-haspopup="true">For Contributors
+                                    <span class="caret"></span></a>
+                                <ul role="menu" class=" dropdown-menu">
+                                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-171 menu-coders">
+                                        <a title="Coders" href="http://blogtest.inasafe.org/for-contributors/for-coders/">Coders</a>
+                                    </li>
+                                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-170 menu-writers-and-designers">
+                                        <a title="Writers and Designers" href="http://blogtest.inasafe.org/for-contributors/for-documentation-writers-and-designers/">Writers and Designers</a>
+                                    </li>
+                                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-169 menu-translators">
+                                        <a title="Translators" href="http://blogtest.inasafe.org/for-contributors/for-translators/">Translators</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-158 menu-blog">
+                                <a title="Blog" href="http://blogtest.inasafe.org/blog/">Blog</a>
+                            </li>
+                            <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-12 menu-chat-live">
+                                <a title="Chat Live!" href="http://blogtest.inasafe.org/chat-live/">Chat Live!</a>
+                            </li>
+                            <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-160 menu-report-an-issue">
+                                <a title="Report an Issue" target="_blank" href="https://github.com/AIFDR/inasafe/issues">Report an Issue</a>
                             </li>
                         </ul>
+                        <div id="lang_sel">
+                            <ul>
+                                <li><a href="#" class="lang_sel_sel icl-en">English</a>
+                                </li>
+                            </ul>
+                        </div>
                     </nav>
                 {% endblock %}
             </div>

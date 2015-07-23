@@ -27,12 +27,28 @@ FAVICON_FILE = getattr(settings, 'REALTIME_FAVICON_FILE',
 
 # LEAFLET CONFIG
 default_leaflet_tiles = (
-    'OpenStreetMap',
-    'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-    ('© <a href="http://www.openstreetmap.org" target="_parent">OpenStreetMap'
+    ['MapQuest',
+     'OpenStreetMap',
+     ],
+    [
+        'http://otile{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
+        'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+    ],
+    [
+        '1234',
+        'abcd',
+    ],
+    ['© <a href="http://www.openstreetmap.org" target="_parent">OpenStreetMap'
      '</a> and contributors, under an <a '
      'href="http://www.openstreetmap.org/copyright" target="_parent">open '
-     'license</a>')
+     'license</a>. Tiles Courtesy of <a '
+     'href="http://www.mapquest.com/">MapQuest</a> <img '
+     'src="http://developer.mapquest.com/content/osm/mq_logo.png"',
+     '© <a href="http://www.openstreetmap.org" target="_parent">OpenStreetMap'
+     '</a> and contributors, under an <a '
+     'href="http://www.openstreetmap.org/copyright" target="_parent">open '
+     'license</a>.',
+     ]
 )
 LEAFLET_TILES = getattr(settings, 'LEAFLET_TILES', default_leaflet_tiles)
 

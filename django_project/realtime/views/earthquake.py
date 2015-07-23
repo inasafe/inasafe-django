@@ -43,9 +43,15 @@ def index(request, iframe=False, server_side_filter=False):
         if 'server_side_filter' in request.GET:
             server_side_filter = request.GET.get('server_side_filter')
 
-    leaflet_tiles = dict(
-        url=LEAFLET_TILES[1],
-        attribution=LEAFLET_TILES[2]
+    leaflet_tiles = []
+    for i in range(0, len(LEAFLET_TILES[1])):
+        leaflet_tiles.append(
+            dict(
+                name=LEAFLET_TILES[0][i],
+                url=LEAFLET_TILES[1][i],
+                subdomains=LEAFLET_TILES[2][i],
+                attribution=LEAFLET_TILES[3][i]
+            )
         )
 
     context = RequestContext(request)

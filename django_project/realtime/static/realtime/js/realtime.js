@@ -34,10 +34,11 @@ var event_json;
  * @property tileLayer
  * @returns {object} base_map
  */
-function createBasemap(url, attribution) {
+function createBasemap(url, subdomains, attribution) {
     var base_map;
     base_map = L.tileLayer(url, {
         attribution: attribution,
+        subdomains: subdomains,
         maxZoom: 18
     });
     return base_map;
@@ -117,7 +118,7 @@ function createShowEventHandler(map, markers, map_events) {
 /**
  * Closure to create handler for showReport
  * @param {string} report_url A report url that contains shake_id placeholder
- * @return {function} Download the report based on shake_id
+ * @return {function} Open the report based on shake_id in a new tab
  */
 function createShowReportHandler(report_url) {
     var showReportHandler = function (shake_id) {
@@ -127,7 +128,7 @@ function createShowReportHandler(report_url) {
         $.get(url, function (data) {
             if (data && data.report_pdf) {
                 var pdf_url = data.report_pdf;
-                window.location = pdf_url;
+                window.open(pdf_url, '_blank');
             }
         }).fail(function(e){
             console.log(e);
@@ -139,6 +140,64 @@ function createShowReportHandler(report_url) {
     return showReportHandler;
 }
 
+
+/**
+ * A script to download link to disk.
+ * Source: http://stackoverflow.com/questions/3077242/force-download-a-pdf-link-using-javascript-ajax-jquery/29266135#29266135
+ * @param fileURL {string} the file url
+ * @param fileName {string} filename to save
+ */
+function SaveToDisk(fileURL, fileName) {
+    if (!window.ActiveXObject) {
+        var save = document.createElement('a');
+        save.href = fileURL;
+        save.target = '_blank';
+        save.download = fileName || 'unknown';
+
+        var evt = new MouseEvent('click', {
+            'view': window,
+            'bubbles': true,
+            'cancelable': false
+        });
+        save.dispatchEvent(evt);
+
+        (window.URL || window.webkitURL).revokeObjectURL(save.href);
+    }
+
+    // for IE < 11
+    else if ( !! window.ActiveXObject && document.execCommand)     {
+        var _window = window.open(fileURL, '_blank');
+        _window.document.close();
+        _window.document.execCommand('SaveAs', true, fileName || fileURL)
+        _window.close();
+    }
+}
+
+/**
+ * Closure to create handler for downloadReport
+ * @param {string} report_url A report url that contains shake_id placeholder
+ * @return {function} Download the report based on shake_id
+ */
+function createDownloadReportHandler(report_url) {
+    var downloadReportHandler = function (shake_id) {
+        var url = report_url;
+        // replace magic number 000 with shake_id
+        url = url.replace('000', shake_id);
+        $.get(url, function (data) {
+            if (data && data.report_pdf) {
+                var pdf_url = data.report_pdf;
+                SaveToDisk(pdf_url, data.shake_id+'-'+data.language+'.pdf');
+            }
+        }).fail(function(e){
+            console.log(e);
+            if(e.status == 404){
+                alert("No Report recorded for this event.");
+            }
+        });
+    };
+    return downloadReportHandler;
+}
+
 /**
  * Create update filter handler based on url and dataHandler
  * @param {string} url URL to send filtered data
@@ -146,13 +205,13 @@ function createShowReportHandler(report_url) {
  * @return {Function} Update handler function
  */
 function createUpdateFilterHandler(url, form_filter, location_filter, dataHandler) {
-    var updateFilterHandler = function (e) {
+    var updateFilterHandler = function (e, reset) {
         if (e.preventDefault) {
             e.preventDefault();
         }
         var form_filter_query = form_filter.serialize();
         var location_filter_query = "";
-        if (location_filter.isEnabled()) {
+        if (location_filter.isEnabled() && reset!==true) {
             location_filter_query += "&in_bbox=" + location_filter.getBounds().toBBoxString();
         }
         $.get(url + "?" + form_filter_query + location_filter_query, dataHandler);
@@ -244,12 +303,15 @@ function clientExtentFilter(data_input, bounds){
  * @return {Function} Update handler function
  */
 function createClientUpdateFilterHandler(url, form_filter, location_filter, dataHandler) {
-    var updateFilterHandler = function (e) {
+    var updateFilterHandler = function (e, reset) {
         if (e.preventDefault) {
             e.preventDefault();
         }
         // filter by bounds
-        var filtered = clientExtentFilter(event_json, location_filter.getBounds());
+        var filtered = event_json;
+        if(reset !== true){
+            filtered = clientExtentFilter(event_json, location_filter.getBounds());
+        }
         filtered = clientFilter(
             filtered,
             $("#id_start_date", form_filter).val(),
@@ -261,6 +323,123 @@ function createClientUpdateFilterHandler(url, form_filter, location_filter, data
     };
     return updateFilterHandler;
 }
+
+/**
+ * Modify a given target text with relevant map filters descriptions
+ * @param target {string} Jquery selector string for target element
+ */
+function modifyMapDescriptions(target){
+    var $target = $(target);
+
+    var magnitude_string = "";
+    var min_magnitude = $("#id_minimum_magnitude").val();
+    var max_magnitude = $("#id_maximum_magnitude").val();
+    if(min_magnitude && max_magnitude){
+        magnitude_string = 'with magnitudes between '+min_magnitude+' and '+max_magnitude;
+    }
+    else if(min_magnitude){
+        magnitude_string = 'with magnitudes greater or equal than '+min_magnitude;
+    }
+    else if(max_magnitude){
+        magnitude_string = 'with magnitudes less or equal than '+max_magnitude;
+    }
+
+    var date_string = '';
+    var start_date = $("#id_start_date").val();
+    var end_date = $("#id_end_date").val();
+    if(start_date && end_date){
+        var start_moment = moment(start_date);
+        var end_moment = moment(end_date);
+        date_string = 'over the period '+start_moment.format('LL')+' and '+end_moment.format('LL');
+    }
+    else if(start_date){
+        var start_moment = moment(start_date);
+        date_string = 'after '+start_moment.format('LL');
+    }
+    else if(end_date){
+        var end_moment = moment(end_date);
+        date_string = 'before '+end_moment.format('LL');
+    }
+    var description = 'Earthquake events';
+    if(magnitude_string){
+        description+=' '+magnitude_string;
+    }
+    if(date_string){
+        description+=' '+date_string;
+    }
+    $target.text(description);
+}
+
+/**
+ * Modify location filter plugin styles.
+ * This function is used to overrides original styles
+ */
+function modifyLocationFilterStyle(){
+    var $location_filter_container = $(".location-filter");
+    $location_filter_container.removeClass('button-container').addClass('leaflet-bar');
+    var $enable_button = $(".enable-button", $location_filter_container);
+    $enable_button.text("");
+    $enable_button.click(function(){
+        // disable text
+        $("a", $location_filter_container).text("");
+        var $toggle_button = $(".enable-button", $location_filter_container);
+        $toggle_button.toggleClass("remove-button");
+    });
+}
+
+/**
+ * Modify default search and show labels of dynatable
+ */
+function modifySearchAndShowLabels(){
+    $(".dynatable-per-page-label").text("Show");
+    var $search_container = $(".dynatable-search");
+    var $children = $search_container.children();
+    $search_container.text("Search").append($children);
+}
+
+/**
+ * Fit all the markers in the map, so every markers is seen.
+ * @param map {L.map} leaflet map
+ * @param markers {L.LayerGroup} leaflet layer
+ * @param padding {Array} padding options of fitBounds method in map object
+ */
+function mapFitAll(map, markers, padding){
+    var padding = padding | [100, 100];
+    map.fitBounds(markers.getBounds(), {
+        padding: padding
+    });
+}
+
+/**
+ * Create FitAll control using Leaflet Control Extend
+ */
+L.Control.FitAll = L.Control.extend({
+    options: {
+        position: 'topleft',
+        title: 'Fit All',
+        markers: undefined,
+    },
+    onAdd: function(map){
+        this._container = L.DomUtil.create('div', 'control-fit-all' +
+            ' leaflet-bar');
+        this._button = L.DomUtil.create('a', 'fit-all-button glyphicon glyphicon-globe', this._container);
+        this._button.href = '#';
+        this._button.title = this.options.title;
+        var that = this;
+        L.DomEvent.on(this._button, 'click', function(event){
+            L.DomEvent.stopPropagation(event);
+            L.DomEvent.preventDefault(event);
+            if(that.options.markers){
+                mapFitAll(map, that.options.markers);
+            }
+        });
+        return this._container;
+    }
+});
+
+L.control.fitAll = function(options){
+    return new L.Control.FitAll(options);
+};
 
 /**
  * Dynatable related functions
@@ -276,19 +455,29 @@ function createClientUpdateFilterHandler(url, form_filter, location_filter, data
 function createActionRowWriter(button_templates) {
     writer = function (rowIndex, record, columns, cellWriter) {
         var tr = '';
+        // reformat 'time' column
+        var time = record.time;
+        var moment_time = moment(time);
+        record = $.extend(true, {}, record);
+        record.time = moment_time.format('YYYY-MM-DD [at] HH:mm:ss');
 
         // grab the record's attribute for each column
         for (var i = 0, len = columns.length; i < len; i++) {
             tr += cellWriter(columns[i], record);
         }
         // for action column
-        $span = $('<span></span>');
+        var $span = $('<span></span>');
         for (var i = 0; i < button_templates.length; i++) {
             var button = button_templates[i];
-            $button = $('<button></button>');
-            $button.addClass('btn btn-primary');
-            $button.text(button.name);
+            var $inner_button = $('<span></span>');
+            $inner_button.addClass('row-action-icon')
+            $inner_button.addClass(button.css_class);
+            $inner_button.attr('title', button.name);
+            var $button = $('<button></button>');
+            $button.addClass('btn btn-primary row-action-container');
+            $button.attr('title', button.name);
             $button.attr('onclick', button.handler + "('" + record.shake_id + "')");
+            $button.append($inner_button);
             $span.append($button);
         }
         tr += '<td>' + $span.html() + '</td>';
@@ -304,10 +493,10 @@ function createActionRowWriter(button_templates) {
  * @param {string} header_name The name of the new column header
  */
 function addActionColumn(selector, header_name) {
-    $container = $(selector);
-    $header = $('thead tr', $container);
-    $th = $('<th></th>');
-    $a = $('<a></a>');
+    var $container = $(selector);
+    var $header = $('thead tr', $container);
+    var $th = $('<th></th>');
+    var $a = $('<a></a>');
     $a.attr('href', '#');
     $a.text(header_name);
     $th.addClass('dynatable-head');

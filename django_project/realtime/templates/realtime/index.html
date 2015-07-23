@@ -37,7 +37,31 @@
     <div class="row center-block">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">Map</h3>
+                <h2 class="panel-title">InaSAFE Realtime</h2>
+            </div>
+            <div class="panel-body">
+                <p class="text-justify">
+                    This page contains near realtime earthquake impact assessments
+                    following recent earthquakes in the Indonesia region.
+                    Shakemaps of earthquake ground shaking are produced by the
+                    Indonesian Agency for Meteorology, Climatology and Geophysics (BMKG)
+                    and used by the Indonesian National Disaster Management Agency (BNPB)
+                    to produce InaSAFE impact assessments within minutes of an earthquake
+                    (<a href="http://www.bnpb.go.id">http://www.bnpb.go.id</a>
+                    or <a href="http://realtime.inasafe.org">http://realtime.inasafe.org</a>).
+                    This information is used by disaster managers to help them understand
+                    the potential scale of a disaster and to respond faster to the
+                    hardest hit communities. This is particularly important in the
+                    first few hours after a large earthquake when it may be difficult
+                    to get accurate on-the-ground information.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="row center-block">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title map-title">Map</h3>
             </div>
             <div class="panel-body" style="height: 500px">
                 <!-- Leaflet Map div -->
@@ -73,13 +97,31 @@
                         <span class="col-xs-6 col-sm-4">
                             {{ form.maximum_magnitude|bootstrap_horizontal:'col-md-5' }}
                         </span>
+                        <span class="col-sm-1 hidden-xs">
+                            <button class="btn clear-filter" title="Clear Filter">
+                                <span class="glyphicon glyphicon-erase"></span>
+                            </button>
+                        </span>
+                        <span class="col-sm-1 hidden-xs">
+                            <button class="btn btn-primary submit-filter"
+                                    title="Update Filter">
+                                <span class="glyphicon glyphicon-ok"></span>
+                            </button>
+                        </span>
                         <span class="clearfix"></span>
                     </span>
                     <span class="row">
-                        <input id="clear-filter" type="button" value="Clear Filter"
-                               class="col-xs-6 col-sm-2 col-md-1 btn">
-                        <input id="submit-filter" type="submit" value="Update"
-                               class="col-xs-6 col-sm-2 col-md-1 btn btn-primary">
+                        <span class="col-xs-2 visible-xs">
+                            <button class="btn clear-filter" title="Clear Filter">
+                                <span class="glyphicon glyphicon-erase"></span>
+                            </button>
+                        </span>
+                        <span class="col-xs-2 visible-xs">
+                            <button class="btn btn-primary submit-filter"
+                                    title="Update Filter">
+                                <span class="glyphicon glyphicon-ok"></span>
+                            </button>
+                        </span>
                     </span>
                 </form>
             </div>
@@ -94,19 +136,66 @@
                 <h3 class="panel-title">Table</h3>
             </div>
             <div class="panel-body">
-                <table class="table table-striped table-bordered table-hover" id="realtime-table">
-                    <thead>
-                    <th>Time</th>
-                    <th>Location Description</th>
-                    <th>Magnitude</th>
-                    <th>Depth</th>
-                    <th>Shake Id</th>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
+                <div class="col-md-12">
+                    <table class="table table-striped table-bordered table-hover" id="realtime-table">
+                        <thead>
+                        <th>Time</th>
+                        <th>Location Description</th>
+                        <th>Magnitude</th>
+                        <th>Depth</th>
+                        <th>Shake Id</th>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <h2>Supporters</h2>
+            <p>Funded and supported by the
+                <a href="http://www.aifdr.org/">Australia-Indonesia Facility
+                    for Disaster Reduction</a>,
+                <a href="http://www.ga.gov.au/">Geoscience Australia</a> and
+                the <a href="http://www.gfdrr.org">World Bank-GFDRR</a>.
+            </p>
+        </div>
+        <div class="col-md-4">
+            <h2>Partners</h2>
+
+            <p>This software was developed with our partners in Indonesia:
+                <a href="http://bnpb.go.id">Badan Nasional
+                    Penanggulangan Bencana (BNPB)</a>. and
+                <a href="http://www.bmkg.go.id">Badan Meteorologi, Klimatologi, dan
+                    Geofisika (BMKG)</a>
+            </p>
+        </div>
+        <div class="span4">
+            <h2>InaSAFE</h2>
+
+            <p>This software is part of the
+                <a href="http://inasafe.org">InaSAFE</a> project.
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <span class="col-md-4 panel panel-default">
+            <div class="panel-body">
+                <img class="img-responsive center-block" src=
+                        "{% static 'realtime/img/bnpb_logo.png' %}"
+                     alt="BNPB Logo">
+            </div>
+        </span>
+        <span class="col-md-4"></span>
+        <span class="col-md-4 panel panel-default">
+            <div class="panel-body">
+                <img class="img-responsive center-block" src=
+                "{% static 'realtime/img/bmkg_logo.png' %}"
+                     alt="BMKG Logo">
+            </div>
+        </span>
     </div>
 {% endblock table_content %}
 
@@ -114,14 +203,22 @@
     <script type="text/javascript">
         var base_map, dynaTable;
 
-        //Initialize Basemap Layer
-        base_map = createBasemap(
-                '{{ leaflet_tiles.url }}',
-                '{{ leaflet_tiles.attribution | safe }}');
+        // Initialize Basemap Layer
+        base_map = {
+            {% for tile in leaflet_tiles %}
+                '{{ tile.name }}' : createBasemap(
+                    '{{ tile.url }}',
+                    '{{ tile.subdomains }}',
+                    '{{ tile.attribution | safe }}')
+                {% if not forloop.last %}
+                    ,
+                {% endif %}
+            {% endfor %}
+        };
 
         //Create Map with prepared base_map
         map = L.map('map', {
-            layers: [base_map]
+            layers: [ base_map["{{ leaflet_tiles.0.name }}"] ]
         });
         map.fitWorld().zoomIn();
         // make popup in center when opened
@@ -147,10 +244,16 @@
             })(class_name)
         }).addTo(map);
 
+        // create control layers
+        L.control.layers(base_map, {
+            'Shake Event': markers
+        }, {
+            position: 'topleft'
+        }).addTo(map);
+
         project_icon_path = "{% static 'realtime/img/earthquake.png' %}";
-        project_shadow_icon_path = "{% static 'realtime/img/earthquake-shadow.png' %}";
         earthquakeIcon = createIconMarker(
-                project_icon_path, project_shadow_icon_path);
+                project_icon_path);
 
         // create dynatable
         var jsonTableContents = [];
@@ -159,14 +262,22 @@
         {#    Use magic number 000 for placeholder#}
         var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' language=language %}'
         var showReportHandler = createShowReportHandler(report_url);
+        var downloadReportHandler = createDownloadReportHandler(report_url);
         var button_templates = [
             {
                 name: 'Show',
+                css_class: 'glyphicon glyphicon-search',
                 handler: 'showEventHandler'
             },
             {
                 name: 'Report',
+                css_class: 'glyphicon glyphicon-file',
                 handler: 'showReportHandler'
+            },
+            {
+                name: 'Download',
+                css_class: 'glyphicon glyphicon-download',
+                handler: 'downloadReportHandler'
             }
         ];
 
@@ -201,7 +312,7 @@
         }
 
         // add LocationFilter control
-        var locationFilter = L.locationFilter({
+        var locationFilter = L.control.locationFilter({
             enableButton: {
                 enableText: "{{ select_area_text }}",
                 disableText: "{{ remove_area_text }}"
@@ -212,18 +323,17 @@
             buttonPosition: 'topleft'
         }).addTo(map);
 
+        // add FitAll control
+        var fitAll = L.control.fitAll({
+            position: 'topleft',
+            title: 'Fit All',
+            markers: markers
+        }).addTo(map);
+
         $(document).ready(function () {
 
             var $root = $('html, body');
             var $navbar = $('#navbar');
-
-            $('a').click(function () {
-                $root.animate({
-                    scrollTop: $($.attr(this, 'href')).offset().top - $navbar
-                            .height()
-                }, 500);
-                return false;
-            });
 
             dynaTable = $('#realtime-table').dynatable({
                 table: {
@@ -240,42 +350,48 @@
             // add action column to dynatable
             addActionColumn('#realtime-table', 'Action');
 
-            // move table control div
-            var $table = $("#realtime-table");
-            var $table_sibling = $table.prev();
-            var $table_responsive = $("<div></div>").addClass("table-responsive");
-            $table_responsive.append($table.detach());
-            $table_responsive.insertAfter($table_sibling);
-
-
             $.get(get_events_url, function (data) {
                 event_json = data;
                 getEarthquakeEventsJson(data);
-                map.fitBounds(markers.getBounds(), {padding: [100, 100]});
+                modifyMapDescriptions(".map-title");
+                mapFitAll(map, markers);
             });
 
             // add content filter handler
             // update via ajax request
             {% if server_side_filter %}
-            var updateFilterHandler = createUpdateFilterHandler(get_events_url,
+            var _updateFilterHandler = createUpdateFilterHandler(get_events_url,
                     $("#event-filter"),
                     locationFilter,
                     getEarthquakeEventsJson);
             {% else %}
             // update via client filters
-            var updateFilterHandler = createClientUpdateFilterHandler(get_events_url,
+            var _updateFilterHandler = createClientUpdateFilterHandler(get_events_url,
                     $("#event-filter"),
                     locationFilter,
                     getEarthquakeEventsJson);
             {% endif %}
+            var updateFilterHandler = function(e, reset){
+                _updateFilterHandler(e, reset);
+                modifyMapDescriptions(".map-title");
+            };
 
             locationFilter.on("change", updateFilterHandler);
             locationFilter.on("enabled", updateFilterHandler);
-            locationFilter.on("disabled", updateFilterHandler);
+            locationFilter.on("disabled", function(e){
+{#              Disable/clear selection first #}
+                updateFilterHandler(e, true);
+            });
 
-            $("#submit-filter").click(updateFilterHandler);
-            $("#clear-filter").click(function (e) {
+{#            Modify location filter styles#}
+            modifyLocationFilterStyle();
+            modifySearchAndShowLabels();
+
+            $(".submit-filter").click(updateFilterHandler);
+            $(".clear-filter").click(function (e) {
+                e.preventDefault();
                 $("#event-filter input.form-control").val('');
+                updateFilterHandler(e);
             });
 
             {% if iframe %}

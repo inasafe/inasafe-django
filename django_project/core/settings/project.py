@@ -48,6 +48,7 @@ PIPELINE_JS = {
             'realtime/js/leaflet.markercluster-src.js',
             'realtime/js/locationfilter.js',
             'realtime/js/validate.js',
+            'realtime/js/moment.js'
         ),
         'output_filename': 'js/realtime_contrib.js',
     },
