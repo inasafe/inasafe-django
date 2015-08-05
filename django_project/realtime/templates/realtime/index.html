@@ -81,7 +81,7 @@
             </div>
             <div class="panel-body">
                 <form id="event-filter">
-                    <span class="row">
+                    <span class="row date-filter">
                         <span class="col-xs-6 col-sm-4">
                             {{ form.start_date|bootstrap_horizontal:'col-md-5' }}
                         </span>
@@ -90,7 +90,7 @@
                         </span>
                         <span class="clearfix"></span>
                     </span>
-                    <span class="row">
+                    <span class="row magnitude-filter">
                         <span class="col-xs-6 col-sm-4">
                             {{ form.minimum_magnitude|bootstrap_horizontal:'col-md-5' }}
                         </span>
@@ -167,7 +167,7 @@
 
             <p>This software was developed with our partners in Indonesia:
                 <a href="http://bnpb.go.id">Badan Nasional
-                    Penanggulangan Bencana (BNPB)</a>. and
+                    Penanggulangan Bencana (BNPB)</a> and
                 <a href="http://www.bmkg.go.id">Badan Meteorologi, Klimatologi, dan
                     Geofisika (BMKG)</a>
             </p>
@@ -359,15 +359,16 @@
 
             // add content filter handler
             // update via ajax request
+            var $event_filter = $("#event-filter");
             {% if server_side_filter %}
             var _updateFilterHandler = createUpdateFilterHandler(get_events_url,
-                    $("#event-filter"),
+                    $event_filter,
                     locationFilter,
                     getEarthquakeEventsJson);
             {% else %}
             // update via client filters
             var _updateFilterHandler = createClientUpdateFilterHandler(get_events_url,
-                    $("#event-filter"),
+                    $event_filter,
                     locationFilter,
                     getEarthquakeEventsJson);
             {% endif %}
@@ -392,7 +393,34 @@
                 e.preventDefault();
                 $("#event-filter input.form-control").val('');
                 updateFilterHandler(e);
+                $(".submit-filter, .clear-filter").hide();
             });
+
+{#            Disable date input text#}
+            $event_filter.find(".date-filter input").attr("readonly", "readonly");
+{#            Disable filter button if no filter exists#}
+
+            var show_filter_button = function(e){
+                var is_show_filter = false;
+                $event_filter.find("input").each(function(idx, el){
+                    if($(el).val()){
+                        is_show_filter = true;
+                    }
+                });
+                if(is_show_filter){
+                    $event_filter.find("button.btn").show();
+                }
+                else{
+                    $event_filter.find("button.btn").hide();
+                }
+            };
+
+            show_filter_button();
+            $event_filter.find("input").bind("propertychange change click keyup input paste blur mouseup",
+                    show_filter_button);
+            $event_filter.find(".date-filter input")
+            $(".datepicker").bind("click mouseup blur", show_filter_button);
+
 
             {% if iframe %}
 {#                If in iframe, remove unnecessary informations#}
