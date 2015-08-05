@@ -18,6 +18,8 @@ db:
   environment:
     - USERNAME=docker
     - PASS=docker
+  ports:
+    - "6543:5432"
 
 dbbackup:
   image: kartoza/pg-backup
@@ -71,18 +73,3 @@ web:
     - uwsgi:uwsgi
   ports:
     - "61100:8080"
-
-# Exactly the same as web but for staging we use a different port.
-stagingweb:
-  image: nginx
-  hostname: nginx
-  volumes:
-    - ./sites-enabled:/etc/nginx/conf.d:ro
-    # I dont use volumes_from as I want to use the ro modifier
-    - ./static:/home/web/static:ro
-    - ./media:/home/web/media:ro
-    - ./logs:/var/log/nginx
-  links:
-    - uwsgi:uwsgi
-  ports:
-    - "61101:8080"
