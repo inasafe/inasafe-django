@@ -236,3 +236,14 @@ th.dynatable-head a, th.dynatable-head a:hover {
 .control-fit-all a.fit-all-button{
 
 }
+
+
+/* ******************** */
+/*     Layer control    */
+/* ******************** */
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 26px !important;
+	height: 26px !important;
+	background-size: 18px !important;
+}

@@ -80,22 +80,26 @@
                 <h3 class="panel-title">Filters</h3>
             </div>
             <div class="panel-body">
-                <form id="event-filter">
+                <form id="event-filter" data-toggle="validator">
                     <span class="row date-filter">
                         <span class="col-xs-6 col-sm-4">
                             {{ form.start_date|bootstrap_horizontal:'col-md-5' }}
+                            <div class="help-block with-errors"></div>
                         </span>
                         <span class="col-xs-6 col-sm-4">
                             {{ form.end_date|bootstrap_horizontal:'col-md-5' }}
+                            <div class="help-block with-errors"></div>
                         </span>
                         <span class="clearfix"></span>
                     </span>
                     <span class="row magnitude-filter">
                         <span class="col-xs-6 col-sm-4">
                             {{ form.minimum_magnitude|bootstrap_horizontal:'col-md-5' }}
+                            <div class="help-block with-errors"></div>
                         </span>
                         <span class="col-xs-6 col-sm-4">
                             {{ form.maximum_magnitude|bootstrap_horizontal:'col-md-5' }}
+                            <div class="help-block with-errors"></div>
                         </span>
                         <span class="col-sm-1 hidden-xs">
                             <button class="btn clear-filter" title="Clear Filter">
@@ -104,7 +108,8 @@
                         </span>
                         <span class="col-sm-1 hidden-xs">
                             <button class="btn btn-primary submit-filter"
-                                    title="Update Filter">
+                                    title="Update Filter"
+                                    type="submit">
                                 <span class="glyphicon glyphicon-ok"></span>
                             </button>
                         </span>
@@ -265,7 +270,7 @@
         var downloadReportHandler = createDownloadReportHandler(report_url);
         var button_templates = [
             {
-                name: 'Show',
+                name: 'Zoom',
                 css_class: 'glyphicon glyphicon-search',
                 handler: 'showEventHandler'
             },
@@ -298,6 +303,7 @@
             }
             dynaTable.settings.dataset.originalRecords = jsonTableContents;
             dynaTable.paginationPerPage.set(100);
+            dynaTable.sorts.add('time', -1);
             dynaTable.process();
         }
 
@@ -343,7 +349,8 @@
                     _rowWriter: createActionRowWriter(button_templates)
                 },
                 dataset: {
-                    records: jsonTableContents
+                    records: jsonTableContents,
+                    sorts: {'magnitude': -1}
                 }
             }).data('dynatable');
 
@@ -373,8 +380,13 @@
                     getEarthquakeEventsJson);
             {% endif %}
             var updateFilterHandler = function(e, reset){
-                _updateFilterHandler(e, reset);
-                modifyMapDescriptions(".map-title");
+                if(e.isDefaultPrevented()){
+
+                }
+                else {
+                    _updateFilterHandler(e, reset);
+                    modifyMapDescriptions(".map-title");
+                }
             };
 
             locationFilter.on("change", updateFilterHandler);
@@ -416,10 +428,7 @@
             };
 
             show_filter_button();
-            $event_filter.find("input").bind("propertychange change click keyup input paste blur mouseup",
-                    show_filter_button);
-            $event_filter.find(".date-filter input")
-            $(".datepicker").bind("click mouseup blur", show_filter_button);
+            $event_filter.bind('mousemove click keyup focus blur', show_filter_button);
 
 
             {% if iframe %}
