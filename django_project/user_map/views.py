@@ -63,8 +63,10 @@ def index(request):
         'user_map/legend.html', {'projects': PROJECTS})
 
     leaflet_tiles = dict(
+        name=LEAFLET_TILES[0],
         url=LEAFLET_TILES[1],
-        attribution=LEAFLET_TILES[2]
+        subdomains=LEAFLET_TILES[2],
+        attribution=LEAFLET_TILES[3]
     )
     context = {
         'data_privacy_content': data_privacy_content,

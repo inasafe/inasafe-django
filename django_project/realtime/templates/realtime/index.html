@@ -3,6 +3,7 @@
 {% load leaflet_tags %}
 {% load bootstrap %}
 {% load pipeline %}
+{% load i18n %}
 
 {% block head_resources %}
     {{ block.super }}
@@ -41,19 +42,7 @@
             </div>
             <div class="panel-body">
                 <p class="text-justify">
-                    This page contains near realtime earthquake impact assessments
-                    following recent earthquakes in the Indonesia region.
-                    Shakemaps of earthquake ground shaking are produced by the
-                    Indonesian Agency for Meteorology, Climatology and Geophysics (BMKG)
-                    and used by the Indonesian National Disaster Management Agency (BNPB)
-                    to produce InaSAFE impact assessments within minutes of an earthquake
-                    (<a href="http://www.bnpb.go.id">http://www.bnpb.go.id</a>
-                    or <a href="http://realtime.inasafe.org">http://realtime.inasafe.org</a>).
-                    This information is used by disaster managers to help them understand
-                    the potential scale of a disaster and to respond faster to the
-                    hardest hit communities. This is particularly important in the
-                    first few hours after a large earthquake when it may be difficult
-                    to get accurate on-the-ground information.
+                    {{ project_header|safe }}
                 </p>
             </div>
         </div>
@@ -61,7 +50,7 @@
     <div class="row center-block">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title map-title">Map</h3>
+                <h3 class="panel-title map-title">{% trans "Map" %}</h3>
             </div>
             <div class="panel-body" style="height: 500px">
                 <!-- Leaflet Map div -->
@@ -77,7 +66,7 @@
     <div class="row center-block">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">Filters</h3>
+                <h3 class="panel-title">{% trans "Filters" %}</h3>
             </div>
             <div class="panel-body">
                 <form id="event-filter" data-toggle="validator">
@@ -138,17 +127,17 @@
     <div class="row center-block" id="realtime_table_div">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">Table</h3>
+                <h3 class="panel-title">{% trans "Table" %}</h3>
             </div>
             <div class="panel-body">
                 <div class="col-md-12">
                     <table class="table table-striped table-bordered table-hover" id="realtime-table">
                         <thead>
-                        <th>Time</th>
-                        <th>Location Description</th>
-                        <th>Magnitude</th>
-                        <th>Depth</th>
-                        <th>Shake Id</th>
+                        <th data-dynatable-column="time">{% trans "Time" %}</th>
+                        <th data-dynatable-column="location_description">{% trans "Location Description" %}</th>
+                        <th data-dynatable-column="magnitude">{% trans "Magnitude" %}</th>
+                        <th data-dynatable-column="depth">{% trans "Depth" %}</th>
+                        <th data-dynatable-column="shake_id">{% trans "Shake Id" %}</th>
                         </thead>
                         <tbody>
                         </tbody>
@@ -157,35 +146,10 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-4">
-            <h2>Supporters</h2>
-            <p>Funded and supported by the
-                <a href="http://www.aifdr.org/">Australia-Indonesia Facility
-                    for Disaster Reduction</a>,
-                <a href="http://www.ga.gov.au/">Geoscience Australia</a> and
-                the <a href="http://www.gfdrr.org">World Bank-GFDRR</a>.
-            </p>
-        </div>
-        <div class="col-md-4">
-            <h2>Partners</h2>
-
-            <p>This software was developed with our partners in Indonesia:
-                <a href="http://bnpb.go.id">Badan Nasional
-                    Penanggulangan Bencana (BNPB)</a> and
-                <a href="http://www.bmkg.go.id">Badan Meteorologi, Klimatologi, dan
-                    Geofisika (BMKG)</a>
-            </p>
-        </div>
-        <div class="span4">
-            <h2>InaSAFE</h2>
-
-            <p>This software is part of the
-                <a href="http://inasafe.org">InaSAFE</a> project.
-            </p>
-        </div>
+    <div id="disclaimer" class="row">
+        {{ project_credit|safe }}
     </div>
-    <div class="row">
+    <div id="affiliates_logos" class="row">
         <span class="col-md-4 panel panel-default">
             <div class="panel-body">
                 <img class="img-responsive center-block" src=
@@ -265,7 +229,7 @@
         var showEventHandler = createShowEventHandler(map, markers,
                 map_events);
         {#    Use magic number 000 for placeholder#}
-        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' language=language %}'
+        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' language=language.selected_language.id %}'
         var showReportHandler = createShowReportHandler(report_url);
         var downloadReportHandler = createDownloadReportHandler(report_url);
         var button_templates = [

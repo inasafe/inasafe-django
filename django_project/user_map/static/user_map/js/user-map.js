@@ -14,11 +14,13 @@
  * @property tileLayer
  * @returns {object} base_map
  */
-function createBasemap(url, attribution) {
+function createBasemap(url, subdomains, attribution) {
   var base_map;
   base_map = L.tileLayer(url, {
     attribution: attribution,
-    maxZoom: 18
+    subdomains: subdomains,
+    maxZoom: 18,
+    continuousWorld: true
   });
   return base_map;
 }

@@ -139,6 +139,7 @@
         //Initialize Basemap Layer
         base_map = createBasemap(
                 '{{ leaflet_tiles.url }}',
+                '{{ leaflet_tiles.subdomains }}',
                 '{{ leaflet_tiles.attribution | safe }}');
 
         //Create Map with prepared base_map
@@ -184,7 +185,7 @@
                             className: class_name,
                             iconSize: L.point(40, 40)
                         });
-                    }
+                    };
                 })(class_name)
             });
 
@@ -197,7 +198,6 @@
             //Add layer to overlays layer
             overlays_layer[projects[i]['name']] = projects[i]['layer'];
         }
-        ;
 
         //Plug overlays_layers in layer control
         L.control.layers(null, overlays_layer, {collapsed: false}).addTo(map);

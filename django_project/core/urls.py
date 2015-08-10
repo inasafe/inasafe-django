@@ -2,7 +2,13 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.contrib import admin
+from django.views.i18n import javascript_catalog
 from realtime.admin import realtime_admin_site
+
+
+js_info_dict = {
+    'packages': ('realtime',),
+}
 
 urlpatterns = patterns(
     '',
@@ -15,6 +21,7 @@ urlpatterns = patterns(
     # include application urls
     url(r'', include('frontend.urls', namespace='front_end')),
     url(r'^user-map/', include('user_map.urls', namespace='user_map')),
+    url(r'^jsi18n/$', javascript_catalog, js_info_dict),
     url(r'^realtime/', include('realtime.urls', namespace='realtime')),
     url(r'^realtime/api-auth/', include('rest_framework.urls',
                                         namespace='rest_framework')),

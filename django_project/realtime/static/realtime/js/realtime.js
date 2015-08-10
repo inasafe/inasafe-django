@@ -39,7 +39,8 @@ function createBasemap(url, subdomains, attribution) {
     base_map = L.tileLayer(url, {
         attribution: attribution,
         subdomains: subdomains,
-        maxZoom: 18
+        maxZoom: 18,
+        continuousWorld: true
     });
     return base_map;
 }
