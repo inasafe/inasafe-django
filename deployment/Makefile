@@ -233,14 +233,14 @@ dev-build:
 	@echo "------------------------------------------------------------------"
 	@echo "Building in dev mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -f docker-compose-dev.yml -p $(PROJECT_ID)-dev build
+	@docker-compose -p $(PROJECT_ID)-dev build
 
 dev-web:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Running in dev mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -f docker-compose-dev.yml -p $(PROJECT_ID)-dev up -d web
+	@docker-compose -p $(PROJECT_ID)-dev up -d devweb
 	#@dipall
 
 dev-migrate:
@@ -248,17 +248,17 @@ dev-migrate:
 	@echo "------------------------------------------------------------------"
 	@echo "Running migrate static in dev mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -f docker-compose-dev.yml -p $(PROJECT_ID)-dev run uwsgi python manage.py migrate
+	@docker-compose -p $(PROJECT_ID)-dev run devuwsgi python manage.py migrate
 
 dev-collectstatic:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Collecting static in dev mode"
 	@echo "------------------------------------------------------------------"
-	#@docker-compose -f docker-compose-dev.yml -p $(PROJECT_ID)-dev run uwsgi python manage.py collectstatic --noinput
+	#@docker-compose -p $(PROJECT_ID)-dev run devuwsgi python manage.py collectstatic --noinput
 	#We need to run collect static in the same context as the running
 	# uwsgi container it seems so I use docker exec here
-	@docker exec -t -i $(PROJECT_ID)dev_uwsgi_1 python manage.py collectstatic --noinput
+	@docker exec -t -i $(PROJECT_ID)dev_devuwsgi_1 python manage.py collectstatic --noinput
 
 dev-kill:
 	@echo
@@ -266,42 +266,42 @@ dev-kill:
 	@echo "Killing in dev mode"
 	@echo "------------------------------------------------------------------"
 
-	@docker-compose -f docker-compose-dev.yml -p $(PROJECT_ID)-dev kill
+	@docker-compose -p $(PROJECT_ID)-dev kill
 
 dev-rm: kill
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Removing dev instance!!! "
 	@echo "------------------------------------------------------------------"
-	@docker-compose -f docker-compose-dev.yml -p $(PROJECT_ID)-dev rm
+	@docker-compose -p $(PROJECT_ID)-dev rm
 
 dev-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Showing uwsgi logs in dev mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -f docker-compose-dev.yml -p $(PROJECT_ID)-dev logs uwsgi
+	@docker-compose -p $(PROJECT_ID)-dev logs devuwsgi
 
 dev-nginxlogs:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Showing nginx logs in dev mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -f docker-compose-dev.yml -p $(PROJECT_ID)-dev logs web
+	@docker-compose -p $(PROJECT_ID)-dev logs devweb
 
 dev-shell:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Shelling in in dev mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -f docker-compose-dev.yml -p $(PROJECT_ID)-dev run uwsgi /bin/bash
+	@docker-compose -p $(PROJECT_ID)-dev run devuwsgi /bin/bash
 
 dev-dbshell:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Shelling in in dev database"
 	@echo "------------------------------------------------------------------"
-	@docker exec -t -i $(PROJECT_ID)dev_db_1 psql -U docker -h localhost gis
+	@docker exec -t -i $(PROJECT_ID)dev_devdb_1 psql -U docker -h localhost gis
 
 dev-qgis:
 	@echo

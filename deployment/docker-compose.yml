@@ -1,7 +1,7 @@
 #
 # Production server with UWSGI configured to run on port 8080
 # Please use the accompanying make targets to run rather than
-# calling fig commands directly on this file.
+# calling docker-compose commands directly on this file.
 
 smtp:
   image: catatnight/postfix
@@ -11,7 +11,7 @@ smtp:
     - maildomain=kartoza.com
     - smtp_user=noreply:docker
 
-db:
+db: &db
   image: kartoza/postgis
   volumes:
     - ./pg/postgres_data:/var/lib/postgresql
@@ -36,7 +36,7 @@ dbbackup:
     - PGHOST=db
     - PGDATABASE=gis
 
-uwsgi:
+uwsgi: &uwsgi
   build: docker-prod
   hostname: uwsgi
   environment:
@@ -58,7 +58,7 @@ uwsgi:
     - db:db
     - dbbackup:dbbackup
 
-web:
+web: &web
   image: nginx
   hostname: nginx
   volumes:
@@ -74,15 +74,27 @@ web:
 
 # Exactly the same as web but for staging we use a different port.
 stagingweb:
-  image: nginx
-  hostname: nginx
-  volumes:
-    - ./sites-enabled:/etc/nginx/conf.d:ro
-    # I dont use volumes_from as I want to use the ro modifier
-    - ./static:/home/web/static:ro
-    - ./media:/home/web/media:ro
-    - ./logs:/var/log/nginx
-  links:
-    - uwsgi:uwsgi
+  <<: *web
   ports:
     - "61101:8080"
+
+# Exactly the same as production but for dev env, we expose the port and uses
+# different port for the web.
+devdb:
+  <<: *db
+  ports:
+    - "6543:5432"
+
+devuwsgi:
+  <<: *uwsgi
+  links:
+    - smtp:smtp
+    - devdb:db
+    - dbbackup:dbbackup
+
+devweb:
+  <<: *web
+  links:
+    - devuwsgi:uwsgi
+  ports:
+    - "61102:8080"
