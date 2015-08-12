@@ -2,6 +2,7 @@
 from copy import deepcopy
 
 from django.utils.translation import ugettext as _
+from django.utils import translation
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from rest_framework import status, mixins
@@ -11,8 +12,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
-from realtime.app_settings import LEAFLET_TILES, PROJECT_HEADER, \
-    PROJECT_CREDIT, LANGUAGE_LIST
+from realtime.app_settings import LEAFLET_TILES, LANGUAGE_LIST
 from realtime.forms import FilterForm
 from realtime.filters.earthquake_filter import EarthquakeFilter
 from realtime.models.earthquake import Earthquake, EarthquakeReport
@@ -74,10 +74,11 @@ def index(request, iframe=False, server_side_filter=False):
         'selected_language': selected_language,
         'language_list': language_list,
     }
+    translation.activate(selected_language['id'])
+    request.session[translation.LANGUAGE_SESSION_KEY] = \
+        selected_language['id']
     context['select_area_text'] = _('Select Area')
     context['remove_area_text'] = _('Remove Selection')
-    context['project_header'] = _(PROJECT_HEADER)
-    context['project_credit'] = _(PROJECT_CREDIT)
     context['select_current_zoom_text'] = _('Select area within current zoom')
     context['iframe'] = iframe
     return render_to_response(
