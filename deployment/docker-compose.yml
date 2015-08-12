@@ -12,14 +12,14 @@ smtp:
     - smtp_user=noreply:docker
 
 db: &db
-  image: kartoza/postgis
+  image: kartoza/postgis:9.3-2.1
   volumes:
     - ./pg/postgres_data:/var/lib/postgresql
   environment:
     - USERNAME=docker
     - PASS=docker
 
-dbbackup:
+dbbackup: &dbbackup
   image: kartoza/pg-backup
   hostname: pg-backups
   volumes:
@@ -85,12 +85,19 @@ devdb:
   ports:
     - "6543:5432"
 
+devdbbackup:
+  <<: *dbbackup
+  volumes:
+    - ./pg/dbbackup/devbackups:/backups
+  links:
+    - devdb:db
+
 devuwsgi:
   <<: *uwsgi
   links:
     - smtp:smtp
     - devdb:db
-    - dbbackup:dbbackup
+    - devdbbackup:dbbackup
 
 devweb:
   <<: *web
