@@ -92,3 +92,8 @@ SITE_ID = 1
 
 # variable to use to indicate testing
 TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+
+# Locale folders
+LOCALE_PATHS = (
+    ABS_PATH('locale'),
+)

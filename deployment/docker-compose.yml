@@ -1,7 +1,7 @@
 #
 # Production server with UWSGI configured to run on port 8080
 # Please use the accompanying make targets to run rather than
-# calling fig commands directly on this file.
+# calling docker-compose commands directly on this file.
 
 smtp:
   image: catatnight/postfix
@@ -11,15 +11,32 @@ smtp:
     - maildomain=kartoza.com
     - smtp_user=noreply:docker
 
-db:
-  image: kartoza/postgis
+db: &db
+  image: kartoza/postgis:9.3-2.1
   volumes:
     - ./pg/postgres_data:/var/lib/postgresql
   environment:
     - USERNAME=docker
     - PASS=docker
 
-uwsgi:
+dbbackup: &dbbackup
+  image: kartoza/pg-backup
+  hostname: pg-backups
+  volumes:
+    - ./pg/dbbackup/backups:/backups
+  links:
+    - db:db
+  environment:
+    - DUMPPREFIX=realtime
+    # These are all defaults anyway, but setting explicitly in
+    # case we ever want to ever use different credentials
+    - PGUSER=docker
+    - PGPASSWORD=docker
+    - PGPORT=5432
+    - PGHOST=db
+    - PGDATABASE=gis
+
+uwsgi: &uwsgi
   build: docker-prod
   hostname: uwsgi
   environment:
@@ -39,8 +56,9 @@ uwsgi:
   links:
     - smtp:smtp
     - db:db
+    - dbbackup:dbbackup
 
-web:
+web: &web
   image: nginx
   hostname: nginx
   volumes:
@@ -56,63 +74,34 @@ web:
 
 # Exactly the same as web but for staging we use a different port.
 stagingweb:
-  image: nginx
-  hostname: nginx
-  volumes:
-    - ./sites-enabled:/etc/nginx/conf.d:ro
-    # I dont use volumes_from as I want to use the ro modifier
-    - ./static:/home/web/static:ro
-    - ./media:/home/web/media:ro
-    - ./logs:/var/log/nginx
-  links:
-    - uwsgi:uwsgi
+  <<: *web
   ports:
     - "61101:8080"
 
-
-# Local development docker deployment
+# Exactly the same as production but for dev env, we expose the port and uses
+# different port for the web.
 devdb:
-  image: kartoza/postgis
-  volumes:
-    - ./pg/postgres_data:/var/lib/postgresql
-  environment:
-    - USERNAME=docker
-    - PASS=docker
-  # RMN : Expose ports so we can access it from the host, maybe using pgAdmin
+  <<: *db
   ports:
     - "6543:5432"
 
-devuwsgi:
-  build: docker-prod
-  hostname: uwsgi
-  environment:
-    - DATABASE_NAME=gis
-    - DATABASE_USERNAME=docker
-    - DATABASE_PASSWORD=docker
-    - DATABASE_HOST=db
-    - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
-    - VIRTUAL_HOST=users.inasafe.org
-    - VIRTUAL_PORT=8080
+devdbbackup:
+  <<: *dbbackup
   volumes:
-    - ../django_project:/home/web/django_project
-    - ./static:/home/web/static
-    - ./media:/home/web/media
-    - ./reports:/home/web/reports
-    - ./logs:/var/log/
+    - ./pg/dbbackup/devbackups:/backups
+  links:
+    - devdb:db
+
+devuwsgi:
+  <<: *uwsgi
   links:
     - smtp:smtp
     - devdb:db
+    - devdbbackup:dbbackup
 
 devweb:
-  image: nginx
-  hostname: nginx
-  volumes:
-    - ./sites-enabled:/etc/nginx/conf.d:ro
-    # I dont use volumes_from as I want to use the ro modifier
-    - ./static:/home/web/static:ro
-    - ./media:/home/web/media:ro
-    - ./logs:/var/log/nginx
+  <<: *web
   links:
     - devuwsgi:uwsgi
   ports:
-    - "61100:8080"
+    - "61102:8080"

@@ -80,11 +80,14 @@ DEFAULT_FROM_MAIL = getattr(
 
 # LEAFLET CONFIG
 default_leaflet_tiles = (
-    'OpenStreetMap',
-    'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-    ('© <a href="http://www.openstreetmap.org" target="_parent">OpenStreetMap'
-     '</a> and contributors, under an <a '
-     'href="http://www.openstreetmap.org/copyright" target="_parent">open '
-     'license</a>')
+    'MapQuest',
+    'http://otile{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
+    '1234',
+    '© <a href="http://www.openstreetmap.org" target="_parent">OpenStreetMap'
+    '</a> and contributors, under an <a '
+    'href="http://www.openstreetmap.org/copyright" target="_parent">open '
+    'license</a>. Tiles Courtesy of <a '
+    'href="http://www.mapquest.com/">MapQuest</a> <img '
+    'src="http://developer.mapquest.com/content/osm/mq_logo.png"'
 )
 LEAFLET_TILES = getattr(settings, 'LEAFLET_TILES', default_leaflet_tiles)

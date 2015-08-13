@@ -1,23 +1,27 @@
 {% load staticfiles %}
 {% load bootstrap %}
 {% load pipeline %}
+{% load i18n %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ language }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     <link rel="shortcut icon" href="{% static FAVICON_PATH %}">
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:400,300,500,700' rel='stylesheet' type='text/css'>
     <title>
         {% block title %} {{ PROJECT_NAME }} Realtime {% endblock %}</title>
 
     {% block head_resources %}
         {% stylesheet 'contrib' %}
         {% javascript 'contrib' %}
+        <script type="text/javascript"
+                src="{% url 'django.views.i18n.javascript_catalog' %}">
+        </script>
     {% endblock head_resources %}
 </head>
 
 <body>
-
 {% if not iframe %}
     {% block navbar %}
         <header id="banner-header" class="banner navbar navbar-default
@@ -71,7 +75,21 @@
                         </ul>
                         <div id="lang_sel">
                             <ul>
-                                <li><a href="#" class="lang_sel_sel icl-en">English</a>
+                                <li>
+                                    <a href="#">{{ language.selected_language.name }}
+                                        {% if language.language_list|length > 0 %}
+                                            <span class="caret"></span>
+                                        {% endif %}
+                                    </a>
+                                    {% if language.language_list|length > 0 %}
+                                        <ul>
+                                            {% for l in language.language_list %}
+                                                <li>
+                                                    <a href="{% url 'realtime:index' %}?lang={{ l.id }}">{{ l.name }}</a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
                                 </li>
                             </ul>
                         </div>

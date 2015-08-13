@@ -56,3 +56,10 @@ LEAFLET_TILES = getattr(settings, 'LEAFLET_TILES', default_leaflet_tiles)
 default_realtime_group = 'Realtime REST User'
 REST_GROUP = getattr(
     settings, 'REALTIME_REST_GROUP', default_realtime_group)
+
+default_language_list = [
+    {'name': 'English', 'id': 'en'},
+    {'name': 'Indonesia', 'id': 'id'},
+]
+LANGUAGE_LIST = getattr(
+    settings, 'REALTIME_LANGUAGE_LIST', default_language_list)
