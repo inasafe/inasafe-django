@@ -189,6 +189,10 @@ body > .container {
     margin: 5px 0px !important;
 }
 
+.clear-filter, .submit-filter{
+    margin-top: 28px;
+}
+
 /* ******************** */
 /*     Dynatable        */
 /* ******************** */

@@ -98,23 +98,21 @@
                             </span>
                         </span>
                         <span class="magnitude-filter">
-                            <span class="col-xs-6 col-sm-2">
+                            <span class="col-xs-6 col-sm-3">
                                 {{ form.minimum_magnitude|bootstrap }}
                                 <div class="help-block with-errors"></div>
                             </span>
-                            <span class="col-xs-6 col-sm-2">
+                            <span class="col-xs-6 col-sm-3">
                                 {{ form.maximum_magnitude|bootstrap }}
                                 <div class="help-block with-errors"></div>
                             </span>
                         </span>
                         <span class="col-sm-1 hidden-xs">
-                            <label style="visibility: hidden;">Clear</label>
                             <button class="btn clear-filter" title="Clear Filter">
                                 <span class="glyphicon glyphicon-erase"></span>
                             </button>
                         </span>
                         <span class="col-sm-1 hidden-xs">
-                            <label style="visibility: hidden;">Submit</label>
                             <button class="btn btn-primary submit-filter"
                                     title="Update Filter"
                                     type="submit">
