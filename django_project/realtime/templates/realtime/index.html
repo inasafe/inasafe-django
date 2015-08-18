@@ -49,8 +49,10 @@
                         Indonesian Agency for Meteorology, Climatology and Geophysics (BMKG)
                         and used by the Indonesian National Disaster Management Agency (BNPB)
                         to produce InaSAFE impact assessments within minutes of an earthquake
-                        (<a href="http://www.bnpb.go.id">http://www.bnpb.go.id</a>
-                        or <a href="http://realtime.inasafe.org">http://realtime.inasafe.org</a>).
+                        (
+                        <a href="http://www.bnpb.go.id">http://www.bnpb.go.id</a>
+                        or
+                        <a href="http://realtime.inasafe.org">http://realtime.inasafe.org</a>).
                         This information is used by disaster managers to help them understand
                         the potential scale of a disaster and to respond faster to the
                         hardest hit communities. This is particularly important in the
@@ -84,32 +86,35 @@
             </div>
             <div class="panel-body">
                 <form id="event-filter" data-toggle="validator">
-                    <span class="row date-filter">
-                        <span class="col-xs-6 col-sm-4">
-                            {{ form.start_date|bootstrap_horizontal:'col-md-5' }}
-                            <div class="help-block with-errors"></div>
+                    <span class="row">
+                        <span class="date-filter">
+                            <span class="col-xs-6 col-sm-2">
+                                {{ form.start_date|bootstrap }}
+                                <div class="help-block with-errors"></div>
+                            </span>
+                            <span class="col-xs-6 col-sm-2">
+                                {{ form.end_date|bootstrap }}
+                                <div class="help-block with-errors"></div>
+                            </span>
                         </span>
-                        <span class="col-xs-6 col-sm-4">
-                            {{ form.end_date|bootstrap_horizontal:'col-md-5' }}
-                            <div class="help-block with-errors"></div>
-                        </span>
-                        <span class="clearfix"></span>
-                    </span>
-                    <span class="row magnitude-filter">
-                        <span class="col-xs-6 col-sm-4">
-                            {{ form.minimum_magnitude|bootstrap_horizontal:'col-md-5' }}
-                            <div class="help-block with-errors"></div>
-                        </span>
-                        <span class="col-xs-6 col-sm-4">
-                            {{ form.maximum_magnitude|bootstrap_horizontal:'col-md-5' }}
-                            <div class="help-block with-errors"></div>
+                        <span class="magnitude-filter">
+                            <span class="col-xs-6 col-sm-2">
+                                {{ form.minimum_magnitude|bootstrap }}
+                                <div class="help-block with-errors"></div>
+                            </span>
+                            <span class="col-xs-6 col-sm-2">
+                                {{ form.maximum_magnitude|bootstrap }}
+                                <div class="help-block with-errors"></div>
+                            </span>
                         </span>
                         <span class="col-sm-1 hidden-xs">
+                            <label style="visibility: hidden;">Clear</label>
                             <button class="btn clear-filter" title="Clear Filter">
                                 <span class="glyphicon glyphicon-erase"></span>
                             </button>
                         </span>
                         <span class="col-sm-1 hidden-xs">
+                            <label style="visibility: hidden;">Submit</label>
                             <button class="btn btn-primary submit-filter"
                                     title="Update Filter"
                                     type="submit">
@@ -141,7 +146,7 @@
     <div class="row center-block" id="realtime_table_div">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">{% trans "Table" %}</h3>
+                <h3 class="panel-title">{% trans "Earthquakes" %}</h3>
             </div>
             <div class="panel-body">
                 <div class="col-md-12">
@@ -163,6 +168,7 @@
     <div id="disclaimer" class="row">
         <div class="col-md-4">
             <h2>Supporters</h2>
+
             <p>Funded and supported by the
                 <a href="http://www.aifdr.org/">Australia-Indonesia Facility
                     for Disaster Reduction</a>,
@@ -200,7 +206,7 @@
         <span class="col-md-4 panel panel-default">
             <div class="panel-body">
                 <img class="img-responsive center-block" src=
-                "{% static 'realtime/img/bmkg_logo.png' %}"
+                        "{% static 'realtime/img/bmkg_logo.png' %}"
                      alt="BMKG Logo">
             </div>
         </span>
@@ -214,10 +220,10 @@
         // Initialize Basemap Layer
         base_map = {
             {% for tile in leaflet_tiles %}
-                '{{ tile.name }}' : createBasemap(
-                    '{{ tile.url }}',
-                    '{{ tile.subdomains }}',
-                    '{{ tile.attribution | safe }}')
+                '{{ tile.name }}': createBasemap(
+                        '{{ tile.url }}',
+                        '{{ tile.subdomains }}',
+                        '{{ tile.attribution | safe }}')
                 {% if not forloop.last %}
                     ,
                 {% endif %}
@@ -226,7 +232,7 @@
 
         //Create Map with prepared base_map
         map = L.map('map', {
-            layers: [ base_map["{{ leaflet_tiles.0.name }}"] ]
+            layers: [base_map["{{ leaflet_tiles.0.name }}"]]
         });
         map.fitWorld().zoomIn();
         // make popup in center when opened
@@ -371,19 +377,19 @@
             // update via ajax request
             var $event_filter = $("#event-filter");
             {% if server_side_filter %}
-            var _updateFilterHandler = createUpdateFilterHandler(get_events_url,
-                    $event_filter,
-                    locationFilter,
-                    getEarthquakeEventsJson);
+                var _updateFilterHandler = createUpdateFilterHandler(get_events_url,
+                        $event_filter,
+                        locationFilter,
+                        getEarthquakeEventsJson);
             {% else %}
-            // update via client filters
-            var _updateFilterHandler = createClientUpdateFilterHandler(get_events_url,
-                    $event_filter,
-                    locationFilter,
-                    getEarthquakeEventsJson);
+                // update via client filters
+                var _updateFilterHandler = createClientUpdateFilterHandler(get_events_url,
+                        $event_filter,
+                        locationFilter,
+                        getEarthquakeEventsJson);
             {% endif %}
-            var updateFilterHandler = function(e, reset){
-                if(e.isDefaultPrevented()){
+            var updateFilterHandler = function (e, reset) {
+                if (e.isDefaultPrevented()) {
 
                 }
                 else {
@@ -394,12 +400,12 @@
 
             locationFilter.on("change", updateFilterHandler);
             locationFilter.on("enabled", updateFilterHandler);
-            locationFilter.on("disabled", function(e){
-{#              Disable/clear selection first #}
+            locationFilter.on("disabled", function (e) {
+                {#              Disable/clear selection first #}
                 updateFilterHandler(e, true);
             });
 
-{#            Modify location filter styles#}
+            {#            Modify location filter styles#}
             modifyLocationFilterStyle();
             modifySearchAndShowLabels();
 
@@ -411,21 +417,21 @@
                 $(".submit-filter, .clear-filter").hide();
             });
 
-{#            Disable date input text#}
+            {#            Disable date input text#}
             $event_filter.find(".date-filter input").attr("readonly", "readonly");
-{#            Disable filter button if no filter exists#}
+            {#            Disable filter button if no filter exists#}
 
-            var show_filter_button = function(e){
+            var show_filter_button = function (e) {
                 var is_show_filter = false;
-                $event_filter.find("input").each(function(idx, el){
-                    if($(el).val()){
+                $event_filter.find("input").each(function (idx, el) {
+                    if ($(el).val()) {
                         is_show_filter = true;
                     }
                 });
-                if(is_show_filter){
+                if (is_show_filter) {
                     $event_filter.find("button.btn").show();
                 }
-                else{
+                else {
                     $event_filter.find("button.btn").hide();
                 }
             };
@@ -435,7 +441,7 @@
 
 
             {% if iframe %}
-{#                If in iframe, remove unnecessary informations#}
+                {#                If in iframe, remove unnecessary informations#}
                 $map = $("#map").detach();
                 $body = $("body");
                 $main_container = $("body>.container").hide();

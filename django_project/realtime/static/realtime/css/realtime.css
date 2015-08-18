@@ -212,6 +212,11 @@ th.dynatable-head a, th.dynatable-head a:hover {
     margin-right: 8px;
 }
 
+#dynatable-per-page-realtime-table, #dynatable-query-search-realtime-table{
+    margin-left: 10px;
+    border-radius: 5px;
+}
+
 /* ******************** */
 /*     Location Filter  */
 /* ******************** */

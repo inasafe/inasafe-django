@@ -11,7 +11,7 @@
 from django.conf import settings
 
 # PROJECT_NAME: The project name for this apps e.g InaSAFE
-default_project_name = 'InaSAFE'
+default_project_name = 'InaSAFE Realtime'
 PROJECT_NAME = getattr(settings, 'REALTIME_PROJECT_NAME',
                        default_project_name)
 
@@ -20,7 +20,7 @@ default_brand_logo = 'realtime/img/logo.png'
 BRAND_LOGO = getattr(settings, 'REALTIME_BRAND_LOGO', default_brand_logo)
 
 # FAVICON_FILE: Favicon for this apps
-default_favicon_file = 'realtime/img/favicon.ico'
+default_favicon_file = 'realtime/img/inasafe-icon.png'
 FAVICON_FILE = getattr(settings, 'REALTIME_FAVICON_FILE',
                        default_favicon_file)
 

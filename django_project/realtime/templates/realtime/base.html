@@ -7,10 +7,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <link rel="shortcut icon" href="{% static FAVICON_PATH %}">
+    <link rel="shortcut icon" href="{% static REALTIME_FAVICON_PATH %}">
     <link href='http://fonts.googleapis.com/css?family=Ubuntu:400,300,500,700' rel='stylesheet' type='text/css'>
     <title>
-        {% block title %} {{ PROJECT_NAME }} Realtime {% endblock %}</title>
+        {% block title %} {{ REALTIME_PROJECT_NAME }} {% endblock %}</title>
 
     {% block head_resources %}
         {% stylesheet 'contrib' %}
@@ -39,7 +39,7 @@
                        title="InaSAFE">
                         <img id="site-logo" style="max-width:100px;
                     margin-top:-7px;" src=
-                                "{% static BRAND_LOGO %}">
+                                "{% static REALTIME_BRAND_LOGO %}">
                     </a>
                 </div>
                 {% block nav_main %}
