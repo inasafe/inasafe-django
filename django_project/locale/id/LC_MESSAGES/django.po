@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-08-18 02:06+0000\n"
+"POT-Creation-Date: 2015-08-19 01:47+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -90,9 +90,11 @@ msgid ""
 "Management Agency (BNPB)\n"
 "                        to produce InaSAFE impact assessments within minutes "
 "of an earthquake\n"
-"                        (<a href=\"http://www.bnpb.go.id\">http://www.bnpb."
-"go.id</a>\n"
-"                        or <a href=\"http://realtime.inasafe.org\">http://"
+"                        (\n"
+"                        <a href=\"http://www.bnpb.go.id\">http://www.bnpb.go."
+"id</a>\n"
+"                        or\n"
+"                        <a href=\"http://realtime.inasafe.org\">http://"
 "realtime.inasafe.org</a>).\n"
 "                        This information is used by disaster managers to "
 "help them understand\n"
@@ -119,37 +121,41 @@ msgstr ""
 "semenjak gempa bumiterjadi saat informasi di lapangan yang akurat mungkin "
 "sulitdidapat."
 
-#: realtime/templates/realtime/index.html:67
+#: realtime/templates/realtime/index.html:69
 msgid "Map"
 msgstr "Peta"
 
-#: realtime/templates/realtime/index.html:83
+#: realtime/templates/realtime/index.html:85
 msgid "Filters"
 msgstr "Filter"
 
-#: realtime/templates/realtime/index.html:144
+#: realtime/templates/realtime/index.html:147
 msgid "Earthquakes"
 msgstr "Gempa Bumi"
 
-#: realtime/templates/realtime/index.html:150
+#: realtime/templates/realtime/index.html:153
 msgid "Time"
 msgstr "Waktu"
 
-#: realtime/templates/realtime/index.html:151
+#: realtime/templates/realtime/index.html:154
 msgid "Location Description"
 msgstr "Deskripsi Tempat"
 
-#: realtime/templates/realtime/index.html:152
+#: realtime/templates/realtime/index.html:155
 msgid "Magnitude"
 msgstr "Magnitudo"
 
-#: realtime/templates/realtime/index.html:153
+#: realtime/templates/realtime/index.html:156
 msgid "Depth"
 msgstr "Kedalaman"
 
-#: realtime/templates/realtime/index.html:154
+#: realtime/templates/realtime/index.html:157
 msgid "Shake Id"
 msgstr "Id Gempa"
+
+#: realtime/templates/realtime/index.html:356
+msgid "YYYY-MM-DD [at] HH:mm:ss"
+msgstr "YYYY-MM-DD [pukul] HH:mm:ss"
 
 #: realtime/views/earthquake.py:80
 msgid "Select Area"

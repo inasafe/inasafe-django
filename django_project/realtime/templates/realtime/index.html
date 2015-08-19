@@ -353,7 +353,7 @@
                     defaultColumnIdStyle: 'underscore',
                 },
                 writers: {
-                    _rowWriter: createActionRowWriter(button_templates)
+                    _rowWriter: createActionRowWriter(button_templates, '{% trans "YYYY-MM-DD [at] HH:mm:ss" %}')
                 },
                 dataset: {
                     records: jsonTableContents,
