@@ -453,14 +453,17 @@ L.control.fitAll = function(options){
  * and handler string
  * @return {function} a dynatable row function
  */
-function createActionRowWriter(button_templates) {
+function createActionRowWriter(button_templates, date_format) {
     writer = function (rowIndex, record, columns, cellWriter) {
         var tr = '';
         // reformat 'time' column
         var time = record.time;
         var moment_time = moment(time);
         record = $.extend(true, {}, record);
-        record.time = moment_time.format('YYYY-MM-DD [at] HH:mm:ss');
+        if(date_format === undefined){
+            date_format = 'YYYY-MM-DD [at] HH:mm:ss';
+        }
+        record.time = moment_time.format(date_format);
 
         // grab the record's attribute for each column
         for (var i = 0, len = columns.length; i < len; i++) {
