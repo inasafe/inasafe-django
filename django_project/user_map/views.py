@@ -25,6 +25,7 @@ from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.sites.models import get_current_site
+from realtime.app_settings import REST_GROUP
 
 from user_map.forms.user import (
     RegistrationForm,
@@ -101,12 +102,13 @@ def get_users(request):
             users = User.objects.filter(
                 is_confirmed=True,
                 is_active=True,
-                osm_roles=None)
+                osm_roles=None).exclude(groups__name=REST_GROUP)
         elif project.lower() == 'openstreetmap':
             inasafe_users = User.objects.filter(osm_roles=None).values('id')
             users = User.objects.filter(
                 is_confirmed=True,
-                is_active=True).exclude(id__in=inasafe_users)
+                is_active=True).exclude(
+                id__in=inasafe_users).exclude(groups__name=REST_GROUP)
         else:
             users = []
 
