@@ -387,13 +387,8 @@
                         getEarthquakeEventsJson);
             {% endif %}
             var updateFilterHandler = function (e, reset) {
-                if (e.isDefaultPrevented()) {
-
-                }
-                else {
-                    _updateFilterHandler(e, reset);
-                    modifyMapDescriptions(".map-title");
-                }
+                _updateFilterHandler(e, reset);
+                modifyMapDescriptions(".map-title");
             };
 
             locationFilter.on("change", updateFilterHandler);
