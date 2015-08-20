@@ -97,7 +97,7 @@ checks:
 
 tools:
     pylint:
-        python_version: '2.7.9'
+        python_version: '2'
         config_file: pylintrc
 filter:
     excluded_paths:
