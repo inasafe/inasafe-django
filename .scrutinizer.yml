@@ -2,7 +2,7 @@ build:
     dependencies:
         before:
             - sudo apt-get install -y python-pip python-dev build-essential
-            - sudo pip install -r deployment\docker-prod\REQUIREMENTS.txt
+            - sudo pip install -r deployment/docker-prod/REQUIREMENTS.txt
 checks:
     python:
         code_rating: true
