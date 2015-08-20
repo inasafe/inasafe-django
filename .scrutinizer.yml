@@ -1,3 +1,7 @@
+build:
+    dependencies:
+        before:
+            - sudo pip install -r deployment\docker-prod\REQUIREMENTS.txt
 checks:
     python:
         code_rating: true
@@ -93,7 +97,7 @@ checks:
 
 tools:
     pylint:
-        python_version: '2'
+        python_version: '2.7.9'
         config_file: pylintrc
 filter:
     excluded_paths:
