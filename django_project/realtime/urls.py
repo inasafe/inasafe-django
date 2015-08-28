@@ -40,4 +40,5 @@ urlpatterns = format_suffix_patterns(urlpatterns)
 urlpatterns += [
     url(r'^$', index, name='index'),
     url(r'^iframe$', iframe_index, name='iframe'),
+    url(r'^api/v1/is_logged_in/$', root.is_logged_in)
 ]

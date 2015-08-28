@@ -1,4 +1,5 @@
 # coding=utf-8
+from django.http.response import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
@@ -20,3 +21,10 @@ def api_root(request, format=None, **kwargs):
                 'realtime:earthquake_feature_list', **kwargs)
         }
     })
+
+
+def is_logged_in(request):
+    data = {
+        'is_logged_in': request.user.is_authenticated()
+    }
+    return JsonResponse(data=data)
