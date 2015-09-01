@@ -77,11 +77,10 @@ function createIconMarkerBase(shadow_icon_path) {
   IconMarkerBase = L.Icon.extend({
     options: {
       shadowUrl: shadow_icon_path,
-      iconSize: [32, 32],
-      iconSize: [32, 32],
-      shadowSize: [38, 24],
-      iconAnchor: [16, 16],
-      shadowAnchor: [9, 8],
+      iconSize: [19, 32],
+      shadowSize: [42, 35],
+      iconAnchor: [12, 32],
+      shadowAnchor: [12, 32],
       popupAnchor: [-2, -32]
     }
   });
@@ -95,9 +94,13 @@ function createIconMarkerBase(shadow_icon_path) {
  * @param {string} shadow_path The shadow path.
  * @return {IconMarkerBase} icon_marker
  */
-function createIconMarker(icon_path, shadow_path) {
+function createIconMarker(icon_path, shadow_path, additional_options) {
   var IconMarkerBase = createIconMarkerBase(shadow_path);
-  return new IconMarkerBase({iconUrl: icon_path});
+  var options = {
+    iconUrl: icon_path
+  };
+  $.extend(options, additional_options);
+  return new IconMarkerBase(options);
 }
 
 /**
