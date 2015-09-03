@@ -1,10 +1,12 @@
 # coding=utf-8
 from copy import deepcopy
+from datetime import datetime
 
 from django.utils.translation import ugettext as _
 from django.utils import translation
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from realtime.models.user_push import UserPush
 from rest_framework import status, mixins
 from rest_framework.filters import DjangoFilterBackend, SearchFilter, \
     OrderingFilter
@@ -19,6 +21,7 @@ from realtime.models.earthquake import Earthquake, EarthquakeReport
 from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
     EarthquakeReportSerializer, EarthquakeGeoJsonSerializer
 from rest_framework_gis.filters import InBBoxFilter
+from user_map.models.user import User
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '19/06/15'
@@ -140,7 +143,21 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+        retval = self.create(request, *args, **kwargs)
+        # track the last successfull post from user
+        if request.user.is_authenticated():
+            user = User.objects.get(email=request.user.email)
+            try:
+                user_push = UserPush.objects.get(user=user)
+            except UserPush.DoesNotExist:
+                user_push = UserPush.objects.create(user=user)
+                user_push.save()
+
+            # update info
+            user_push.last_rest_push = datetime.utcnow()
+            user_push.save()
+
+        return retval
 
 
 class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,

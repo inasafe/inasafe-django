@@ -30,6 +30,11 @@
             <li class="menu-item">
                 <a href="{% url 'realtime:api_root' %}">API Browser</a>
             </li>
+            {% if user.is_authenticated %}
+                <li class="menu-item">
+                    <a href="{% url 'realtime:indicator' %}">Indicator</a>
+                </li>
+            {% endif %}
         </ul>
     </nav>
 {% endblock %}
@@ -150,11 +155,13 @@
                 <div class="col-md-12">
                     <table class="table table-striped table-bordered table-hover" id="realtime-table">
                         <thead>
-                        <th data-dynatable-column="time">{% trans "Time" %}</th>
-                        <th data-dynatable-column="location_description">{% trans "Location Description" %}</th>
-                        <th data-dynatable-column="magnitude">{% trans "Magnitude" %}</th>
-                        <th data-dynatable-column="depth">{% trans "Depth" %}</th>
-                        <th data-dynatable-column="shake_id">{% trans "Shake Id" %}</th>
+                        <tr>
+                            <th data-dynatable-column="time">{% trans "Time" %}</th>
+                            <th data-dynatable-column="location_description">{% trans "Location Description" %}</th>
+                            <th data-dynatable-column="magnitude">{% trans "Magnitude" %}</th>
+                            <th data-dynatable-column="depth">{% trans "Depth" %}</th>
+                            <th data-dynatable-column="shake_id">{% trans "Shake Id" %}</th>
+                        </tr>
                         </thead>
                         <tbody>
                         </tbody>

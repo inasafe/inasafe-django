@@ -14,3 +14,4 @@ djangorestframework-gis==0.9
 markdown
 django-filter
 pillow
+numpy
