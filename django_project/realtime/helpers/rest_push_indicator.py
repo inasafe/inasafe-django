@@ -9,6 +9,7 @@ from realtime.helpers.base_indicator import Indicator, STATUS_HEALTHY, \
     STATUS_WARNING, STATUS_CRITICAL
 from realtime.models.user_push import UserPush
 from realtime.templatetags.realtime_extras import naturaltimedelta
+from user_map.models.user import User
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '04/09/15'
@@ -84,3 +85,18 @@ class RESTPushIndicator(Indicator):
 
     def value_humanize(self):
         return naturaltime(self.value)
+
+
+def track_rest_push(request):
+    # track the last successfull post/put from user
+    if request.user.is_authenticated():
+        user = User.objects.get(email=request.user.email)
+        try:
+            user_push = UserPush.objects.get(user=user)
+        except UserPush.DoesNotExist:
+            user_push = UserPush.objects.create(user=user)
+            user_push.save()
+
+        # update info
+        user_push.last_rest_push = datetime.utcnow()
+        user_push.save()

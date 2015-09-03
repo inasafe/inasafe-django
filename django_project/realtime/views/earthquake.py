@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 from django.utils import translation
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from realtime.helpers.rest_push_indicator import track_rest_push
 from realtime.models.user_push import UserPush
 from rest_framework import status, mixins
 from rest_framework.filters import DjangoFilterBackend, SearchFilter, \
@@ -144,19 +145,7 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
 
     def post(self, request, *args, **kwargs):
         retval = self.create(request, *args, **kwargs)
-        # track the last successfull post from user
-        if request.user.is_authenticated():
-            user = User.objects.get(email=request.user.email)
-            try:
-                user_push = UserPush.objects.get(user=user)
-            except UserPush.DoesNotExist:
-                user_push = UserPush.objects.create(user=user)
-                user_push.save()
-
-            # update info
-            user_push.last_rest_push = datetime.utcnow()
-            user_push.save()
-
+        track_rest_push(request)
         return retval
 
 
@@ -176,6 +165,8 @@ class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
+        retval = self.put(request, *args, **kwargs)
+        track_rest_push(request)
         return self.update(request, *args, **kwargs)
 
     def delete(self, request, *args, **kwargs):
