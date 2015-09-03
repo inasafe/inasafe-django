@@ -5,6 +5,7 @@
 {% load pipeline %}
 {% load humanize %}
 {% load i18n %}
+{% load realtime_extras %}
 
 {% block head_resources %}
     {{ block.super }}
@@ -79,39 +80,21 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for indicator in indicators %}
                         <tr>
-                            <td>Last Shakemap Push</td>
-                            <td>{{ last_shakemap_push.value|naturaltime }}</td>
+                            <td>{{ indicator.label }}</td>
+                            <td>{{ indicator.value_humanize }}</td>
                             <td>
-                                <span class="label label-{{ last_shakemap_push.status }}">
-                                    {{ last_shakemap_push.status_text }}
+                                <span class="label label-{{ indicator|indicator_bootstrap_class }}">
                                     <span class="glyphicon glyphicon-asterisk" aria-hidden="true"></span>
+                                    {{ indicator.status_text|safe }}
                                 </span>
                             </td>
-                            <td>{{ last_shakemap_push.notes }}</td>
-                        </tr>
-                        <tr>
-                            <td>Last REST Push</td>
-                            <td>{{ last_rest_push.value|naturaltime }}</td>
                             <td>
-                                <span class="label label-{{ last_rest_push.status }}">
-                                    {{ last_rest_push.status_text }}
-                                    <span class="glyphicon glyphicon-asterisk" aria-hidden="true"></span>
-                                </span>
+                                {{ indicator.notes|safe }}
                             </td>
-                            <td>{{ last_rest_push.notes }}</td>
                         </tr>
-                        <tr>
-                            <td>Last Shake Event</td>
-                            <td>{{ last_shake_event.value|naturaltime }}</td>
-                            <td>
-                                <span class="label label-{{ last_shake_event.status }}">
-                                    {{ last_shake_event.status_text }}
-                                    <span class="glyphicon glyphicon-asterisk" aria-hidden="true"></span>
-                                </span>
-                            </td>
-                            <td>{{ last_shake_event.notes }}</td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

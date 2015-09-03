@@ -11,6 +11,8 @@
 from datetime import timedelta
 from django.conf import settings
 
+LOGGER_NAME = 'InaSAFE Realtime REST Server'
+
 # PROJECT_NAME: The project name for this apps e.g InaSAFE
 default_project_name = 'InaSAFE Realtime'
 PROJECT_NAME = getattr(settings, 'REALTIME_PROJECT_NAME',
@@ -68,7 +70,7 @@ LANGUAGE_LIST = getattr(
 
 # Realtime indicator
 default_shake_interval_multiplier = {
-    'success': 1.5,
+    'healthy': 1.5,
     'warning': 3,
 }
 
@@ -79,7 +81,7 @@ SHAKE_INTERVAL_MULTIPLIER = getattr(
     default_shake_interval_multiplier)
 
 default_rest_interval_range = {
-    'success': timedelta(minutes=5),
+    'healthy': timedelta(minutes=5),
     'warning': timedelta(minutes=10)
 }
 

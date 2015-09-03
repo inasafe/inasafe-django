@@ -1,7 +1,7 @@
 # coding=utf-8
 from django import template
 from django.utils.translation import ugettext as _
-
+from realtime.helpers.base_indicator import Indicator
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '02/09/15'
@@ -38,3 +38,20 @@ def naturaltimedelta(value):
         return ', '.join(text)
     else:
         return str(value)
+
+
+@register.filter
+def indicator_bootstrap_class(value):
+    """Get relevant bootstrap label class for an indicator"""
+
+    if isinstance(value, Indicator):
+        if value.is_critical():
+            return 'danger'
+        elif value.is_warning():
+            return 'warning'
+        elif value.is_healthy():
+            return 'success'
+        else:
+            return None
+    else:
+        return None

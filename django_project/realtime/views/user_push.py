@@ -1,19 +1,16 @@
 # coding=utf-8
-from math import isnan
+from datetime import datetime
+
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils import translation
 import pytz
-import numpy
-from django.utils.translation import ugettext as _
-from datetime import datetime, timedelta
-from django.db.models.aggregates import Max
 from django.http.response import JsonResponse, HttpResponseNotAllowed
-from realtime.app_settings import SHAKE_INTERVAL_MULTIPLIER, \
-    REST_INTERVAL_RANGE, LANGUAGE_LIST
-from realtime.models.earthquake import Earthquake
+from realtime.app_settings import LANGUAGE_LIST
+from realtime.helpers.rest_push_indicator import RESTPushIndicator
+from realtime.helpers.shake_event_indicator import ShakeEventIndicator
+from realtime.helpers.shakemap_push_indicator import ShakemapPushIndicator
 from realtime.models.user_push import UserPush
-from realtime.templatetags.realtime_extras import naturaltimedelta
 from user_map.models.user import User
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
@@ -76,151 +73,9 @@ def indicator(request):
         if 'lang' in request.GET:
             language_code = request.GET.get('lang')
 
-    now = datetime.utcnow().replace(tzinfo=pytz.utc)
-    last_shakemap_push = {}
-    last_rest_push = {}
-    last_shake_event = {}
-
-    last_shakemap_push['value'] = UserPush.objects.all().aggregate(
-        Max('last_shakemap_push'))['last_shakemap_push__max']
-    last_rest_push['value'] = UserPush.objects.all().aggregate(
-        Max('last_rest_push'))['last_rest_push__max']
-    last_shake_event['value'] = Earthquake.objects.all().aggregate(
-        Max('time'))['time__max']
-
-    # assign default value
-    min_time = datetime.fromtimestamp(0, tz=pytz.utc)
-    if not last_shakemap_push['value']:
-        last_shakemap_push['value'] = min_time
-    else:
-        last_shakemap_push['value'] = last_shakemap_push['value']\
-            .astimezone(pytz.utc)
-
-    if not last_rest_push['value']:
-        last_rest_push['value'] = min_time
-    else:
-        last_rest_push['value'] = last_rest_push['value']\
-            .astimezone(pytz.utc)
-
-    if not last_shake_event['value']:
-        last_shake_event['value'] = min_time
-    else:
-        last_shake_event['value'] = last_shake_event['value']\
-            .astimezone(pytz.utc)
-
-    # calculate average shakemap push
-    # average shakemap push is supposed to be average shake event interval
-    # we will calculate the average from previous month
-    last_month = datetime.utcnow() - timedelta(days=30)
-    last_month.replace(tzinfo=pytz.utc)
-    shakes = Earthquake.objects.filter(time__gte=last_month)
-    intervals = []
-    for i in range(1, len(shakes)):
-        prev_shake = shakes[i-1]
-        shake = shakes[i]
-        intervals.append(shake.time - prev_shake.time)
-
-    # using numpy to calculate mean
-    intervals = numpy.array([numpy.timedelta64(i) for i in intervals])
-    mean_interval = numpy.mean(intervals).astype(timedelta)
-    if isnan(mean_interval):
-        mean_interval = timedelta(seconds=0)
-    shakemap_push_delta = now - last_shakemap_push['value']
-
-    success_range = timedelta(
-        seconds=mean_interval.seconds *
-        SHAKE_INTERVAL_MULTIPLIER['success'])
-    warning_range = timedelta(
-        seconds=mean_interval.seconds *
-        SHAKE_INTERVAL_MULTIPLIER['warning'])
-    if shakemap_push_delta < success_range:
-        last_shakemap_push['status'] = 'success'
-        last_shakemap_push['status_text'] = _('Healthy')
-        last_shakemap_push['notes'] = _(
-            'Status is considered in healthy state when the value is less '
-            'than %.2f times average interval of %s which is %s') % (
-            SHAKE_INTERVAL_MULTIPLIER['success'],
-            naturaltimedelta(mean_interval),
-            naturaltimedelta(success_range)
-        )
-        last_shake_event['status'] = 'success'
-        last_shake_event['status_text'] = _('Healthy')
-        last_shake_event['notes'] = _(
-            'Status is considered in healthy state when the value is less '
-            'than %.2f times average interval of %s which is %s') % (
-            SHAKE_INTERVAL_MULTIPLIER['success'],
-            naturaltimedelta(mean_interval),
-            naturaltimedelta(success_range)
-        )
-    elif shakemap_push_delta < warning_range:
-        last_shakemap_push['status'] = 'warning'
-        last_shakemap_push['status_text'] = _('Warning')
-        last_shakemap_push['notes'] = _(
-            'Status is considered in warning state when the value is less '
-            'than %.2f times average interval of %s which is %s') % (
-            SHAKE_INTERVAL_MULTIPLIER['warning'],
-            naturaltimedelta(mean_interval),
-            naturaltimedelta(warning_range)
-        )
-        last_shake_event['status'] = 'warning'
-        last_shake_event['status_text'] = _('Warning')
-        last_shake_event['notes'] = _(
-            'Status is considered in warning state when the value is less '
-            'than %.2f times average interval of %s which is %s') % (
-            SHAKE_INTERVAL_MULTIPLIER['warning'],
-            naturaltimedelta(mean_interval),
-            naturaltimedelta(warning_range)
-        )
-    else:
-        last_shakemap_push['status'] = 'danger'
-        last_shakemap_push['status_text'] = _('Critical')
-        last_shakemap_push['notes'] = _(
-            'Status is considered in critical state when the value is greater'
-            ' than %.2f times average interval of %s which is %s') % (
-            SHAKE_INTERVAL_MULTIPLIER['warning'],
-            naturaltimedelta(mean_interval),
-            naturaltimedelta(warning_range)
-        )
-        last_shake_event['status'] = 'danger'
-        last_shake_event['status_text'] = _('Critical')
-        last_shake_event['notes'] = _(
-            'Status is considered in critical state when the value is greater'
-            ' than %.2f times average interval of %s which is %s') % (
-            SHAKE_INTERVAL_MULTIPLIER['warning'],
-            naturaltimedelta(mean_interval),
-            naturaltimedelta(warning_range)
-        )
-
-    success_range = REST_INTERVAL_RANGE['success']
-    warning_range = REST_INTERVAL_RANGE['warning']
-
-    # for last rest push, because cronjob always process the last shake map
-    # every 1 minute, we specify it using fixed interval
-    rest_push_delta = now - last_rest_push['value']
-    if rest_push_delta < success_range:
-        last_rest_push['status'] = 'success'
-        last_rest_push['status_text'] = _('Healthy')
-        last_rest_push['notes'] = _(
-            'Status is considered in healthy state when the value is less'
-            ' than %s') % (
-            naturaltimedelta(success_range)
-        )
-    elif rest_push_delta < warning_range:
-        last_rest_push['status'] = 'warning'
-        last_rest_push['status_text'] = _('Warning')
-        last_rest_push['notes'] = _(
-            'Status is considered in warning state when the value is less'
-            ' than %s') % (
-            naturaltimedelta(warning_range)
-        )
-    else:
-        last_rest_push['status'] = 'danger'
-        last_rest_push['status_text'] = _('Critical')
-        last_rest_push['notes'] = _(
-            'Status is considered in critical state when the value is greater'
-            ' than %s') % (
-            naturaltimedelta(warning_range)
-        )
+    shakemap_push_indicator = ShakemapPushIndicator()
+    shake_event_indicator = ShakeEventIndicator()
+    rest_push_indicator = RESTPushIndicator()
 
     context = RequestContext(request)
     selected_language = {
@@ -243,9 +98,11 @@ def indicator(request):
     return render_to_response(
         'realtime/indicator.html',
         {
-            'last_shakemap_push': last_shakemap_push,
-            'last_rest_push': last_rest_push,
-            'last_shake_event': last_shake_event
+            'indicators': [
+                shakemap_push_indicator,
+                shake_event_indicator,
+                rest_push_indicator
+            ]
         },
         context_instance=context)
 
