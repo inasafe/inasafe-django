@@ -89,6 +89,6 @@ def average_shake_interval(num_days=30):
     # using numpy to calculate mean
     intervals = numpy.array([numpy.timedelta64(i) for i in intervals])
     mean_interval = numpy.mean(intervals).astype(timedelta)
-    if isnan(mean_interval):
+    if isinstance(mean_interval, float) and isnan(mean_interval):
         mean_interval = timedelta(seconds=0)
     return mean_interval
