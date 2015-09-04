@@ -67,8 +67,11 @@ def indicator(request):
     :returns: Response will be a leaflet map page.
     :rtype: HttpResponse
     """
-    if not request.user.is_authenticated():
-        return HttpResponseNotAllowed()
+    # FIXME: comment this out for now
+    # fix this after it is clear who can access this page
+    
+    # if not request.user.is_authenticated():
+    #    return HttpResponseNotAllowed()
 
     language_code = 'en'
     if request.method == 'GET':
