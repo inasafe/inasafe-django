@@ -113,21 +113,18 @@ def indicator(request):
 
 
 def realtime_rest_users(request):
-    if request.user.is_authenticated():
-        users = UserPush.objects.all()
-        date_format = '%Y-%m-%d %H:%M:%S %Z'
-        user_json = [
-            {
-                'username': u.user.get_username(),
-                'email': u.user.email,
-                'last_shakemap_push': u.last_shakemap_push.strftime(
-                    date_format),
-                'last_rest_push': u.last_rest_push.strftime(date_format)
-            }
-            for u in users
-        ]
-        return JsonResponse({
-            'users': user_json
-        })
-    else:
-        return HttpResponseNotAllowed()
+    users = UserPush.objects.all()
+    date_format = '%Y-%m-%d %H:%M:%S %Z'
+    user_json = [
+        {
+            'username': u.user.get_username(),
+            'email': u.user.email,
+            'last_shakemap_push': u.last_shakemap_push.strftime(
+                date_format),
+            'last_rest_push': u.last_rest_push.strftime(date_format)
+        }
+        for u in users
+    ]
+    return JsonResponse({
+        'users': user_json
+    })
