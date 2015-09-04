@@ -76,8 +76,8 @@ class RESTPushIndicator(Indicator):
                 naturaltimedelta(self._warning_range)
             ),
             STATUS_CRITICAL: _(
-                'Status is considered in critical state when the value is greater'
-                ' than %s') % (
+                'Status is considered in critical state when the value is '
+                'greater than %s') % (
                 naturaltimedelta(self._warning_range)
             )
         }

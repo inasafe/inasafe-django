@@ -86,7 +86,8 @@ class ShakeEventIndicator(Indicator):
             ),
             STATUS_CRITICAL: _(
                 'Status is considered in critical state when the value is '
-                'greater than %.2f times average interval of %s which is %s') % (
+                'greater than %.2f times average interval of %s which is %s'
+            ) % (
                 SHAKE_INTERVAL_MULTIPLIER['warning'],
                 naturaltimedelta(self._mean_interval),
                 naturaltimedelta(self._warning_range)
