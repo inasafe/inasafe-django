@@ -5,6 +5,7 @@ from django.utils.translation import ugettext as _
 from django.utils import translation
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from realtime.helpers.rest_push_indicator import track_rest_push
 from rest_framework import status, mixins
 from rest_framework.filters import DjangoFilterBackend, SearchFilter, \
     OrderingFilter
@@ -140,7 +141,9 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
+        retval = self.create(request, *args, **kwargs)
+        track_rest_push(request)
+        return retval
 
 
 class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
@@ -159,7 +162,9 @@ class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
+        retval = self.update(request, *args, **kwargs)
+        track_rest_push(request)
+        return retval
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)

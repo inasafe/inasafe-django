@@ -1,0 +1,94 @@
+# coding=utf-8
+from datetime import datetime, timedelta
+from math import isnan
+from django.utils.translation import ugettext as _
+import numpy
+import pytz
+from realtime.models.earthquake import Earthquake
+
+__author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
+__date__ = '04/09/15'
+
+
+STATUS_HEALTHY = 'Healthy'
+STATUS_WARNING = 'Warning'
+STATUS_CRITICAL = 'Critical'
+
+
+class Indicator(object):
+    """An abstract class of indicators.
+
+    This class should provide a way to generate indicator info to know that
+    realtime is running fine.
+    """
+
+    def __init__(self):
+        self._value = None
+        self._label = None
+        self._status = None
+
+    @property
+    def value(self):
+        return self._value
+
+    @property
+    def label(self):
+        return self._label
+
+    @property
+    def status(self):
+        return self._status
+
+    def value_humanize(self):
+        raise NotImplementedError()
+
+    def notes(self):
+        raise NotImplementedError()
+
+    def is_healthy(self):
+        return self.status == STATUS_HEALTHY
+
+    def is_warning(self):
+        return self.status == STATUS_WARNING
+
+    def is_critical(self):
+        return self.status == STATUS_CRITICAL
+
+    def status_text(self):
+        if self.status == STATUS_HEALTHY:
+            return _('Healthy')
+        elif self.status == STATUS_WARNING:
+            return _('Warning')
+        elif self.status == STATUS_CRITICAL:
+            return _('Critical')
+        else:
+            return _('Not Available')
+
+
+# this line onward will contains helpers method
+def average_shake_interval(num_days=30):
+    """Calculates average interval between shake events.
+
+    It is calculated in the span of previous 30 days
+
+    :param num_days: Number of previous days the function will calculate
+    :type num_days: int
+
+    :return: mean interval of shake events
+    :rtype: datetime.datetime
+    """
+    last_span = datetime.utcnow() - timedelta(days=num_days)
+    last_span.replace(tzinfo=pytz.utc)
+    shakes = Earthquake.objects.filter(time__gte=last_span)
+    intervals = []
+    for i in range(1, len(shakes)):
+        prev_shake = shakes[i-1]
+        shake = shakes[i]
+        intervals.append(shake.time - prev_shake.time)
+
+    # using numpy to calculate mean
+    intervals = numpy.array([numpy.timedelta64(i) for i in intervals])
+    mean_interval = numpy.mean(intervals).astype(timedelta)
+    if isinstance(mean_interval, float) and isnan(mean_interval):
+        mean_interval = timedelta(seconds=0)
+    return mean_interval

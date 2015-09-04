@@ -8,7 +8,10 @@
     For mailing. as the default, it wil use 'DEFAULT_FROM_MAIL' setting from
     the project.
 """
+from datetime import timedelta
 from django.conf import settings
+
+LOGGER_NAME = 'InaSAFE Realtime REST Server'
 
 # PROJECT_NAME: The project name for this apps e.g InaSAFE
 default_project_name = 'InaSAFE Realtime'
@@ -63,3 +66,26 @@ default_language_list = [
 ]
 LANGUAGE_LIST = getattr(
     settings, 'REALTIME_LANGUAGE_LIST', default_language_list)
+
+
+# Realtime indicator
+default_shake_interval_multiplier = {
+    'healthy': 1.5,
+    'warning': 3,
+}
+
+# indicates the range of interval between shake event to indicate that the
+# reporting runs normally
+SHAKE_INTERVAL_MULTIPLIER = getattr(
+    settings, 'REALTIME_SHAKE_INTERVAL_MULTIPLIER',
+    default_shake_interval_multiplier)
+
+default_rest_interval_range = {
+    'healthy': timedelta(minutes=5),
+    'warning': timedelta(minutes=10)
+}
+
+# indicates the range of interval between shake event to indicate that the
+# reporting runs normally
+REST_INTERVAL_RANGE = getattr(
+    settings, 'REALTIME_REST_INTERVAL_RANGE', default_rest_interval_range)
