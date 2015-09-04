@@ -5,7 +5,6 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils import translation
 import pytz
-from django.http.response import JsonResponse, HttpResponseNotAllowed
 from realtime.app_settings import LANGUAGE_LIST
 from realtime.helpers.rest_push_indicator import RESTPushIndicator
 from realtime.helpers.shake_event_indicator import ShakeEventIndicator
@@ -69,7 +68,6 @@ def indicator(request):
     """
     # FIXME: comment this out for now
     # fix this after it is clear who can access this page
-    
     # if not request.user.is_authenticated():
     #    return HttpResponseNotAllowed()
 
