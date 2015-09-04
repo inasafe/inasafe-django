@@ -1,10 +1,11 @@
 # coding=utf-8
+import pytz
 from datetime import datetime
 
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils import translation
-import pytz
+from django.http.response import JsonResponse
 from realtime.app_settings import LANGUAGE_LIST
 from realtime.helpers.rest_push_indicator import RESTPushIndicator
 from realtime.helpers.shake_event_indicator import ShakeEventIndicator
