@@ -68,17 +68,17 @@ class RESTPushIndicator(Indicator):
             STATUS_HEALTHY: _(
                 'Status is considered in healthy state when the value is less'
                 ' than %s') % (
-                naturaltimedelta(self._healthy_range)
+                naturaltimedelta(self._healthy_range, clarity=2)
             ),
             STATUS_WARNING: _(
                 'Status is considered in warning state when the value is less'
                 ' than %s') % (
-                naturaltimedelta(self._warning_range)
+                naturaltimedelta(self._warning_range, clarity=2)
             ),
             STATUS_CRITICAL: _(
                 'Status is considered in critical state when the value is '
                 'greater than %s') % (
-                naturaltimedelta(self._warning_range)
+                naturaltimedelta(self._warning_range, clarity=2)
             )
         }
         return available_notes.get(self.status)

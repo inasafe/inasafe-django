@@ -10,10 +10,20 @@ register = template.Library()
 
 
 @register.filter
-def naturaltimedelta(value):
+def naturaltimedelta(value, clarity=None):
     """
     Finds the difference between the datetime value given and now()
     and returns appropriate humanize form
+
+    :param value: the value to be filtered
+    :type value: Indicator
+
+    :param clarity: the clarity of string detail
+    if it is set to 2 then it will only display the first 2 most
+    significant time component
+    :type clarity: int
+
+    :rtype: str
     """
 
     from datetime import timedelta
@@ -21,18 +31,30 @@ def naturaltimedelta(value):
     if isinstance(value, timedelta):
         delta = value
         text = []
-        if delta.days > 1:
+        days = delta.days
+        hours = delta.seconds // 3600
+        minutes = (delta.seconds % 3600) // 60
+        seconds = delta.seconds % 60
+
+        detail = 0
+        if not clarity:
+            clarity = 5
+
+        if days > 0:
             # example: 10 days
-            text.append(_('%d days') % delta.days)
-        if delta.seconds > 3600:
+            text.append(_('%d days') % days)
+            detail += 1
+        if hours > 0 and detail < clarity:
             # example: 10 hours
-            text.append(_('%d hours') % (delta.seconds / 3600, ))
-        if delta.seconds % 3600 > 60:
+            text.append(_('%d hours') % hours)
+            detail += 1
+        if minutes > 0 and detail < clarity:
             # example: 10 minutes
-            text.append(_('%d minutes') % ((delta.seconds % 3600) / 60, ))
-        if (delta.seconds % 3600) / 60 > 0:
+            text.append(_('%d minutes') % minutes)
+            detail += 1
+        if seconds > 0 and detail < clarity:
             # example: 10 seconds
-            text.append(_('%d seconds') % (((delta.seconds % 3600) % 60),))
+            text.append(_('%d seconds') % seconds)
         if len(text) == 0:
             return _('%d microseconds') % delta.microseconds
         return ', '.join(text)

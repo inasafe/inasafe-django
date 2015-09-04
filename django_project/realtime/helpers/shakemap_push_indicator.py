@@ -81,23 +81,23 @@ class ShakemapPushIndicator(Indicator):
                 'Status is considered in healthy state when the value is '
                 'less than %.2f times average interval of %s which is %s') % (
                 SHAKE_INTERVAL_MULTIPLIER['healthy'],
-                naturaltimedelta(self._mean_interval),
-                naturaltimedelta(self._healthy_range)
+                naturaltimedelta(self._mean_interval, clarity=2),
+                naturaltimedelta(self._healthy_range, clarity=2)
             ),
             STATUS_WARNING: _(
                 'Status is considered in warning state when the value is '
                 'less than %.2f times average interval of %s which is %s') % (
                 SHAKE_INTERVAL_MULTIPLIER['warning'],
-                naturaltimedelta(self._mean_interval),
-                naturaltimedelta(self._warning_range)
+                naturaltimedelta(self._mean_interval, clarity=2),
+                naturaltimedelta(self._warning_range, clarity=2)
             ),
             STATUS_CRITICAL: _(
                 'Status is considered in critical state when the value is '
                 'greater than %.2f times average interval of %s which is %s'
             ) % (
                 SHAKE_INTERVAL_MULTIPLIER['warning'],
-                naturaltimedelta(self._mean_interval),
-                naturaltimedelta(self._warning_range)
+                naturaltimedelta(self._mean_interval, clarity=2),
+                naturaltimedelta(self._warning_range, clarity=2)
             )
         }
         return available_notes.get(self.status)

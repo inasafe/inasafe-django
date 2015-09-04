@@ -30,11 +30,11 @@
             <li class="menu-item">
                 <a href="{% url 'realtime:api_root' %}">API Browser</a>
             </li>
-            {% if user.is_authenticated %}
+{#            {% if user.is_authenticated %}#}
                 <li class="menu-item">
                     <a href="{% url 'realtime:indicator' %}">Indicator</a>
                 </li>
-            {% endif %}
+{#            {% endif %}#}
         </ul>
     </nav>
 {% endblock %}
