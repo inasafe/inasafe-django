@@ -3,7 +3,7 @@
 Model class for Realtime User related
 """
 
-
+from datetime import datetime
 from django.contrib.gis.db import models
 from user_map.models.user import User
 
@@ -25,9 +25,11 @@ class UserPush(models.Model):
     user = models.OneToOneField(User)
     last_shakemap_push = models.DateTimeField(
         verbose_name='Last shakemap push',
-        help_text='Date and time of last shakemap push made by user'
+        help_text='Date and time of last shakemap push made by user',
+        default=datetime.utcfromtimestamp(0)
     )
     last_rest_push = models.DateTimeField(
         verbose_name='Last REST push',
-        help_text='Date and time of last Earthquake REST post made by user'
+        help_text='Date and time of last Earthquake REST post made by user',
+        default=datetime.utcfromtimestamp(0)
     )

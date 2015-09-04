@@ -41,11 +41,12 @@ def notify_shakemap_push(request):
 
         # update info
         # get shakemap timestamp
-        date_format = '%Y-%m-%d %H:%M:%S %Z'
+        # calculate from utc
+        date_format = '%Y-%m-%d %H:%M:%S'
         timestamp = request.POST['timestamp']
         if timestamp:
             time = datetime.strptime(
-                timestamp, date_format).astimezone(pytz.utc)
+                timestamp, date_format).replace(tzinfo=pytz.utc)
         else:
             time = datetime.utcnow()
         user_push.last_shakemap_push = time.replace(tzinfo=pytz.utc)
@@ -53,7 +54,8 @@ def notify_shakemap_push(request):
         retval['success'] = True
         return JsonResponse(retval)
     else:
-        return HttpResponseNotAllowed()
+        retval['success'] = False
+        return JsonResponse(retval)
 
 
 def indicator(request):
@@ -110,15 +112,19 @@ def indicator(request):
 def realtime_rest_users(request):
     if request.user.is_authenticated():
         users = UserPush.objects.all()
-        json_response = [
+        date_format = '%Y-%m-%d %H:%M:%S %Z'
+        user_json = [
             {
                 'username': u.user.get_username(),
                 'email': u.user.email,
-                'last_shakemap_push': u.last_shakemap_push,
-                'last_rest_push': u.last_rest_push
+                'last_shakemap_push': u.last_shakemap_push.strftime(
+                    date_format),
+                'last_rest_push': u.last_rest_push.strftime(date_format)
             }
             for u in users
         ]
-        return JsonResponse(json_response)
+        return JsonResponse({
+            'users': user_json
+        })
     else:
         return HttpResponseNotAllowed()

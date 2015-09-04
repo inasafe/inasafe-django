@@ -117,7 +117,7 @@
 
             var get_users_url = '{% url 'realtime:rest_users' %}'
             $.get(get_users_url, function(data){
-                dynaTable.settings.dataset.originalRecords = data;
+                dynaTable.settings.dataset.originalRecords = data.users;
                 dynaTable.paginationPerPage.set(100);
                 dynaTable.sorts.add('username', -1);
                 dynaTable.process();
