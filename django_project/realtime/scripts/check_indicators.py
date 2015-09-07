@@ -15,7 +15,9 @@ __date__ = '04/09/15'
 
 LOGGER = logging.getLogger(LOGGER_NAME)
 
-if __name__ == '__main__':
+
+def check_indicator_status():
+    """Check all indicator and send email if it reaches critical status."""
     indicators = [
         ShakemapPushIndicator(),
         ShakeEventIndicator(),
@@ -28,5 +30,7 @@ if __name__ == '__main__':
             LOGGER.error(
                 'Indicator reaches Critical Level : %s with value : %s',
                 ind.label,
-                ind.value_humanize
-            )
+                ind.value_humanize)
+
+if __name__ == '__main__':
+    check_indicator_status()
