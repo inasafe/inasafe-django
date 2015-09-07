@@ -26,7 +26,8 @@ class Command(BaseCommand):
         done = False
 
         while not done:
-            location = raw_input('Location (lon lat), leave blank for default : ')
+            location = raw_input(
+                'Location (lon lat), leave blank for default : ')
             if not location:
                 location = Point(106.8222713, -6.1856145)
                 done = True
