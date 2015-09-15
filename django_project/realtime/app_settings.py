@@ -70,8 +70,8 @@ LANGUAGE_LIST = getattr(
 
 # Realtime indicator
 default_shake_interval_multiplier = {
-    'healthy': 1.5,
-    'warning': 3,
+    'healthy': 1,
+    'warning': 2,
 }
 
 # indicates the range of interval between shake event to indicate that the

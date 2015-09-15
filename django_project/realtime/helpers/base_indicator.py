@@ -74,8 +74,8 @@ def average_shake_interval(num_days=30):
     :param num_days: Number of previous days the function will calculate
     :type num_days: int
 
-    :return: mean interval of shake events
-    :rtype: datetime.datetime
+    :return: tuple of mean interval and standard deviation of shake events
+    :rtype: tuple
     """
     last_span = datetime.utcnow() - timedelta(days=num_days)
     last_span.replace(tzinfo=pytz.utc)
@@ -87,8 +87,13 @@ def average_shake_interval(num_days=30):
         intervals.append(shake.time - prev_shake.time)
 
     # using numpy to calculate mean
-    intervals = numpy.array([numpy.timedelta64(i) for i in intervals])
-    mean_interval = numpy.mean(intervals).astype(timedelta)
+    intervals = numpy.array([i.total_seconds() for i in intervals])
+    mean_interval = numpy.mean(intervals)
     if isinstance(mean_interval, float) and isnan(mean_interval):
-        mean_interval = timedelta(seconds=0)
-    return mean_interval
+        mean_interval = 0
+
+    # using numpy to calculate std
+    deviation = numpy.std(intervals)
+    if isinstance(deviation, float) and isnan(deviation):
+        deviation = 0
+    return timedelta(seconds=mean_interval), timedelta(seconds=deviation)
