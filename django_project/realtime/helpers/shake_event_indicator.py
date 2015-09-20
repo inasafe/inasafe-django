@@ -44,15 +44,21 @@ class ShakeEventIndicator(Indicator):
         # calculate average shakemap event interval
         # we will calculate the average from previous month
         now = datetime.utcnow().replace(tzinfo=pytz.utc)
-        mean_interval = average_shake_interval(num_days=30)
+        mean_interval, deviation = average_shake_interval(num_days=30)
         shake_event_delta = now - value
 
+        healthy_seconds = (
+            mean_interval.total_seconds() +
+            deviation.total_seconds() * SHAKE_INTERVAL_MULTIPLIER['healthy']
+        )
+        warning_seconds = (
+            mean_interval.total_seconds() +
+            deviation.total_seconds() * SHAKE_INTERVAL_MULTIPLIER['warning']
+        )
         healthy_range = timedelta(
-            seconds=mean_interval.seconds *
-            SHAKE_INTERVAL_MULTIPLIER['healthy'])
+            seconds=healthy_seconds)
         warning_range = timedelta(
-            seconds=mean_interval.seconds *
-            SHAKE_INTERVAL_MULTIPLIER['warning'])
+            seconds=warning_seconds)
 
         if shake_event_delta < healthy_range:
             self._status = STATUS_HEALTHY
@@ -63,6 +69,7 @@ class ShakeEventIndicator(Indicator):
 
         self._value = value
         self._mean_interval = mean_interval
+        self._deviation = deviation
         self._healthy_range = healthy_range
         self._warning_range = warning_range
 
@@ -72,23 +79,28 @@ class ShakeEventIndicator(Indicator):
         available_notes = {
             STATUS_HEALTHY: _(
                 'Status is considered in healthy state when the value is '
-                'less than %.2f times average interval of %s which is %s') % (
+                'less than %.2f times of deviation (%s) from average '
+                'intervals (%s) which is %s') % (
                 SHAKE_INTERVAL_MULTIPLIER['healthy'],
+                naturaltimedelta(self._deviation, clarity=2),
                 naturaltimedelta(self._mean_interval, clarity=2),
                 naturaltimedelta(self._healthy_range, clarity=2)
             ),
             STATUS_WARNING: _(
-                'Status is considered in warning state when the value is '
-                'less than %.2f times average interval of %s which is %s') % (
+                'Status is considered in healthy state when the value is '
+                'less than %.2f times of deviation (%s) from average '
+                'intervals (%s) which is %s') % (
                 SHAKE_INTERVAL_MULTIPLIER['warning'],
+                naturaltimedelta(self._deviation, clarity=2),
                 naturaltimedelta(self._mean_interval, clarity=2),
                 naturaltimedelta(self._warning_range, clarity=2)
             ),
             STATUS_CRITICAL: _(
-                'Status is considered in critical state when the value is '
-                'greater than %.2f times average interval of %s which is %s'
-            ) % (
+                'Status is considered in healthy state when the value is '
+                'less than %.2f times of deviation (%s) from average '
+                'intervals (%s) which is %s') % (
                 SHAKE_INTERVAL_MULTIPLIER['warning'],
+                naturaltimedelta(self._deviation, clarity=2),
                 naturaltimedelta(self._mean_interval, clarity=2),
                 naturaltimedelta(self._warning_range, clarity=2)
             )

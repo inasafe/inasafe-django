@@ -117,7 +117,31 @@ function createShowEventHandler(map, markers, map_events) {
 }
 
 /**
+ * Detect Safari browser
+ *
+ * @return {Object} to check the identity
+ */
+function browser_identity(){
+    var is_chrome = navigator.userAgent.indexOf('Chrome') > -1;
+    var is_explorer = navigator.userAgent.indexOf('MSIE') > -1;
+    var is_firefox = navigator.userAgent.indexOf('Firefox') > -1;
+    var is_safari = navigator.userAgent.indexOf("Safari") > -1;
+    var is_opera = navigator.userAgent.toLowerCase().indexOf("op") > -1;
+    if ((is_chrome)&&(is_safari)) {is_safari=false;}
+    if ((is_chrome)&&(is_opera)) {is_chrome=false;}
+    return {
+        is_chrome: is_chrome,
+        is_explorer: is_explorer,
+        is_firefox: is_firefox,
+        is_safari: is_safari,
+        is_opera: is_opera
+    };
+}
+
+/**
  * Closure to create handler for showReport
+ * use magic number 000 for url placeholder
+ *
  * @param {string} report_url A report url that contains shake_id placeholder
  * @return {function} Open the report based on shake_id in a new tab
  */
@@ -129,7 +153,14 @@ function createShowReportHandler(report_url) {
         $.get(url, function (data) {
             if (data && data.report_pdf) {
                 var pdf_url = data.report_pdf;
-                window.open(pdf_url, '_blank');
+                var $a = $("<a></a>");
+                $a.attr('href', pdf_url);
+                if(!browser_identity().is_safari){
+                    // it doesn't work in safari
+                    $a.attr('target', '_blank');
+                }
+                $a.attr('rel', 'nofollow');
+                $a[0].click();
             }
         }).fail(function(e){
             console.log(e);
@@ -152,7 +183,10 @@ function SaveToDisk(fileURL, fileName) {
     if (!window.ActiveXObject) {
         var save = document.createElement('a');
         save.href = fileURL;
-        save.target = '_blank';
+        if(!browser_identity().is_safari){
+            // doesn't work in safari
+            save.target = '_blank';
+        }
         save.download = fileName || 'unknown';
 
         var evt = new MouseEvent('click', {

@@ -1,11 +1,11 @@
 # coding=utf-8
+import pytz
 from datetime import datetime
 
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils import translation
-import pytz
-from django.http.response import JsonResponse, HttpResponseNotAllowed
+from django.http.response import JsonResponse
 from realtime.app_settings import LANGUAGE_LIST
 from realtime.helpers.rest_push_indicator import RESTPushIndicator
 from realtime.helpers.shake_event_indicator import ShakeEventIndicator
@@ -67,8 +67,10 @@ def indicator(request):
     :returns: Response will be a leaflet map page.
     :rtype: HttpResponse
     """
-    if not request.user.is_authenticated():
-        return HttpResponseNotAllowed()
+    # FIXME: comment this out for now
+    # fix this after it is clear who can access this page
+    # if not request.user.is_authenticated():
+    #    return HttpResponseNotAllowed()
 
     language_code = 'en'
     if request.method == 'GET':
@@ -110,21 +112,18 @@ def indicator(request):
 
 
 def realtime_rest_users(request):
-    if request.user.is_authenticated():
-        users = UserPush.objects.all()
-        date_format = '%Y-%m-%d %H:%M:%S %Z'
-        user_json = [
-            {
-                'username': u.user.get_username(),
-                'email': u.user.email,
-                'last_shakemap_push': u.last_shakemap_push.strftime(
-                    date_format),
-                'last_rest_push': u.last_rest_push.strftime(date_format)
-            }
-            for u in users
-        ]
-        return JsonResponse({
-            'users': user_json
-        })
-    else:
-        return HttpResponseNotAllowed()
+    users = UserPush.objects.all()
+    date_format = '%Y-%m-%d %H:%M:%S %Z'
+    user_json = [
+        {
+            'username': u.user.get_username(),
+            'email': u.user.email,
+            'last_shakemap_push': u.last_shakemap_push.strftime(
+                date_format),
+            'last_rest_push': u.last_rest_push.strftime(date_format)
+        }
+        for u in users
+    ]
+    return JsonResponse({
+        'users': user_json
+    })

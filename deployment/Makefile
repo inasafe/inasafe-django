@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-PROJECT_ID := inasafe
+PROJECT_ID := inasafedjango
 
 # ----------------------------------------------------------------------------
 #    P R O D U C T I O N     C O M M A N D S
