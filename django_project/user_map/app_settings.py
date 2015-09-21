@@ -25,15 +25,15 @@ FAVICON_FILE = getattr(settings, 'USER_MAP_FAVICON_FILE', default_favicon_file)
 # PROJECTS
 default_projects = [
     dict(
-        name='InaSAFE',
-        icon='user_map/img/inasafe-icon.png',
+        name='OpenStreetMap',
+        icon='user_map/img/osm-icon.png',
         shadow_icon='',
         icon_size=[32, 32]),
     dict(
-        name='OpenStreetMap',
-        icon='user_map/img/osm-icon.png',
-        shadow_icon='user_map/img/osm-shadow.png',
-        icon_size=[19, 32])]
+        name='InaSAFE',
+        icon='user_map/img/inasafe-icon.png',
+        shadow_icon='',
+        icon_size=[32, 32])]
 PROJECTS = getattr(
     settings, 'USER_MAP_PROJECTS', default_projects)
 
