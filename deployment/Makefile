@@ -318,3 +318,12 @@ dev-qgis:
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	-e DISPLAY=unix$(DISPLAY) \
 	kartoza/qgis-desktop:latest; xhost -
+
+create-machine:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Creating a docker machine. Only useful for OSX and Windows"
+	@echo "------------------------------------------------------------------"
+	@docker-machine create --driver virtualbox inasafe-django
+	@echo "Now attache to your machine by doing:"
+        @echo '"$(docker-machine env inasafe-django)"'
