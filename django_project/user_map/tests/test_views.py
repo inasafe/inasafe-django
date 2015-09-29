@@ -46,6 +46,13 @@ class UserMapViewTests(TestCase):
             {'project': 'openstreetmap'})
         self.assertEqual(response['Content-Type'], 'application/json')
         self.assertContains(response, 'FeatureCollection')
+        # not gonna contains this user since he got both roles
+        self.assertNotContains(response, self.user.name)
+        response = self.client.get(
+            reverse('user_map:get_users'),
+            {'project': ''})
+        self.assertEqual(response['Content-Type'], 'application/json')
+        self.assertContains(response, 'FeatureCollection')
         self.assertContains(response, self.user.name)
 
     def test_get_users_with_post(self):
