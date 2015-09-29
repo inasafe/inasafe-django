@@ -69,14 +69,28 @@
         //Add all user layers based on projects
         var get_users_url = '{% url "user_map:get_users" %}';
         var overlays_layer = [];
-        var projects = {{ projects | safe }};
-        var static_files = '{% static "" %}';
+
+        var projects = {{ projects|safe }}
+
+        var projects = [
+        {% for project in projects %}
+            {
+                'name': '{{ project.name|safe }}',
+                'icon': '{% static project.icon %}',
+                'shadow_icon': '{% static project.shadow_icon %}',
+                'icon_size': {{ project.icon_size|safe }}
+            }
+            {% if not forloop.last %}
+                ,
+            {% endif %}
+        {% endfor %}
+        ];
 
         for (var i = 0; i < projects.length; ++i) {
-            var project_icon_path = static_files + projects[i]['icon'];
+            var project_icon_path = projects[i]['icon'];
             var project_shadow_icon_path = undefined;
             if(projects[i]['shadow_icon'].length > 0){
-                project_shadow_icon_path = static_files + projects[i]['shadow_icon'];
+                project_shadow_icon_path = projects[i]['shadow_icon'];
             }
             var project_icon_size = projects[i]['icon_size'];
             var additional_options = {

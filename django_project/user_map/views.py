@@ -2,6 +2,7 @@
 """Views of the apps."""
 import csv
 import json
+from django.contrib.staticfiles.templatetags.staticfiles import do_static
 
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -69,11 +70,19 @@ def index(request):
         subdomains=LEAFLET_TILES[2],
         attribution=LEAFLET_TILES[3]
     )
+    #
+    # projects = [{
+    #     'name': p['name'],
+    #     'icon': do_static(p['icon']),
+    #     'shadow_icon': do_static(p['shadow_icon']),
+    #     'icon_size': p['icon_size']
+    # } for p in PROJECTS]
+
     context = {
         'data_privacy_content': data_privacy_content,
         'information_modal': information_modal,
         'user_menu_button': user_menu_button,
-        'projects': json.dumps(PROJECTS),
+        'projects': PROJECTS,
         'legend': legend,
         'leaflet_tiles': leaflet_tiles
     }
