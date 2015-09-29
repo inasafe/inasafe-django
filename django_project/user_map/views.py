@@ -1,8 +1,6 @@
 # coding=utf-8
 """Views of the apps."""
 import csv
-import json
-from django.contrib.staticfiles.templatetags.staticfiles import do_static
 
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -108,18 +106,25 @@ def get_users(request):
         project = str(request.GET.get('project', ''))
 
         if project.lower() == 'inasafe':
+            # only inasafe users
             users = User.objects.filter(
                 is_confirmed=True,
                 is_active=True,
-                osm_roles=None).exclude(groups__name=REST_GROUP)
+                osm_roles=None).exclude(
+                inasafe_roles=None).exclude(groups__name=REST_GROUP)
         elif project.lower() == 'openstreetmap':
-            inasafe_users = User.objects.filter(osm_roles=None).values('id')
+            # only osm users
             users = User.objects.filter(
                 is_confirmed=True,
-                is_active=True).exclude(
-                id__in=inasafe_users).exclude(groups__name=REST_GROUP)
+                is_active=True,
+                inasafe_roles=None).exclude(osm_roles=None).exclude(
+                groups__name=REST_GROUP)
         else:
-            users = []
+            # get users who have both roles
+            users = User.objects.filter(
+                is_confirmed=True, is_active=True).exclude(
+                osm_roles=None).exclude(inasafe_roles=None).exclude(
+                groups__name=REST_GROUP)
 
         context = {
             'users': users,
