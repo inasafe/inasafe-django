@@ -3,6 +3,18 @@
 # Please use the accompanying make targets to run rather than
 # calling docker-compose commands directly on this file.
 
+storage:
+  image: busybox
+  hostname: storage
+  volumes:
+  - /var/lib/postgresql
+  - /backups
+  - /home/web/static
+  - /home/web/media
+  - /home/web/reports
+  - /var/log
+  - /var/log/nginx
+
 smtp:
   image: catatnight/postfix
   hostname: postfix
@@ -20,14 +32,15 @@ db: &db
     - PASS=docker
 
 dbbackup: &dbbackup
-  image: kartoza/pg-backup
+  build: docker-backup
   hostname: pg-backups
   volumes:
     - ./pg/dbbackup/backups:/backups
   links:
     - db:db
   environment:
-    - DUMPPREFIX=realtime
+    # make this equal to PG_$(PROJECT_ID) in makefile
+    - DUMPPREFIX=PG_inasafedjango
     # These are all defaults anyway, but setting explicitly in
     # case we ever want to ever use different credentials
     - PGUSER=docker
@@ -35,6 +48,12 @@ dbbackup: &dbbackup
     - PGPORT=5432
     - PGHOST=db
     - PGDATABASE=gis
+    - DAILY=14
+    - MONTHLY=12
+    - YEARLY=3
+  env_file:
+    # SFTP Credential for backup service
+    - sftp_credential.env
 
 uwsgi: &uwsgi
   build: docker-prod
@@ -81,7 +100,12 @@ stagingweb:
 # Exactly the same as production but for dev env, we expose the port and uses
 # different port for the web.
 devdb:
-  <<: *db
+  build: docker-postgis
+  volumes_from:
+    - storage
+  environment:
+    - USERNAME=docker
+    - PASS=docker
   ports:
     - "6543:5432"
 

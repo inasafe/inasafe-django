@@ -108,6 +108,47 @@ qgis:
 	-e DISPLAY=unix$(DISPLAY) \
 	kartoza/qgis-desktop:latest; xhost -
 
+dbrestore:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restore dump from backups/latest.dmp in production mode"
+	@echo "------------------------------------------------------------------"
+	@# - prefix causes command to continue even if it fails
+	-@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "dropdb gis"
+	@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "createdb -O docker -T template_postgis gis"
+	@docker exec -t -i $(PROJECT_ID)_db_1 pg_restore /backups/latest.dmp | docker exec -i $(PROJECT_ID)_db_1 su - postgres -c "psql gis"
+
+dbbackup:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Create `date +%d-%B-%Y`.dmp in production mode"
+	@echo "Warning: backups/latest.dmp will be replaced with a symlink to "
+	@echo "the new backup."
+	@echo "------------------------------------------------------------------"
+	@# - prefix causes command to continue even if it fails
+	docker exec -t -i $(PROJECT_ID)_dbbackup_1 /backups.sh
+	@docker exec -t -i $(PROJECT_ID)_dbbackup_1 cat /var/log/cron.log | tail -2 | head -1 | awk '{print $4}'
+	-@if [ -f "backups/latest.dmp" ]; then rm backups/latest.dmp; fi
+	# backups is intentionally missing from front of first clause below otherwise symlink comes
+	# out with wrong path...
+	@ln -s `date +%Y`/`date +%B`/PG_$(PROJECT_ID)_gis.`date +%d-%B-%Y`.dmp backups/latest.dmp
+	@echo "Backup should be at: backups/`date +%Y`/`date +%B`/PG_$(PROJECT_ID)_gis.`date +%d-%B-%Y`.dmp"
+
+reload:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Reload django project in production mode"
+	@echo "------------------------------------------------------------------"
+	@docker exec -t -i $(PROJECT_ID)_uwsgi_1 uwsgi --reload  /tmp/django.pid
+
+create-machine:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Creating a docker machine. Only useful for OSX and Windows"
+	@echo "------------------------------------------------------------------"
+	@docker-machine create --driver virtualbox inasafe-django
+	@echo "Now attache to your machine by doing:"
+	@echo '"$(docker-machine env inasafe-django)"'
 
 
 # ---------------------------------------------------------------------------
