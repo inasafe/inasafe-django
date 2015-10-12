@@ -14,16 +14,23 @@ smtp:
 db: &db
   image: kartoza/postgis:9.3-2.1
   volumes:
-    - ./pg/postgres_data:/var/lib/postgresql
+    - ./backups:/backups
+  volumes_from:
+    - dbstorage
   environment:
     - USERNAME=docker
     - PASS=docker
 
+dbstorage:
+  image: busybox
+  volumes:
+      - /var/lib/postgresql
+
 dbbackup: &dbbackup
   image: kartoza/pg-backup
-  hostname: pg-backups
+  hostname: pg-backup
   volumes:
-    - ./pg/dbbackup/backups:/backups
+    - ./backups:/backups
   links:
     - db:db
   environment:
@@ -70,38 +77,4 @@ web: &web
   links:
     - uwsgi:uwsgi
   ports:
-    - "61100:8080"
-
-# Exactly the same as web but for staging we use a different port.
-stagingweb:
-  <<: *web
-  ports:
-    - "61101:8080"
-
-# Exactly the same as production but for dev env, we expose the port and uses
-# different port for the web.
-devdb:
-  <<: *db
-  ports:
-    - "6543:5432"
-
-devdbbackup:
-  <<: *dbbackup
-  volumes:
-    - ./pg/dbbackup/devbackups:/backups
-  links:
-    - devdb:db
-
-devuwsgi:
-  <<: *uwsgi
-  links:
-    - smtp:smtp
-    - devdb:db
-    - devdbbackup:dbbackup
-
-devweb:
-  <<: *web
-  links:
-    - devuwsgi:uwsgi
-  ports:
-    - "61102:8080"
+    - "61100:8080",
