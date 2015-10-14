@@ -1,32 +1,48 @@
 #--------- Generic stuff all our Dockerfiles should start with so we get caching ------------
-FROM jakartaflood_uwsgi
+# Note this base image is based on debian
+FROM kartoza/django-base
 MAINTAINER Tim Sutton<tim@kartoza.com>
+
+#RUN  ln -s /bin/true /sbin/initctl
 
 # Use local cached debs from host (saves your bandwidth!)
 # Change ip below to that of your apt-cacher-ng host
 # Or comment this line out if you do not with to use caching
 ADD 71-apt-cacher-ng /etc/apt/apt.conf.d/71-apt-cacher-ng
 
-RUN apt-get -y update
-RUN apt-get -y install openssh-server rpl
+RUN apt-get update -y; apt-get -y --force-yes install yui-compressor
+
+# This section taken on 2 July 2015 from
+# https://docs.docker.com/examples/running_ssh_service/
+# Sudo is needed by pycharm when it tries to pip install packages
+RUN apt-get update -y; apt-get install -y openssh-server sudo
 RUN mkdir /var/run/sshd
-RUN rpl "PermitRootLogin without-password" "PermitRootLogin yes" /etc/ssh/sshd_config
+RUN echo 'root:docker' | chpasswd
+RUN sed -i 's/PermitRootLogin without-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 
-#-------------Application Specific Stuff ----------------------------------------------------
-# Open port 22 so linked containers can see it and 8000 for django test server
-EXPOSE 22 8000
-ADD start.sh /start.sh
-RUN chmod 0755 /start.sh
+# SSH login fix. Otherwise user is kicked off after login
+RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 
-ADD REQUIREMENTS-dev.txt /REQUIREMENTS-dev.txt
-RUN pip install -r /REQUIREMENTS-dev.txt
+ENV NOTVISIBLE "in users profile"
+RUN echo "export VISIBLE=now" >> /etc/profile
 
-WORKDIR /home/web/django_project
-# Entrypoint is preferred but we use CMD
-# as fig run does not currently correctly
-# overload entrypoint
-CMD ["/start.sh"]
+# End of cut & paste section
 
-# You should be able to log in to this container and set it up as a remote
-# python environment in pycharm - user and password will be docker
-# NOTE: This docker container is meant for development only!
+
+# Open port 8080 as we will be running our uwsgi socket on that
+EXPOSE 8080
+
+ADD REQUIREMENTS.txt /REQUIREMENTS.txt
+RUN pip install -r /REQUIREMENTS.txt
+ADD bashrc /root/.bashrc
+
+# --------------------------------------------------------
+# Open ports as needed
+# --------------------------------------------------------
+
+# Open port 8080 as we will be running our django dev server on
+EXPOSE 8080
+# Open port 22 as we will be using a remote interpreter from pycharm
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]

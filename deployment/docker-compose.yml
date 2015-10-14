@@ -32,11 +32,14 @@ db: &db
     - PASS=docker
 
 dbbackup: &dbbackup
-  image: kartoza/pg-backup:9.3
+#  image: kartoza/pg-backup:9.3
+  build: docker-backup
   hostname: pg-backups
   volumes:
     - ./pg/dbbackup/backups:/backups
-    - ./pg/sftp_backup/target:/target
+    # this folder is used as target folder for sftppgbackup as the
+    # source folder
+    - ./sftp_backup/target/pg:/target
   links:
     - db:db
   environment:
@@ -50,20 +53,42 @@ dbbackup: &dbbackup
     - PGHOST=db
     - PGDATABASE=gis
 
-sftpbackup: &sftpbackup
+sftppgbackup: &sftppgbackup
   image: lucernae/sftp-backup
-  hostname: sftpbackup
+  hostname: sftppgbackup
   volumes:
-    - ./pg/sftp_backup/backups:/backups
-    - ./pg/sftp_backup/target:/pg_backup
+    # this folder is used to store local backups from pg dbbackup
+    - ./sftp_backup/backups/pg:/backups
+    # this folder is used as target folder/source where the backup comes from
+    # this backup comes from dbbackup
+    - ./sftp_backup/target/pg:/pg_backup
   environment:
     - DUMPPREFIX=PG_inasafedjango
     - DAILY=14
     - MONTHLY=12
     - YEARLY=3
+    # set this to the target/source folder where the backup comes from
     - TARGET_FOLDER=/pg_backup
   env_file:
-    - sftp_credential.env
+    - sftp_pg_credential.env
+
+sftpmediabackup: &sftpmediabackup
+  image: lucernae/sftp-backup
+  hostname: sftpmediabackup
+  volumes:
+    # this folder is used to store local backups from django media
+    - ./sftp_backup/backups/media:/backups
+    # this folder is used as target folder/source where the backup comes from
+    # this backup comes from django media
+    - ./media:/media_backup
+  environment:
+    - DUMPPREFIX=MEDIA_inasafedjango
+    - DAILY=14
+    - MONTHLY=12
+    - YEARLY=3
+    - TARGET_FOLDER=/media_backup
+  env_file:
+    - sftp_media_credential.env
 
 uwsgi: &uwsgi
   build: docker-prod
@@ -86,7 +111,8 @@ uwsgi: &uwsgi
     - smtp:smtp
     - db:db
     - dbbackup:dbbackup
-    - sftpbackup:sftpbackup
+    - sftppgbackup:sftppgbackup
+    - sftpmediabackup:sftpmediabackup
 
 web: &web
   image: nginx
@@ -111,6 +137,7 @@ stagingweb:
 # Exactly the same as production but for dev env, we expose the port and uses
 # different port for the web.
 devdb:
+  # custom built from docker-postgis, so we can access it on local
   build: docker-postgis
   volumes_from:
     - storage
@@ -124,22 +151,32 @@ devdbbackup:
   <<: *dbbackup
   volumes:
     - ./pg/dbbackup/devbackups:/backups
-    - ./pg/sftp_backup/target:/target
+    - ./sftp_backup/target/pg:/pg_backup
   links:
     - devdb:db
 
-devsftpbackup:
-  <<: *sftpbackup
+devsftppgbackup:
+  <<: *sftppgbackup
   env_file:
-    - sftp_credential-dev.env
+    - sftp_pg_credential-dev.env
+
+devsftpmediabackup:
+  <<: *sftpmediabackup
+  env_file:
+    - sftp_media_credential-dev.env
 
 devuwsgi:
   <<: *uwsgi
+  build: docker-dev
   links:
     - smtp:smtp
     - devdb:db
     - devdbbackup:dbbackup
-    - devsftpbackup:sftpbackup
+    - devsftppgbackup:sftppgbackup
+    - devsftpmediabackup:sftpmediabackup
+  ports:
+    # expose ssh port so we can access it via pycharm remote interpreter
+    - "61103:22"
 
 devweb:
   <<: *web
