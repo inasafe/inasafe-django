@@ -95,6 +95,12 @@ function createShowEventHandler(map, markers, map_events) {
         }, 500);
         markers.zoomToShowLayer(marker, function () {
             var fitBoundsOption = {
+                /*
+                If we set the max zoom, we can limit the function so
+                it doesn't get zoomed to maximum level.
+                set this in combination with 'disableClusteringAtZoom'
+                option when creating markerClusterGroup
+                 */
                 maxZoom: 10,
                 pan: {
                     animate: true,

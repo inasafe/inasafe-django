@@ -260,7 +260,13 @@
                         iconSize: L.point(40, 40)
                     });
                 }
-            })(class_name)
+            })(class_name),
+            /*
+            Disable clustering at specified zoom level.
+            Useful to directly zoom to a particular event programmatically
+            to expand the cluster
+             */
+            disableClusteringAtZoom: 10
         }).addTo(map);
 
         // create control layers
