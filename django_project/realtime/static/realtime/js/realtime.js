@@ -424,11 +424,12 @@ function modifyLocationFilterStyle(){
 
 /**
  * Modify default search and show labels of dynatable
+ * Removes ':' from the text
  */
 function modifySearchAndShowLabels(){
     $(".dynatable-per-page-label").text("Show");
     var $search_container = $(".dynatable-search");
-    var $children = $search_container.children();
+    var $children = $search_container.children().detach();
     $search_container.text("Search").append($children);
 }
 
