@@ -39,7 +39,7 @@ dbbackup: &dbbackup
     - ./pg/dbbackup/backups:/backups
     # this folder is used as target folder for sftppgbackup as the
     # source folder
-    - ./sftp_backup/target/pg:/target
+    - ./sftp_backup/target/pg:/pg_backup
   links:
     - db:db
   environment:
