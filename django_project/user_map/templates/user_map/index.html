@@ -91,6 +91,9 @@
             var project_shadow_icon_path = undefined;
             if(projects[i]['shadow_icon'].length > 0){
                 project_shadow_icon_path = projects[i]['shadow_icon'];
+                if(project_shadow_icon_path == "/static/"){
+                    project_shadow_icon_path = undefined;
+                }
             }
             var project_icon_size = projects[i]['icon_size'];
             var additional_options = {
