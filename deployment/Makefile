@@ -163,7 +163,7 @@ create-machine:
 	@echo "Creating a docker machine. Only useful for OSX and Windows"
 	@echo "------------------------------------------------------------------"
 	@docker-machine create --driver virtualbox inasafe-django
-	@echo "Now attache to your machine by doing:"
+	@echo "Now attach to your machine by doing:"
 	@echo '"$(docker-machine env inasafe-django)"'
 
 
@@ -297,7 +297,7 @@ dev-web:
 	@echo "------------------------------------------------------------------"
 	@echo "Running in dev mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-dev up -d devweb
+	@docker-compose -p $(PROJECT_ID)-dev up -d devuwsgi
 	#@dipall
 
 dev-migrate:

@@ -5,7 +5,7 @@ for disasters. This django project provides various resources related to the
 InaSAFE project in particular:
 
 * A user map
-* more to come
+* Realtime Earthquake Reports
 
 **Please note that this project is in the early phase of its development.**
 

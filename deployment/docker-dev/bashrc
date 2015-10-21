@@ -7,5 +7,11 @@ if [ -f /etc/bashrc ]; then
     . /etc/bashrc
 fi
 export PYTHONPATH=/home/web/django_project:$PYTHONPATH
-export DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+export DATABASE_NAME=gis
+export DATABASE_USERNAME=docker
+export DATABASE_PASSWORD=docker
+export DATABASE_HOST=db
+export DJANGO_SETTINGS_MODULE=core.settings.prod_docker
+export VIRTUAL_HOST=users.inasafe.org
+export VIRTUAL_PORT=8080
 cd /home/web/django_project

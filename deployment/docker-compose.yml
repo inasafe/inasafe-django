@@ -54,7 +54,7 @@ dbbackup: &dbbackup
     - PGDATABASE=gis
 
 sftppgbackup: &sftppgbackup
-  image: lucernae/sftp-backup
+  image: kartoza/sftp-backup:1.0
   hostname: sftppgbackup
   volumes:
     # this folder is used to store local backups from pg dbbackup
@@ -73,7 +73,7 @@ sftppgbackup: &sftppgbackup
     - sftp_pg_credential.env
 
 sftpmediabackup: &sftpmediabackup
-  image: lucernae/sftp-backup
+  image: kartoza/sftp-backup:1.0
   hostname: sftpmediabackup
   volumes:
     # this folder is used to store local backups from django media
@@ -83,9 +83,10 @@ sftpmediabackup: &sftpmediabackup
     - ./media:/media_backup
   environment:
     - DUMPPREFIX=MEDIA_inasafedjango
-    - DAILY=14
-    - MONTHLY=12
-    - YEARLY=3
+    # reduce frequency because the dump is really big
+    - DAILY=3
+    - MONTHLY=2
+    - YEARLY=1
     - TARGET_FOLDER=/media_backup
   env_file:
     - sftp_media_credential.env
@@ -177,10 +178,4 @@ devuwsgi:
   ports:
     # expose ssh port so we can access it via pycharm remote interpreter
     - "61103:22"
-
-devweb:
-  <<: *web
-  links:
-    - devuwsgi:uwsgi
-  ports:
     - "61102:8080"
