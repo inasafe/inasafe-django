@@ -3,6 +3,18 @@
 # Please use the accompanying make targets to run rather than
 # calling docker-compose commands directly on this file.
 
+storage:
+  image: busybox
+  hostname: storage
+  volumes:
+  - /var/lib/postgresql
+  - /backups
+  - /home/web/static
+  - /home/web/media
+  - /home/web/reports
+  - /var/log
+  - /var/log/nginx
+
 smtp:
   image: catatnight/postfix
   hostname: postfix
@@ -20,14 +32,19 @@ db: &db
     - PASS=docker
 
 dbbackup: &dbbackup
-  image: kartoza/pg-backup
+#  image: kartoza/pg-backup:9.3
+  build: docker-backup
   hostname: pg-backups
   volumes:
     - ./pg/dbbackup/backups:/backups
+    # this folder is used as target folder for sftppgbackup as the
+    # source folder
+    - ./sftp_backup/target/pg:/pg_backup
   links:
     - db:db
   environment:
-    - DUMPPREFIX=realtime
+    # make this equal to PG_$(PROJECT_ID) in makefile
+    - DUMPPREFIX=PG_inasafedjango
     # These are all defaults anyway, but setting explicitly in
     # case we ever want to ever use different credentials
     - PGUSER=docker
@@ -35,6 +52,44 @@ dbbackup: &dbbackup
     - PGPORT=5432
     - PGHOST=db
     - PGDATABASE=gis
+
+sftppgbackup: &sftppgbackup
+  image: kartoza/sftp-backup:1.0
+  hostname: sftppgbackup
+  volumes:
+    # this folder is used to store local backups from pg dbbackup
+    - ./sftp_backup/backups/pg:/backups
+    # this folder is used as target folder/source where the backup comes from
+    # this backup comes from dbbackup
+    - ./sftp_backup/target/pg:/pg_backup
+  environment:
+    - DUMPPREFIX=PG_inasafedjango
+    - DAILY=14
+    - MONTHLY=12
+    - YEARLY=3
+    # set this to the target/source folder where the backup comes from
+    - TARGET_FOLDER=/pg_backup
+  env_file:
+    - sftp_pg_credential.env
+
+sftpmediabackup: &sftpmediabackup
+  image: kartoza/sftp-backup:1.0
+  hostname: sftpmediabackup
+  volumes:
+    # this folder is used to store local backups from django media
+    - ./sftp_backup/backups/media:/backups
+    # this folder is used as target folder/source where the backup comes from
+    # this backup comes from django media
+    - ./media:/media_backup
+  environment:
+    - DUMPPREFIX=MEDIA_inasafedjango
+    # reduce frequency because the dump is really big
+    - DAILY=3
+    - MONTHLY=2
+    - YEARLY=1
+    - TARGET_FOLDER=/media_backup
+  env_file:
+    - sftp_media_credential.env
 
 uwsgi: &uwsgi
   build: docker-prod
@@ -57,6 +112,8 @@ uwsgi: &uwsgi
     - smtp:smtp
     - db:db
     - dbbackup:dbbackup
+    - sftppgbackup:sftppgbackup
+    - sftpmediabackup:sftpmediabackup
 
 web: &web
   image: nginx
@@ -81,7 +138,13 @@ stagingweb:
 # Exactly the same as production but for dev env, we expose the port and uses
 # different port for the web.
 devdb:
-  <<: *db
+  # custom built from docker-postgis, so we can access it on local
+  build: docker-postgis
+  volumes_from:
+    - storage
+  environment:
+    - USERNAME=docker
+    - PASS=docker
   ports:
     - "6543:5432"
 
@@ -89,19 +152,30 @@ devdbbackup:
   <<: *dbbackup
   volumes:
     - ./pg/dbbackup/devbackups:/backups
+    - ./sftp_backup/target/pg:/pg_backup
   links:
     - devdb:db
 
+devsftppgbackup:
+  <<: *sftppgbackup
+  env_file:
+    - sftp_pg_credential-dev.env
+
+devsftpmediabackup:
+  <<: *sftpmediabackup
+  env_file:
+    - sftp_media_credential-dev.env
+
 devuwsgi:
   <<: *uwsgi
+  build: docker-dev
   links:
     - smtp:smtp
     - devdb:db
     - devdbbackup:dbbackup
-
-devweb:
-  <<: *web
-  links:
-    - devuwsgi:uwsgi
+    - devsftppgbackup:sftppgbackup
+    - devsftpmediabackup:sftpmediabackup
   ports:
+    # expose ssh port so we can access it via pycharm remote interpreter
+    - "61103:22"
     - "61102:8080"

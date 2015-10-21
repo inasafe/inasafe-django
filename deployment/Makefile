@@ -108,6 +108,63 @@ qgis:
 	-e DISPLAY=unix$(DISPLAY) \
 	kartoza/qgis-desktop:latest; xhost -
 
+dbrestore:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restore dump from backups/latest.dmp in production mode"
+	@echo "------------------------------------------------------------------"
+	@# - prefix causes command to continue even if it fails
+	-@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "dropdb gis"
+	@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "createdb -O docker -T template_postgis gis"
+	@docker exec -t -i $(PROJECT_ID)_db_1 pg_restore /backups/latest.dmp | docker exec -i $(PROJECT_ID)_db_1 su - postgres -c "psql gis"
+
+dbbackup:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Create `date +%d-%B-%Y`.dmp in production mode"
+	@echo "Warning: backups/latest.dmp will be replaced with a symlink to "
+	@echo "the new backup."
+	@echo "------------------------------------------------------------------"
+	@# - prefix causes command to continue even if it fails
+	docker exec -t -i $(PROJECT_ID)_dbbackup_1 /backups.sh
+	@docker exec -t -i $(PROJECT_ID)_dbbackup_1 cat /var/log/cron.log | tail -2 | head -1 | awk '{print $4}'
+	# backups is intentionally missing from front of first clause below otherwise symlink comes
+	# out with wrong path...
+	# trigger sftp backups
+	@docker exec -t -i $(PROJECT_ID)_sftppgbackup_1 /backups.sh
+	@docker exec -t -i $(PROJECT_ID)_sftpmediabackup_1 /backups.sh
+
+pushbackup:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Push local backup in sftpbackup to sftp remote server"
+	@echo "------------------------------------------------------------------"
+	@docker exec -t -i $(PROJECT_ID)_sftppgbackup_1 /start.sh push-to-remote-sftp
+	@docker exec -t -i $(PROJECT_ID)_sftpmediabackup_1 /start.sh push-to-remote-sftp
+
+pullbackup:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Pull remote sftp backup to local backup"
+	@echo "------------------------------------------------------------------"
+	@docker exec -t -i $(PROJECT_ID)_sftppgbackup_1 /start.sh pull-from-remote-sftp
+	@docker exec -t -i $(PROJECT_ID)_sftpmediabackup_1 /start.sh pull-from-remote-sftp
+
+reload:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Reload django project in production mode"
+	@echo "------------------------------------------------------------------"
+	@docker exec -t -i $(PROJECT_ID)_uwsgi_1 uwsgi --reload  /tmp/django.pid
+
+create-machine:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Creating a docker machine. Only useful for OSX and Windows"
+	@echo "------------------------------------------------------------------"
+	@docker-machine create --driver virtualbox inasafe-django
+	@echo "Now attach to your machine by doing:"
+	@echo '"$(docker-machine env inasafe-django)"'
 
 
 # ---------------------------------------------------------------------------
@@ -240,7 +297,7 @@ dev-web:
 	@echo "------------------------------------------------------------------"
 	@echo "Running in dev mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-dev up -d devweb
+	@docker-compose -p $(PROJECT_ID)-dev up -d devuwsgi
 	#@dipall
 
 dev-migrate:
@@ -318,3 +375,45 @@ dev-qgis:
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	-e DISPLAY=unix$(DISPLAY) \
 	kartoza/qgis-desktop:latest; xhost -
+
+dev-dbrestore:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restore dump from backups/latest.dmp in production mode"
+	@echo "------------------------------------------------------------------"
+	@# - prefix causes command to continue even if it fails
+	-@docker exec -t -i $(PROJECT_ID)dev_db_1 su - postgres -c "dropdb gis"
+	@docker exec -t -i $(PROJECT_ID)dev_db_1 su - postgres -c "createdb -O docker -T template_postgis gis"
+	@docker exec -t -i $(PROJECT_ID)dev_db_1 pg_restore /backups/latest.dmp | docker exec -i $(PROJECT_ID)dev_devdb_1 su - postgres -c "psql gis"
+
+dev-dbbackup:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Create `date +%d-%B-%Y`.dmp in production mode"
+	@echo "Warning: backups/latest.dmp will be replaced with a symlink to "
+	@echo "the new backup."
+	@echo "------------------------------------------------------------------"
+	@# - prefix causes command to continue even if it fails
+	docker exec -t -i $(PROJECT_ID)dev_devdbbackup_1 /backups.sh
+	@docker exec -t -i $(PROJECT_ID)dev_devdbbackup_1 cat /var/log/cron.log | tail -2 | head -1 | awk '{print $4}'
+	# backups is intentionally missing from front of first clause below otherwise symlink comes
+	# out with wrong path...
+	# trigger sftp backups
+	@docker exec -t -i $(PROJECT_ID)dev_devsftppgbackup_1 /backups.sh
+	@docker exec -t -i $(PROJECT_ID)dev_devsftpmediabackup_1 /backups.sh
+
+dev-pushbackup:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Push local backup in sftpbackup to sftp remote server"
+	@echo "------------------------------------------------------------------"
+	@docker exec -t -i $(PROJECT_ID)dev_devsftppgbackup_1 /start.sh push-to-remote-sftp
+	@docker exec -t -i $(PROJECT_ID)dev_devsftpmediabackup_1 /start.sh push-to-remote-sftp
+
+dev-pullbackup:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Pull remote sftp backup to local backup"
+	@echo "------------------------------------------------------------------"
+	@docker exec -t -i $(PROJECT_ID)dev_devsftppgbackup_1 /start.sh pull-from-remote-sftp
+	@docker exec -t -i $(PROJECT_ID)dev_devsftpmediabackup_1 /start.sh pull-from-remote-sftp

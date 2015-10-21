@@ -28,6 +28,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+.DS_Store
 
 # PyInstaller
 # Usually these files are written by a python script from a template
@@ -73,16 +74,34 @@ django_project/static
 node_modules
 
 # Working data not intended to be versioned
+/temp/
 data_for_import
 scrap.html
 .pycharm_helpers
 .sudo_as_admin_successful
 
-# Pg cluster for docker
-deployment/pg/postgres_data/9.3
+ssh deployment/pg/postgres_data/9.3
 deployment/pg/postgres_staging_data/9.3
 deployment/pg/postgres_dev_data/9.3
-deployment/pg/dbbackup/
+deployment/pg/dbbackup/*
+!deployment/pg/dbbackup/backups/
+deployment/pg/dbbackup/backups/*
+!deployment/pg/dbbackup/devbackups/
+deployment/pg/dbbackup/devbackups/*
+deployment/sftp_backup/backups/media/
+deployment/sftp_backup/backups/pg/
+deployment/sftp_backup/target/pg/
+
+!deployment/pg/dbbackup/backups/README.md
+!deployment/pg/dbbackup/devbackups/README.md
+!deployment/sftp_backup/target/pg/.gitkeep
+!deployment/sftp_backup/backups/media/README.md
+!deployment/sftp_backup/backups/pg/README.md
+
+sftp_media_credential.env
+sftp_pg_credential.env
+sftp_media_credential-dev.env
+sftp_pg_credential-dev.env
 
 # apt-cacher-ng
 71-apt-cacher-ng
