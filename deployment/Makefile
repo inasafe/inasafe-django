@@ -1,9 +1,37 @@
 SHELL := /bin/bash
 PROJECT_ID := inasafedjango
 
+CONF_FILE := -f docker-compose.yml
+CONF_HELP := Uses docker-compose.yml
+
+UNAME_S := $(shell uname -s)
+
+ifeq ($(UNAME_S),Linux)
+	CONF_HELP := Detecting Linux Environment. Use docker-compose-linux.yml
+	CONF_FILE += -f docker-compose-linux.yml
+endif
+ifeq ($(UNAME_S),Darwin)
+	CONF_HELP := Detecting OSX Environment. Use docker-compose-osx.yml
+	CONF_FILE += -f docker-compose-osx.yml
+endif
+
+ifeq ($(MODE),dev)
+	MODE_HELP := Using Development Environment. Use docker-compose-dev.yml
+	CONF_FILE += -f docker-compose-dev.yml
+	MODE_STRING := development
+else
+	MODE_HELP := Using Production Environment.
+	MODE_STRING := production
+endif
+
 # ----------------------------------------------------------------------------
 #    P R O D U C T I O N     C O M M A N D S
 # ----------------------------------------------------------------------------
+
+confinfo:
+	@echo
+	@echo $(CONF_HELP)
+	@echo $(MODE_HELP)
 
 default: web
 
@@ -16,85 +44,84 @@ deploy: run migrate collectstatic
 	@echo "You can access it on http://localhost:61100"
 	@echo "------------------------------------------------------------------"
 
-build:
+build: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Building in production mode"
+	@echo "Building in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID) build
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) build
 
-web:
+web: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running in production mode"
+	@echo "Running in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID) up -d web
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d web
 	#@dipall
 
-migrate:
+migrate: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running migrate static in production mode"
+	@echo "Running migrate static in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID) run uwsgi python manage.py migrate
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) run uwsgi python manage.py migrate
 
 collectstatic:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Collecting static in production mode"
+	@echo "Collecting static in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	#@docker-compose -p $(PROJECT_ID) run uwsgi python manage.py collectstatic --noinput
+	#@docker-compose $(CONF_FILE) -p $(PROJECT_ID) run uwsgi python manage.py collectstatic --noinput
 	#We need to run collect static in the same context as the running
 	# uwsgi container it seems so I use docker exec here
 	@docker exec -t -i $(PROJECT_ID)_uwsgi_1 python manage.py collectstatic --noinput
 
-kill:
+kill: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Killing in production mode"
+	@echo "Killing in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-
-	@docker-compose -p $(PROJECT_ID) kill
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) kill
 
 rm: kill
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Removing production instance!!! "
+	@echo "Removing $(MODE_STRING) instance!!! "
 	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID) rm
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) rm
 
-logs:
+logs: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Showing uwsgi logs in production mode"
+	@echo "Showing uwsgi logs in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID) logs uwsgi
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs uwsgi
 
-nginxlogs:
+nginxlogs: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Showing nginx logs in production mode"
+	@echo "Showing nginx logs in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID) logs web
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs web
 
-shell:
+shell: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Shelling in in production mode"
+	@echo "Shelling in in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID) run uwsgi /bin/bash
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) run uwsgi /bin/bash
 
 dbshell:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Shelling in in production database"
+	@echo "Shelling in in $(MODE_STRING) database"
 	@echo "------------------------------------------------------------------"
 	@docker exec -t -i $(PROJECT_ID)_db_1 psql -U docker -h localhost gis
 
 qgis:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running QGIS desktop in production mode"
+	@echo "Running QGIS desktop in $(MODE_STRING) mode"
 	@echo "Make sure you have started the services with make run first"
 	@echo "------------------------------------------------------------------"
 	@xhost +; docker run --rm --name="qgis-desktop-2-4" \
@@ -111,17 +138,18 @@ qgis:
 dbrestore:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Restore dump from backups/latest.dmp in production mode"
+	@echo "Restore dump from backups/latest.dmp in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
 	@# - prefix causes command to continue even if it fails
 	-@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "dropdb gis"
 	@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "createdb -O docker -T template_postgis gis"
-	@docker exec -t -i $(PROJECT_ID)_db_1 pg_restore /backups/latest.dmp | docker exec -i $(PROJECT_ID)_db_1 su - postgres -c "psql gis"
+	@docker exec -t -i $(PROJECT_ID)_dbbackup_1 pg_restore /backups/latest.dmp
+	@docker exec -i $(PROJECT_ID)_db_1 su - postgres -c "psql gis"
 
 dbbackup:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Create `date +%d-%B-%Y`.dmp in production mode"
+	@echo "Create `date +%d-%B-%Y`.dmp in $(MODE_STRING) mode"
 	@echo "Warning: backups/latest.dmp will be replaced with a symlink to "
 	@echo "the new backup."
 	@echo "------------------------------------------------------------------"
@@ -153,7 +181,7 @@ pullbackup:
 reload:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Reload django project in production mode"
+	@echo "Reload django project in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
 	@docker exec -t -i $(PROJECT_ID)_uwsgi_1 uwsgi --reload  /tmp/django.pid
 
@@ -166,254 +194,3 @@ create-machine:
 	@echo "Now attach to your machine by doing:"
 	@echo '"$(docker-machine env inasafe-django)"'
 
-
-# ---------------------------------------------------------------------------
-#    S T A G I N G     C O M M A N D S
-# ----------------------------------------------------------------------------
-
-staging-run: staging-build staging-web
-
-staging-deploy: staging-run staging-migrate staging-collectstatic
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Bringing up fresh staging instance "
-	@echo "You can access it on http://localhost:61101"
-	@echo "------------------------------------------------------------------"
-
-staging-build:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Building in staging mode"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-staging build
-
-staging-web:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Running in staging mode"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-staging up -d stagingweb
-	#@dipall
-
-staging-migrate:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Running migrate static in staging mode"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-staging run uwsgi python manage.py migrate
-
-staging-collectstatic:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Collecting static in staging mode"
-	@echo "------------------------------------------------------------------"
-	#@docker-compose -p $(PROJECT_ID)-staging run uwsgi python manage.py collectstatic --noinput
-	#We need to run collect static in the same context as the running
-	# uwsgi container it seems so I use docker exec here
-	@docker exec -t -i $(PROJECT_ID)staging_uwsgi_1 python manage.py collectstatic --noinput
-
-staging-kill:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Killing in staging mode"
-	@echo "------------------------------------------------------------------"
-
-	@docker-compose -p $(PROJECT_ID)-staging kill
-
-staging-rm: kill
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Removing staging instance!!! "
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-staging rm
-
-staging-logs:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Showing uwsgi logs in staging mode"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-staging logs uwsgi
-
-staging-nginxlogs:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Showing nginx logs in staging mode"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-staging logs web
-
-staging-shell:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Shelling in in staging mode"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-staging run uwsgi /bin/bash
-
-staging-dbshell:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Shelling in in staging database"
-	@echo "------------------------------------------------------------------"
-	@docker exec -t -i $(PROJECT_ID)staging_db_1 psql -U docker -h localhost gis
-
-staging-qgis:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Running QGIS desktop in staging mode"
-	@echo "Make sure you have started the services with make run first"
-	@echo "------------------------------------------------------------------"
-	@xhost +; docker run --rm --name="qgis-desktop-2-4" \
-	-i -t \
-	--link $(PROJECT_ID)staging_db_1:db \
-	--link $(PROJECT_ID)staging_qgisserver_1:qgisserver \
-	--volumes-from $(PROJECT_ID)_qgisserver_1 \
-	-v ${HOME}:/home/$(USER) \
-	-v /tmp/.X11-unix:/tmp/.X11-unix \
-	-e DISPLAY=unix$(DISPLAY) \
-	kartoza/qgis-desktop:latest; xhost -
-
-
-# ---------------------------------------------------------------------------
-#    D E V M O D E     C O M M A N D S
-# ----------------------------------------------------------------------------
-
-dev-run: dev-build dev-web
-
-dev-deploy: dev-run dev-migrate dev-collectstatic
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Bringing up fresh dev instance "
-	@echo "You can access it on http://localhost:61101"
-	@echo "------------------------------------------------------------------"
-
-dev-build:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Building in dev mode"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-dev build
-
-dev-web:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Running in dev mode"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-dev up -d devuwsgi
-	#@dipall
-
-dev-migrate:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Running migrate static in dev mode"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-dev run devuwsgi python manage.py migrate
-
-dev-collectstatic:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Collecting static in dev mode"
-	@echo "------------------------------------------------------------------"
-	#@docker-compose -p $(PROJECT_ID)-dev run devuwsgi python manage.py collectstatic --noinput
-	#We need to run collect static in the same context as the running
-	# uwsgi container it seems so I use docker exec here
-	@docker exec -t -i $(PROJECT_ID)dev_devuwsgi_1 python manage.py collectstatic --noinput
-
-dev-kill:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Killing in dev mode"
-	@echo "------------------------------------------------------------------"
-
-	@docker-compose -p $(PROJECT_ID)-dev kill
-
-dev-rm: kill
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Removing dev instance!!! "
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-dev rm
-
-dev-logs:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Showing uwsgi logs in dev mode"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-dev logs devuwsgi
-
-dev-nginxlogs:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Showing nginx logs in dev mode"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-dev logs devweb
-
-dev-shell:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Shelling in in dev mode"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID)-dev run devuwsgi /bin/bash
-
-dev-dbshell:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Shelling in in dev database"
-	@echo "------------------------------------------------------------------"
-	@docker exec -t -i $(PROJECT_ID)dev_devdb_1 psql -U docker -h localhost gis
-
-dev-qgis:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Running QGIS desktop in dev mode"
-	@echo "Make sure you have started the services with make run first"
-	@echo "------------------------------------------------------------------"
-	@xhost +; docker run --rm --name="qgis-desktop-2-4" \
-	-i -t \
-	--link $(PROJECT_ID)dev_db_1:db \
-	--link $(PROJECT_ID)dev_qgisserver_1:qgisserver \
-	--volumes-from $(PROJECT_ID)_qgisserver_1 \
-	-v ${HOME}:/home/$(USER) \
-	-v /tmp/.X11-unix:/tmp/.X11-unix \
-	-e DISPLAY=unix$(DISPLAY) \
-	kartoza/qgis-desktop:latest; xhost -
-
-dev-dbrestore:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Restore dump from backups/latest.dmp in production mode"
-	@echo "------------------------------------------------------------------"
-	@# - prefix causes command to continue even if it fails
-	-@docker exec -t -i $(PROJECT_ID)dev_db_1 su - postgres -c "dropdb gis"
-	@docker exec -t -i $(PROJECT_ID)dev_db_1 su - postgres -c "createdb -O docker -T template_postgis gis"
-	@docker exec -t -i $(PROJECT_ID)dev_db_1 pg_restore /backups/latest.dmp | docker exec -i $(PROJECT_ID)dev_devdb_1 su - postgres -c "psql gis"
-
-dev-dbbackup:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Create `date +%d-%B-%Y`.dmp in production mode"
-	@echo "Warning: backups/latest.dmp will be replaced with a symlink to "
-	@echo "the new backup."
-	@echo "------------------------------------------------------------------"
-	@# - prefix causes command to continue even if it fails
-	docker exec -t -i $(PROJECT_ID)dev_devdbbackup_1 /backups.sh
-	@docker exec -t -i $(PROJECT_ID)dev_devdbbackup_1 cat /var/log/cron.log | tail -2 | head -1 | awk '{print $4}'
-	# backups is intentionally missing from front of first clause below otherwise symlink comes
-	# out with wrong path...
-	# trigger sftp backups
-	@docker exec -t -i $(PROJECT_ID)dev_devsftppgbackup_1 /backups.sh
-	@docker exec -t -i $(PROJECT_ID)dev_devsftpmediabackup_1 /backups.sh
-
-dev-pushbackup:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Push local backup in sftpbackup to sftp remote server"
-	@echo "------------------------------------------------------------------"
-	@docker exec -t -i $(PROJECT_ID)dev_devsftppgbackup_1 /start.sh push-to-remote-sftp
-	@docker exec -t -i $(PROJECT_ID)dev_devsftpmediabackup_1 /start.sh push-to-remote-sftp
-
-dev-pullbackup:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Pull remote sftp backup to local backup"
-	@echo "------------------------------------------------------------------"
-	@docker exec -t -i $(PROJECT_ID)dev_devsftppgbackup_1 /start.sh pull-from-remote-sftp
-	@docker exec -t -i $(PROJECT_ID)dev_devsftpmediabackup_1 /start.sh pull-from-remote-sftp

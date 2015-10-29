@@ -3,18 +3,6 @@
 # Please use the accompanying make targets to run rather than
 # calling docker-compose commands directly on this file.
 
-storage:
-  image: busybox
-  hostname: storage
-  volumes:
-  - /var/lib/postgresql
-  - /backups
-  - /home/web/static
-  - /home/web/media
-  - /home/web/reports
-  - /var/log
-  - /var/log/nginx
-
 smtp:
   image: catatnight/postfix
   hostname: postfix
@@ -25,14 +13,14 @@ smtp:
 
 db: &db
   image: kartoza/postgis:9.3-2.1
-  volumes:
-    - ./pg/postgres_data:/var/lib/postgresql
+# This line should be allowed in Linux env
+#  volumes:
+#    - ./pg/postgres_data:/var/lib/postgresql
   environment:
     - USERNAME=docker
     - PASS=docker
 
 dbbackup: &dbbackup
-#  image: kartoza/pg-backup:9.3
   build: docker-backup
   hostname: pg-backups
   volumes:
@@ -134,48 +122,3 @@ stagingweb:
   <<: *web
   ports:
     - "61101:8080"
-
-# Exactly the same as production but for dev env, we expose the port and uses
-# different port for the web.
-devdb:
-  # custom built from docker-postgis, so we can access it on local
-  build: docker-postgis
-  volumes_from:
-    - storage
-  environment:
-    - USERNAME=docker
-    - PASS=docker
-  ports:
-    - "6543:5432"
-
-devdbbackup:
-  <<: *dbbackup
-  volumes:
-    - ./pg/dbbackup/devbackups:/backups
-    - ./sftp_backup/target/pg:/pg_backup
-  links:
-    - devdb:db
-
-devsftppgbackup:
-  <<: *sftppgbackup
-  env_file:
-    - sftp_pg_credential-dev.env
-
-devsftpmediabackup:
-  <<: *sftpmediabackup
-  env_file:
-    - sftp_media_credential-dev.env
-
-devuwsgi:
-  <<: *uwsgi
-  build: docker-dev
-  links:
-    - smtp:smtp
-    - devdb:db
-    - devdbbackup:dbbackup
-    - devsftppgbackup:sftppgbackup
-    - devsftpmediabackup:sftpmediabackup
-  ports:
-    # expose ssh port so we can access it via pycharm remote interpreter
-    - "61103:22"
-    - "61102:8080"
