@@ -42,3 +42,20 @@ if settings.DEBUG:
             }),
         url(r'', include('django.contrib.staticfiles.urls'))
     )
+else:
+    # for production mode
+    # Although it will also be served by nginx
+    # Useful for testing production environment in local configuration
+    urlpatterns += patterns(
+        '',
+        url(r'^media/(?P<path>.*)$', 'django.views.static.serve',
+            {
+                'document_root': settings.MEDIA_ROOT,
+                'show_indexes': False
+            }),
+        url(r'^static/(?P<path>.*)$', 'django.views.static.serve',
+            {
+                'document_root': settings.STATIC_ROOT,
+                'show_indexes': False
+            }),
+    )

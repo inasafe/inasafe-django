@@ -7,7 +7,7 @@ DATABASES = {
         'NAME': 'gis',
         'USER': 'docker',
         'PASSWORD': 'docker',
-        'HOST': '192.168.99.100',
+        'HOST': 'docker-inasafe-django',
         'PORT': 6543
     }
 }

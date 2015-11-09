@@ -1,0 +1,17 @@
+# Specific configuration for development environment
+
+
+# Exactly the same as production but for dev env, we expose the port and uses
+# different port for the web.
+db:
+  # custom built from docker-postgis, so we can access it on local
+  build: docker-postgis
+  ports:
+    - "6543:5432"
+
+uwsgi:
+  build: docker-dev
+  ports:
+    # expose ssh port so we can access it via pycharm remote interpreter
+    - "61103:22"
+    - "61102:8080"
