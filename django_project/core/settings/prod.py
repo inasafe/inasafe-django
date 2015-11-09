@@ -45,7 +45,6 @@ if 'raven.contrib.django.raven_compat' in INSTALLED_APPS:
                ':6c2a47fc6ce04ed2bb966df9454df7d3@sentry.kartoza.com/13',
     }
 
-
     # MIDDLEWARE_CLASSES = (
     #     'raven.contrib.django.middleware.SentryResponseErrorIdMiddleware',
     #     'raven.contrib.django.middleware.SentryLogMiddleware',
