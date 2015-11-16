@@ -143,8 +143,7 @@ dbrestore:
 	@# - prefix causes command to continue even if it fails
 	-@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "dropdb gis"
 	@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "createdb -O docker -T template_postgis gis"
-	@docker exec -t -i $(PROJECT_ID)_dbbackup_1 pg_restore /backups/latest.dmp
-	@docker exec -i $(PROJECT_ID)_db_1 su - postgres -c "psql gis"
+	@docker exec -t -i $(PROJECT_ID)_dbbackup_1 pg_restore /backups/latest.dmp | docker exec -i $(PROJECT_ID)_db_1 su - postgres -c "psql gis"
 
 dbbackup:
 	@echo
