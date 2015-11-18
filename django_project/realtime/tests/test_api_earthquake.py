@@ -1,27 +1,89 @@
 # coding=utf-8
 import datetime
-import shutil
-
-from django.contrib.auth.models import Group
 import os
+import shutil
+import threading
+import logging
+
 import pytz
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.gis.geos.point import Point
 from django.core.files.base import File
 from django.core.urlresolvers import reverse
-from django.conf import settings
-from realtime.app_settings import REST_GROUP
-from realtime.serializers.pagination_serializer import \
-    PageNumberPaginationSerializer
+from django.db import connections
+from django.test.client import Client
 from rest_framework import status
 from rest_framework.test import APITestCase
+
 from core.settings.utils import ABS_PATH
+from realtime.app_settings import REST_GROUP
 from realtime.models.earthquake import Earthquake, EarthquakeReport
 from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
     EarthquakeReportSerializer
+from realtime.serializers.pagination_serializer import \
+    PageNumberPaginationSerializer
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '20/06/15'
+
+LOGGER = logging.getLogger(__name__)
+
+
+def test_concurrently(times):
+    """
+    Add this decorator to small pieces of code that you want to test
+    concurrently to make sure they don't raise exceptions when run at the
+    same time.  E.g., some Django views that do a SELECT and then a
+    subsequent INSERT might fail when the INSERT assumes that the data
+    has not changed since the SELECT.
+
+    # NOQA Flake8 ignore long url
+    Soure : https://www.caktusgroup.com/blog/2009/05/26/testing-django-views-for-concurrency-issues/
+
+    :param times: Number of times the method is executed
+    :type times: int
+    """
+    def test_concurrently_decorator(test_func):
+        def wrapper(*args, **kwargs):
+            exceptions = []
+
+            def call_test_func():
+                try:
+                    test_func(*args, **kwargs)
+                except Exception, e:
+                    exceptions.append(e)
+                    raise
+            threads = []
+            for i in range(times):
+                threads.append(threading.Thread(target=call_test_func))
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+            if exceptions:
+                raise Exception(
+                    'test_concurrently intercepted %s exceptions: %s' % (
+                        len(exceptions), exceptions))
+        return wrapper
+    return test_concurrently_decorator
+
+
+def close_db_connections(func, *args, **kwargs):
+    """
+    Decorator to close db connections during threaded execution
+
+    Note this is necessary to work around:
+    https://code.djangoproject.com/ticket/22420
+    """
+    def _inner(*args, **kwargs):
+        func(*args, **kwargs)
+        LOGGER.warning('Closing db connections.')
+        for conn in connections.all():
+            LOGGER.warning('Closing connection %s' % conn)
+            conn.close()
+    return _inner
 
 
 class TestEarthquake(APITestCase):
@@ -472,3 +534,66 @@ class TestEarthquake(APITestCase):
             earthquake__shake_id=u'20150619200628')
         self.assertEqual(len(reports), 1)
         self.assertEqual(reports[0].language, u'id')
+
+    def xtest_earthquake_report_concurrency_post(self):
+        """
+        This is a test for concurrency post in EarthquakeReport GET method.
+
+        This test currently not working because somehow the inner db
+        connection in post_report has failed to connect.
+
+        """
+        report_multipart = {
+            'language': u'en',
+            'report_pdf': File(
+                open(
+                    self.data_path(u'20150619200628-en.pdf'))),
+            'report_image': File(
+                open(
+                    self.data_path(u'20150619200628-en.png'))),
+            'report_thumbnail': File(
+                open(
+                    self.data_path(
+                        u'20150619200628-thumb-en.png'))),
+        }
+
+        @test_concurrently(15)
+        def post_report(test_object):
+            try:
+                c = Client()
+                login_ret = c.login(
+                    email='test@test.org', password='testsecret')
+                test_object.assertTrue(login_ret, 'Client is not logged in.')
+                response = c.post(
+                    reverse(
+                        'realtime:earthquake_report_list',
+                        kwargs={'shake_id': u'20150619200628'}
+                    ),
+                    report_multipart,
+                    format='multipart'
+                )
+                test_object.assertEqual(
+                    response.status_code, status.HTTP_200_OK)
+            except Exception as e:
+                for conn in connections.all():
+                    conn.close()
+                raise e
+
+        post_report(self)
+
+        req_args = {
+            'shake_id': u'20150619200628',
+            'language': u'en'
+        }
+        try:
+            response = self.client.get(
+                reverse(
+                    'realtime:earthquake_report_detail',
+                    kwargs=req_args
+                ))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+        finally:
+            EarthquakeReport.objects.filter(
+                earthquake__shake_id=req_args['shake_id'],
+                language=req_args['language']
+            ).delete()

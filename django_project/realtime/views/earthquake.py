@@ -1,6 +1,9 @@
 # coding=utf-8
+import logging
 from copy import deepcopy
 
+from django.core.exceptions import ValidationError, MultipleObjectsReturned
+from django.db.utils import IntegrityError
 from django.utils.translation import ugettext as _
 from django.utils import translation
 from django.shortcuts import render_to_response
@@ -23,6 +26,9 @@ from rest_framework_gis.filters import InBBoxFilter
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '19/06/15'
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def index(request, iframe=False, server_side_filter=False):
@@ -232,8 +238,18 @@ class EarthquakeReportList(mixins.ListModelMixin,
 
         if serializer.is_valid():
             serializer.validated_data['earthquake'] = earthquake
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                serializer.save()
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED)
+            except (ValidationError, IntegrityError) as e:
+                # This happens when simultaneuously two conn trying to save
+                # the same unique_together fields (earthquake, language)
+                # Should warn this to sentry
+                LOGGER.warning(e.message)
+                return Response(
+                    serializer.errors,
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -262,6 +278,16 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
                 return self.list(request, *args, **kwargs)
         except EarthquakeReport.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        except MultipleObjectsReturned as e:
+            # this should not happen.
+            # But in case it is happening, returned the last object, but still
+            # log the error to sentry
+            LOGGER.warning(e.message)
+            instance = EarthquakeReport.objects.filter(
+                earthquake__shake_id=shake_id,
+                language=language).last()
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
 
     def put(self, request, shake_id=None, language=None):
         data = request.data

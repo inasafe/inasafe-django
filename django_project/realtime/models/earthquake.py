@@ -59,6 +59,7 @@ class EarthquakeReport(models.Model):
     class Meta:
         """Meta class."""
         app_label = 'realtime'
+        unique_together = (('earthquake', 'language'),)
 
     earthquake = models.ForeignKey(
         Earthquake,
