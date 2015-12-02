@@ -1,9 +1,8 @@
 # coding=utf-8
 import datetime
+import logging
 import os
 import shutil
-import threading
-import logging
 
 import pytz
 from django.conf import settings
@@ -24,6 +23,7 @@ from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
     EarthquakeReportSerializer
 from realtime.serializers.pagination_serializer import \
     PageNumberPaginationSerializer
+from realtime.tests.utilities import test_concurrently
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '20/06/15'
@@ -31,67 +31,12 @@ __date__ = '20/06/15'
 LOGGER = logging.getLogger(__name__)
 
 
-def test_concurrently(times):
-    """
-    Add this decorator to small pieces of code that you want to test
-    concurrently to make sure they don't raise exceptions when run at the
-    same time.  E.g., some Django views that do a SELECT and then a
-    subsequent INSERT might fail when the INSERT assumes that the data
-    has not changed since the SELECT.
-
-    # NOQA Flake8 ignore long url
-    Soure : https://www.caktusgroup.com/blog/2009/05/26/testing-django-views-for-concurrency-issues/
-
-    :param times: Number of times the method is executed
-    :type times: int
-    """
-    def test_concurrently_decorator(test_func):
-        def wrapper(*args, **kwargs):
-            exceptions = []
-
-            def call_test_func():
-                try:
-                    test_func(*args, **kwargs)
-                except Exception, e:
-                    exceptions.append(e)
-                    raise
-            threads = []
-            for i in range(times):
-                threads.append(threading.Thread(target=call_test_func))
-            for t in threads:
-                t.start()
-            for t in threads:
-                t.join()
-            if exceptions:
-                raise Exception(
-                    'test_concurrently intercepted %s exceptions: %s' % (
-                        len(exceptions), exceptions))
-        return wrapper
-    return test_concurrently_decorator
-
-
-def close_db_connections(func, *args, **kwargs):
-    """
-    Decorator to close db connections during threaded execution
-
-    Note this is necessary to work around:
-    https://code.djangoproject.com/ticket/22420
-    """
-    def _inner(*args, **kwargs):
-        func(*args, **kwargs)
-        LOGGER.warning('Closing db connections.')
-        for conn in connections.all():
-            LOGGER.warning('Closing connection %s' % conn)
-            conn.close()
-    return _inner
-
-
 class TestEarthquake(APITestCase):
 
     default_media_path = None
 
     def data_path(self, filename):
-        return u'realtime/tests/data/'+filename
+        return u'realtime/tests/data/earthquake/'+filename
 
     def setUp(self):
         if settings.TESTING:
@@ -352,7 +297,7 @@ class TestEarthquake(APITestCase):
                 kwargs={'shake_id': u'20150619200628'}
             ))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data), 1)
+        self.assertEqual(response.data['count'], 1)
 
     def test_earthquake_report_list_post(self):
         report_multipart = {

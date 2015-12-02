@@ -11,6 +11,8 @@ from realtime.views.earthquake import (
 from realtime.views import root
 from rest_framework.urlpatterns import format_suffix_patterns
 
+from realtime.views.flood import FloodList, FloodDetail, FloodReportList, \
+    FloodReportDetail
 from realtime.views.reports import latest_report
 
 urlpatterns = [
@@ -35,7 +37,27 @@ urlpatterns = [
         r'(?P<shake_id>[-\d]+)/'
         r'(?P<language>[-\w]+)/$',
         EarthquakeReportDetail.as_view(),
-        name='earthquake_report_detail')
+        name='earthquake_report_detail'),
+    url(r'^api/v1/flood/$',
+        FloodList.as_view(),
+        name='flood_list'),
+    url(r'^api/v1/flood/'
+        r'(?P<event_id>\d{10}-(1|3|6)-(rw|village|subdistrict))/$',
+        FloodDetail.as_view(),
+        name='flood_detail'),
+    url(r'^api/v1/flood-report/$',
+        FloodReportList.as_view(),
+        name='flood_report_list'),
+    url(r'^api/v1/flood-report/'
+        r'(?P<event_id>\d{10}-(1|3|6)-(rw|village|subdistrict))/$',
+        FloodReportList.as_view(),
+        name='flood_report_list'),
+    url(r'^api/v1/flood-report/'
+        r'(?P<event_id>\d{10}-(1|3|6)-(rw|village|subdistrict))/'
+        r'(?P<language>[-\w]+)/$',
+        FloodReportDetail.as_view(),
+        name='flood_report_detail'),
+
     ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
@@ -51,7 +73,7 @@ urlpatterns += [
         user_push.realtime_rest_users,
         name='rest_users'),
     url(r'^latest_report/'
-        r'(?P<report_type>((pdf)|(png)|(thumbnail)))/'
+        r'(?P<report_type>(pdf|png|thumbnail))/'
         r'(?P<language>\w*)/?$',
         latest_report,
         name='latest_report')

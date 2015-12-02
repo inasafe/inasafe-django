@@ -63,7 +63,6 @@ class EarthquakeReport(models.Model):
 
     earthquake = models.ForeignKey(
         Earthquake,
-
         related_name='reports')
     language = models.CharField(
         verbose_name='Language ID',

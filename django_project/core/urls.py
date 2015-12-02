@@ -25,6 +25,9 @@ urlpatterns = patterns(
     url(r'^realtime/', include('realtime.urls', namespace='realtime')),
     url(r'^realtime/api-auth/', include('rest_framework.urls',
                                         namespace='rest_framework')),
+    # alias for auth in realtime
+    url(r'^realtime/api/v1/auth/', include('rest_framework.urls',
+                                          namespace='rest_framework')),
     url(r'^realtime/admin/', include(realtime_admin_site.urls)),
 
     # url pattern for realtime reports

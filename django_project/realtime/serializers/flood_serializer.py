@@ -1,25 +1,22 @@
 # coding=utf-8
+
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
-from rest_framework_gis.serializers import (
-    GeoModelSerializer,
-    GeoFeatureModelSerializer
-)
 
-from realtime.models.earthquake import Earthquake, EarthquakeReport
+from realtime.models.flood import Flood, FloodReport
 from realtime.serializers.utilities import CustomSerializerMethodField
 
-__author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
-__date__ = '19/06/15'
+__author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
+__date__ = '11/26/15'
 
 
-class EarthquakeReportSerializer(serializers.ModelSerializer):
+class FloodReportSerializer(serializers.ModelSerializer):
 
-    shake_id = serializers.SlugRelatedField(
-        queryset=Earthquake.objects.all(),
+    event_id = serializers.SlugRelatedField(
+        queryset=Flood.objects.all(),
         read_only=False,
-        slug_field='shake_id',
-        source='earthquake'
+        slug_field='event_id',
+        source='flood'
     )
 
     def get_url(self, serializer_field, obj):
@@ -27,13 +24,13 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
         :param serializer_field:
         :type serializer_field: CustomSerializerMethodField
         :param obj:
-        :type obj: EarthquakeReport
+        :type obj: FloodReport
         :return:
         """
         relative_uri = reverse(
-            'realtime:earthquake_report_detail',
+            'realtime:flood_report_detail',
             kwargs={
-                'shake_id': obj.earthquake.shake_id,
+                'event_id': obj.flood.event_id,
                 'language': obj.language})
         if self.context and 'request' in self.context:
             return self.context['request'].build_absolute_uri(relative_uri)
@@ -43,55 +40,55 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
     # auto bind to get_url method
     url = CustomSerializerMethodField()
 
-    def get_shake_url(self, serializer_field, obj):
+    def get_flood_url(self, serializer_field, obj):
         """
         :param serializer_field:
         :type serializer_field: CustomSerializerMethodField
         :param obj:
-        :type obj: EarthquakeReport
+        :type obj: FloodReport
         :return:
         """
         relative_uri = reverse(
-            'realtime:earthquake_detail',
-            kwargs={'shake_id': obj.earthquake.shake_id})
+            'realtime:flood_detail',
+            kwargs={'event_id': obj.flood.event_id})
         if self.context and 'request' in self.context:
             return self.context['request'].build_absolute_uri(relative_uri)
         else:
             return relative_uri
 
     # auto bind to get_shake_url method
-    shake_url = CustomSerializerMethodField()
+    flood_url = CustomSerializerMethodField()
 
     class Meta:
-        model = EarthquakeReport
+        model = FloodReport
         fields = (
             'url',
-            'shake_id',
-            'shake_url',
+            'flood_url',
+            'event_id',
             'language',
-            'report_pdf',
-            'report_image',
-            'report_thumbnail'
+            'impact_report',
+            'impact_map',
         )
 
 
-class EarthquakeSerializer(GeoModelSerializer):
-    reports = EarthquakeReportSerializer(
+class FloodSerializer(serializers.ModelSerializer):
+    reports = FloodReportSerializer(
         many=True, required=False, write_only=False,
-        read_only=True)
+        read_only=True
+    )
 
     def get_url(self, serializer_field, obj):
         """
         :param serializer_field:
         :type serializer_field: CustomSerializerMethodField
         :param obj:
-        :type obj: EarthquakeReport
+        :type obj: Flood
         :return:
         """
         relative_uri = reverse(
-            'realtime:earthquake_detail',
+            'realtime:flood_detail',
             kwargs={
-                'shake_id': obj.shake_id})
+                'event_id': obj.event_id})
         if self.context and 'request' in self.context:
             return self.context['request'].build_absolute_uri(relative_uri)
         else:
@@ -101,30 +98,14 @@ class EarthquakeSerializer(GeoModelSerializer):
     url = CustomSerializerMethodField()
 
     class Meta:
-        model = Earthquake
+        model = Flood
         fields = (
             'url',
-            'shake_id',
-            'magnitude',
+            'event_id',
             'time',
-            'depth',
-            'location',
-            'location_description',
+            'interval',
+            'source',
+            'region',
+            'impact_layer',
             'reports'
-        )
-
-
-class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
-
-    class Meta:
-        model = Earthquake
-        geo_field = "location"
-        id = 'shake_id'
-        fields = (
-            'shake_id',
-            'magnitude',
-            'time',
-            'depth',
-            'location',
-            'location_description'
         )
