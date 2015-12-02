@@ -110,3 +110,4 @@ sftp_pg_credential-dev.env
 deployment/static
 media/
 media_settings/
+django_project/media_test
