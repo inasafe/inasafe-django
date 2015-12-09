@@ -26,7 +26,11 @@ def create_realtime_rest_group(apps, schema_editor):
     # update permissions
     create_permissions(realtime_app_config, interactive=False)
     Group = apps.get_model('auth', 'Group')
-    realtime_group = Group.objects.get(name=REST_GROUP)
+    try:
+        realtime_group = Group.objects.get(name=REST_GROUP)
+    except Group.DoesNotExist:
+        realtime_group = Group.objects.create(name=REST_GROUP)
+
     Permission = apps.get_model('auth', 'Permission')
     realtime_permissions = Permission.objects.filter(
         content_type__app_label='realtime')
@@ -50,7 +54,6 @@ def delete_realtime_rest_group(apps, schema_editor):
     for user in users:
         user.groups.remove(realtime_group)
         user.save()
-    realtime_group.delete()
 
 
 class Migration(migrations.Migration):

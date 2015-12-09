@@ -3,6 +3,8 @@ Django>=1.7,<1.8
 django-bootstrap3-datetimepicker
 psycopg2
 pytz
+django-celery
+django-kombu
 django-braces
 django-model-utils
 django-pipeline<1.6,>=1.5

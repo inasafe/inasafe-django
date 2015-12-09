@@ -108,6 +108,7 @@ sftp_pg_credential-dev.env
 
 # static files
 deployment/static
+deployment/tmp
 media/
 media_settings/
 django_project/media_test

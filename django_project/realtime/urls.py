@@ -2,7 +2,7 @@
 from django.conf.urls import url
 from realtime.views import user_push
 from realtime.views.earthquake import (
-    index,
+    index as shake_index,
     EarthquakeList,
     EarthquakeDetail,
     EarthquakeReportList,
@@ -11,8 +11,12 @@ from realtime.views.earthquake import (
 from realtime.views import root
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from realtime.views.flood import FloodList, FloodDetail, FloodReportList, \
-    FloodReportDetail
+from realtime.views.flood import (
+    index as flood_index,
+    FloodList,
+    FloodDetail,
+    FloodReportList,
+    FloodReportDetail, FloodEventList, flood_event_features)
 from realtime.views.reports import latest_report
 
 urlpatterns = [
@@ -41,6 +45,13 @@ urlpatterns = [
     url(r'^api/v1/flood/$',
         FloodList.as_view(),
         name='flood_list'),
+    url(r'^api/v1/flood-events/$',
+        FloodEventList.as_view(),
+        name='flood_event_list'),
+    url(r'^api/v1/flood-event-features/'
+        r'(?P<event_id>\d{10}-(1|3|6)-(rw|village|subdistrict))/$',
+        flood_event_features,
+        name='flood_event_features'),
     url(r'^api/v1/flood/'
         r'(?P<event_id>\d{10}-(1|3|6)-(rw|village|subdistrict))/$',
         FloodDetail.as_view(),
@@ -63,7 +74,9 @@ urlpatterns = [
 urlpatterns = format_suffix_patterns(urlpatterns)
 
 urlpatterns += [
-    url(r'^$', index, name='index'),
+    url(r'^$', shake_index, name='index'),
+    url(r'^shake/$', shake_index, name='shake_index'),
+    url(r'^flood/$', flood_index, name='flood_index'),
     url(r'^iframe$', iframe_index, name='iframe'),
     url(r'^api/v1/is_logged_in/$', root.is_logged_in),
     url(r'^api/v1/indicator/notify_shakemap_push$',

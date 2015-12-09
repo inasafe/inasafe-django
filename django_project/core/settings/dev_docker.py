@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import djcelery
+
 from .dev import *  # noqa
 import os
 print os.environ
@@ -68,3 +70,11 @@ LOGGING = {
         'level': 'WARNING'
     }
 }
+
+djcelery.setup_loader()
+BROKER_URL = 'django://'
+
+INSTALLED_APPS += (
+    'djcelery',
+    'kombu.transport.django',
+)

@@ -15,3 +15,20 @@ uwsgi:
     # expose ssh port so we can access it via pycharm remote interpreter
     - "61103:22"
     - "61102:8080"
+    - "61104:8088"
+  volumes:
+    - ../django_project:/home/web/django_project
+    - ./static:/home/web/static
+    - ./media:/home/web/media
+    - ./reports:/home/web/reports
+    - ./logs:/var/log/
+    - ./tmp:/tmp
+  environment:
+    - DATABASE_NAME=gis
+    - DATABASE_USERNAME=docker
+    - DATABASE_PASSWORD=docker
+    - DATABASE_HOST=db
+    - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+    - VIRTUAL_HOST=users.inasafe.org
+    - VIRTUAL_PORT=8080
+    - C_FORCE_ROOT=true  # needed for django-celery in dev env

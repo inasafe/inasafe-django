@@ -1,0 +1,42 @@
+<div id="popup_template">
+    <h3>Shake Event</h3>
+
+    <div>
+        <span>
+            <table class="table-striped table-hover">
+                <tbody>
+                <tr>
+                    <th>Date Time</th>
+                    <td class="date-time"><%= new Date(Date.parse(time)) %></td>
+                </tr>
+                <tr>
+                    <th>Shake ID</th>
+                    <td class="shake-id"><%= shake_id %></td>
+                </tr>
+                <tr>
+                    <th>Location</th>
+                    <td class="location"><%= location_description %></td>
+                </tr>
+                <tr>
+                    <th>Magnitude</th>
+                    <td class="magnitude"><%= magnitude %></td>
+                </tr>
+                </tbody>
+            </table>
+        </span>
+        <span>
+            <button class="show-report btn btn-primary row-action-container"
+                    title="Open Report"
+                    onclick="showReportHandler('<%= shake_id %>')">
+                <span class="row-action-icon glyphicon glyphicon-file"></span>
+            </button>
+            <button class="download-report btn btn-primary
+            row-action-container"
+                    title="Download Report"
+                    onclick="downloadReportHandler('<%= shake_id %>')">
+                <span class="row-action-icon glyphicon
+                glyphicon-download"></span>
+            </button>
+        </span>
+    </div>
+</div>

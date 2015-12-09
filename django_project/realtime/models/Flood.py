@@ -17,6 +17,16 @@ class BoundaryAlias(models.Model):
     osm_level = models.IntegerField(
         verbose_name='OSM Boundary Level',
         help_text='OSM Equivalent of boundary level')
+    parent = models.ForeignKey(
+        'BoundaryAlias',
+        verbose_name='Parent boundary alias',
+        help_text='The parent of this boundary alias, it should also be a '
+                  'boundary alias',
+        blank=True,
+        null=True)
+
+    def __unicode__(self):
+        return 'Osm level %s - %s' % (self.osm_level, self.alias)
 
 
 class Boundary(models.Model):
@@ -32,12 +42,32 @@ class Boundary(models.Model):
         max_length=64,
         unique=True,
         blank=False)
-    geometry = models.PolygonField(
+    name = models.CharField(
+        verbose_name='Boundary name',
+        help_text='Name entitled to this particular boundary',
+        max_length=64,
+        blank=True,
+        null=True)
+    parent = models.ForeignKey(
+        'Boundary',
+        verbose_name='Parent boundary',
+        help_text='The boundary parent of this particular boundary, if any. '
+                  'This should also be a boundary.',
+        blank=True,
+        null=True)
+    geometry = models.MultiPolygonField(
         verbose_name='Geometry of the boundary',
         help_text='Geometry of the boundary',
         blank=False)
     boundary_alias = models.ForeignKey(
-        BoundaryAlias)
+        BoundaryAlias,
+        verbose_name='Boundary level alias',
+        help_text='The alias of boundary level of this boundary',
+        blank=True,
+        null=True)
+
+    def __unicode__(self):
+        return self.name
 
 
 class Flood(models.Model):
@@ -68,11 +98,16 @@ class Flood(models.Model):
         verbose_name='The Region id for source',
         help_text='The region of hazard data',
         max_length=255)
-    impact_layer = models.FileField(
+    hazard_layer = models.FileField(
         blank=True,
-        verbose_name='Impact Layer',
-        help_text='Zipped file of Impact Layer related files',
+        verbose_name='Hazard Layer',
+        help_text='Zipped file of Hazard Layer related files',
         upload_to='reports/flood/zip')
+    # impact_layer = models.FileField(
+    #     blank=True,
+    #     verbose_name='Impact Layer',
+    #     help_text='Zipped file of Impact Layer related files',
+    #     upload_to='reports/flood/zip')
     flooded_boundaries = models.ManyToManyField(
         Boundary,
         through='FloodEventBoundary',
@@ -83,8 +118,11 @@ class Flood(models.Model):
 
     def delete(self, using=None):
         # delete impact layer
-        self.impact_layer.delete()
+        self.hazard_layer.delete()
         return super(Flood, self).delete(using=using)
+
+    def __unicode__(self):
+        return 'Flood event & interval: %s - %s' % (self.time, self.interval)
 
 
 class FloodReport(models.Model):
@@ -131,12 +169,20 @@ class FloodEventBoundary(models.Model):
         Flood,
         to_field='event_id',
         verbose_name='Flood Event',
-        help_text='The flood event of the linked boundary')
+        help_text='The flood event of the linked boundary',
+        related_name='flood_event')
     boundary = models.ForeignKey(
         Boundary,
         to_field='upstream_id',
         verbose_name='Boundary',
-        help_text='The linked boundary of the flood events')
+        help_text='The linked boundary of the flood events',
+        related_name='flood_event')
     impact_data = models.IntegerField(
         verbose_name='Impact Data',
-        help_text='Impact data in the given boundary')
+        help_text='Impact data in the given boundary',
+        blank=True,
+        null=True)
+
+
+# Import signals related
+from realtime import signals  # noqa

@@ -76,6 +76,13 @@ collectstatic:
 	# uwsgi container it seems so I use docker exec here
 	@docker exec -t -i $(PROJECT_ID)_uwsgi_1 python manage.py collectstatic --noinput
 
+djcelery-worker:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker in dev mode"
+	@echo "------------------------------------------------------------------"
+	@docker exec -it $(PROJECT_ID)_uwsgi_1 python manage.py --settings=core.settings.dev_docker_celeryworker celery worker --loglevel=info
+
 kill: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
@@ -109,7 +116,8 @@ shell: confinfo
 	@echo "------------------------------------------------------------------"
 	@echo "Shelling in in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) run uwsgi /bin/bash
+	#@docker-compose $(CONF_FILE) -p $(PROJECT_ID) run uwsgi /bin/bash
+	@docker exec -it $(PROJECT_ID)_uwsgi_1 /bin/bash
 
 dbshell:
 	@echo

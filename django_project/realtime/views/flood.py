@@ -1,9 +1,14 @@
 # coding=utf-8
+import json
 import logging
-from copy import deepcopy
 
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.utils import IntegrityError
+from django.http.response import JsonResponse
+from django.shortcuts import render_to_response
+from django.template.context import RequestContext
+from django.utils import translation
+from django.utils.translation import ugettext as _
 from rest_framework import mixins, status
 from rest_framework.filters import DjangoFilterBackend, SearchFilter, \
     OrderingFilter
@@ -12,8 +17,9 @@ from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 
-from realtime.models.flood import Flood, FloodReport
-
+from realtime.app_settings import LEAFLET_TILES, LANGUAGE_LIST
+from realtime.forms import FilterForm
+from realtime.models.flood import Flood, FloodReport, FloodEventBoundary
 from realtime.serializers.flood_serializer import FloodSerializer, \
     FloodReportSerializer
 
@@ -22,6 +28,73 @@ __date__ = '11/26/15'
 
 
 LOGGER = logging.getLogger(__name__)
+
+
+def index(request, iframe=False, server_side_filter=False):
+    """Index page of realtime.
+
+    :param request: A django request object.
+    :type request: request
+
+    :returns: Response will be a leaflet map page.
+    :rtype: HttpResponse
+    """
+
+    if request.method == 'POST':
+        pass
+    else:
+        form = FilterForm()
+
+    language_code = 'en'
+    if request.method == 'GET':
+        if 'iframe' in request.GET:
+            iframe = request.GET.get('iframe')
+        if 'server_side_filter' in request.GET:
+            server_side_filter = request.GET.get('server_side_filter')
+        if 'lang' in request.GET:
+            language_code = request.GET.get('lang')
+
+    leaflet_tiles = []
+    for i in range(0, len(LEAFLET_TILES[1])):
+        leaflet_tiles.append(
+            dict(
+                name=LEAFLET_TILES[0][i],
+                url=LEAFLET_TILES[1][i],
+                subdomains=LEAFLET_TILES[2][i],
+                attribution=LEAFLET_TILES[3][i]
+            )
+        )
+
+    context = RequestContext(request)
+    context['leaflet_tiles'] = leaflet_tiles
+    selected_language = {
+        'id': 'en',
+        'name': 'English'
+    }
+    for l in LANGUAGE_LIST:
+        if l['id'] == language_code:
+            selected_language = l
+
+    language_list = [l for l in LANGUAGE_LIST if not l['id'] == language_code]
+    context['language'] = {
+        'selected_language': selected_language,
+        'language_list': language_list,
+    }
+    translation.activate(selected_language['id'])
+    request.session[translation.LANGUAGE_SESSION_KEY] = \
+        selected_language['id']
+    context['select_area_text'] = _('Select Area')
+    context['remove_area_text'] = _('Remove Selection')
+    context['select_current_zoom_text'] = _('Select area within current zoom')
+    context['iframe'] = iframe
+    return render_to_response(
+        'realtime/flood/index.html',
+        {
+            'form': form,
+            'iframe': iframe,
+            'server_side_filter': server_side_filter
+        },
+        context_instance=context)
 
 
 class FloodList(mixins.ListModelMixin, mixins.CreateModelMixin,
@@ -36,6 +109,7 @@ class FloodList(mixins.ListModelMixin, mixins.CreateModelMixin,
     search_fields = ('event_id', )
     ordering = ('event_id', )
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
+    # pagination_class = Pagina
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -61,7 +135,7 @@ class FloodDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
             event_id = request.data['event_id']
             if event_id:
                 event = Flood.objects.get(event_id=event_id)
-                event.impact_layer.delete()
+                event.hazard_layer.delete()
                 retval = self.update(request, partial=True, *args, **kwargs)
                 return retval
             else:
@@ -203,3 +277,35 @@ class FloodReportDetail(mixins.ListModelMixin,
 
         report.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class FloodEventList(FloodList):
+    serializer_class = FloodSerializer
+    pagination_class = None
+
+
+def flood_event_features(request, event_id):
+    flood = Flood.objects.get(event_id=event_id)
+    # build feature layer
+    features = []
+    for b in flood.flooded_boundaries.all():
+        event_data = b.flood_event.get(flood=flood)
+        if event_data.impact_data > 0:
+            feat = {
+                'id': b.upstream_id,
+                'type': 'Feature',
+                'geometry': json.loads(b.geometry.geojson),
+                'properties': {
+                    'event_id': flood.event_id,
+                    'name': b.name,
+                    'impact_data': event_data.impact_data
+                }
+            }
+            features.append(feat)
+
+    feature_collection = {
+        'type': 'FeatureCollection',
+        'features': features
+    }
+
+    return JsonResponse(feature_collection)

@@ -89,7 +89,7 @@ def index(request, iframe=False, server_side_filter=False):
     context['select_current_zoom_text'] = _('Select area within current zoom')
     context['iframe'] = iframe
     return render_to_response(
-        'realtime/index.html',
+        'realtime/earthquake/index.html',
         {
             'form': form,
             'iframe': iframe,

@@ -3,12 +3,12 @@
 import datetime
 import random
 
-from django.contrib.gis.geos import Polygon
 from django.contrib.gis.geos import Point
+from django.contrib.gis.geos import Polygon
 from factory import DjangoModelFactory
 
-from realtime.models.flood import Boundary, Flood, FloodEventBoundary
 from realtime.models.earthquake import Earthquake
+from realtime.models.flood import Boundary, Flood
 
 
 class EarthquakeFactory(DjangoModelFactory):

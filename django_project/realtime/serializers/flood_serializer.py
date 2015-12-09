@@ -2,8 +2,9 @@
 
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
-from realtime.models.flood import Flood, FloodReport
+from realtime.models.flood import Flood, FloodReport, Boundary
 from realtime.serializers.utilities import CustomSerializerMethodField
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
@@ -106,6 +107,6 @@ class FloodSerializer(serializers.ModelSerializer):
             'interval',
             'source',
             'region',
-            'impact_layer',
+            'hazard_layer',
             'reports'
         )

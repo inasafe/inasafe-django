@@ -4,12 +4,6 @@ import filecmp
 import logging
 import os
 
-import requests
-import shutil
-from django.core.files.temp import NamedTemporaryFile
-import urlparse
-from requests.status_codes import codes
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -79,7 +73,7 @@ class TestFlood(APITestCase):
                             f.name,
                             control_path)
                         file_equals = filecmp.cmp(
-                                f.name, control_path, shallow=False)
+                            f.name, control_path, shallow=False)
                         if not file_equals:
                             # There can be a reason why the file is not
                             # equals. For example, when the file is
@@ -94,7 +88,8 @@ class TestFlood(APITestCase):
                                 difference < control_size * 0.20)
                             warning_message = (
                                 'Consider it equal because the fraction '
-                                'difference - difference is %f %% - %d bytes: %s' % (
+                                'difference - difference is %f %% - %d '
+                                'bytes: %s' % (
                                     difference * 100.0 / control_size,
                                     difference,
                                     file_equals
@@ -116,12 +111,12 @@ class TestFlood(APITestCase):
             interval=3,
             source=u'Peta Jakarta',
             region=u'Jakarta',
-            impact_layer=File(open(
-                self.data_path('impact.zip')
+            hazard_layer=File(open(
+                self.data_path('hazard.zip')
             ))
         )
 
-        flood_report_en = FloodReport.objects.create(
+        FloodReport.objects.create(
             flood=flood,
             language='en',
             impact_report=File(open(
@@ -153,8 +148,8 @@ class TestFlood(APITestCase):
             'interval': 6,
             'source': u'Peta Jakarta',
             'region': u'Jakarta',
-            'impact_layer': File(open(
-                self.data_path('impact.zip')
+            'hazard_layer': File(open(
+                self.data_path('hazard.zip')
             ))
         }
 
@@ -243,8 +238,8 @@ class TestFlood(APITestCase):
             'interval': 3,
             'source': u'Peta Jakarta',
             'region': u'Jakarta',
-            'impact_layer': File(
-                open(self.data_path('impact.zip'))
+            'hazard_layer': File(
+                open(self.data_path('hazard.zip'))
             )
         }
 
@@ -285,8 +280,8 @@ class TestFlood(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # put file data using multipart
-        flood_json['impact_layer'] = File(
-            open(self.data_path('impact.zip')))
+        flood_json['hazard_layer'] = File(
+            open(self.data_path('hazard.zip')))
 
         response = self.client.put(
             reverse(
@@ -315,9 +310,9 @@ class TestFlood(APITestCase):
             filecmp.cmp(
                 os.path.join(
                     settings.MEDIA_ROOT,
-                    flood.impact_layer.name
+                    flood.hazard_layer.name
                 ),
-                self.data_path('impact.zip')
+                self.data_path('hazard.zip')
             )
         )
         flood.delete()
@@ -329,8 +324,8 @@ class TestFlood(APITestCase):
             'interval': 3,
             'source': u'Peta Jakarta',
             'region': u'Jakarta',
-            'impact_layer': File(
-                open(self.data_path('impact.zip'))
+            'hazard_layer': File(
+                open(self.data_path('hazard.zip'))
             )
         }
 
@@ -349,11 +344,11 @@ class TestFlood(APITestCase):
 
         # check data exists
         self.assertTrue(flood)
-        impact_layer_file = os.path.join(
+        hazard_layer_file = os.path.join(
             settings.MEDIA_ROOT,
-            flood.impact_layer.name
+            flood.hazard_layer.name
         )
-        self.assertTrue(os.path.exists(impact_layer_file))
+        self.assertTrue(os.path.exists(hazard_layer_file))
 
         # delete object via rest
 
@@ -369,7 +364,7 @@ class TestFlood(APITestCase):
         with self.assertRaises(Flood.DoesNotExist):
             Flood.objects.get(event_id=flood_json['event_id'])
 
-        self.assertFalse(os.path.exists(impact_layer_file))
+        self.assertFalse(os.path.exists(hazard_layer_file))
 
     def test_flood_report_list(self):
         response = self.client.get(
@@ -483,11 +478,11 @@ class TestFlood(APITestCase):
 
         # Update data using put
         report_dict['impact_report'] = File(
-                open(self.data_path('impact-table-id.pdf'))
-            )
+            open(self.data_path('impact-table-id.pdf'))
+        )
         report_dict['impact_map'] = File(
-                open(self.data_path('impact-map-id.pdf'))
-            )
+            open(self.data_path('impact-map-id.pdf'))
+        )
 
         response = self.client.put(
             reverse(
@@ -522,8 +517,8 @@ class TestFlood(APITestCase):
 
         # Now change some values
         report_dict['impact_map'] = File(
-                open(self.data_path('impact-map-en.pdf'))
-            )
+            open(self.data_path('impact-map-en.pdf')))
+
         report_dict.pop('impact_report')
 
         response = self.client.put(
@@ -624,3 +619,7 @@ class TestFlood(APITestCase):
                 flood__event_id=report_dict['event_id'],
                 language=report_dict['language']
             )
+
+    def test_flood_save(self):
+        f = Flood.objects.all()[0]
+        f.save()
