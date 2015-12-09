@@ -11,6 +11,8 @@ from realtime.views.earthquake import (
 from realtime.views import root
 from rest_framework.urlpatterns import format_suffix_patterns
 
+from realtime.views.reports import latest_report
+
 urlpatterns = [
     url(r'^api/v1/$', root.api_root, name='api_root'),
     url(r'^api/v1/earthquake/$',
@@ -48,4 +50,9 @@ urlpatterns += [
     url(r'^indicator/rest_users$',
         user_push.realtime_rest_users,
         name='rest_users'),
+    url(r'^latest_report/'
+        r'(?P<report_type>((pdf)|(png)|(thumbnail)))/'
+        r'(?P<language>\w*)/?$',
+        latest_report,
+        name='latest_report')
 ]
