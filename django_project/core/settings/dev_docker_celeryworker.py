@@ -2,8 +2,6 @@
 import logging
 import sys
 
-import os
-
 # from realtime.app_settings import LOGGER_NAME
 from .dev_docker import *  # noqa
 
@@ -15,5 +13,3 @@ LOGGER = logging.getLogger(__name__)
 
 # Enable this only for django celery debugging
 sys.path.append("/pycharm-debug.egg")
-
-LOGGER.info('Tralala ' +os.path.curdir)

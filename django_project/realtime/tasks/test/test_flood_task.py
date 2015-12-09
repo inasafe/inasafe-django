@@ -34,7 +34,7 @@ class TestFloodTask(APITestCase):
             self.default_media_path = settings.MEDIA_ROOT
             settings.MEDIA_ROOT = ABS_PATH('media_test')
 
-        flood = Flood.objects.create(
+        Flood.objects.create(
             event_id=u'2015112518-3-rw',
             time=datetime.datetime(
                 2015, 11, 25, 18, 0, 0

@@ -2,9 +2,8 @@
 
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
-from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
-from realtime.models.flood import Flood, FloodReport, Boundary
+from realtime.models.flood import Flood, FloodReport
 from realtime.serializers.utilities import CustomSerializerMethodField
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'

@@ -49,7 +49,7 @@ def process_hazard_layer(flood):
         for feat in layer:
             pkey = feat.get('pkey')
             level_name = feat.get('level_name')
-            flooded = feat.get('flooded')
+            # flooded = feat.get('flooded')
             count = feat.get('count')
             geometry = feat.geom
 

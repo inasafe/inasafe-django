@@ -19,7 +19,7 @@ from rest_framework.response import Response
 
 from realtime.app_settings import LEAFLET_TILES, LANGUAGE_LIST
 from realtime.forms import FilterForm
-from realtime.models.flood import Flood, FloodReport, FloodEventBoundary
+from realtime.models.flood import Flood, FloodReport
 from realtime.serializers.flood_serializer import FloodSerializer, \
     FloodReportSerializer
 

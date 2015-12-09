@@ -35,7 +35,6 @@ EXPOSE 8080
 ADD REQUIREMENTS.txt /REQUIREMENTS.txt
 RUN pip install -r /REQUIREMENTS.txt
 ADD bashrc /root/.bashrc
-ADD pycharm-debug.egg /pycharm-debug.egg
 
 # --------------------------------------------------------
 # Open ports as needed

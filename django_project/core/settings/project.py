@@ -58,14 +58,14 @@ PIPELINE_JS = {
         ),
         'output_filename': 'js/realtime_appjs.js'
     },
-    'realtime_shakejs':{
+    'realtime_shakejs': {
         'source_filenames': (
             'realtime/js/earthquake/shake.js',
             'realtime/js/templates/earthquake/*.jst'
         ),
         'output_filename': 'js/realtime_shakejs.js'
     },
-    'realtime_floodjs':{
+    'realtime_floodjs': {
         'source_filenames': (
             'realtime/js/flood/flood.js',
             'realtime/js/templates/flood/*.jst'
