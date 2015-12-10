@@ -79,7 +79,7 @@ urlpatterns += [
     url(r'^flood/$', flood_index, name='flood_index'),
     url(r'^iframe$', iframe_index, name='iframe'),
     url(r'^api/v1/is_logged_in/$', root.is_logged_in),
-    url(r'^api/v1/indicator/notify_shakemap_push$',
+    url(r'^api/v1/indicator/notify_shakemap_push/$',
         user_push.notify_shakemap_push),
     url(r'^indicator$', user_push.indicator, name='indicator'),
     url(r'^indicator/rest_users$',
