@@ -140,6 +140,13 @@ class TestFlood(APITestCase):
         self.user.save()
         self.client.login(email='test@test.org', password='testsecret')
 
+    def tearDown(self):
+        for f in FloodReport.objects.all():
+            f.delete()
+
+        for f in Flood.objects.all():
+            f.delete()
+
     def test_flood_serializer(self):
         """Test for Flood Serializer"""
         flood_dict = {

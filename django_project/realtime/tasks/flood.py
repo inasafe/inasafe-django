@@ -29,12 +29,20 @@ def process_hazard_layer(flood):
     :param flood: Event id of flood
     :type flood: realtime.models.flood.Flood
     """
-    LOGGER.debug('Processing impact layer %s - %s' % (
+    LOGGER.info('Processing impact layer %s - %s' % (
         flood.event_id,
         flood.hazard_layer.name
     ))
     # extract hazard layer zip file
+    if not flood.hazard_layer or not flood.hazard_layer.name:
+        LOGGER.info('No hazard layer')
+        return
     zip_file_path = os.path.join(settings.MEDIA_ROOT, flood.hazard_layer.name)
+
+    if not os.path.exists(zip_file_path):
+        LOGGER.info('Hazard layer doesn\'t exists')
+        return
+
     with ZipFile(zip_file_path) as zf:
         tmpdir = tempfile.mkdtemp()
 
@@ -81,4 +89,6 @@ def process_hazard_layer(flood):
                     impact_data=int(count))
 
         shutil.rmtree(tmpdir)
+
+    LOGGER.info('Hazard layer processed...')
     # read shp

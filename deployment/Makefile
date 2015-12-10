@@ -81,7 +81,7 @@ djcelery-worker:
 	@echo "------------------------------------------------------------------"
 	@echo "Running celery worker in dev mode"
 	@echo "------------------------------------------------------------------"
-	@docker exec -it $(PROJECT_ID)_uwsgi_1 python manage.py --settings=core.settings.dev_docker_celeryworker celery worker --loglevel=info
+	@docker exec -it $(PROJECT_ID)_uwsgi_1 python manage.py celery worker --settings=core.settings.dev_docker_celeryworker --loglevel=info
 
 kill: confinfo
 	@echo

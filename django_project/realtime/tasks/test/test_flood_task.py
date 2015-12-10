@@ -60,6 +60,10 @@ class TestFloodTask(APITestCase):
         self.user.save()
         self.client.login(email='test@test.org', password='testsecret')
 
+    def tearDown(self):
+        for f in Flood.objects.all():
+            f.delete()
+
     def test_process_hazard_layer(self):
         flood = Flood.objects.get(event_id='2015112518-3-rw')
         process_hazard_layer(flood)
