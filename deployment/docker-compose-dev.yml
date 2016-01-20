@@ -31,4 +31,14 @@ uwsgi:
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
     - VIRTUAL_HOST=users.inasafe.org
     - VIRTUAL_PORT=8080
-    - C_FORCE_ROOT=true  # needed for django-celery in dev env
+
+worker:
+  command: python manage.py celery worker --loglevel=info
+  environment:
+    - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+  ports:
+    - "61105:22"
+
+web:
+  links:
+    - uwsgi:uwsgi

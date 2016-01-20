@@ -67,3 +67,7 @@ class TestFloodTask(APITestCase):
     def test_process_hazard_layer(self):
         flood = Flood.objects.get(event_id='2015112518-3-rw')
         process_hazard_layer(flood)
+
+    def test_process_hazard_layer_celery(self):
+        flood = Flood.objects.get(event_id='2015112518-3-rw')
+        flood.save()

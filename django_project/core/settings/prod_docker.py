@@ -1,4 +1,6 @@
 # noinspection PyUnresolvedReferences
+import djcelery
+
 from .prod import *  # noqa
 import os
 print os.environ
@@ -43,3 +45,8 @@ EMAIL_HOST_PASSWORD = 'docker'
 EMAIL_USE_TLS = False
 EMAIL_SUBJECT_PREFIX = '[InaSAFE]'
 DEFAULT_FROM_EMAIL = 'noreply@inasafe.org'
+
+
+BROKER_URL = 'amqp://guest:guest@%s//' % os.environ.get('AMQP_HOST')
+
+djcelery.setup_loader()

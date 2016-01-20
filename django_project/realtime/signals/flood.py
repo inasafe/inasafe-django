@@ -15,6 +15,9 @@ __date__ = '12/4/15'
 LOGGER = logging.getLogger(LOGGER_NAME)
 
 
+LOGGER.info('Signals registered')
+
+
 @receiver(post_save, sender=Flood)
 def flood_post_save(sender, **kwargs):
     """Extract impact layer of the flood"""

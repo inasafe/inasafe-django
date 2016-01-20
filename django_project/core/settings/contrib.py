@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import os
+
+import djcelery
+
 from .base import *  # noqa
 
 # Extra installed apps
@@ -9,7 +13,9 @@ INSTALLED_APPS += (
     'leaflet',
     'bootstrapform',
     'bootstrap3_datetime',
-    'rest_framework'
+    'rest_framework',
+    'djcelery',
+    'kombu.transport.django',
 )
 
 # User map sets up auth where users are identified by their email,
@@ -58,3 +64,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
+
+# BROKER_URL = 'amqp://guest:guest@%s//' % os.environ.get('AMQP_HOST')
+BROKER_URL = 'django://'
+
+djcelery.setup_loader()

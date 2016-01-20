@@ -71,10 +71,6 @@ LOGGING = {
     }
 }
 
-djcelery.setup_loader()
-BROKER_URL = 'django://'
+# BROKER_URL = 'amqp://guest:guest@%s//' % os.environ.get('AMQP_HOST')
 
-INSTALLED_APPS += (
-    'djcelery',
-    'kombu.transport.django',
-)
+djcelery.setup_loader()

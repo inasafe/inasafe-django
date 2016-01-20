@@ -79,9 +79,16 @@ collectstatic:
 djcelery-worker:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker in dev mode"
+	@echo "Running celery worker in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker exec -it $(PROJECT_ID)_uwsgi_1 python manage.py celery worker --settings=core.settings.dev_docker_celeryworker --loglevel=info
+	@if [ "$(MODE)" == "dev" ]; then docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d worker; fi
+
+djcelery-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker in $(MODE_STRING) mode"
+	@echo "------------------------------------------------------------------"
+	@if [ "$(MODE)" == "dev" ]; then docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs worker; fi
 
 kill: confinfo
 	@echo

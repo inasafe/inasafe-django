@@ -92,3 +92,10 @@ def process_hazard_layer(flood):
 
     LOGGER.info('Hazard layer processed...')
     # read shp
+
+
+@task
+def task_add(x, y):
+    LOGGER.info('x and y: %s %s' % (x, y))
+    val = x+y
+    return val
