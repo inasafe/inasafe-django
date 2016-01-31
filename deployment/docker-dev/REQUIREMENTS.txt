@@ -3,6 +3,7 @@ Django>=1.7,<1.8
 django-bootstrap3-datetimepicker
 psycopg2
 pytz
+celery
 django-celery
 django-kombu
 django-braces

@@ -5,6 +5,7 @@ psycopg2
 pytz
 celery
 django-celery
+django-kombu
 django-braces
 django-model-utils
 django-pipeline<1.6,>=1.5
