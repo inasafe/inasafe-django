@@ -1,5 +1,8 @@
 # coding=utf-8
 
-__author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
+from __future__ import absolute_import
 
+from realtime.tasks.flood import *  # noqa
+
+__author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '12/3/15'

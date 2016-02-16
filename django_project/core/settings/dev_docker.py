@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
-import djcelery
 
 from .dev import *  # noqa
-import os
-print os.environ
-
+from .celery_config import *  # noqa
 
 DEBUG = True
 
@@ -70,7 +67,3 @@ LOGGING = {
         'level': 'WARNING'
     }
 }
-
-# BROKER_URL = 'amqp://guest:guest@%s//' % os.environ.get('AMQP_HOST')
-
-djcelery.setup_loader()

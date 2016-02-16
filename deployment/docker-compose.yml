@@ -118,7 +118,7 @@ uwsgi: &uwsgi
 worker:
   <<: *uwsgi
   hostname: worker
-  command: python manage.py celery worker --loglevel=info
+  command: python manage.py celery worker --loglevel=info -B
   environment:
     - DATABASE_NAME=gis
     - DATABASE_USERNAME=docker
@@ -126,7 +126,7 @@ worker:
     - DATABASE_HOST=db
     - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
     - C_FORCE_ROOT=True
-    - AMQP_HOST=rabbitmq
+    - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
   links:
     - smtp:smtp
     - db:db

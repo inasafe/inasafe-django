@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
-
-import djcelery
 
 from .base import *  # noqa
 
@@ -64,8 +61,3 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
-
-# BROKER_URL = 'amqp://guest:guest@%s//' % os.environ.get('AMQP_HOST')
-BROKER_URL = 'django://'
-
-djcelery.setup_loader()

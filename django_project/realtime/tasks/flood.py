@@ -1,11 +1,13 @@
 # coding=utf-8
+from __future__ import absolute_import
+
 import logging
 import os
 import shutil
 import tempfile
 from zipfile import ZipFile
 
-from celery import task
+from celery.app import shared_task
 from django.conf import settings
 from django.contrib.gis.gdal.datasource import DataSource
 from django.contrib.gis.geos.collections import MultiPolygon
@@ -14,6 +16,7 @@ from django.contrib.gis.geos.polygon import Polygon
 
 from realtime.app_settings import LOGGER_NAME
 from realtime.models.flood import FloodEventBoundary, Boundary
+from realtime.tasks.realtime.flood import process_flood
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '12/3/15'
@@ -22,7 +25,7 @@ __date__ = '12/3/15'
 LOGGER = logging.getLogger(LOGGER_NAME)
 
 
-@task()
+@shared_task(queue='inasafe-django')
 def process_hazard_layer(flood):
     """Process zipped impact layer and import it to databse
 
@@ -58,7 +61,9 @@ def process_hazard_layer(flood):
             pkey = feat.get('pkey')
             level_name = feat.get('level_name')
             # flooded = feat.get('flooded')
-            count = feat.get('count')
+            # count = feat.get('count')
+            # parent_name = feat.get('parent_nam')
+            state = feat.get('state')
             geometry = feat.geom
 
             geos_geometry = GEOSGeometry(geometry.geojson)
@@ -80,13 +85,13 @@ def process_hazard_layer(flood):
                 flooded_boundary = FloodEventBoundary.objects.get(
                     flood=flood,
                     boundary=boundary)
-                flooded_boundary.impact_data = int(count)
+                flooded_boundary.impact_data = int(state)
                 flooded_boundary.save()
             except FloodEventBoundary.DoesNotExist:
                 flooded_boundary = FloodEventBoundary.objects.create(
                     flood=flood,
                     boundary=boundary,
-                    impact_data=int(count))
+                    impact_data=int(state))
 
         shutil.rmtree(tmpdir)
 
@@ -94,8 +99,6 @@ def process_hazard_layer(flood):
     # read shp
 
 
-@task
-def task_add(x, y):
-    LOGGER.info('x and y: %s %s' % (x, y))
-    val = x+y
-    return val
+@shared_task(queue='inasafe-django')
+def create_flood_report():
+    process_flood.delay()

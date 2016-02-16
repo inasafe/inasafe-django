@@ -33,7 +33,7 @@ uwsgi:
     - VIRTUAL_PORT=8080
 
 worker:
-  command: python manage.py celery worker --loglevel=info
+  command: python manage.py celery worker --loglevel=info -B
   environment:
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
   ports:
