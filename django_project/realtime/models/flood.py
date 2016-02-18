@@ -182,3 +182,6 @@ class FloodEventBoundary(models.Model):
         help_text='Impact data in the given boundary',
         blank=True,
         null=True)
+
+
+from realtime.signals.flood import *  # noqa

@@ -34,7 +34,6 @@ uwsgi:
     - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
 
 worker:
-  command: python manage.py celery worker --loglevel=info -B
   environment:
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
   ports:

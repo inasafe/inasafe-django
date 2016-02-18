@@ -118,7 +118,8 @@ uwsgi: &uwsgi
 worker:
   <<: *uwsgi
   hostname: worker
-  command: python manage.py celery worker --loglevel=info -B
+  working_dir: /home/web/django_project
+  command: celery -A realtime.celery_app worker --loglevel=info -Q inasafe-django,default -B
   environment:
     - DATABASE_NAME=gis
     - DATABASE_USERNAME=docker

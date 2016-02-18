@@ -88,7 +88,7 @@ celery-worker-logs:
 	@echo "------------------------------------------------------------------"
 	@echo "Running celery worker in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f -t 10 worker
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs worker
 
 kill: confinfo
 	@echo
