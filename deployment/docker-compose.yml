@@ -143,7 +143,6 @@ web: &web
     - ./logs:/var/log/nginx
   links:
     - uwsgi:uwsgi
-    - worker:worker
   ports:
     - "61100:8080"
 

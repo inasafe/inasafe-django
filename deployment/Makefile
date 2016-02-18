@@ -76,19 +76,19 @@ collectstatic:
 	# uwsgi container it seems so I use docker exec here
 	@docker exec -t -i $(PROJECT_ID)_uwsgi_1 python manage.py collectstatic --noinput
 
-djcelery-worker:
+celery-worker:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Running celery worker in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@if [ "$(MODE)" == "dev" ]; then docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d worker; fi
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d worker
 
-djcelery-worker-logs:
+celery-worker-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Running celery worker in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@if [ "$(MODE)" == "dev" ]; then docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs worker; fi
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f -t 10 worker
 
 kill: confinfo
 	@echo
