@@ -49,7 +49,12 @@
             <div class="panel-body">
                 <p class="text-justify">
                     {% blocktrans %}
-                        Lorem Ip-sunni...
+                        This page contains near realtime flood impact assessments following recent floods in the Jakarta, Indonesia.
+                        Flood data used here is sourced from <a href="http://petajakarta.org">PetaJakarta.org</a> who use crowd sourcing data from <a href="http://twitter.com">twitter</a>,
+                        <a href="http://qluein.com/">qlue</a>, <a href="http://pasangmata.detik.com/">detik.com</a> and expert data review by DPBD-DKI.
+                        This information is used by disaster managers to help them understand the potential scale of a disaster and to
+                        respond faster to the hardest hit communities. This is particularly important in the first few hours after a
+                        flood when it may be difficult to get accurate on-the-ground information. Although this service is currently specific to Jakarta, the platform is extensible so that we can add more cities and regions easily.
                     {% endblocktrans %}
                 </p>
             </div>
@@ -71,16 +76,16 @@
 {% endblock main_content %}
 
 {% block filter_content %}
-    <div class="row center-block">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">{% trans "Filters" %}</h3>
-            </div>
-            <div class="panel-body">
-                Lorem Ip-sunni...
-            </div>
-        </div>
-    </div>
+{#    <div class="row center-block">#}
+{#        <div class="panel panel-default">#}
+{#            <div class="panel-heading">#}
+{#                <h3 class="panel-title">{% trans "Filters" %}</h3>#}
+{#            </div>#}
+{#            <div class="panel-body">#}
+{#                Lorem Ip-sunni...#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
 {% endblock filter_content %}
 
 {% block table_content %}
@@ -106,9 +111,9 @@
             </div>
         </div>
     </div>
-    <div id="disclaimer" class="row">
-        Lorem Ip-sunni...
-    </div>
+{#    <div id="disclaimer" class="row">#}
+{#        Lorem Ip-sunni...#}
+{#    </div>#}
 {% endblock table_content %}
 
 {% block js_container %}

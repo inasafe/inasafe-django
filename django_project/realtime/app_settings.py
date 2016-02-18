@@ -89,3 +89,15 @@ default_rest_interval_range = {
 # reporting runs normally
 REST_INTERVAL_RANGE = getattr(
     settings, 'REALTIME_REST_INTERVAL_RANGE', default_rest_interval_range)
+
+
+default_realtime_broker_interval_range = {
+    'healthy': timedelta(minutes=5),
+    'warning': timedelta(minutes=10)
+}
+
+# indicates the range of interval between Realtime broker connection tests to
+# indicate that the connection is healthy
+REALTIME_BROKER_INTERVAL_RANGE = getattr(
+    settings, 'REALTIME_BROKER_INTERVAL_RANGE',
+    default_realtime_broker_interval_range)

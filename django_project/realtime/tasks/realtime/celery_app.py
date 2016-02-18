@@ -1,5 +1,5 @@
 # coding=utf-8
-
+from __future__ import absolute_import
 from celery import Celery
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'

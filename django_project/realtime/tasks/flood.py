@@ -7,7 +7,7 @@ import shutil
 import tempfile
 from zipfile import ZipFile
 
-from celery.app import shared_task
+from realtime.celery_app import app
 from django.conf import settings
 from django.contrib.gis.gdal.datasource import DataSource
 from django.contrib.gis.geos.collections import MultiPolygon
@@ -25,7 +25,7 @@ __date__ = '12/3/15'
 LOGGER = logging.getLogger(LOGGER_NAME)
 
 
-@shared_task(queue='inasafe-django')
+@app.task(queue='inasafe-django')
 def process_hazard_layer(flood):
     """Process zipped impact layer and import it to databse
 
@@ -99,6 +99,7 @@ def process_hazard_layer(flood):
     # read shp
 
 
-@shared_task(queue='inasafe-django')
+@app.task(queue='inasafe-django')
 def create_flood_report():
     process_flood.delay()
+    LOGGER.info('Processing flood...')

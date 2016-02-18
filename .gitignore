@@ -115,3 +115,6 @@ deployment/tmp
 media/
 media_settings/
 django_project/media_test
+
+# pickled indicator
+.realtime_broker_indicator.pickle

@@ -33,6 +33,10 @@ CELERYBEAT_SCHEDULE = {
     'process-hourly-flood-report': {
         'task': 'realtime.tasks.flood.create_flood_report',
         'schedule': crontab(minute='0')
+    },
+    'check-realtime-broker-connection': {
+        'task': 'realtime.tasks.indicator.check_realtime_broker',
+        'schedule': crontab(minute='*/2')
     }
 }
 

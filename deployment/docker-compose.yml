@@ -100,7 +100,7 @@ uwsgi: &uwsgi
     - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
     - VIRTUAL_HOST=users.inasafe.org
     - VIRTUAL_PORT=8080
-    - AMQP_HOST=rabbitmq
+    - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
   volumes:
     - ../django_project:/home/web/django_project
     - ./static:/home/web/static
