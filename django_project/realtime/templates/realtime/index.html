@@ -152,7 +152,7 @@
                 <h3 class="panel-title">{% trans "Earthquakes" %}</h3>
             </div>
             <div class="panel-body">
-                <div class="col-md-12">
+                <div class="col-md-12 table-responsive">
                     <table class="table table-striped table-bordered table-hover" id="realtime-table">
                         <thead>
                         <tr>
@@ -175,8 +175,7 @@
             <h2>Supporters</h2>
 
             <p>Funded and supported by the
-                <a href="http://www.aifdr.org/">Australia-Indonesia Facility
-                    for Disaster Reduction</a>,
+                <a href="http://dfat.gov.au/geo/indonesia/pages/indonesia.aspx">Australian Government</a>,
                 <a href="http://www.ga.gov.au/">Geoscience Australia</a> and
                 the <a href="http://www.gfdrr.org">World Bank-GFDRR</a>.
             </p>
@@ -260,7 +259,13 @@
                         iconSize: L.point(40, 40)
                     });
                 }
-            })(class_name)
+            })(class_name),
+            /*
+            Disable clustering at specified zoom level.
+            Useful to directly zoom to a particular event programmatically
+            to expand the cluster
+             */
+            disableClusteringAtZoom: 10
         }).addTo(map);
 
         // create control layers

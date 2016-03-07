@@ -9,7 +9,7 @@ ADMINS = (
     ('Tim Sutton', 'tim@kartoza.com'),
     ('Ismail Sunni', 'ismail@kartoza.com'),
     ('Christian Christellis', 'christian@kartoza.com'),
-    ('Rizky Maulana Nugraha', 'lana.pcfre@gmail.com'),
+    ('Rizky Maulana Nugraha', 'rizky@kartoza.com'),
     # RM: will be left as it is as a tribute to Akbar :)
     # ('Akbar Gumbira', 'akbargumbira@gmail.com'),
 )

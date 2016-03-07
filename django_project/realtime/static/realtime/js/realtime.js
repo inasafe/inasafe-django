@@ -95,6 +95,12 @@ function createShowEventHandler(map, markers, map_events) {
         }, 500);
         markers.zoomToShowLayer(marker, function () {
             var fitBoundsOption = {
+                /*
+                If we set the max zoom, we can limit the function so
+                it doesn't get zoomed to maximum level.
+                set this in combination with 'disableClusteringAtZoom'
+                option when creating markerClusterGroup
+                 */
                 maxZoom: 10,
                 pan: {
                     animate: true,
@@ -424,11 +430,12 @@ function modifyLocationFilterStyle(){
 
 /**
  * Modify default search and show labels of dynatable
+ * Removes ':' from the text
  */
 function modifySearchAndShowLabels(){
     $(".dynatable-per-page-label").text("Show");
     var $search_container = $(".dynatable-search");
-    var $children = $search_container.children();
+    var $children = $search_container.children().detach();
     $search_container.text("Search").append($children);
 }
 

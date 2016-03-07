@@ -13,28 +13,26 @@ smtp:
 
 db: &db
   image: kartoza/postgis:9.3-2.1
-  volumes:
-    - ./backups:/backups
-  volumes_from:
-    - dbstorage
+# This line should be allowed in Linux env
+#  volumes:
+#    - ./pg/postgres_data:/var/lib/postgresql
   environment:
     - USERNAME=docker
     - PASS=docker
 
-dbstorage:
-  image: busybox
-  volumes:
-      - /var/lib/postgresql
-
 dbbackup: &dbbackup
-  image: kartoza/pg-backup
-  hostname: pg-backup
+  build: docker-backup
+  hostname: pg-backups
   volumes:
-    - ./backups:/backups
+    - ./pg/dbbackup/backups:/backups
+    # this folder is used as target folder for sftppgbackup as the
+    # source folder
+    - ./sftp_backup/target/pg:/pg_backup
   links:
     - db:db
   environment:
-    - DUMPPREFIX=realtime
+    # make this equal to PG_$(PROJECT_ID) in makefile
+    - DUMPPREFIX=PG_inasafedjango
     # These are all defaults anyway, but setting explicitly in
     # case we ever want to ever use different credentials
     - PGUSER=docker
@@ -42,6 +40,44 @@ dbbackup: &dbbackup
     - PGPORT=5432
     - PGHOST=db
     - PGDATABASE=gis
+
+sftppgbackup: &sftppgbackup
+  image: kartoza/sftp-backup:1.0
+  hostname: sftppgbackup
+  volumes:
+    # this folder is used to store local backups from pg dbbackup
+    - ./sftp_backup/backups/pg:/backups
+    # this folder is used as target folder/source where the backup comes from
+    # this backup comes from dbbackup
+    - ./sftp_backup/target/pg:/pg_backup
+  environment:
+    - DUMPPREFIX=PG_inasafedjango
+    - DAILY=14
+    - MONTHLY=12
+    - YEARLY=3
+    # set this to the target/source folder where the backup comes from
+    - TARGET_FOLDER=/pg_backup
+  env_file:
+    - sftp_pg_credential.env
+
+sftpmediabackup: &sftpmediabackup
+  image: kartoza/sftp-backup:1.0
+  hostname: sftpmediabackup
+  volumes:
+    # this folder is used to store local backups from django media
+    - ./sftp_backup/backups/media:/backups
+    # this folder is used as target folder/source where the backup comes from
+    # this backup comes from django media
+    - ./media:/media_backup
+  environment:
+    - DUMPPREFIX=MEDIA_inasafedjango
+    # reduce frequency because the dump is really big
+    - DAILY=3
+    - MONTHLY=2
+    - YEARLY=1
+    - TARGET_FOLDER=/media_backup
+  env_file:
+    - sftp_media_credential.env
 
 uwsgi: &uwsgi
   build: docker-prod
@@ -64,6 +100,8 @@ uwsgi: &uwsgi
     - smtp:smtp
     - db:db
     - dbbackup:dbbackup
+    - sftppgbackup:sftppgbackup
+    - sftpmediabackup:sftpmediabackup
 
 web: &web
   image: nginx
@@ -77,4 +115,10 @@ web: &web
   links:
     - uwsgi:uwsgi
   ports:
-    - "61100:8080",
+    - "61100:8080"
+
+# Exactly the same as web but for staging we use a different port.
+stagingweb:
+  <<: *web
+  ports:
+    - "61101:8080"

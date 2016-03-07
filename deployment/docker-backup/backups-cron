@@ -1,0 +1,9 @@
+# For testing - run every minute
+#*/1 * * * * root /backups.sh 2>&1
+
+# Run the backups at 10pm each night
+# This is because SFTP backup is run at 11pm each night
+# This is to make sure pg backup is finished before then
+0 22 * * * root /backups.sh 2>&1
+
+# We need a blank line here for it to be a valid cron file
