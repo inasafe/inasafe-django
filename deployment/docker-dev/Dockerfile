@@ -44,5 +44,7 @@ ADD bashrc /root/.bashrc
 EXPOSE 8080
 # Open port 22 as we will be using a remote interpreter from pycharm
 EXPOSE 22
+# Open port 8088 for celery worker debugging
+EXPOSE 8088
 
 CMD ["/usr/sbin/sshd", "-D"]

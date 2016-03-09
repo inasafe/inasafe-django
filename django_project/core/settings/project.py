@@ -26,7 +26,7 @@ INSTALLED_APPS += (
 )
 
 
-PIPELINE_TEMPLATE_SEPARATOR = '/'
+PIPELINE_TEMPLATE_SEPARATOR = '__'
 
 PIPELINE_JS = {
     'contrib': {
@@ -52,17 +52,25 @@ PIPELINE_JS = {
         ),
         'output_filename': 'js/realtime_contrib.js',
     },
-    'realtime_templates': {
-        'source_filenames': (
-            'realtime/js/templates/*.jst',
-        ),
-        'output_filename': 'js/realtime_templates.js',
-    },
     'realtime_appjs': {
         'source_filenames': (
             'realtime/js/realtime.js',
         ),
         'output_filename': 'js/realtime_appjs.js'
+    },
+    'realtime_shakejs': {
+        'source_filenames': (
+            'realtime/js/earthquake/shake.js',
+            'realtime/js/templates/earthquake/*.jst'
+        ),
+        'output_filename': 'js/realtime_shakejs.js'
+    },
+    'realtime_floodjs': {
+        'source_filenames': (
+            'realtime/js/flood/flood.js',
+            'realtime/js/templates/flood/*.jst'
+        ),
+        'output_filename': 'js/realtime_floodjs.js'
     },
     'usermap_contrib': {
         'source_filenames': (
@@ -116,6 +124,24 @@ PIPELINE_CSS = {
             'realtime/css/realtime.css',
         ),
         'output_filename': 'css/realtime_appcss.css',
+        'extra_context': {
+            'media': 'screen, projection'
+        }
+    },
+    'realtime_shakecss': {
+        'source_filenames': (
+            'realtime/css/earthquake/shake.css',
+        ),
+        'output_filename': 'css/realtime_shakecss.css',
+        'extra_context': {
+            'media': 'screen, projection'
+        }
+    },
+    'realtime_floodcss': {
+        'source_filenames': (
+            'realtime/css/flood/flood.css',
+        ),
+        'output_filename': 'css/realtime_floodcss.css',
         'extra_context': {
             'media': 'screen, projection'
         }

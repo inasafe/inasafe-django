@@ -16,6 +16,12 @@ class Earthquake(models.Model):
         max_length='14',
         blank=False,
         unique=True)
+    shake_grid = models.FileField(
+        verbose_name='Shake Grid XML File',
+        help_text='The Shake Grid to process',
+        upload_to='earthquake/grid',
+        blank=True,
+        null=True)
     magnitude = models.FloatField(
         verbose_name='The magnitude',
         help_text='The magnitude of the event.')
@@ -48,6 +54,8 @@ class Earthquake(models.Model):
 
     def delete(self, using=None):
         # delete all report
+        if self.shake_grid:
+            self.shake_grid.delete()
         for report in self.reports.all():
             report.delete(using=using)
         super(Earthquake, self).delete(using=using)
@@ -59,10 +67,10 @@ class EarthquakeReport(models.Model):
     class Meta:
         """Meta class."""
         app_label = 'realtime'
+        unique_together = (('earthquake', 'language'),)
 
     earthquake = models.ForeignKey(
         Earthquake,
-
         related_name='reports')
     language = models.CharField(
         verbose_name='Language ID',
@@ -73,17 +81,17 @@ class EarthquakeReport(models.Model):
     report_pdf = models.FileField(
         verbose_name='PDF Report',
         help_text='The impact report stored as PDF',
-        upload_to='reports/pdf',
+        upload_to='reports/earthquake/pdf',
         null=True)
     report_image = models.ImageField(
         verbose_name='Image Report',
         help_text='The impact report stored as PNG File',
-        upload_to='reports/png',
+        upload_to='reports/earthquake/png',
         null=True)
     report_thumbnail = models.ImageField(
         verbose_name='Image Report Thumbnail',
         help_text='The thumbnail of the report stored as PNG File',
-        upload_to='reports/thumbnail',
+        upload_to='reports/earthquake/thumbnail',
         null=True)
 
     def delete(self, using=None):

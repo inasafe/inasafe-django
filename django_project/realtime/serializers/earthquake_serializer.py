@@ -1,25 +1,16 @@
 # coding=utf-8
 from django.core.urlresolvers import reverse
-from realtime.models.earthquake import Earthquake, EarthquakeReport
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
     GeoModelSerializer,
     GeoFeatureModelSerializer
 )
 
+from realtime.models.earthquake import Earthquake, EarthquakeReport
+from realtime.serializers.utilities import CustomSerializerMethodField
+
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '19/06/15'
-
-
-class CustomSerializerMethodField(serializers.SerializerMethodField):
-    """Custom Serializer Method Field.
-
-    Includes serializing field in the method executions
-    """
-
-    def to_representation(self, value):
-        method = getattr(self.parent, self.method_name)
-        return method(self, value)
 
 
 class EarthquakeReportSerializer(serializers.ModelSerializer):
@@ -114,6 +105,7 @@ class EarthquakeSerializer(GeoModelSerializer):
         fields = (
             'url',
             'shake_id',
+            'shake_grid',
             'magnitude',
             'time',
             'depth',
@@ -131,6 +123,7 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
         id = 'shake_id'
         fields = (
             'shake_id',
+            'shake_grid',
             'magnitude',
             'time',
             'depth',

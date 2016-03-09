@@ -1,7 +1,7 @@
 # noinspection PyUnresolvedReferences
+
 from .prod import *  # noqa
-import os
-print os.environ
+from .celery_config import *  # noqa
 
 ALLOWED_HOSTS = ['*']
 

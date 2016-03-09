@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from .dev import *  # noqa
-import os
-print os.environ
 
+from .dev import *  # noqa
+from .celery_config import *  # noqa
 
 DEBUG = True
 

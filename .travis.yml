@@ -27,7 +27,10 @@ before_script:
 
 script:
   - flake8
-  - coverage run manage.py test
+  # Split this, because somehow test failed when using:
+  # coverage run manage.py test
+  - coverage run manage.py test realtime
+  - coverage run manage.py test user_map
 
 after_success:
   - coveralls

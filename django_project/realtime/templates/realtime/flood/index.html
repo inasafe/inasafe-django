@@ -1,0 +1,232 @@
+{% extends "realtime/base.html" %}
+{% load staticfiles %}
+{% load leaflet_tags %}
+{% load bootstrap %}
+{% load pipeline %}
+{% load i18n %}
+
+{% block head_resources %}
+    {{ block.super }}
+    {% leaflet_js %}
+    {% leaflet_css %}
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="{% static 'realtime/css/MarkerCluster.user-map.ie.css' %}" />
+    <![endif]-->
+    {% stylesheet 'realtime_contrib' %}
+    {% stylesheet 'realtime_appcss' %}
+    {% stylesheet 'realtime_floodcss' %}
+    {% stylesheet 'main' %}
+    {{ form.media }}
+{% endblock head_resources %}
+
+{% block nav_second %}
+    <nav class="nav-second navbar-collapse collapse">
+        <ul class="menu">
+            <li class="menu-item">
+                <a href="{% url 'realtime:shake_index' %}">Shake Map</a>
+            </li>
+            <li class="menu-item active">
+                <a href="#">Flood Map</a>
+            </li>
+            <li class="menu-item">
+                <a href="{% url 'realtime:api_root' %}">API Browser</a>
+            </li>
+{#            {% if user.is_authenticated %}#}
+                <li class="menu-item">
+                    <a href="{% url 'realtime:indicator' %}">Indicator</a>
+                </li>
+{#            {% endif %}#}
+        </ul>
+    </nav>
+{% endblock %}
+
+{% block main_content %}
+    <div class="row center-block">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">InaSAFE Flood Realtime</h2>
+            </div>
+            <div class="panel-body">
+                <p class="text-justify">
+                    {% blocktrans %}
+                        This page contains near realtime flood impact assessments following recent floods in the Jakarta, Indonesia.
+                        Flood data used here is sourced from <a href="http://petajakarta.org">PetaJakarta.org</a> who use crowd sourcing data from <a href="http://twitter.com">twitter</a>,
+                        <a href="http://qluein.com/">qlue</a>, <a href="http://pasangmata.detik.com/">detik.com</a> and expert data review by DPBD-DKI.
+                        This information is used by disaster managers to help them understand the potential scale of a disaster and to
+                        respond faster to the hardest hit communities. This is particularly important in the first few hours after a
+                        flood when it may be difficult to get accurate on-the-ground information. Although this service is currently specific to Jakarta, the platform is extensible so that we can add more cities and regions easily.
+                    {% endblocktrans %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="row center-block">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title map-title">{% trans "Map" %}</h3>
+            </div>
+            <div class="panel-body" style="height: 500px">
+                <!-- Leaflet Map div -->
+                {% leaflet_map "map" %}
+
+                <!-- All the templates from view-->
+            </div>
+        </div>
+    </div>
+{% endblock main_content %}
+
+{% block filter_content %}
+{#    <div class="row center-block">#}
+{#        <div class="panel panel-default">#}
+{#            <div class="panel-heading">#}
+{#                <h3 class="panel-title">{% trans "Filters" %}</h3>#}
+{#            </div>#}
+{#            <div class="panel-body">#}
+{#                Lorem Ip-sunni...#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{% endblock filter_content %}
+
+{% block table_content %}
+    <div class="row center-block" id="realtime_table_div">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{% trans "Flood" %}</h3>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-12 table-responsive">
+                    <table class="table table-striped table-bordered table-hover" id="realtime-table">
+                        <thead>
+                        <tr>
+                            <th data-dynatable-column="event_id" style="display: none">{% trans "Event ID" %}</th>
+                            <th data-dynatable-column="time">{% trans "Time" %}</th>
+                            <th data-dynatable-column="interval">{% trans "Interval" %}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{#    <div id="disclaimer" class="row">#}
+{#        Lorem Ip-sunni...#}
+{#    </div>#}
+{% endblock table_content %}
+
+{% block js_container %}
+    {% javascript 'realtime_contrib' %}
+    {% javascript 'realtime_appjs' %}
+    {% javascript 'realtime_floodjs' %}
+    <script type="text/javascript">
+    var base_map, dynatable;
+
+    // Initialize Basemap Layer
+    base_map = {
+        {% for tile in leaflet_tiles %}
+            '{{ tile.name }}': createBasemap(
+                    '{{ tile.url }}',
+                    '{{ tile.subdomains }}',
+                    '{{ tile.attribution | safe }}')
+            {% if not forloop.last %}
+                ,
+            {% endif %}
+        {% endfor %}
+    };
+
+    //Create Map with prepared base_map
+    map = L.map('map', {
+        layers: [base_map["{{ leaflet_tiles.0.name }}"]]
+    });
+    map.fitWorld().zoomIn();
+    // make popup in center when opened
+    map.on('popupopen', function (e) {
+        var px = map.project(e.popup._latlng); // find the pixel location on the map where the popup anchor is
+        px.y -= e.popup._container.clientHeight / 2; // find the height of the popup container, divide by 2, subtract from the Y axis of marker location
+        map.panTo(map.unproject(px), {animate: true}); // pan to new center
+    });
+
+    // create control layers
+    layer_control = L.control.layers(base_map, {}, {
+        position: 'topleft'
+    }).addTo(map);
+
+    // add FitAll control
+    var fitAll = L.control.fitAll({
+        position: 'topleft',
+        title: 'Fit All',
+        markers: function(){
+            return event_layer;
+        }
+    }).addTo(map);
+
+    // Get table data
+    var get_events_url = '{% url "realtime:flood_event_list" %}';
+
+    var jsonTableContents;
+    function getEventsJson(event_json){
+        jsonTableContents = event_json;
+
+        dynatable.settings.dataset.originalRecords = jsonTableContents;
+        dynatable.paginationPerPage.set(100);
+        dynatable.sorts.add('time', -1);
+        dynatable.process();
+    }
+
+    // Create handler for table
+    var event_feature_url = '{% url "realtime:flood_event_features" event_id="0000000000-6-rw" %}';
+    var showFeaturesHandler = createShowFeaturesHandler(event_feature_url);
+    var report_url = '{% url "realtime:flood_report_detail" event_id='0000000000-6-rw' language=language.selected_language.id %}';
+    var showReportHandler = createShowReportHandler(report_url);
+    var showImpactMapHandler = createShowImpactMapHandler(report_url);
+{#    var downloadReportHandler = createDownloadReportHandler(report_url);#}
+
+    var button_templates = [
+        {
+            name: 'Show',
+            css_class: 'glyphicon glyphicon-search',
+            handler: 'showFeaturesHandler'
+        },
+        {
+            name: 'Impact Report',
+            css_class: 'glyphicon glyphicon-file',
+            handler: 'showReportHandler'
+        },
+        {
+            name: 'Impact Map',
+            css_class: 'glyphicon glyphicon-globe',
+            handler: 'showImpactMapHandler'
+        },
+{#        {#}
+{#            name: 'Download',#}
+{#            css_class: 'glyphicon glyphicon-download',#}
+{#            handler: 'downloadReportHandler'#}
+{#        }#}
+    ];
+
+    $(document).ready(function(){
+        dynatable = $("#realtime-table").dynatable({
+            table: {
+                defaultColumnIdStyle: 'underscore',
+            },
+            writers: {
+                _rowWriter: createActionRowWriter(button_templates, '{% trans "YYYY-MM-DD [at] HH:mm:ss" %}')
+            },
+            dataset: {
+                records: jsonTableContents,
+                sorts: {'magnitude': -1}
+            }
+        }).data('dynatable');
+
+        // add action column to dynatable
+        addActionColumn('#realtime-table', 'Action');
+
+        $.get(get_events_url, function(data){
+            var event_json = data;
+            getEventsJson(event_json);
+        });
+    });
+    </script>
+{% endblock js_container %}

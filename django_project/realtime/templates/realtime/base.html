@@ -85,7 +85,7 @@
                                         <ul>
                                             {% for l in language.language_list %}
                                                 <li>
-                                                    <a href="{% url 'realtime:index' %}?lang={{ l.id }}">{{ l.name }}</a>
+                                                    <a href="{% url 'realtime:shake_index' %}?lang={{ l.id }}">{{ l.name }}</a>
                                                 </li>
                                             {% endfor %}
                                         </ul>

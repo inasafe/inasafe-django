@@ -1,27 +1,35 @@
 # coding=utf-8
 import datetime
+import logging
+import os
 import shutil
 
-from django.contrib.auth.models import Group
-import os
 import pytz
+from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.gis.geos.point import Point
 from django.core.files.base import File
 from django.core.urlresolvers import reverse
-from django.conf import settings
-from realtime.app_settings import REST_GROUP
-from realtime.serializers.pagination_serializer import \
-    PageNumberPaginationSerializer
+from django.db import connections
+from django.test.client import Client
 from rest_framework import status
 from rest_framework.test import APITestCase
+
 from core.settings.utils import ABS_PATH
+from realtime.app_settings import REST_GROUP
 from realtime.models.earthquake import Earthquake, EarthquakeReport
 from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
     EarthquakeReportSerializer
+from realtime.serializers.pagination_serializer import \
+    PageNumberPaginationSerializer
+from realtime.tests.utilities import test_concurrently, \
+    assertEqualDictionaryWithFiles
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '20/06/15'
+
+LOGGER = logging.getLogger(__name__)
 
 
 class TestEarthquake(APITestCase):
@@ -29,7 +37,7 @@ class TestEarthquake(APITestCase):
     default_media_path = None
 
     def data_path(self, filename):
-        return u'realtime/tests/data/'+filename
+        return u'realtime/tests/data/earthquake/'+filename
 
     def setUp(self):
         if settings.TESTING:
@@ -37,18 +45,20 @@ class TestEarthquake(APITestCase):
             self.default_media_path = settings.MEDIA_ROOT
             settings.MEDIA_ROOT = ABS_PATH('media_test')
 
-        Earthquake.objects.create(
-            shake_id='20150619200628',
-            magnitude=4.6,
-            time=datetime.datetime(
-                2015, 6, 19, 20, 6, 28,
-                tzinfo=pytz.timezone('Asia/Jakarta')),
-            depth=10,
-            location=Point(x=126.52, y=4.16, srid=4326),
-            location_description='Manado'
-        )
-        earthquake = Earthquake.objects.get(shake_id='20150619200628')
-        earthquake.save()
+        with open(self.data_path('grid.xml')) as grid_file:
+            Earthquake.objects.create(
+                shake_id='20150619200628',
+                shake_grid=File(grid_file),
+                magnitude=4.6,
+                time=datetime.datetime(
+                    2015, 6, 19, 20, 6, 28,
+                    tzinfo=pytz.timezone('Asia/Jakarta')),
+                depth=10,
+                location=Point(x=126.52, y=4.16, srid=4326),
+                location_description='Manado'
+            )
+            earthquake = Earthquake.objects.get(shake_id='20150619200628')
+            earthquake.save()
         report_pdf = earthquake.shake_id+'-id.pdf'
         report_png = earthquake.shake_id+'-id.png'
         report_thumb = earthquake.shake_id+'-thumb-id.png'
@@ -102,6 +112,9 @@ class TestEarthquake(APITestCase):
     def test_earthquake_serializer(self):
         shake_dict = {
             'shake_id': u'20150619200629',
+            'shake_grid': File(
+                open(
+                    self.data_path(u'grid.xml'))),
             'magnitude': 4.6,
             'time': u'2015-06-19T12:59:28Z',
             'depth': 10.0,
@@ -117,8 +130,7 @@ class TestEarthquake(APITestCase):
         earthquake = Earthquake.objects.get(shake_id=u'20150619200629')
         self.assertTrue(earthquake)
         serializer = EarthquakeSerializer(earthquake)
-        for key, value in shake_dict.iteritems():
-            self.assertEqual(serializer.data[key], value)
+        assertEqualDictionaryWithFiles(self, serializer.data, shake_dict)
         earthquake.delete()
 
     def test_earthquake_report_serializer(self):
@@ -168,6 +180,8 @@ class TestEarthquake(APITestCase):
             kwargs=kwargs))
         expected_earthquake = {
             'shake_id': u'20150619200628',
+            'shake_grid': File(
+                open(self.data_path('grid.xml'))),
             'magnitude': 4.6,
             'time': u'2015-06-19T12:59:28Z',
             'depth': 10.0,
@@ -179,8 +193,8 @@ class TestEarthquake(APITestCase):
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         actual_earthquake = response.data
-        for key, value in expected_earthquake.iteritems():
-            self.assertEqual(actual_earthquake[key], value)
+        assertEqualDictionaryWithFiles(
+            self, actual_earthquake, expected_earthquake)
 
     def test_earthquake_list_post(self):
         shake_json = {
@@ -231,6 +245,21 @@ class TestEarthquake(APITestCase):
             format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # try to put grid.xml
+        shake_file = {
+            'shake_grid': File(
+                open(self.data_path('grid.xml'))),
+        }
+
+        response = self.client.put(
+            reverse(
+                'realtime:earthquake_detail',
+                kwargs={'shake_id': shake_json['shake_id']}),
+            shake_file,
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # change the data and put it using the same id
         shake_json['magnitude'] = 5.0
@@ -290,7 +319,7 @@ class TestEarthquake(APITestCase):
                 kwargs={'shake_id': u'20150619200628'}
             ))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(len(response.data), 1)
+        self.assertEqual(response.data['count'], 1)
 
     def test_earthquake_report_list_post(self):
         report_multipart = {
@@ -472,3 +501,66 @@ class TestEarthquake(APITestCase):
             earthquake__shake_id=u'20150619200628')
         self.assertEqual(len(reports), 1)
         self.assertEqual(reports[0].language, u'id')
+
+    def xtest_earthquake_report_concurrency_post(self):
+        """
+        This is a test for concurrency post in EarthquakeReport GET method.
+
+        This test currently not working because somehow the inner db
+        connection in post_report has failed to connect.
+
+        """
+        report_multipart = {
+            'language': u'en',
+            'report_pdf': File(
+                open(
+                    self.data_path(u'20150619200628-en.pdf'))),
+            'report_image': File(
+                open(
+                    self.data_path(u'20150619200628-en.png'))),
+            'report_thumbnail': File(
+                open(
+                    self.data_path(
+                        u'20150619200628-thumb-en.png'))),
+        }
+
+        @test_concurrently(15)
+        def post_report(test_object):
+            try:
+                c = Client()
+                login_ret = c.login(
+                    email='test@test.org', password='testsecret')
+                test_object.assertTrue(login_ret, 'Client is not logged in.')
+                response = c.post(
+                    reverse(
+                        'realtime:earthquake_report_list',
+                        kwargs={'shake_id': u'20150619200628'}
+                    ),
+                    report_multipart,
+                    format='multipart'
+                )
+                test_object.assertEqual(
+                    response.status_code, status.HTTP_200_OK)
+            except Exception as e:
+                for conn in connections.all():
+                    conn.close()
+                raise e
+
+        post_report(self)
+
+        req_args = {
+            'shake_id': u'20150619200628',
+            'language': u'en'
+        }
+        try:
+            response = self.client.get(
+                reverse(
+                    'realtime:earthquake_report_detail',
+                    kwargs=req_args
+                ))
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+        finally:
+            EarthquakeReport.objects.filter(
+                earthquake__shake_id=req_args['shake_id'],
+                language=req_args['language']
+            ).delete()

@@ -14,10 +14,8 @@
     <![endif]-->
     {% stylesheet 'realtime_contrib' %}
     {% stylesheet 'realtime_appcss' %}
+    {% stylesheet 'realtime_shakecss' %}
     {% stylesheet 'main' %}
-    {% javascript 'realtime_contrib' %}
-    {% javascript 'realtime_templates' %}
-    {% javascript 'realtime_appjs' %}
     {{ form.media }}
 {% endblock head_resources %}
 
@@ -25,8 +23,13 @@
     <nav class="nav-second navbar-collapse collapse">
         <ul class="menu">
             <li class="menu-item active">
-                <a href="#">Map</a>
+                <a href="#">Shake Map</a>
             </li>
+            {% if user.is_authenticated %}
+            <li class="menu-item">
+                <a href="{% url 'realtime:flood_index' %}">Flood Map</a>
+            </li>
+            {% endif %}
             <li class="menu-item">
                 <a href="{% url 'realtime:api_root' %}">API Browser</a>
             </li>
@@ -43,7 +46,7 @@
     <div class="row center-block">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h2 class="panel-title">InaSAFE Realtime</h2>
+                <h2 class="panel-title">InaSAFE Shake Realtime</h2>
             </div>
             <div class="panel-body">
                 <p class="text-justify">
@@ -218,6 +221,9 @@
 {% endblock table_content %}
 
 {% block js_container %}
+    {% javascript 'realtime_contrib' %}
+    {% javascript 'realtime_appjs' %}
+    {% javascript 'realtime_shakejs' %}
     <script type="text/javascript">
         var base_map, dynaTable;
 
@@ -284,9 +290,12 @@
         var showEventHandler = createShowEventHandler(map, markers,
                 map_events);
         {#    Use magic number 000 for placeholder#}
-        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' language=language.selected_language.id %}'
+        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' language=language.selected_language.id %}';
+        var report_download_url = '{% url "realtime_report:report_pdf" shake_id='000' language=language.selected_language.id language2=language.selected_language.id %}';
+        var grid_url = '{% url "realtime:shake_grid" shake_id='000' %}';
         var showReportHandler = createShowReportHandler(report_url);
-        var downloadReportHandler = createDownloadReportHandler(report_url);
+        var downloadReportHandler = createDownloadReportHandler(report_download_url, '{{ language.selected_language.id }}');
+        var downloadGridHandler = createDownloadGridHandler(grid_url);
         var button_templates = [
             {
                 name: 'Zoom',

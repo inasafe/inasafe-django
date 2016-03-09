@@ -98,5 +98,5 @@ def track_rest_push(request):
             user_push.save()
 
         # update info
-        user_push.last_rest_push = datetime.utcnow()
+        user_push.last_rest_push = datetime.utcnow().replace(tzinfo=pytz.utc)
         user_push.save()
