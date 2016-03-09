@@ -97,6 +97,9 @@ deployment/sftp_backup/target/pg/
 !deployment/sftp_backup/target/pg/.gitkeep
 !deployment/sftp_backup/backups/media/README.md
 !deployment/sftp_backup/backups/pg/README.md
+django_project/realtime/tasks/realtime/celeryconfig.py
+django_project/realtime/local_settings.py
+django_project/celerybeat.pid
 
 sftp_media_credential.env
 sftp_pg_credential.env
@@ -108,5 +111,10 @@ sftp_pg_credential-dev.env
 
 # static files
 deployment/static
+deployment/tmp
 media/
 media_settings/
+django_project/media_test
+
+# pickled indicator
+.realtime_broker_indicator.pickle

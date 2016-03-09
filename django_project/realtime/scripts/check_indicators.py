@@ -5,7 +5,7 @@ It is used to report critical indicator
 """
 import logging
 from realtime.app_settings import LOGGER_NAME
-from realtime.helpers.rest_push_indicator import RESTPushIndicator
+from realtime.helpers.realtime_broker_indicator import RealtimeBrokerIndicator
 from realtime.helpers.shake_event_indicator import ShakeEventIndicator
 from realtime.helpers.shakemap_push_indicator import ShakemapPushIndicator
 
@@ -21,7 +21,7 @@ def check_indicator_status():
     indicators = [
         ShakemapPushIndicator(),
         ShakeEventIndicator(),
-        RESTPushIndicator()
+        RealtimeBrokerIndicator(),
     ]
 
     for ind in indicators:

@@ -20,6 +20,16 @@ db: &db
     - USERNAME=docker
     - PASS=docker
 
+rabbitmq:
+  image: library/rabbitmq
+  hostname: rabbitmq
+  environment:
+     - RABBIT_PASSWORD=rabbit_test_password
+     - USER=rabbit_user
+     - RABBITMQ_NODENAME=rabbit
+  links:
+    - db:db
+
 dbbackup: &dbbackup
   build: docker-backup
   hostname: pg-backups
@@ -90,6 +100,7 @@ uwsgi: &uwsgi
     - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
     - VIRTUAL_HOST=users.inasafe.org
     - VIRTUAL_PORT=8080
+    - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
   volumes:
     - ../django_project:/home/web/django_project
     - ./static:/home/web/static
@@ -102,6 +113,25 @@ uwsgi: &uwsgi
     - dbbackup:dbbackup
     - sftppgbackup:sftppgbackup
     - sftpmediabackup:sftpmediabackup
+    - rabbitmq:rabbitmq
+
+worker:
+  <<: *uwsgi
+  hostname: worker
+  working_dir: /home/web/django_project
+  command: celery -A realtime.celery_app worker --loglevel=info -Q inasafe-django,default -B
+  environment:
+    - DATABASE_NAME=gis
+    - DATABASE_USERNAME=docker
+    - DATABASE_PASSWORD=docker
+    - DATABASE_HOST=db
+    - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
+    - C_FORCE_ROOT=True
+    - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+  links:
+    - smtp:smtp
+    - db:db
+    - rabbitmq:rabbitmq
 
 web: &web
   image: nginx

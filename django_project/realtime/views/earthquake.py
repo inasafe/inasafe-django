@@ -1,6 +1,11 @@
 # coding=utf-8
+import logging
 from copy import deepcopy
 
+from django.core.exceptions import ValidationError, MultipleObjectsReturned
+from django.db.utils import IntegrityError
+from django.http.response import HttpResponseBadRequest, JsonResponse, \
+    HttpResponse
 from django.utils.translation import ugettext as _
 from django.utils import translation
 from django.shortcuts import render_to_response
@@ -21,8 +26,13 @@ from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
     EarthquakeReportSerializer, EarthquakeGeoJsonSerializer
 from rest_framework_gis.filters import InBBoxFilter
 
+from realtime.tasks.realtime.earthquake import process_shake
+
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '19/06/15'
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def index(request, iframe=False, server_side_filter=False):
@@ -83,7 +93,7 @@ def index(request, iframe=False, server_side_filter=False):
     context['select_current_zoom_text'] = _('Select area within current zoom')
     context['iframe'] = iframe
     return render_to_response(
-        'realtime/index.html',
+        'realtime/earthquake/index.html',
         {
             'form': form,
             'iframe': iframe,
@@ -126,7 +136,7 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
 
     queryset = Earthquake.objects.all()
     serializer_class = EarthquakeSerializer
-    parser_classes = [JSONParser, FormParser]
+    # parser_classes = [JSONParser, FormParser]
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter,
                        InBBoxFilter)
     bbox_filter_field = 'location'
@@ -155,13 +165,30 @@ class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     queryset = Earthquake.objects.all()
     serializer_class = EarthquakeSerializer
     lookup_field = 'shake_id'
-    parser_classes = (JSONParser, FormParser, )
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
+        try:
+            data = request.data
+            shake_id = kwargs.get('shake_id') or data.get('shake_id')
+            instance = Earthquake.objects.get(shake_id=shake_id)
+            if instance.shake_grid:
+                instance.shake_grid.delete()
+            if 'shake_grid' in request.data:
+                # posting shake grid means only updating its shake_grid
+                # properties
+                request.data['shake_id'] = shake_id
+                request.data['location'] = instance.location
+                request.data['location_description'] = \
+                    instance.location_description
+                request.data['time'] = instance.time
+                request.data['magnitude'] = instance.magnitude
+                request.data['depth'] = instance.depth
+        except Earthquake.DoesNotExist:
+            pass
         retval = self.update(request, *args, **kwargs)
         track_rest_push(request)
         return retval
@@ -232,8 +259,18 @@ class EarthquakeReportList(mixins.ListModelMixin,
 
         if serializer.is_valid():
             serializer.validated_data['earthquake'] = earthquake
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            try:
+                serializer.save()
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED)
+            except (ValidationError, IntegrityError) as e:
+                # This happens when simultaneuously two conn trying to save
+                # the same unique_together fields (earthquake, language)
+                # Should warn this to sentry
+                LOGGER.warning(e.message)
+                return Response(
+                    serializer.errors,
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -262,6 +299,16 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
                 return self.list(request, *args, **kwargs)
         except EarthquakeReport.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        except MultipleObjectsReturned as e:
+            # this should not happen.
+            # But in case it is happening, returned the last object, but still
+            # log the error to sentry
+            LOGGER.warning(e.message)
+            instance = EarthquakeReport.objects.filter(
+                earthquake__shake_id=shake_id,
+                language=language).last()
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
 
     def put(self, request, shake_id=None, language=None):
         data = request.data
@@ -316,3 +363,33 @@ class EarthquakeFeatureList(EarthquakeList):
     """
     serializer_class = EarthquakeGeoJsonSerializer
     pagination_class = None
+
+
+def get_grid_xml(request, shake_id):
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+
+    try:
+        shake = Earthquake.objects.get(shake_id=shake_id)
+        if not shake.shake_grid:
+            # fetch shake grid from Realtime Processor
+            process_shake.delay(shake_id)
+            return JsonResponse({'success': True})
+        response = HttpResponse(
+            shake.shake_grid.read(), content_type='application/octet-stream')
+        response['Content-Disposition'] = 'inline; filename="%s-grid.xml"' % shake_id
+
+        return response
+    except:
+        return HttpResponseBadRequest()
+
+
+def trigger_process_shake(request, shake_id):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+
+    try:
+        process_shake.delay(shake_id)
+        return JsonResponse({'success': True})
+    except:
+        return HttpResponseBadRequest()

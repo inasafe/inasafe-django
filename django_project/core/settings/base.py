@@ -98,3 +98,5 @@ TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
 LOCALE_PATHS = (
     ABS_PATH('locale'),
 )
+
+DJANGO_ROOT = ABS_PATH('.')

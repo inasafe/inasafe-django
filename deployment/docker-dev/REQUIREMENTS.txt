@@ -3,6 +3,9 @@ Django>=1.7,<1.8
 django-bootstrap3-datetimepicker
 psycopg2
 pytz
+celery
+django-celery
+django-kombu
 django-braces
 django-model-utils
 django-pipeline<1.6,>=1.5
@@ -12,6 +15,8 @@ django-user-map
 djangorestframework==3.1.3
 djangorestframework-gis==0.9
 markdown
-django-filter
+django-filter==0.11.0
 pillow
 numpy
+hammock
+flower

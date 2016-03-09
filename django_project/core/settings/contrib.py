@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from .base import *  # noqa
 
 # Extra installed apps
@@ -9,7 +10,9 @@ INSTALLED_APPS += (
     'leaflet',
     'bootstrapform',
     'bootstrap3_datetime',
-    'rest_framework'
+    'rest_framework',
+    'djcelery',
+    'kombu.transport.django',
 )
 
 # User map sets up auth where users are identified by their email,

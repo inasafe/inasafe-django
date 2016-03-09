@@ -6,6 +6,8 @@ from django.contrib.admin import ModelAdmin
 from leaflet.admin import LeafletGeoAdmin
 
 from realtime.models.earthquake import Earthquake, EarthquakeReport
+from realtime.models.flood import Boundary, Flood, FloodEventBoundary, \
+    FloodReport
 
 
 class RealtimeAdminSite(AdminSite):
@@ -33,5 +35,29 @@ class EarthquakeReportAdmin(ModelAdmin):
                      'earthquake__location_description']
 
 
+class BoundaryAdmin(ModelAdmin):
+    """Admin Class for Flood Boundary."""
+
+    list_display = ('name', 'parent', 'boundary_alias')
+    list_filter = ('name', 'parent', 'boundary_alias')
+    search_fields = ['name', 'parent__name']
+
+
+class FloodAdmin(ModelAdmin):
+    """Admin Class for Flood Event."""
+    pass
+
+
+class FloodEventBoundaryAdmin(ModelAdmin):
+    pass
+
+
+class FloodReportAdmin(ModelAdmin):
+    pass
+
 realtime_admin_site.register(Earthquake, EarthquakeAdmin)
 realtime_admin_site.register(EarthquakeReport, EarthquakeReportAdmin)
+realtime_admin_site.register(Boundary, BoundaryAdmin)
+realtime_admin_site.register(Flood, FloodAdmin)
+realtime_admin_site.register(FloodEventBoundary, FloodEventBoundaryAdmin)
+realtime_admin_site.register(FloodReport, FloodReportAdmin)

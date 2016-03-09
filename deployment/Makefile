@@ -76,6 +76,20 @@ collectstatic:
 	# uwsgi container it seems so I use docker exec here
 	@docker exec -t -i $(PROJECT_ID)_uwsgi_1 python manage.py collectstatic --noinput
 
+celery-worker:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker in $(MODE_STRING) mode"
+	@echo "------------------------------------------------------------------"
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d worker
+
+celery-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker in $(MODE_STRING) mode"
+	@echo "------------------------------------------------------------------"
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs worker
+
 kill: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
@@ -109,7 +123,8 @@ shell: confinfo
 	@echo "------------------------------------------------------------------"
 	@echo "Shelling in in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) run uwsgi /bin/bash
+	#@docker-compose $(CONF_FILE) -p $(PROJECT_ID) run uwsgi /bin/bash
+	@docker exec -it $(PROJECT_ID)_uwsgi_1 /bin/bash
 
 dbshell:
 	@echo
@@ -143,8 +158,7 @@ dbrestore:
 	@# - prefix causes command to continue even if it fails
 	-@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "dropdb gis"
 	@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "createdb -O docker -T template_postgis gis"
-	@docker exec -t -i $(PROJECT_ID)_dbbackup_1 pg_restore /backups/latest.dmp
-	@docker exec -i $(PROJECT_ID)_db_1 su - postgres -c "psql gis"
+	@docker exec -t -i $(PROJECT_ID)_dbbackup_1 pg_restore /backups/latest.dmp | docker exec -i $(PROJECT_ID)_db_1 su - postgres -c "psql gis"
 
 dbbackup:
 	@echo
@@ -177,6 +191,21 @@ pullbackup:
 	@echo "------------------------------------------------------------------"
 	@docker exec -t -i $(PROJECT_ID)_sftppgbackup_1 /start.sh pull-from-remote-sftp
 	@docker exec -t -i $(PROJECT_ID)_sftpmediabackup_1 /start.sh pull-from-remote-sftp
+
+mediasync:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Syncing media files from live server"
+	@echo "------------------------------------------------------------------"
+	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/media/ media
+
+dbsync:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Syncing database files from live server"
+	@echo "------------------------------------------------------------------"
+	-@ssh inasafe-docker "cd /home/data/inasafe-django/deployment; make dbbackup"
+	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/backups/ backups
 
 reload:
 	@echo
