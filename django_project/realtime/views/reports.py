@@ -24,8 +24,11 @@ def report_pdf(request, shake_id, language=u'id', language2=u'id'):
             language=language)
         if not language == language2:
             raise Http404()
-        return HttpResponse(
-            report.report_pdf.read(), content_type='application/pdf')
+        response = HttpResponse(
+            report.report_pdf.read(), content_type='application/octet-stream')
+        response['Content-Disposition'] = 'inline; filename="%s-%s.pdf";' % (
+            shake_id, language)
+        return response
     except IOError:
         raise Http404()
     except EarthquakeReport.DoesNotExist:
@@ -36,7 +39,12 @@ def report_pdf(request, shake_id, language=u'id', language2=u'id'):
             settings.MEDIA_ROOT, 'reports/pdf/%s' % filename)
         try:
             with open(filename) as f:
-                return HttpResponse(f, content_type='application/pdf')
+                response = HttpResponse(
+                    f.read(),
+                    content_type='application/octet-stream')
+                response['Content-Disposition'] = 'inline; filename="%s";' % (
+                    filename, )
+                return response
         except IOError:
             raise Http404()
 
@@ -57,8 +65,12 @@ def report_image(request, shake_id, language=u'id', language2=u'id'):
             language=language)
         if not language == language2:
             raise Http404()
-        return HttpResponse(
-            report.report_image.read(), content_type='image/png')
+        response = HttpResponse(
+            report.report_image.read(),
+            content_type='application/octet-stream')
+        response['Content-Disposition'] = 'inline; filename="%s-%s.png";' % (
+            shake_id, language)
+        return response
     except IOError:
         raise Http404()
     except EarthquakeReport.DoesNotExist:
@@ -69,7 +81,12 @@ def report_image(request, shake_id, language=u'id', language2=u'id'):
             settings.MEDIA_ROOT, 'reports/png/%s' % filename)
         try:
             with open(filename) as f:
-                return HttpResponse(f, content_type='image/png')
+                response = HttpResponse(
+                    f.read(),
+                    content_type='application/octet-stream')
+                response['Content-Disposition'] = 'inline; filename="%s";' % (
+                    filename, )
+                return response
         except IOError:
             raise Http404()
 
@@ -92,8 +109,12 @@ def report_thumbnail(request, shake_id, language=u'id', language2=u'id'):
             language=language)
         if not language == language2:
             raise Http404()
-        return HttpResponse(
-            report.report_thumbnail.read(), content_type='image/png')
+        response = HttpResponse(
+            report.report_thumbnail.read(),
+            content_type='application/octet-stream')
+        response['Content-Disposition'] = 'inline; filename="%s-%s.png";' % (
+            shake_id, language)
+        return response
     except IOError:
         raise Http404()
     except EarthquakeReport.DoesNotExist:
@@ -104,7 +125,11 @@ def report_thumbnail(request, shake_id, language=u'id', language2=u'id'):
             settings.MEDIA_ROOT, 'reports/png/%s' % filename)
         try:
             with open(filename) as f:
-                return HttpResponse(f, content_type='image/png')
+                response = HttpResponse(
+                    f, content_type='application/octet-stream')
+                response['Content-Disposition'] = 'inline; filename="%s";' % (
+                    filename, )
+                return response
         except IOError:
             raise Http404()
 
@@ -125,18 +150,15 @@ def latest_report(request, report_type=u'pdf', language=u'id'):
             raise Http404()
 
         if report_type == 'pdf':
-            the_file = report.report_pdf.read()
-            content_type = 'application/pdf'
+            report_pdf(
+                request, report.earthquake.shake_id, language, language)
         elif report_type == 'png':
-            the_file = report.report_image.read()
-            content_type = 'image/png'
+            report_image(
+                request, report.earthquake.shake_id, language, language)
         elif report_type == 'thumbnail':
-            the_file = report.report_thumbnail.read()
-            content_type = 'image/png'
+            report_thumbnail(
+                request, report.earthquake.shake_id, language, language)
 
-        if not the_file:
-            raise Http404()
-
-        return HttpResponse(the_file, content_type=content_type)
+        raise Http404()
     except (EarthquakeReport.DoesNotExist, IOError, AttributeError):
         raise Http404()

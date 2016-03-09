@@ -105,6 +105,7 @@ class EarthquakeSerializer(GeoModelSerializer):
         fields = (
             'url',
             'shake_id',
+            'shake_grid',
             'magnitude',
             'time',
             'depth',
@@ -122,6 +123,7 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
         id = 'shake_id'
         fields = (
             'shake_id',
+            'shake_grid',
             'magnitude',
             'time',
             'depth',

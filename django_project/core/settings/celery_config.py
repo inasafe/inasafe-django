@@ -37,6 +37,10 @@ CELERYBEAT_SCHEDULE = {
     'check-realtime-broker-connection': {
         'task': 'realtime.tasks.indicator.check_realtime_broker',
         'schedule': crontab(minute='*/2')
+    },
+    'send-indicator-status-nightly': {
+        'task': 'realtime.tasks.indicator.notify_indicator_status',
+        'schedule': crontab(hour='0', minute='0')
     }
 }
 

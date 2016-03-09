@@ -142,24 +142,29 @@ function createShowReportHandler(report_url) {
  * @param {string} report_url A report url that contains shake_id placeholder
  * @return {function} Download the report based on shake_id
  */
-function createDownloadReportHandler(report_url) {
+function createDownloadReportHandler(report_url, language) {
     var downloadReportHandler = function (shake_id) {
         var url = report_url;
         // replace magic number 000 with shake_id
         url = url.replace('000', shake_id);
-        $.get(url, function (data) {
-            if (data && data.report_pdf) {
-                var pdf_url = data.report_pdf;
-                SaveToDisk(pdf_url, data.shake_id+'-'+data.language+'.pdf');
-            }
-        }).fail(function(e){
-            console.log(e);
-            if(e.status == 404){
-                alert("No Report recorded for this event.");
-            }
-        });
+        SaveToDisk(url, shake_id+'-'+language+'.pdf');
     };
     return downloadReportHandler;
+}
+
+/**
+ * Closure to create handler for downloadGrid
+ * @param {string} grid_url A report url that contains shake_id placeholder
+ * @return {function} Download the grid.xml based on shake_id
+ */
+function createDownloadGridHandler(grid_url) {
+    var downloadGridHandler = function (shake_id) {
+        var url = grid_url;
+        // replace magic number 000 with shake_id
+        url = url.replace('000', shake_id);
+        SaveToDisk(url, shake_id+'-grid.xml');
+    };
+    return downloadGridHandler;
 }
 
 /**
@@ -386,7 +391,8 @@ function createActionRowWriter(button_templates, date_format) {
         if(date_format === undefined){
             date_format = 'YYYY-MM-DD [at] HH:mm:ss';
         }
-        record.time = moment_time.format(date_format);
+        //record.time = moment_time.format(date_format);
+        record.time = moment_time.fromNow();
 
         // grab the record's attribute for each column
         for (var i = 0, len = columns.length; i < len; i++) {

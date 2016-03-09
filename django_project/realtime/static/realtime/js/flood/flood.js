@@ -89,7 +89,32 @@ function createShowFeaturesHandler(event_features_url){
                     $("#"+layer_control_id).parent().siblings('input:checked').click();
                     layer_control.removeLayer(event_layer);
                 }
+                var style_classes = {
+                    1: {
+                        color: "#bdc5f7",
+                        fillColor: "#bdc5f7",
+                        fillOpacity: 0.8
+                    },
+                    2: {
+                        color: "#fffe73",
+                        fillColor: "#fffe73",
+                        fillOpacity: 0.8
+                    },
+                    3: {
+                        color: "#fea865",
+                        fillColor: "#fea865",
+                        fillOpacity: 0.8
+                    },
+                    4: {
+                        color: "#da6c7b",
+                        fillColor: "#da6c7b",
+                        fillOpacity: 0.8
+                    }
+                };
                 event_layer = L.geoJson(data,{
+                    style: function(feature){
+                        return style_classes[feature.properties.impact_data];
+                    },
                     onEachFeature: function(feature, layer) {
                         // Set popup content
                         if (feature.properties) {

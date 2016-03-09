@@ -23,7 +23,8 @@ from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
     EarthquakeReportSerializer
 from realtime.serializers.pagination_serializer import \
     PageNumberPaginationSerializer
-from realtime.tests.utilities import test_concurrently
+from realtime.tests.utilities import test_concurrently, \
+    assertEqualDictionaryWithFiles
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '20/06/15'
@@ -44,18 +45,20 @@ class TestEarthquake(APITestCase):
             self.default_media_path = settings.MEDIA_ROOT
             settings.MEDIA_ROOT = ABS_PATH('media_test')
 
-        Earthquake.objects.create(
-            shake_id='20150619200628',
-            magnitude=4.6,
-            time=datetime.datetime(
-                2015, 6, 19, 20, 6, 28,
-                tzinfo=pytz.timezone('Asia/Jakarta')),
-            depth=10,
-            location=Point(x=126.52, y=4.16, srid=4326),
-            location_description='Manado'
-        )
-        earthquake = Earthquake.objects.get(shake_id='20150619200628')
-        earthquake.save()
+        with open(self.data_path('grid.xml')) as grid_file:
+            Earthquake.objects.create(
+                shake_id='20150619200628',
+                shake_grid=File(grid_file),
+                magnitude=4.6,
+                time=datetime.datetime(
+                    2015, 6, 19, 20, 6, 28,
+                    tzinfo=pytz.timezone('Asia/Jakarta')),
+                depth=10,
+                location=Point(x=126.52, y=4.16, srid=4326),
+                location_description='Manado'
+            )
+            earthquake = Earthquake.objects.get(shake_id='20150619200628')
+            earthquake.save()
         report_pdf = earthquake.shake_id+'-id.pdf'
         report_png = earthquake.shake_id+'-id.png'
         report_thumb = earthquake.shake_id+'-thumb-id.png'
@@ -109,6 +112,9 @@ class TestEarthquake(APITestCase):
     def test_earthquake_serializer(self):
         shake_dict = {
             'shake_id': u'20150619200629',
+            'shake_grid': File(
+                open(
+                    self.data_path(u'grid.xml'))),
             'magnitude': 4.6,
             'time': u'2015-06-19T12:59:28Z',
             'depth': 10.0,
@@ -124,8 +130,7 @@ class TestEarthquake(APITestCase):
         earthquake = Earthquake.objects.get(shake_id=u'20150619200629')
         self.assertTrue(earthquake)
         serializer = EarthquakeSerializer(earthquake)
-        for key, value in shake_dict.iteritems():
-            self.assertEqual(serializer.data[key], value)
+        assertEqualDictionaryWithFiles(self, serializer.data, shake_dict)
         earthquake.delete()
 
     def test_earthquake_report_serializer(self):
@@ -175,6 +180,8 @@ class TestEarthquake(APITestCase):
             kwargs=kwargs))
         expected_earthquake = {
             'shake_id': u'20150619200628',
+            'shake_grid': File(
+                open(self.data_path('grid.xml'))),
             'magnitude': 4.6,
             'time': u'2015-06-19T12:59:28Z',
             'depth': 10.0,
@@ -186,8 +193,8 @@ class TestEarthquake(APITestCase):
         }
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         actual_earthquake = response.data
-        for key, value in expected_earthquake.iteritems():
-            self.assertEqual(actual_earthquake[key], value)
+        assertEqualDictionaryWithFiles(
+            self,actual_earthquake, expected_earthquake)
 
     def test_earthquake_list_post(self):
         shake_json = {
@@ -238,6 +245,21 @@ class TestEarthquake(APITestCase):
             format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # try to put grid.xml
+        shake_file = {
+            'shake_grid': File(
+                open(self.data_path('grid.xml'))),
+        }
+
+        response = self.client.put(
+            reverse(
+                'realtime:earthquake_detail',
+                kwargs={'shake_id': shake_json['shake_id']}),
+            shake_file,
+            format='multipart'
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # change the data and put it using the same id
         shake_json['magnitude'] = 5.0

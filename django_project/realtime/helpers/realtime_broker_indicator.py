@@ -53,7 +53,7 @@ class RealtimeBrokerIndicator(Indicator):
 
         self._healthy_range = healthy_range
         self._warning_range = warning_range
-        self._label = _('Last REST Push')
+        self._label = _('Broker Connection Status')
 
     @Indicator.value.setter
     def value(self, val):

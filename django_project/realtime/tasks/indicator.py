@@ -12,6 +12,7 @@ from realtime.celery_app import app
 
 from realtime.app_settings import LOGGER_NAME
 from realtime.helpers.realtime_broker_indicator import RealtimeBrokerIndicator
+from realtime.scripts.check_indicators import check_indicator_status
 from realtime.tasks.realtime.generic import check_broker_connection
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
@@ -46,3 +47,7 @@ def check_realtime_broker():
     if res.successful():
         update_indicator.delay(res.result)
 
+
+@app.task(queue='inasafe-django')
+def notify_indicator_status():
+    check_indicator_status()

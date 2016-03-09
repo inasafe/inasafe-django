@@ -7,7 +7,7 @@
                 <tbody>
                 <tr>
                     <th>Date Time</th>
-                    <td class="date-time"><%= new Date(Date.parse(time)) %></td>
+                    <td class="date-time"><%= moment(new Date(Date.parse(time))).fromNow() %></td>
                 </tr>
                 <tr>
                     <th>Shake ID</th>
@@ -36,6 +36,12 @@
                     onclick="downloadReportHandler('<%= shake_id %>')">
                 <span class="row-action-icon glyphicon
                 glyphicon-download"></span>
+            </button>
+            <button class="btn btn-primary row-action-container"
+                    title="Download Grid XML"
+                    onclick="downloadGridHandler('<%= shake_id %>')">
+                <span class="row-action-icon glyphicon
+                glyphicon-download">XML</span>
             </button>
         </span>
     </div>

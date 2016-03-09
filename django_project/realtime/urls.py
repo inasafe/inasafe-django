@@ -7,7 +7,7 @@ from realtime.views.earthquake import (
     EarthquakeDetail,
     EarthquakeReportList,
     EarthquakeReportDetail,
-    EarthquakeFeatureList, iframe_index)
+    EarthquakeFeatureList, iframe_index, get_grid_xml)
 from realtime.views import root
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -42,6 +42,7 @@ urlpatterns = [
         r'(?P<language>[-\w]+)/$',
         EarthquakeReportDetail.as_view(),
         name='earthquake_report_detail'),
+
     url(r'^api/v1/flood/$',
         FloodList.as_view(),
         name='flood_list'),
@@ -76,6 +77,7 @@ urlpatterns = format_suffix_patterns(urlpatterns)
 urlpatterns += [
     url(r'^$', shake_index, name='index'),
     url(r'^shake/$', shake_index, name='shake_index'),
+    url(r'^shake/grid/(?P<shake_id>[-\d]+)', get_grid_xml, name='shake_grid'),
     url(r'^flood/$', flood_index, name='flood_index'),
     url(r'^iframe$', iframe_index, name='iframe'),
     url(r'^api/v1/is_logged_in/$', root.is_logged_in),
