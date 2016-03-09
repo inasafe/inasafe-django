@@ -8,7 +8,6 @@ from django.utils import translation
 from django.http.response import JsonResponse
 from realtime.app_settings import LANGUAGE_LIST
 from realtime.helpers.realtime_broker_indicator import RealtimeBrokerIndicator
-from realtime.helpers.rest_push_indicator import RESTPushIndicator
 from realtime.helpers.shake_event_indicator import ShakeEventIndicator
 from realtime.helpers.shakemap_push_indicator import ShakemapPushIndicator
 from realtime.models.user_push import UserPush
@@ -80,7 +79,7 @@ def indicator(request):
 
     shakemap_push_indicator = ShakemapPushIndicator()
     shake_event_indicator = ShakeEventIndicator()
-    rest_push_indicator = RESTPushIndicator()
+    # rest_push_indicator = RESTPushIndicator()
     realtime_broker_indicator = RealtimeBrokerIndicator()
 
     context = RequestContext(request)

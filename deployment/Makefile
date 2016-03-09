@@ -192,6 +192,21 @@ pullbackup:
 	@docker exec -t -i $(PROJECT_ID)_sftppgbackup_1 /start.sh pull-from-remote-sftp
 	@docker exec -t -i $(PROJECT_ID)_sftpmediabackup_1 /start.sh pull-from-remote-sftp
 
+mediasync:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Syncing media files from live server"
+	@echo "------------------------------------------------------------------"
+	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/media/ media
+
+dbsync:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Syncing database files from live server"
+	@echo "------------------------------------------------------------------"
+	-@ssh inasafe-docker "cd /home/data/inasafe-django/deployment; make dbbackup"
+	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/backups/ backups
+
 reload:
 	@echo
 	@echo "------------------------------------------------------------------"

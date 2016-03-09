@@ -194,7 +194,7 @@ class TestEarthquake(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         actual_earthquake = response.data
         assertEqualDictionaryWithFiles(
-            self,actual_earthquake, expected_earthquake)
+            self, actual_earthquake, expected_earthquake)
 
     def test_earthquake_list_post(self):
         shake_json = {

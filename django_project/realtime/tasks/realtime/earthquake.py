@@ -12,14 +12,16 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 
 
 @app.task(
-    name='realtime.tasks.earthquake.process_shake', queue='inasafe-realtime')
+    name='realtime.tasks.earthquake.process_shake',
+    queue='inasafe-realtime')
 def process_shake(event_id=None):
     LOGGER.info('proxy tasks')
     pass
 
 
 @app.task(
-    name='realtime.tasks.earthquake.check_event_exists', queue='inasafe-realtime')
+    name='realtime.tasks.earthquake.check_event_exists',
+    queue='inasafe-realtime')
 def check_event_exists(event_id=None):
     LOGGER.info('proxy tasks')
     pass

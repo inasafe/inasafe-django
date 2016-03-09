@@ -20,8 +20,7 @@ from realtime.serializers.flood_serializer import FloodSerializer, \
     FloodReportSerializer
 from realtime.serializers.pagination_serializer import \
     PageNumberPaginationSerializer
-from realtime.tests.utilities import download_url, \
-    assertEqualDictionaryWithFiles
+from realtime.tests.utilities import assertEqualDictionaryWithFiles
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '11/30/15'

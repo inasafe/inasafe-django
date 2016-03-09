@@ -37,4 +37,3 @@ class Command(BaseCommand):
             # will be executed asyncly using celery
             # print 'Shake id: %s' % shake.shake_id
             process_shake.delay(shake.shake_id)
-

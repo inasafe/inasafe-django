@@ -377,7 +377,8 @@ def get_grid_xml(request, shake_id):
             return JsonResponse({'success': True})
         response = HttpResponse(
             shake.shake_grid.read(), content_type='application/octet-stream')
-        response['Content-Disposition'] = 'inline; filename="%s-grid.xml"' % shake_id
+        response['Content-Disposition'] = \
+            'inline; filename="%s-grid.xml"' % shake_id
 
         return response
     except:
