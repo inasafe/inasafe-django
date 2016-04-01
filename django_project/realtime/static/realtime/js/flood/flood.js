@@ -113,7 +113,7 @@ function createShowFeaturesHandler(event_features_url){
                 };
                 event_layer = L.geoJson(data,{
                     style: function(feature){
-                        return style_classes[feature.properties.impact_data];
+                        return style_classes[feature.properties.hazard_data];
                     },
                     onEachFeature: function(feature, layer) {
                         // Set popup content

@@ -103,11 +103,16 @@ class Flood(models.Model):
         verbose_name='Hazard Layer',
         help_text='Zipped file of Hazard Layer related files',
         upload_to='reports/flood/zip')
-    # impact_layer = models.FileField(
+    # population_impact_layer = models.FileField(
     #     blank=True,
-    #     verbose_name='Impact Layer',
-    #     help_text='Zipped file of Impact Layer related files',
+    #     verbose_name='Population Impacted Layer',
+    #     help_text='Zipped file of Population Layer with attached impact data',
     #     upload_to='reports/flood/zip')
+    impact_layer = models.FileField(
+        blank=True,
+        verbose_name='Impact Layer',
+        help_text='Zipped file of Impact Layer related files',
+        upload_to='reports/flood/zip')
     flooded_boundaries = models.ManyToManyField(
         Boundary,
         through='FloodEventBoundary',
@@ -177,11 +182,42 @@ class FloodEventBoundary(models.Model):
         verbose_name='Boundary',
         help_text='The linked boundary of the flood events',
         related_name='flood_event')
-    impact_data = models.IntegerField(
+    hazard_data = models.IntegerField(
         verbose_name='Impact Data',
         help_text='Impact data in the given boundary',
         blank=True,
         null=True)
 
+
+class ImpactEventBoundary(models.Model):
+    """Impact Event Boundary model."""
+    class Meta:
+        app_label = 'realtime'
+
+    flood = models.ForeignKey(
+        Flood,
+        to_field='event_id',
+        verbose_name='Flood Event',
+        help_text='The flood event of the linked boundary',
+        related_name='impact_event')
+    parent_boundary = models.ForeignKey(
+        Boundary,
+        verbose_name='Boundary',
+        help_text='The linked parent boundary of the impact',
+        related_name='impact_event')
+    geometry = models.MultiPolygonField(
+        verbose_name='Geometry of the boundary of impact',
+        help_text='Geometry of the boundary of impact',
+        blank=False)
+    hazard_class = models.IntegerField(
+        verbose_name='Hazard Class',
+        help_text='Hazard class in the given boundary',
+        blank=True,
+        null=True)
+    population_affected = models.IntegerField(
+        verbose_name='Population Affected',
+        help_text='The affected population in a given flood boundary',
+        blank=True,
+        null=True)
 
 from realtime.signals.flood import *  # noqa

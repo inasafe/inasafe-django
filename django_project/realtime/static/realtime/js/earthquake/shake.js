@@ -125,7 +125,20 @@ function createShowReportHandler(report_url) {
                     $a.attr('target', '_blank');
                 }
                 $a.attr('rel', 'nofollow');
-                $a[0].click();
+                if(browser_identity().is_firefox){
+                    // preferred way to click a link programatically in
+                    // firefox
+                    // http://stackoverflow.com/questions/809057/how-do-i-programmatically-click-on-an-element-in-firefox
+                    var clickEvent = new MouseEvent("click", {
+                        "view": window,
+                        "bubbles": true,
+                        "cancelable": false
+                    });
+                    $a[0].dispatchEvent(clickEvent);
+                }
+                else{
+                    $a[0].click();
+                }
             }
         }).fail(function(e){
             console.log(e);
@@ -158,11 +171,18 @@ function createDownloadReportHandler(report_url, language) {
  * @return {function} Download the grid.xml based on shake_id
  */
 function createDownloadGridHandler(grid_url) {
-    var downloadGridHandler = function (shake_id) {
+    var downloadGridHandler = function (shake_id, shake_grid) {
         var url = grid_url;
+        console.log(shake_grid);
         // replace magic number 000 with shake_id
         url = url.replace('000', shake_id);
-        SaveToDisk(url, shake_id+'-grid.xml');
+        if(shake_grid) {
+            SaveToDisk(url, shake_id + '-grid.xml');
+        }
+        else{
+            $.get(url);
+            alert("Shake Grid doesn't exists. Trying to fetch it.");
+        }
     };
     return downloadGridHandler;
 }
@@ -406,6 +426,7 @@ function createActionRowWriter(button_templates, date_format) {
             $inner_button.addClass('row-action-icon')
             $inner_button.addClass(button.css_class);
             $inner_button.attr('title', button.name);
+            $inner_button.text(button.label);
             var $button = $('<button></button>');
             $button.addClass('btn btn-primary row-action-container');
             $button.attr('title', button.name);

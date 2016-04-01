@@ -8,7 +8,7 @@ import os
 import pytz
 import time
 
-from realtime.celery_app import app
+from core.celery_app import app
 
 from realtime.app_settings import LOGGER_NAME
 from realtime.helpers.realtime_broker_indicator import RealtimeBrokerIndicator
@@ -44,10 +44,10 @@ def update_indicator(check_broker_retval):
 def check_realtime_broker():
     res = check_broker_connection.delay()
     # wait to sync result
-    while not res.ready():
-        time.sleep(5)
-    if res.successful():
-        update_indicator.delay(res.result)
+    try:
+        update_indicator.delay(res.get())
+    except:
+        pass
 
 
 @app.task(queue='inasafe-django')

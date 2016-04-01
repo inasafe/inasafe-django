@@ -290,7 +290,7 @@ def flood_event_features(request, event_id):
     features = []
     for b in flood.flooded_boundaries.all():
         event_data = b.flood_event.get(flood=flood)
-        if event_data.impact_data > 0:
+        if event_data.hazard_data > 0:
             feat = {
                 'id': b.upstream_id,
                 'type': 'Feature',
@@ -298,7 +298,7 @@ def flood_event_features(request, event_id):
                 'properties': {
                     'event_id': flood.event_id,
                     'name': b.name,
-                    'impact_data': event_data.impact_data
+                    'hazard_data': event_data.hazard_data
                 }
             }
             features.append(feat)

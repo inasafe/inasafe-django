@@ -107,5 +107,6 @@ class FloodSerializer(serializers.ModelSerializer):
             'source',
             'region',
             'hazard_layer',
+            'impact_layer',
             'reports'
         )
