@@ -40,7 +40,6 @@ class Boundary(models.Model):
         verbose_name='Upstream ID',
         help_text='ID used by upstream data source to identify boundaries',
         max_length=64,
-        unique=True,
         blank=False)
     name = models.CharField(
         verbose_name='Boundary name',
@@ -178,7 +177,6 @@ class FloodEventBoundary(models.Model):
         related_name='flood_event')
     boundary = models.ForeignKey(
         Boundary,
-        to_field='upstream_id',
         verbose_name='Boundary',
         help_text='The linked boundary of the flood events',
         related_name='flood_event')
