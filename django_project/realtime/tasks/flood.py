@@ -144,7 +144,7 @@ def process_hazard_layer(flood):
                 # convert to multi polygon
                 geos_geometry = MultiPolygon(geos_geometry)
 
-            if hazard_class == 0:
+            if hazard_class <= 1:
                 continue
 
             kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)

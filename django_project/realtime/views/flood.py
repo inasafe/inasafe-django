@@ -309,3 +309,30 @@ def flood_event_features(request, event_id):
     }
 
     return JsonResponse(feature_collection)
+
+
+def impact_event_features(request, event_id):
+    flood = Flood.objects.get(event_id=event_id)
+    # build feature layer
+    features = []
+    for b in flood.impact_event.all():
+        if b.hazard_class > 2:
+            feat = {
+                'id': b.id,
+                'type': 'Feature',
+                'geometry': json.loads(b.geometry.geojson),
+                'properties': {
+                    'event_id': flood.event_id,
+                    'parent_boundary_name': b.parent_boundary.name,
+                    'hazard_class': b.hazard_class,
+                    'people_affected': b.population_affected
+                }
+            }
+            features.append(feat)
+
+    feature_collection = {
+        'type': 'FeatureCollection',
+        'features': features
+    }
+
+    return JsonResponse(feature_collection)
