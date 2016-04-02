@@ -3,6 +3,7 @@ import json
 import logging
 
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
+from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError
 from django.http.response import JsonResponse
 from django.shortcuts import render_to_response
@@ -19,7 +20,8 @@ from rest_framework.response import Response
 
 from realtime.app_settings import LEAFLET_TILES, LANGUAGE_LIST
 from realtime.forms import FilterForm
-from realtime.models.flood import Flood, FloodReport
+from realtime.models.flood import Flood, FloodReport, Boundary, \
+    FloodEventBoundary
 from realtime.serializers.flood_serializer import FloodSerializer, \
     FloodReportSerializer
 
@@ -336,3 +338,46 @@ def impact_event_features(request, event_id):
     }
 
     return JsonResponse(feature_collection)
+
+
+def rw_flood_frequency(request, hazard_levels_string=None):
+    hazard_level = [1, 2, 3, 4]
+    if hazard_levels_string:
+        hazard_level = [int(v) for v in hazard_levels_string.split(',') if v]
+    path = 'flood_frequency.json'
+    try:
+        with open(path, mode='w') as f:
+            features = []
+            boundaries = Boundary.objects.filter(
+                flood_event__hazard_data__in=hazard_level).annotate(
+                flood_count=Count('id')
+            )
+            for boundary in boundaries:
+                flood_count = boundary.flood_count
+                if flood_count == 0:
+                    continue
+                parent_name = None
+                if boundary.parent:
+                    parent_name = boundary.parent.name
+                prop = {
+                    'name': boundary.name,
+                    'parent_name': parent_name,
+                    'flood_count': flood_count
+                }
+                feat = {
+                    'id': boundary.id,
+                    'type': 'Feature',
+                    'geometry': json.loads(boundary.geometry.geojson),
+                    'properties': prop
+                }
+                features.append(feat)
+            #     rows += row
+            # f.write(json.dumps(rows))
+
+            feature_collection = {
+                'type': 'FeatureCollection',
+                'features': features
+            }
+            return JsonResponse(feature_collection)
+    except Exception as e:
+        LOGGER.info(e)

@@ -17,7 +17,7 @@ from realtime.views.flood import (
     FloodDetail,
     FloodReportList,
     FloodReportDetail, FloodEventList, flood_event_features,
-    impact_event_features)
+    impact_event_features, rw_flood_frequency)
 from realtime.views.reports import latest_report
 
 urlpatterns = [
@@ -96,5 +96,8 @@ urlpatterns += [
         r'(?P<report_type>(pdf|png|thumbnail))/'
         r'(?P<language>\w*)/?$',
         latest_report,
-        name='latest_report')
+        name='latest_report'),
+    url(r'^rw-flood-frequency/(?P<hazard_levels_string>[\d,]*)',
+        rw_flood_frequency,
+        name='rw_flood_frequency')
 ]
