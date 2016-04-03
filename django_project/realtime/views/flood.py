@@ -1,11 +1,13 @@
 # coding=utf-8
+import calendar
 import json
 import logging
 
+from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError
-from django.http.response import JsonResponse
+from django.http.response import JsonResponse, HttpResponseServerError
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils import translation
@@ -344,40 +346,84 @@ def rw_flood_frequency(request, hazard_levels_string=None):
     hazard_level = [1, 2, 3, 4]
     if hazard_levels_string:
         hazard_level = [int(v) for v in hazard_levels_string.split(',') if v]
-    path = 'flood_frequency.json'
     try:
-        with open(path, mode='w') as f:
-            features = []
-            boundaries = Boundary.objects.filter(
-                flood_event__hazard_data__in=hazard_level).annotate(
-                flood_count=Count('id')
-            )
-            for boundary in boundaries:
-                flood_count = boundary.flood_count
-                if flood_count == 0:
-                    continue
-                parent_name = None
-                if boundary.parent:
-                    parent_name = boundary.parent.name
-                prop = {
-                    'name': boundary.name,
-                    'parent_name': parent_name,
-                    'flood_count': flood_count
-                }
-                feat = {
-                    'id': boundary.id,
-                    'type': 'Feature',
-                    'geometry': json.loads(boundary.geometry.geojson),
-                    'properties': prop
-                }
-                features.append(feat)
-            #     rows += row
-            # f.write(json.dumps(rows))
-
-            feature_collection = {
-                'type': 'FeatureCollection',
-                'features': features
+        features = []
+        boundaries = Boundary.objects.filter(
+            flood_event__hazard_data__in=hazard_level).annotate(
+            flood_count=Count('id')
+        )
+        for boundary in boundaries:
+            flood_count = boundary.flood_count
+            if flood_count == 0:
+                continue
+            parent_name = None
+            if boundary.parent:
+                parent_name = boundary.parent.name
+            prop = {
+                'name': boundary.name,
+                'parent_name': parent_name,
+                'flood_count': flood_count
             }
-            return JsonResponse(feature_collection)
+            feat = {
+                'id': boundary.id,
+                'type': 'Feature',
+                'geometry': json.loads(boundary.geometry.geojson),
+                'properties': prop
+            }
+            features.append(feat)
+        #     rows += row
+        # f.write(json.dumps(rows))
+
+        feature_collection = {
+            'type': 'FeatureCollection',
+            'features': features
+        }
+        return JsonResponse(feature_collection)
     except Exception as e:
         LOGGER.info(e)
+        return HttpResponseServerError()
+
+
+def rw_histogram(
+        request,
+        boundary_id, start_date_timestamp=None, end_date_timestamp=None,
+        hazard_levels_string=None):
+    try:
+        hazard_levels = [1, 2, 3, 4]
+        if hazard_levels_string:
+            hazard_levels = [
+                int(v) for v in hazard_levels_string.split(',') if v]
+        date_pattern = '%Y-%m-%d'
+        start_date = datetime(2016, 1, 1)
+        if start_date_timestamp:
+            start_date = datetime.strptime(start_date_timestamp, date_pattern)
+        end_date = datetime.utcnow()
+        if end_date_timestamp:
+            end_date = datetime.strptime(end_date_timestamp, date_pattern)
+        events = FloodEventBoundary.objects.filter(
+            boundary__id=boundary_id,
+            flood__time__gte=start_date,
+            flood__time__lte=end_date,
+            hazard_data__in=hazard_levels
+        ).order_by('flood__time')
+        features = []
+        last_event = None
+        for e in events:
+            if last_event:
+                if e.flood.time.replace(tzinfo=None) - last_event < timedelta(1):
+                    continue
+            last_event = datetime(
+                e.flood.time.year,
+                e.flood.time.month,
+                e.flood.time.day)
+            f = {
+                'event_id': e.flood.event_id,
+                'time': e.flood.time.strftime(date_pattern),
+                'hazard_class': e.hazard_data
+            }
+            features.append(f)
+        return JsonResponse(features, safe=False)
+    except Exception as e:
+        LOGGER.info(e)
+        return HttpResponseServerError()
+
