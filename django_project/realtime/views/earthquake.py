@@ -155,8 +155,8 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
     def post(self, request, *args, **kwargs):
         retval = self.create(request, *args, **kwargs)
         track_rest_push(request)
-        if not settings.TESTING:
-            # carefuly DO NOT push it to InaWARE when testing
+        if not settings.DEV_MODE:
+            # carefuly DO NOT push it to InaWARE when in dev_mode
             push_shake_to_inaware.delay(request.data.get('shake_id'))
         return retval
 

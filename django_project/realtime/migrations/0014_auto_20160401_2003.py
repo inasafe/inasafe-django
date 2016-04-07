@@ -11,7 +11,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.RemoveField(
+            model_name='floodeventboundary',
+            name='boundary',
+        ),
+        migrations.AddField(
             model_name='floodeventboundary',
             name='boundary',
             field=models.ForeignKey(related_name='flood_event',

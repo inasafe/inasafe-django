@@ -27,6 +27,11 @@ var map;
 var event_json;
 
 /**
+ * Dynatable to store shake list
+ */
+var dynaTable;
+
+/**
  * Create IconMarkerBase that will be used for icon marker.
  *
  * @param {string} shadow_icon_path The path to shadow icon.
@@ -171,12 +176,20 @@ function createDownloadReportHandler(report_url, language) {
  * @return {function} Download the grid.xml based on shake_id
  */
 function createDownloadGridHandler(grid_url) {
-    var downloadGridHandler = function (shake_id, shake_grid) {
+    var downloadGridHandler = function (shake_id) {
         var url = grid_url;
-        console.log(shake_grid);
         // replace magic number 000 with shake_id
         url = url.replace('000', shake_id);
-        if(shake_grid) {
+        var shake_list = dynaTable.settings.dataset.originalRecords;
+        var shake_grid;
+        for(var i=0;i < shake_list.length;i++){
+            if(shake_id == shake_list[i].shake_id){
+                shake_grid = shake_list[i].shake_grid;
+                break;
+            }
+        }
+        console.log(shake_grid);
+        if(shake_grid){
             SaveToDisk(url, shake_id + '-grid.xml');
         }
         else{

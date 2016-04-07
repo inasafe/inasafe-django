@@ -30,6 +30,9 @@ class Command(BaseCommand):
         if not options['force']:
             print 'Only get non existing grid.xml'
             shakes = [s for s in shakes if not s.shake_grid]
+        elif len(args) > 0:
+            shakes = Earthquake.objects.filter(shake_id__in=args)
+            print 'Only get: %s' % args
         else:
             print 'Get all grid.xml'
         print 'Trying to get grid.xml of shakes (%d)' % len(shakes)

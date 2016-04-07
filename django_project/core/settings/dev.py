@@ -5,6 +5,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 LOGGING_OUTPUT_ENABLED = DEBUG
 LOGGING_LOG_SQL = DEBUG
+DEV_MODE = True
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
