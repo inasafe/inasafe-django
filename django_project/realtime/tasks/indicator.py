@@ -6,7 +6,6 @@ from datetime import datetime
 
 import os
 import pytz
-import time
 
 from core.celery_app import app
 

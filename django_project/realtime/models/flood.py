@@ -102,11 +102,6 @@ class Flood(models.Model):
         verbose_name='Hazard Layer',
         help_text='Zipped file of Hazard Layer related files',
         upload_to='reports/flood/zip')
-    # population_impact_layer = models.FileField(
-    #     blank=True,
-    #     verbose_name='Population Impacted Layer',
-    #     help_text='Zipped file of Population Layer with attached impact data',
-    #     upload_to='reports/flood/zip')
     impact_layer = models.FileField(
         blank=True,
         verbose_name='Impact Layer',

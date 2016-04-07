@@ -37,9 +37,9 @@ class RealtimeConfig(AppConfig):
                     alias=OSM_LEVEL_7_NAME,
                     osm_level=7)
             try:
-                rw = BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
+                BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
             except BoundaryAlias.DoesNotExist:
-                rw = BoundaryAlias.objects.create(
+                BoundaryAlias.objects.create(
                     alias=OSM_LEVEL_8_NAME,
                     osm_level=8,
                     parent=kelurahan)

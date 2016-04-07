@@ -1,5 +1,4 @@
 # coding=utf-8
-import calendar
 import json
 import logging
 
@@ -410,7 +409,9 @@ def rw_histogram(
         last_event = None
         for e in events:
             if last_event:
-                if e.flood.time.replace(tzinfo=None) - last_event < timedelta(1):
+                event_time_delta = (
+                    e.flood.time.replace(tzinfo=None) - last_event)
+                if event_time_delta < timedelta(1):
                     continue
             last_event = datetime(
                 e.flood.time.year,
@@ -426,4 +427,3 @@ def rw_histogram(
     except Exception as e:
         LOGGER.info(e)
         return HttpResponseServerError()
-

@@ -8,7 +8,6 @@ from django.core.urlresolvers import reverse
 from realtime.app_settings import LOGGER_NAME
 from core.celery_app import app
 from realtime.helpers.inaware import InAWARERest
-from realtime.models.earthquake import Earthquake
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '3/15/16'

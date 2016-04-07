@@ -113,6 +113,26 @@ def process_hazard_layer(flood):
 
         shutil.rmtree(tmpdir)
 
+    LOGGER.info('Hazard layer processed...')
+    return True
+
+
+@app.task(queue='inasafe-django')
+def process_impact_layer(flood):
+    """Process zipped impact layer and import it to databse
+
+    :param flood: Event id of flood
+    :type flood: realtime.models.flood.Flood
+    """
+    LOGGER.info('Processing impact layer %s - %s' % (
+        flood.event_id,
+        flood.hazard_layer.name
+    ))
+    # extract hazard layer zip file
+    if not flood.impact_layer or not flood.impact_layer.name:
+        LOGGER.info('No impact layer')
+        return
+
     zip_file_path = os.path.join(settings.MEDIA_ROOT,
                                  flood.impact_layer.name)
 
@@ -153,14 +173,11 @@ def process_hazard_layer(flood):
                 boundary_kelurahan = Boundary.objects.get(
                     name__iexact=level_7_name,
                     boundary_alias=kelurahan)
-            except Boundary.DoesNotExist:
+            except Boundary.DoesNotExist as e:
                 LOGGER.debug('Boundary does not exists: %s' % level_7_name)
-                # boundary_kelurahan = Boundary.objects.create(
-                #     upstream_id='',
-                #     geometry=geos_geometry,
-                #     name=level_7_name,
-                #     boundary_alias=kelurahan)
-                # boundary_kelurahan.save()
+                LOGGER.debug('Kelurahan Boundary should have been filled '
+                             'already')
+                raise e
 
             ImpactEventBoundary.objects.create(
                 flood=flood,
@@ -170,8 +187,8 @@ def process_hazard_layer(flood):
                 population_affected=population_affected)
 
         shutil.rmtree(tmpdir)
-
-    LOGGER.info('Hazard layer processed...')
+    LOGGER.info('Impact layer processed...')
+    return True
 
 
 @app.task(queue='inasafe-django')
