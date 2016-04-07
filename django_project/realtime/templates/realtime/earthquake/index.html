@@ -225,7 +225,7 @@
     {% javascript 'realtime_appjs' %}
     {% javascript 'realtime_shakejs' %}
     <script type="text/javascript">
-        var base_map, dynaTable;
+        var base_map;
 
         // Initialize Basemap Layer
         base_map = {
@@ -311,6 +311,12 @@
                 name: 'Download',
                 css_class: 'glyphicon glyphicon-download',
                 handler: 'downloadReportHandler'
+            },
+            {
+                name: 'Grid',
+                css_class: 'glyphicon glyphicon-download',
+                handler: 'downloadGridHandler',
+                label: 'XML'
             }
         ];
 

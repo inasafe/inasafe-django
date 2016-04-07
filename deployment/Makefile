@@ -131,6 +131,13 @@ dbshell:
 	@echo "------------------------------------------------------------------"
 	@echo "Shelling in in $(MODE_STRING) database"
 	@echo "------------------------------------------------------------------"
+	@docker exec -t -i $(PROJECT_ID)_db_1 /bin/bash
+
+postgreshell:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Shelling in in $(MODE_STRING) postgres"
+	@echo "------------------------------------------------------------------"
 	@docker exec -t -i $(PROJECT_ID)_db_1 psql -U docker -h localhost gis
 
 qgis:

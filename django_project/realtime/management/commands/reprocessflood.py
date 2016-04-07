@@ -22,7 +22,7 @@ class Command(BaseCommand):
                 process_flood.delay(a)
 
         else:
-            floods = Flood.objects.all()
+            floods = Flood.objects.all().order_by('-flood')
             print 'Process using celery broker (%s)' % len(floods)
             for flood in floods:
                 process_flood.delay(flood.event_id)

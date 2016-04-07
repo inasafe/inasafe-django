@@ -16,7 +16,8 @@ from realtime.views.flood import (
     FloodList,
     FloodDetail,
     FloodReportList,
-    FloodReportDetail, FloodEventList, flood_event_features)
+    FloodReportDetail, FloodEventList, flood_event_features,
+    impact_event_features, rw_flood_frequency, rw_histogram)
 from realtime.views.reports import latest_report
 
 urlpatterns = [
@@ -53,6 +54,10 @@ urlpatterns = [
         r'(?P<event_id>\d{10}-(1|3|6)-(rw|village|subdistrict))/$',
         flood_event_features,
         name='flood_event_features'),
+    url(r'^api/v1/flood-impact-event-features/'
+        r'(?P<event_id>\d{10}-(1|3|6)-(rw|village|subdistrict))/$',
+        impact_event_features,
+        name='flood_impact_event_features'),
     url(r'^api/v1/flood/'
         r'(?P<event_id>\d{10}-(1|3|6)-(rw|village|subdistrict))/$',
         FloodDetail.as_view(),
@@ -91,5 +96,15 @@ urlpatterns += [
         r'(?P<report_type>(pdf|png|thumbnail))/'
         r'(?P<language>\w*)/?$',
         latest_report,
-        name='latest_report')
+        name='latest_report'),
+    url(r'^rw-flood-frequency/(?P<hazard_levels_string>[\d,]*)',
+        rw_flood_frequency,
+        name='rw_flood_frequency'),
+    url(r'^rw-histogram/'
+        r'(?P<boundary_id>\w+)/'
+        r'(?P<hazard_levels_string>[\d,]*)/'
+        r'(?P<start_date_timestamp>[\w-]*)/'
+        r'(?P<end_date_timestamp>[\w-]*)',
+        rw_histogram,
+        name='rw_histogram'),
 ]

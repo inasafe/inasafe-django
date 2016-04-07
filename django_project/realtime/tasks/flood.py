@@ -7,7 +7,8 @@ import shutil
 import tempfile
 from zipfile import ZipFile
 
-from realtime.celery_app import app
+from realtime.apps import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME
+from core.celery_app import app
 from django.conf import settings
 from django.contrib.gis.gdal.datasource import DataSource
 from django.contrib.gis.geos.collections import MultiPolygon
@@ -15,7 +16,8 @@ from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.contrib.gis.geos.polygon import Polygon
 
 from realtime.app_settings import LOGGER_NAME
-from realtime.models.flood import FloodEventBoundary, Boundary
+from realtime.models.flood import FloodEventBoundary, Boundary, BoundaryAlias, \
+    ImpactEventBoundary
 from realtime.tasks.realtime.flood import process_flood
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
@@ -51,18 +53,21 @@ def process_hazard_layer(flood):
 
         zf.extractall(path=tmpdir)
 
+        # process hazard layer
         layer_filename = os.path.join(tmpdir, 'flood_data.shp')
 
         source = DataSource(layer_filename)
 
         layer = source[0]
 
+        FloodEventBoundary.objects.filter(flood=flood).delete()
+
         for feat in layer:
             pkey = feat.get('pkey')
             level_name = feat.get('level_name')
             # flooded = feat.get('flooded')
             # count = feat.get('count')
-            # parent_name = feat.get('parent_nam')
+            parent_name = feat.get('parent_nam')
             state = feat.get('state')
             geometry = feat.geom
 
@@ -72,31 +77,118 @@ def process_hazard_layer(flood):
                 # convert to multi polygon
                 geos_geometry = MultiPolygon(geos_geometry)
 
+            # check parent exists
+            kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
             try:
-                boundary = Boundary.objects.get(upstream_id=pkey)
+                boundary_kelurahan = Boundary.objects.get(
+                    name__iexact=parent_name.strip(),
+                    boundary_alias=kelurahan)
             except Boundary.DoesNotExist:
-                boundary = Boundary.objects.create(
+                boundary_kelurahan = Boundary.objects.create(
                     upstream_id=pkey,
                     geometry=geos_geometry,
-                    name=level_name)
-                boundary.save()
+                    name=parent_name,
+                    boundary_alias=kelurahan)
+                boundary_kelurahan.save()
 
+            rw = BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
             try:
-                flooded_boundary = FloodEventBoundary.objects.get(
-                    flood=flood,
-                    boundary=boundary)
-                flooded_boundary.impact_data = int(state)
-                flooded_boundary.save()
-            except FloodEventBoundary.DoesNotExist:
-                flooded_boundary = FloodEventBoundary.objects.create(
-                    flood=flood,
-                    boundary=boundary,
-                    impact_data=int(state))
+                boundary_rw = Boundary.objects.get(upstream_id=pkey)
+            except Boundary.DoesNotExist:
+                boundary_rw = Boundary.objects.create(
+                    upstream_id=pkey,
+                    geometry=geos_geometry,
+                    name=level_name,
+                    parent=boundary_kelurahan,
+                    boundary_alias=rw)
+                boundary_rw.save()
+
+            if int(state) == 0:
+                continue
+
+            FloodEventBoundary.objects.create(
+                flood=flood,
+                boundary=boundary_rw,
+                hazard_data=int(state))
 
         shutil.rmtree(tmpdir)
 
     LOGGER.info('Hazard layer processed...')
-    # read shp
+    return True
+
+
+@app.task(queue='inasafe-django')
+def process_impact_layer(flood):
+    """Process zipped impact layer and import it to databse
+
+    :param flood: Event id of flood
+    :type flood: realtime.models.flood.Flood
+    """
+    LOGGER.info('Processing impact layer %s - %s' % (
+        flood.event_id,
+        flood.hazard_layer.name
+    ))
+    # extract hazard layer zip file
+    if not flood.impact_layer or not flood.impact_layer.name:
+        LOGGER.info('No impact layer')
+        return
+
+    zip_file_path = os.path.join(settings.MEDIA_ROOT,
+                                 flood.impact_layer.name)
+
+    if not os.path.exists(zip_file_path):
+        LOGGER.info('Impact layer doesn\'t exists')
+        return
+
+    with ZipFile(zip_file_path) as zf:
+        # Now process population impacted layer
+        tmpdir = tempfile.mkdtemp()
+
+        zf.extractall(path=tmpdir)
+
+        layer_filename = os.path.join(tmpdir, 'impact.shp')
+
+        source = DataSource(layer_filename)
+
+        layer = source[0]
+
+        ImpactEventBoundary.objects.filter(flood=flood).delete()
+        for feat in layer:
+            level_7_name = feat.get('NAMA_KELUR').strip()
+            hazard_class = feat.get('safe_ag')
+            population_affected = feat.get('Pop_Total')
+            geometry = feat.geom
+            geos_geometry = GEOSGeometry(geometry.geojson)
+
+            if isinstance(geos_geometry, Polygon):
+                # convert to multi polygon
+                geos_geometry = MultiPolygon(geos_geometry)
+
+            if hazard_class <= 1:
+                continue
+
+            kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
+
+            try:
+                boundary_kelurahan = Boundary.objects.get(
+                    name__iexact=level_7_name,
+                    boundary_alias=kelurahan)
+            except Boundary.DoesNotExist as e:
+                LOGGER.debug('Boundary does not exists: %s' % level_7_name)
+                LOGGER.debug('Kelurahan Boundary should have been filled '
+                             'already')
+                raise e
+
+            ImpactEventBoundary.objects.create(
+                flood=flood,
+                parent_boundary=boundary_kelurahan,
+                geometry=geos_geometry,
+                hazard_class=hazard_class,
+                population_affected=population_affected)
+
+        shutil.rmtree(tmpdir)
+    LOGGER.info('Impact layer processed...')
+    return True
 
 
 @app.task(queue='inasafe-django')

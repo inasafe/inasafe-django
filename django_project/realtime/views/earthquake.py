@@ -2,6 +2,7 @@
 import logging
 from copy import deepcopy
 
+from django.conf import settings
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.utils import IntegrityError
 from django.http.response import HttpResponseBadRequest, JsonResponse, \
@@ -26,6 +27,7 @@ from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
     EarthquakeReportSerializer, EarthquakeGeoJsonSerializer
 from rest_framework_gis.filters import InBBoxFilter
 
+from realtime.tasks.earthquake import push_shake_to_inaware
 from realtime.tasks.realtime.earthquake import process_shake
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
@@ -153,6 +155,9 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
     def post(self, request, *args, **kwargs):
         retval = self.create(request, *args, **kwargs)
         track_rest_push(request)
+        if not settings.DEV_MODE:
+            # carefuly DO NOT push it to InaWARE when in dev_mode
+            push_shake_to_inaware.delay(request.data.get('shake_id'))
         return retval
 
 

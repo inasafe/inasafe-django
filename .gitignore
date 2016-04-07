@@ -105,6 +105,7 @@ sftp_media_credential.env
 sftp_pg_credential.env
 sftp_media_credential-dev.env
 sftp_pg_credential-dev.env
+inaware_credential.env
 
 # apt-cacher-ng
 71-apt-cacher-ng

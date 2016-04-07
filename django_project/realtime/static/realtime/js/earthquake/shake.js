@@ -27,6 +27,11 @@ var map;
 var event_json;
 
 /**
+ * Dynatable to store shake list
+ */
+var dynaTable;
+
+/**
  * Create IconMarkerBase that will be used for icon marker.
  *
  * @param {string} shadow_icon_path The path to shadow icon.
@@ -125,7 +130,20 @@ function createShowReportHandler(report_url) {
                     $a.attr('target', '_blank');
                 }
                 $a.attr('rel', 'nofollow');
-                $a[0].click();
+                if(browser_identity().is_firefox){
+                    // preferred way to click a link programatically in
+                    // firefox
+                    // http://stackoverflow.com/questions/809057/how-do-i-programmatically-click-on-an-element-in-firefox
+                    var clickEvent = new MouseEvent("click", {
+                        "view": window,
+                        "bubbles": true,
+                        "cancelable": false
+                    });
+                    $a[0].dispatchEvent(clickEvent);
+                }
+                else{
+                    $a[0].click();
+                }
             }
         }).fail(function(e){
             console.log(e);
@@ -162,7 +180,22 @@ function createDownloadGridHandler(grid_url) {
         var url = grid_url;
         // replace magic number 000 with shake_id
         url = url.replace('000', shake_id);
-        SaveToDisk(url, shake_id+'-grid.xml');
+        var shake_list = dynaTable.settings.dataset.originalRecords;
+        var shake_grid;
+        for(var i=0;i < shake_list.length;i++){
+            if(shake_id == shake_list[i].shake_id){
+                shake_grid = shake_list[i].shake_grid;
+                break;
+            }
+        }
+        console.log(shake_grid);
+        if(shake_grid){
+            SaveToDisk(url, shake_id + '-grid.xml');
+        }
+        else{
+            $.get(url);
+            alert("Shake Grid doesn't exists. Trying to fetch it.");
+        }
     };
     return downloadGridHandler;
 }
@@ -406,6 +439,7 @@ function createActionRowWriter(button_templates, date_format) {
             $inner_button.addClass('row-action-icon')
             $inner_button.addClass(button.css_class);
             $inner_button.attr('title', button.name);
+            $inner_button.text(button.label);
             var $button = $('<button></button>');
             $button.addClass('btn btn-primary row-action-container');
             $button.attr('title', button.name);

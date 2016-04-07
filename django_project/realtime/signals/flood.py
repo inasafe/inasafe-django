@@ -6,7 +6,7 @@ from django.dispatch.dispatcher import receiver
 
 from realtime.app_settings import LOGGER_NAME
 from realtime.models.flood import Flood
-from realtime.tasks.flood import process_hazard_layer
+from realtime.tasks.flood import process_hazard_layer, process_impact_layer
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '12/4/15'
@@ -24,5 +24,6 @@ def flood_post_save(sender, **kwargs):
     try:
         instance = kwargs.get('instance')
         process_hazard_layer.delay(instance)
+        process_impact_layer.delay(instance)
     except:
         pass
