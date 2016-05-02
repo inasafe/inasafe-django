@@ -146,7 +146,6 @@ function createShowReportHandler(report_url) {
                 }
             }
         }).fail(function(e){
-            console.log(e);
             if(e.status == 404){
                 alert("No Report recorded for this event.");
             }
@@ -188,7 +187,6 @@ function createDownloadGridHandler(grid_url) {
                 break;
             }
         }
-        console.log(shake_grid);
         if(shake_grid){
             SaveToDisk(url, shake_id + '-grid.xml');
         }
@@ -452,4 +450,38 @@ function createActionRowWriter(button_templates, date_format) {
         return '<tr>' + tr + '</tr>';
     };
     return writer;
+}
+
+
+/**
+ * Filter shake table to show only shake with 5.0 MMI for the previous month
+ */
+function filterRecentBigShake(){
+    var $min_magnitude = $("#id_minimum_magnitude");
+    var $start_date = $("#id_start_date");
+    var now = moment();
+    var start = now.clone().subtract(1, 'month');
+    var format = 'YYYY-MM-DD';
+
+    $("#event-filter .clear-filter").click();
+    $min_magnitude.val(5);
+    $start_date.val(start.format(format));
+    $("#event-filter .submit-filter").click();
+}
+
+
+/**
+ *
+ */
+function filterRecentSmallShake(){
+    var $max_magnitude = $("#id_maximum_magnitude");
+    var $start_date = $("#id_start_date");
+    var now = moment();
+    var start = now.clone().subtract(1, 'month');
+    var format = 'YYYY-MM-DD';
+
+    $("#event-filter .clear-filter").click();
+    $max_magnitude.val(5);
+    $start_date.val(start.format(format));
+    $("#event-filter .submit-filter").click();
 }

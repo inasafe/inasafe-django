@@ -103,7 +103,7 @@ def process_hazard_layer(flood):
                     boundary_alias=rw)
                 boundary_rw.save()
 
-            if int(state) == 0:
+            if not state or int(state) == 0:
                 continue
 
             FloodEventBoundary.objects.create(
@@ -177,7 +177,12 @@ def process_impact_layer(flood):
                 LOGGER.debug('Boundary does not exists: %s' % level_7_name)
                 LOGGER.debug('Kelurahan Boundary should have been filled '
                              'already')
-                raise e
+                # Will try to create new one
+                boundary_kelurahan = Boundary.objects.create(
+                    geometry=geos_geometry,
+                    name=level_7_name,
+                    boundary_alias=kelurahan)
+                boundary_kelurahan.save()
 
             ImpactEventBoundary.objects.create(
                 flood=flood,
