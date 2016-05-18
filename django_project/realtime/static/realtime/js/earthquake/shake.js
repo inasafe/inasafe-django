@@ -338,10 +338,10 @@ function modifyMapDescriptions(target){
         magnitude_string = 'with magnitudes between '+min_magnitude+' and '+max_magnitude;
     }
     else if(min_magnitude){
-        magnitude_string = 'with magnitudes greater or equal than '+min_magnitude;
+        magnitude_string = 'with magnitudes greater than or equal '+min_magnitude;
     }
     else if(max_magnitude){
-        magnitude_string = 'with magnitudes less or equal than '+max_magnitude;
+        magnitude_string = 'with magnitudes less than or equal '+max_magnitude;
     }
 
     var date_string = '';
@@ -354,7 +354,7 @@ function modifyMapDescriptions(target){
     }
     else if(start_date){
         var start_moment = moment(start_date);
-        date_string = 'after '+start_moment.format('LL');
+        date_string = 'since '+start_moment.format('LL');
     }
     else if(end_date){
         var end_moment = moment(end_date);

@@ -7,6 +7,8 @@ import shutil
 import tempfile
 from zipfile import ZipFile
 
+from django.core.exceptions import MultipleObjectsReturned
+
 from realtime.apps import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME
 from core.celery_app import app
 from django.conf import settings
@@ -34,7 +36,7 @@ def process_hazard_layer(flood):
     :param flood: Event id of flood
     :type flood: realtime.models.flood.Flood
     """
-    LOGGER.info('Processing impact layer %s - %s' % (
+    LOGGER.info('Processing hazard layer %s - %s' % (
         flood.event_id,
         flood.hazard_layer.name
     ))

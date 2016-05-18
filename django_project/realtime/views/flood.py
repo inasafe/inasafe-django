@@ -139,6 +139,7 @@ class FloodDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
             if event_id:
                 event = Flood.objects.get(event_id=event_id)
                 event.hazard_layer.delete()
+                event.impact_layer.delete()
                 retval = self.update(request, partial=True, *args, **kwargs)
                 return retval
             else:
