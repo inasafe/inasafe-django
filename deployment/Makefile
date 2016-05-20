@@ -169,6 +169,7 @@ dbrestore:
 	@echo "------------------------------------------------------------------"
 	@echo "Restore dump from backups/latest.dmp in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
+	@echo "Copy .dmp file as latest.dmp in deployment/pg/dbbackup/backups/latest.dmp"
 	@# - prefix causes command to continue even if it fails
 	-@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "dropdb gis"
 	@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "createdb -O docker -T template_postgis gis"
