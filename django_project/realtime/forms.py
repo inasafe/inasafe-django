@@ -49,3 +49,5 @@ class FilterForm(forms.Form):
         min_value=0,
         max_value=10,
         label=_('Maximum Magnitude'))
+    # hidden field for felt shakes
+    felt = forms.BooleanField()

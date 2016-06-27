@@ -115,6 +115,11 @@
                                 <div class="help-block with-errors"></div>
                             </span>
                         </span>
+                        <span class="hidden">
+                            <span>
+                                {{ form.felt|bootstrap }}
+                            </span>
+                        </span>
                         <span class="col-sm-1 hidden-xs">
                             <button class="btn clear-filter" title="Clear Filter">
                                 <span class="glyphicon glyphicon-erase"></span>
@@ -153,6 +158,7 @@
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-default" onclick="filterRecentBigShake()">{% trans "Recent Large Earthquakes" %}</button>
                     <button type="button" class="btn btn-default" onclick="filterRecentSmallShake()">{% trans "Recent Small Earthquakes" %}</button>
+                    <button type="button" class="btn btn-default" onclick="filterRecentFeltShake()">{% trans "Recent Felt Earthquakes" %}</button>
                 </div>
             </div>
         </div>
@@ -175,6 +181,7 @@
                             <th data-dynatable-column="magnitude">{% trans "Magnitude" %}</th>
                             <th data-dynatable-column="depth">{% trans "Depth" %}</th>
                             <th data-dynatable-column="shake_id">{% trans "Shake Id" %}</th>
+                            <th data-dynatable-column="felt" style="display: none">Felt</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -441,12 +448,16 @@
             modifySearchAndShowLabels();
 
             $(".submit-filter").click(updateFilterHandler);
-            $(".clear-filter").click(function (e) {
+            var clearFilterHandler = function (e) {
                 e.preventDefault();
-                $("#event-filter input.form-control").val('');
+                var $event_filter = $("#event-filter");
+                $event_filter.find("input[type=text].form-control").val('');
+                $event_filter.find("input[type=number].form-control").val('');
+                $event_filter.find("input[type=checkbox]").prop("checked", false);
                 updateFilterHandler(e);
                 $(".submit-filter, .clear-filter").hide();
-            });
+            };
+            $(".clear-filter").click(clearFilterHandler);
 
             {#            Disable date input text#}
             $event_filter.find(".date-filter input").attr("readonly", "readonly");
@@ -454,8 +465,13 @@
 
             var show_filter_button = function (e) {
                 var is_show_filter = false;
-                $event_filter.find("input").each(function (idx, el) {
+                $event_filter.find("input[type=text],input[type=number]").each(function (idx, el) {
                     if ($(el).val()) {
+                        is_show_filter = true;
+                    }
+                });
+                $event_filter.find("input[type=checkbox]").each(function (idx, el) {
+                    if($(el).prop("checked") == true){
                         is_show_filter = true;
                     }
                 });
