@@ -19,29 +19,6 @@
     {{ form.media }}
 {% endblock head_resources %}
 
-{% block nav_second %}
-    <nav class="nav-second navbar-collapse collapse">
-        <ul class="menu">
-            <li class="menu-item active">
-                <a href="#">Shake Map</a>
-            </li>
-            {% if user.is_authenticated %}
-            <li class="menu-item">
-                <a href="{% url 'realtime:flood_index' %}">Flood Map</a>
-            </li>
-            {% endif %}
-            <li class="menu-item">
-                <a href="{% url 'realtime:api_root' %}">API Browser</a>
-            </li>
-{#            {% if user.is_authenticated %}#}
-                <li class="menu-item">
-                    <a href="{% url 'realtime:indicator' %}">Indicator</a>
-                </li>
-{#            {% endif %}#}
-        </ul>
-    </nav>
-{% endblock %}
-
 {% block main_content %}
     <div class="row center-block">
         <div class="panel panel-default">

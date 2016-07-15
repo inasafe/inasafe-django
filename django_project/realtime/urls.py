@@ -20,6 +20,10 @@ from realtime.views.flood import (
     impact_event_features, rw_flood_frequency, rw_histogram)
 from realtime.views.reports import latest_report
 
+from realtime.views.ash import (
+    index as ash_index
+)
+
 urlpatterns = [
     url(r'^api/v1/$', root.api_root, name='api_root'),
     url(r'^api/v1/earthquake/$',
@@ -75,7 +79,7 @@ urlpatterns = [
         FloodReportDetail.as_view(),
         name='flood_report_detail'),
 
-    ]
+]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
 
@@ -107,4 +111,10 @@ urlpatterns += [
         r'(?P<end_date_timestamp>[\w-]*)',
         rw_histogram,
         name='rw_histogram'),
+]
+
+# Ash
+
+urlpatterns += [
+    url(r'^ash/$', ash_index, name='ash_index'),
 ]
