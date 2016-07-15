@@ -39,16 +39,18 @@
             <div class="panel-heading">
                 <h3 class="panel-title map-title">{% trans "Upload Ash Event" %}</h3>
             </div>
-            <div class="panel-body" style="height: 500px">
-                <form id="form-ash-upload" class="form-horizontal" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    {{ form|bootstrap }}
-                    <div class="form-group">
-                        <div class="col-lg-offset-3 col-lg-6">
-                            <input type="submit" name="upload-ash" value="Submit" class="btn btn-default">
+            <div class="panel-body">
+                <div class="col-lg-6 col-lg-offset-3">
+                    <form id="form-ash-upload" class="form-horizontal" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form|bootstrap }}
+                        <div class="form-group">
+                            <div class="col-lg-6">
+                                <input type="submit" name="upload-ash" value="Submit" class="btn btn-default">
+                            </div>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
