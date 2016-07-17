@@ -8,6 +8,7 @@ from leaflet.admin import LeafletGeoAdmin
 from realtime.models.earthquake import Earthquake, EarthquakeReport
 from realtime.models.flood import Boundary, Flood, FloodEventBoundary, \
     FloodReport
+from realtime.models.ash import Ash
 
 
 class RealtimeAdminSite(AdminSite):
@@ -55,9 +56,13 @@ class FloodEventBoundaryAdmin(ModelAdmin):
 class FloodReportAdmin(ModelAdmin):
     pass
 
+class AshAdmin(ModelAdmin):
+    pass
+
 realtime_admin_site.register(Earthquake, EarthquakeAdmin)
 realtime_admin_site.register(EarthquakeReport, EarthquakeReportAdmin)
 realtime_admin_site.register(Boundary, BoundaryAdmin)
 realtime_admin_site.register(Flood, FloodAdmin)
 realtime_admin_site.register(FloodEventBoundary, FloodEventBoundaryAdmin)
 realtime_admin_site.register(FloodReport, FloodReportAdmin)
+realtime_admin_site.register(Ash, AshAdmin)
