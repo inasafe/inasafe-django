@@ -68,10 +68,7 @@ def load_volcano_data(Volcano, volcano_shapefile):
     layer = source[0]
 
     for feat in layer:
-        volcano_number = feat.get('volcano nu')
         volcano_name = feat.get('volcano na')
-        lat = feat.get('latitude')
-        lon = feat.get('longitude')
         elevation = feat.get('elevation')
         region = feat.get('region')
         subregion = feat.get('subregion')

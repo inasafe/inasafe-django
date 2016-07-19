@@ -48,6 +48,7 @@ DEFAULT_FROM_EMAIL = 'noreply@inasafe.org'
 SITE_DOMAIN_NAME = 'http://realtime.inasafe.org'
 
 try:
-    from .custom_settings import *
+    # Used to load final custom settings override
+    from .custom_settings import *  # noqa
 except:
     pass

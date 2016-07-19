@@ -5,10 +5,8 @@ import logging
 import os
 import shutil
 import tempfile
+
 from zipfile import ZipFile
-
-from django.core.exceptions import MultipleObjectsReturned
-
 from realtime.apps import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME
 from core.celery_app import app
 from django.conf import settings
@@ -175,7 +173,7 @@ def process_impact_layer(flood):
                 boundary_kelurahan = Boundary.objects.get(
                     name__iexact=level_7_name,
                     boundary_alias=kelurahan)
-            except Boundary.DoesNotExist as e:
+            except Boundary.DoesNotExist:
                 LOGGER.debug('Boundary does not exists: %s' % level_7_name)
                 LOGGER.debug('Kelurahan Boundary should have been filled '
                              'already')

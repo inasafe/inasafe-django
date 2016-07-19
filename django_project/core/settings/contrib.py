@@ -63,6 +63,7 @@ REST_FRAMEWORK = {
 }
 
 try:
-    from .mapquest import MAPQUEST_MAP_KEY
+    # This settings will be used for mapquest tiles for realtime and user_map
+    from .mapquest import MAPQUEST_MAP_KEY  # noqa
 except:
     pass

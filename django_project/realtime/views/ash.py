@@ -2,8 +2,6 @@
 import json
 import logging
 
-import datetime
-
 from dateutil.parser import parse
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.db.utils import IntegrityError
@@ -123,7 +121,8 @@ class AshList(mixins.ListModelMixin, mixins.CreateModelMixin,
     parser_classes = [JSONParser, FormParser]
     filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
     # filter_fields = ('volcano_name', 'region', 'subregion', 'morphology')
-    search_fields = ('volcano__volcano_name', 'region', 'subregion', 'morphology')
+    search_fields = ('volcano__volcano_name', 'region',
+                     'subregion', 'morphology')
     ordering = ('volcano__volcano_name', )
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
     # pagination_class = Pagina
@@ -144,7 +143,7 @@ class AshDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     parser_classes = [JSONParser, FormParser]
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
-    def get(self, request, volcano_name=None, event_time=None, *args, **kwargs):
+    def get(self, request, volcano_name=None, event_time=None):
         try:
             if volcano_name and event_time:
                 instance = Ash.objects.get(
@@ -164,12 +163,9 @@ class AshDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
             LOGGER.warning(e.message)
             instance = AshReport.objects.filter(
                 ash__volcano__volcano_name__iexact=volcano_name,
-                ash__event_time=parse(event_time),
-                language=language).last()
+                ash__event_time=parse(event_time)).last()
             serializer = self.get_serializer(instance)
             return Response(serializer.data)
-
-        return self.retrieve(request, *args, **kwargs)
 
     def put(self, request, *args, **kwargs):
         try:
@@ -203,22 +199,16 @@ class AshReportList(mixins.ListModelMixin,
     ordering = ('ash__id',)
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly,)
 
-    def get(self, request, volcano_name=None, event_time=None, *args, **kwargs):
+    def get(self, request, volcano_name=None, event_time=None,
+            *args, **kwargs):
         try:
             if volcano_name:
                 ash = Ash.objects.filter(
                     volcano__volcano_name__iexact=volcano_name)
 
-                time = None
-                try:
-                    if len(event_time) == 19:
-                        time = parse(event_time)
-                except:
-                    pass
-
-                if time:
+                if event_time:
                     ash = ash.filter(
-                        event_time=time)
+                        event_time=parse(event_time))
 
                 instances = []
                 for a in ash:
@@ -233,11 +223,10 @@ class AshReportList(mixins.ListModelMixin,
                 return Response(serializer.data)
             else:
                 return self.list(request, *args, **kwargs)
-        except (AshReport.DoesNotExist, Ash.DoesNotExist) as e:
+        except (AshReport.DoesNotExist, Ash.DoesNotExist):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    def post(self, request, volcano_name=None, event_time=None, language=None,
-             *args, **kwargs):
+    def post(self, request, volcano_name=None, event_time=None, language=None):
         data = request.data
         try:
             volcano_name = volcano_name or data.get('volcano_name')

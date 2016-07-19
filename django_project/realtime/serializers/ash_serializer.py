@@ -2,7 +2,9 @@
 
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
-from rest_framework_gis.serializers import GeoFeatureModelSerializer, GeometrySerializerMethodField
+from rest_framework_gis.serializers import (
+    GeoFeatureModelSerializer,
+    GeometrySerializerMethodField)
 
 from realtime.models.ash import Ash, AshReport
 from realtime.serializers.utilities import CustomSerializerMethodField

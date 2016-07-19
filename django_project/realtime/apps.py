@@ -24,9 +24,8 @@ class RealtimeConfig(AppConfig):
     name = 'realtime'
     verbose_name = 'Realtime Application'
 
-    def ready(self):
-        # check default boundary alias exists
-
+    def load_boundary_alias(self):
+        """check default boundary alias exists"""
         try:
             BoundaryAlias = self.get_model('BoundaryAlias')
             try:
@@ -45,7 +44,8 @@ class RealtimeConfig(AppConfig):
         except Exception as e:
             LOGGER.error(e)
 
-        # load volcano fixtures
+    def load_volcano_fixtures(self):
+        """load volcano fixtures samples"""
         try:
             dirname = os.path.dirname(__file__)
             volcano_fixtures = os.path.join(
@@ -57,6 +57,8 @@ class RealtimeConfig(AppConfig):
         except Exception as e:
             LOGGER.error(e)
 
+    def load_test_users(self):
+        """Load test users if in DEV MODE"""
         # check test user exists:
         if settings.DEV_MODE:
             # User = self.get_model('user_map.models.user.User')
@@ -97,3 +99,8 @@ class RealtimeConfig(AppConfig):
                 test_user.is_admin = True
                 test_user.is_confirmed = True
                 test_user.save()
+
+    def ready(self):
+        self.load_boundary_alias()
+        self.load_volcano_fixtures()
+        self.load_test_users()

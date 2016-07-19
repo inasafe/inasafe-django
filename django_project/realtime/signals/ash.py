@@ -1,8 +1,6 @@
 # coding=utf-8
 import logging
 
-import os
-
 import pytz
 from urlparse import urljoin
 from django.conf import settings
