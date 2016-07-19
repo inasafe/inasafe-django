@@ -201,6 +201,7 @@
     {% javascript 'realtime_contrib' %}
     {% javascript 'realtime_appjs' %}
     {% javascript 'realtime_shakejs' %}
+    <script src="https://www.mapquestapi.com/sdk/leaflet/v2.2/mq-map.js?key={{ mapquest_key }}"></script>
     <script type="text/javascript">
         var base_map;
 
@@ -216,6 +217,9 @@
                 {% endif %}
             {% endfor %}
         };
+
+        // Override because of new MapQuest policy to use licensed API
+        base_map['MapQuest'] = MQ.mapLayer();
 
         //Create Map with prepared base_map
         map = L.map('map', {
@@ -259,7 +263,7 @@
         }).addTo(map);
 
         project_icon_path = "{% static 'realtime/img/earthquake.png' %}";
-        earthquakeIcon = createIconMarker(
+        ashIcon = createIconMarker(
                 project_icon_path);
 
         // create dynatable
@@ -303,7 +307,7 @@
             L.geoJson(event_json, {
                 onEachFeature: onEachFeature,
                 pointToLayer: function (feature, latlng) {
-                    var marker = L.marker(latlng, {icon: earthquakeIcon});
+                    var marker = L.marker(latlng, {icon: ashIcon});
                     map_events[feature.properties.shake_id] = marker;
                     return marker;
                 }

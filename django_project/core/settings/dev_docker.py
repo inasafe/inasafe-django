@@ -67,3 +67,11 @@ LOGGING = {
         'level': 'WARNING'
     }
 }
+
+
+SITE_DOMAIN_NAME = 'http://192.168.99.100:61102'
+
+try:
+    from .custom_settings import *
+except:
+    pass

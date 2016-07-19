@@ -109,10 +109,3 @@ class FloodSerializer(serializers.ModelSerializer):
             'impact_layer',
             'reports'
         )
-
-
-# class FloodHazardGeoJsonSerializer(GeoFeatureModelSerializer):
-#
-#     class Meta:
-#         model = FloodEventBoundary
-#         geo_field = ""

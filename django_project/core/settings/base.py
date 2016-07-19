@@ -103,3 +103,5 @@ LOCALE_PATHS = (
 )
 
 DJANGO_ROOT = ABS_PATH('.')
+
+SITE_DOMAIN_NAME = 'example.com'

@@ -38,7 +38,7 @@ from user_map.app_settings import (
     INASAFE_CERTIFIED_TRAINER_BADGE,
     OSM_CERTIFIED_TRAINER_BADGE,
     DEFAULT_FROM_MAIL,
-    LEAFLET_TILES)
+    LEAFLET_TILES, MAPQUEST_MAP_KEY)
 from user_map.utilities.decorators import login_forbidden
 
 
@@ -82,7 +82,8 @@ def index(request):
         'user_menu_button': user_menu_button,
         'projects': PROJECTS,
         'legend': legend,
-        'leaflet_tiles': leaflet_tiles
+        'leaflet_tiles': leaflet_tiles,
+        'mapquest_key': MAPQUEST_MAP_KEY
     }
     return render(request, 'user_map/index.html', context)
 

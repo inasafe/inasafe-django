@@ -1,21 +1,20 @@
 # coding=utf-8
 import logging
 
+import os
 from django.apps import AppConfig
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.gis.geos.point import Point
 
+from realtime.models.volcano import load_volcano_data
 from user_map.models.user import User
 
-from realtime.app_settings import LOGGER_NAME, REST_GROUP
+from realtime.app_settings import LOGGER_NAME, REST_GROUP, OSM_LEVEL_7_NAME, \
+    OSM_LEVEL_8_NAME, VOLCANO_GROUP, ASH_GROUP
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '4/1/16'
-
-
-OSM_LEVEL_7_NAME = 'Kelurahan'
-OSM_LEVEL_8_NAME = 'RW'
 
 
 LOGGER = logging.getLogger(LOGGER_NAME)
@@ -46,6 +45,18 @@ class RealtimeConfig(AppConfig):
         except Exception as e:
             LOGGER.error(e)
 
+        # load volcano fixtures
+        try:
+            dirname = os.path.dirname(__file__)
+            volcano_fixtures = os.path.join(
+                dirname,
+                'fixtures/ash/GVP_Volcano_List_Darwin_VAAC_AOR_final.shp')
+            Volcano = self.get_model('Volcano')
+            if Volcano.objects.all().count() == 0:
+                load_volcano_data(Volcano, volcano_fixtures)
+        except Exception as e:
+            LOGGER.error(e)
+
         # check test user exists:
         if settings.DEV_MODE:
             # User = self.get_model('user_map.models.user.User')
@@ -64,4 +75,25 @@ class RealtimeConfig(AppConfig):
                 test_user.groups.add(realtime_group)
                 test_user.is_superuser = True
                 test_user.is_admin = True
+                test_user.save()
+
+            try:
+                test_user = User.objects.get(
+                    email='volcano@realtime.inasafe.org')
+            except User.DoesNotExist:
+                location = Point(106.8222713, -6.1856145)
+                volcano_group = Group.objects.get(name=VOLCANO_GROUP)
+                ash_group = Group.objects.get(name=ASH_GROUP)
+
+                test_user = User.objects.create_user(
+                    email='volcano@realtime.inasafe.org',
+                    username='test ash user',
+                    location=location,
+                    password='t3st4ccount',
+                    email_updates=False)
+                test_user.groups.add(volcano_group)
+                test_user.groups.add(ash_group)
+                test_user.is_superuser = False
+                test_user.is_admin = True
+                test_user.is_confirmed = True
                 test_user.save()

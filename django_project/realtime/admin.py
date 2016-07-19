@@ -8,7 +8,8 @@ from leaflet.admin import LeafletGeoAdmin
 from realtime.models.earthquake import Earthquake, EarthquakeReport
 from realtime.models.flood import Boundary, Flood, FloodEventBoundary, \
     FloodReport
-from realtime.models.ash import Ash
+from realtime.models.ash import Ash, AshReport
+from realtime.models.volcano import Volcano
 
 
 class RealtimeAdminSite(AdminSite):
@@ -56,8 +57,24 @@ class FloodEventBoundaryAdmin(ModelAdmin):
 class FloodReportAdmin(ModelAdmin):
     pass
 
+
 class AshAdmin(ModelAdmin):
+    """Admin class for Ash model"""
     pass
+
+
+class AshReportAdmin(ModelAdmin):
+    """Admin class for Ash Report"""
+    pass
+
+
+class VolcanoAdmin(ModelAdmin):
+    """Admin class for volcano model"""
+    list_display = ('volcano_name', 'location', 'elevation', 'region',
+                    'subregion', 'morphology')
+    list_filter = ('region', 'morphology')
+    search_fields = ['volcano_name', 'region', 'subregion', 'morphology']
+
 
 realtime_admin_site.register(Earthquake, EarthquakeAdmin)
 realtime_admin_site.register(EarthquakeReport, EarthquakeReportAdmin)
@@ -66,3 +83,5 @@ realtime_admin_site.register(Flood, FloodAdmin)
 realtime_admin_site.register(FloodEventBoundary, FloodEventBoundaryAdmin)
 realtime_admin_site.register(FloodReport, FloodReportAdmin)
 realtime_admin_site.register(Ash, AshAdmin)
+realtime_admin_site.register(AshReport, AshReportAdmin)
+realtime_admin_site.register(Volcano, VolcanoAdmin)

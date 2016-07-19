@@ -7,7 +7,9 @@ import shutil
 import tempfile
 from zipfile import ZipFile
 
-from realtime.app_settings import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME
+from django.core.exceptions import MultipleObjectsReturned
+
+from realtime.apps import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME
 from core.celery_app import app
 from django.conf import settings
 from django.contrib.gis.gdal.datasource import DataSource
@@ -21,7 +23,7 @@ from realtime.models.flood import FloodEventBoundary, Boundary, BoundaryAlias, \
 from realtime.tasks.realtime.flood import process_flood
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
-__date__ = '12/3/15'
+__date__ = '20/7/17'
 
 
 LOGGER = logging.getLogger(LOGGER_NAME)
@@ -34,7 +36,7 @@ def process_hazard_layer(flood):
     :param flood: Event id of flood
     :type flood: realtime.models.flood.Flood
     """
-    LOGGER.info('Processing impact layer %s - %s' % (
+    LOGGER.info('Processing hazard layer %s - %s' % (
         flood.event_id,
         flood.hazard_layer.name
     ))
@@ -103,7 +105,7 @@ def process_hazard_layer(flood):
                     boundary_alias=rw)
                 boundary_rw.save()
 
-            if int(state) == 0:
+            if not state or int(state) == 0:
                 continue
 
             FloodEventBoundary.objects.create(
@@ -177,7 +179,12 @@ def process_impact_layer(flood):
                 LOGGER.debug('Boundary does not exists: %s' % level_7_name)
                 LOGGER.debug('Kelurahan Boundary should have been filled '
                              'already')
-                raise e
+                # Will try to create new one
+                boundary_kelurahan = Boundary.objects.create(
+                    geometry=geos_geometry,
+                    name=level_7_name,
+                    boundary_alias=kelurahan)
+                boundary_kelurahan.save()
 
             ImpactEventBoundary.objects.create(
                 flood=flood,

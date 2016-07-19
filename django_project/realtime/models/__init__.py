@@ -4,5 +4,6 @@ from realtime.models.earthquake import Earthquake  # noqa
 from realtime.models.user_push import UserPush  # noqa
 from realtime.models.flood import Flood, Boundary, FloodEventBoundary  # noqa
 from realtime.models.ash import Ash  # noqa
+from realtime.models.volcano import Volcano  # noqa
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'

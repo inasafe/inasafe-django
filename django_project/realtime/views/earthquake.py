@@ -19,7 +19,8 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
-from realtime.app_settings import LEAFLET_TILES, LANGUAGE_LIST
+from realtime.app_settings import (
+    LEAFLET_TILES, LANGUAGE_LIST, MAPQUEST_MAP_KEY)
 from realtime.forms import FilterForm
 from realtime.filters.earthquake_filter import EarthquakeFilter
 from realtime.models.earthquake import Earthquake, EarthquakeReport
@@ -94,6 +95,7 @@ def index(request, iframe=False, server_side_filter=False):
     context['remove_area_text'] = _('Remove Selection')
     context['select_current_zoom_text'] = _('Select area within current zoom')
     context['iframe'] = iframe
+    context['mapquest_key'] = MAPQUEST_MAP_KEY
     return render_to_response(
         'realtime/earthquake/index.html',
         {

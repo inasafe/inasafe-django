@@ -60,6 +60,12 @@ default_realtime_group = 'Realtime REST User'
 REST_GROUP = getattr(
     settings, 'REALTIME_REST_GROUP', default_realtime_group)
 
+VOLCANO_GROUP = getattr(
+    settings, 'VOLCANO_REALTIME_REST_GROUP', 'Volcano Realtime REST User')
+
+ASH_GROUP = getattr(
+    settings, 'ASH_REALTIME_REST_GROUP', 'Ash Realtime REST User')
+
 default_language_list = [
     {'name': 'English', 'id': 'en'},
     {'name': 'Indonesia', 'id': 'id'},
@@ -101,3 +107,9 @@ default_realtime_broker_interval_range = {
 REALTIME_BROKER_INTERVAL_RANGE = getattr(
     settings, 'REALTIME_BROKER_INTERVAL_RANGE',
     default_realtime_broker_interval_range)
+
+MAPQUEST_MAP_KEY = getattr(settings, 'MAPQUEST_MAP_KEY')
+
+OSM_LEVEL_7_NAME = 'Kelurahan'
+
+OSM_LEVEL_8_NAME = 'RW'

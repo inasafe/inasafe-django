@@ -61,3 +61,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
+
+try:
+    from .mapquest import MAPQUEST_MAP_KEY
+except:
+    pass

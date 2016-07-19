@@ -48,7 +48,8 @@ PIPELINE_JS = {
             'realtime/js/leaflet.markercluster-src.js',
             'realtime/js/locationfilter.js',
             'realtime/js/validator.js',
-            'realtime/js/moment.js'
+            'realtime/js/moment.js',
+            'realtime/js/typeahead.jquery.js',
         ),
         'output_filename': 'js/realtime_contrib.js',
     },
@@ -71,6 +72,13 @@ PIPELINE_JS = {
             'realtime/js/templates/flood/*.jst'
         ),
         'output_filename': 'js/realtime_floodjs.js'
+    },
+    'realtime_ashjs': {
+        'source_filenames': (
+            'realtime/js/ash/ash.js',
+            'realtime/js/templates/ash/*.jst'
+        ),
+        'output_filename': 'js/realtime_ashjs.js'
     },
     'usermap_contrib': {
         'source_filenames': (
@@ -142,6 +150,15 @@ PIPELINE_CSS = {
             'realtime/css/flood/flood.css',
         ),
         'output_filename': 'css/realtime_floodcss.css',
+        'extra_context': {
+            'media': 'screen, projection'
+        }
+    },
+    'realtime_ashcss': {
+        'source_filenames': (
+            'realtime/css/ash/ash.css',
+        ),
+        'output_filename': 'css/realtime_ashcss.css',
         'extra_context': {
             'media': 'screen, projection'
         }
