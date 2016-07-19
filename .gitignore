@@ -116,6 +116,8 @@ custom_settings.py
 # static files
 deployment/static
 deployment/tmp
+django_project/temp
+django_project/tmp
 media/
 media_settings/
 django_project/media_test

@@ -108,6 +108,9 @@ REALTIME_BROKER_INTERVAL_RANGE = getattr(
     settings, 'REALTIME_BROKER_INTERVAL_RANGE',
     default_realtime_broker_interval_range)
 
+# URL to get BMKG's Felt Earthquake list
+FELT_EARTHQUAKE_URL = 'http://data.bmkg.go.id/gempadirasakan.xml'
+
 MAPQUEST_MAP_KEY = getattr(settings, 'MAPQUEST_MAP_KEY', '')
 
 OSM_LEVEL_7_NAME = 'Kelurahan'

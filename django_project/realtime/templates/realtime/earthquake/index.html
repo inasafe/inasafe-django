@@ -19,6 +19,32 @@
     {{ form.media }}
 {% endblock head_resources %}
 
+<<<<<<< HEAD
+{% block nav_second %}
+    <nav class="nav-second navbar-collapse collapse">
+        <ul class="menu">
+            <li class="menu-item active">
+                <a href="#">Shake Map</a>
+            </li>
+{#            {% if user.is_authenticated %}#}
+            <li class="menu-item">
+                <a href="{% url 'realtime:flood_index' %}">Flood Map</a>
+            </li>
+{#            {% endif %}#}
+            <li class="menu-item">
+                <a href="{% url 'realtime:api_root' %}">API Browser</a>
+            </li>
+{#            {% if user.is_authenticated %}#}
+                <li class="menu-item">
+                    <a href="{% url 'realtime:indicator' %}">Indicator</a>
+                </li>
+{#            {% endif %}#}
+        </ul>
+    </nav>
+{% endblock %}
+
+=======
+>>>>>>> 9b9ed706ff81ca2bcda3115c2eb51256057e28d0
 {% block main_content %}
     <div class="row center-block">
         <div class="panel panel-default">
@@ -92,6 +118,11 @@
                                 <div class="help-block with-errors"></div>
                             </span>
                         </span>
+                        <span class="hidden">
+                            <span>
+                                {{ form.felt|bootstrap }}
+                            </span>
+                        </span>
                         <span class="col-sm-1 hidden-xs">
                             <button class="btn clear-filter" title="Clear Filter">
                                 <span class="glyphicon glyphicon-erase"></span>
@@ -122,6 +153,18 @@
                 </form>
             </div>
         </div>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{% trans "Contextual Filters" %}</h3>
+            </div>
+            <div class="panel-body">
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-default" onclick="filterRecentBigShake()">{% trans "Recent Large Earthquakes" %}</button>
+                    <button type="button" class="btn btn-default" onclick="filterRecentSmallShake()">{% trans "Recent Small Earthquakes" %}</button>
+                    <button type="button" class="btn btn-default" onclick="filterRecentFeltShake()">{% trans "Recent Felt Earthquakes" %}</button>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock filter_content %}
 
@@ -141,6 +184,7 @@
                             <th data-dynatable-column="magnitude">{% trans "Magnitude" %}</th>
                             <th data-dynatable-column="depth">{% trans "Depth" %}</th>
                             <th data-dynatable-column="shake_id">{% trans "Shake Id" %}</th>
+                            <th data-dynatable-column="felt" style="display: none">Felt</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -317,7 +361,7 @@
                 jsonTableContents[i] = event_json.features[i].properties;
             }
             dynaTable.settings.dataset.originalRecords = jsonTableContents;
-            dynaTable.paginationPerPage.set(100);
+            dynaTable.paginationPerPage.set(20);
             dynaTable.sorts.add('time', -1);
             dynaTable.process();
         }
@@ -411,12 +455,16 @@
             modifySearchAndShowLabels();
 
             $(".submit-filter").click(updateFilterHandler);
-            $(".clear-filter").click(function (e) {
+            var clearFilterHandler = function (e) {
                 e.preventDefault();
-                $("#event-filter input.form-control").val('');
+                var $event_filter = $("#event-filter");
+                $event_filter.find("input[type=text].form-control").val('');
+                $event_filter.find("input[type=number].form-control").val('');
+                $event_filter.find("input[type=checkbox]").prop("checked", false);
                 updateFilterHandler(e);
                 $(".submit-filter, .clear-filter").hide();
-            });
+            };
+            $(".clear-filter").click(clearFilterHandler);
 
             {#            Disable date input text#}
             $event_filter.find(".date-filter input").attr("readonly", "readonly");
@@ -424,8 +472,13 @@
 
             var show_filter_button = function (e) {
                 var is_show_filter = false;
-                $event_filter.find("input").each(function (idx, el) {
+                $event_filter.find("input[type=text],input[type=number]").each(function (idx, el) {
                     if ($(el).val()) {
+                        is_show_filter = true;
+                    }
+                });
+                $event_filter.find("input[type=checkbox]").each(function (idx, el) {
+                    if($(el).prop("checked") == true){
                         is_show_filter = true;
                     }
                 });

@@ -163,6 +163,7 @@ class FloodEventBoundary(models.Model):
     class Meta:
         app_label = 'realtime'
         unique_together = (('flood', 'boundary'), )
+        verbose_name_plural = 'Flood Event Boundaries'
 
     flood = models.ForeignKey(
         Flood,

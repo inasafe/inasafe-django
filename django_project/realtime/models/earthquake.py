@@ -43,6 +43,11 @@ class Earthquake(models.Model):
         verbose_name='Location Description',
         help_text='The description of the location e.g "Bali".',
         max_length=255)
+    felt = models.BooleanField(
+        verbose_name='Felt Earthquake',
+        help_text="Set to True if this particular event showed up as felt "
+                  "Earthquake in BMKG's List",
+        default=False)
 
     objects = models.GeoManager()
 

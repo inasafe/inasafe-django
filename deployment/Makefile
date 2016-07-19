@@ -118,6 +118,13 @@ logs: confinfo
 	@echo "------------------------------------------------------------------"
 	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs uwsgi
 
+dblogs: confinfo
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Showing db logs in $(MODE_STRING) mode"
+	@echo "------------------------------------------------------------------"
+	@docker logs -f --tail=50 $(PROJECT_ID)_db_1
+
 nginxlogs: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
@@ -169,6 +176,7 @@ dbrestore:
 	@echo "------------------------------------------------------------------"
 	@echo "Restore dump from backups/latest.dmp in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
+	@echo "Copy .dmp file as latest.dmp in deployment/pg/dbbackup/backups/latest.dmp"
 	@# - prefix causes command to continue even if it fails
 	-@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "dropdb gis"
 	@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "createdb -O docker -T template_postgis gis"

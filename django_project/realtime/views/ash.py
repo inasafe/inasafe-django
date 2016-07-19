@@ -27,11 +27,11 @@ from realtime.models.volcano import Volcano
 from realtime.serializers.ash_serializer import AshSerializer, \
     AshReportSerializer, AshGeoJsonSerializer
 
-__author__ = 'ismailsunni'
+__author__ = 'lucernae'
 __project_name__ = 'inasafe-django'
 __filename__ = 'ash'
 __date__ = '7/15/16'
-__copyright__ = 'imajimatika@gmail.com'
+__copyright__ = 'lana.pcfre@gmail.com'
 
 
 LOGGER = logging.getLogger(__name__)
