@@ -32,6 +32,13 @@ uwsgi:
     - VIRTUAL_HOST=users.inasafe.org
     - VIRTUAL_PORT=8080
     - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+  links:
+    - smtp:smtp
+    - db:db
+    - dbbackup:dbbackup
+    - sftppgbackup:sftppgbackup
+    - sftpmediabackup:sftpmediabackup
+    - rabbitmq:rabbitmq
 
 worker:
   environment:

@@ -16,8 +16,11 @@ from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.contrib.gis.geos.polygon import Polygon
 
 from realtime.app_settings import LOGGER_NAME
-from realtime.models.flood import FloodEventBoundary, Boundary, BoundaryAlias, \
-    ImpactEventBoundary
+from realtime.models.flood import (
+    FloodEventBoundary,
+    Boundary,
+    BoundaryAlias,
+    ImpactEventBoundary)
 from realtime.tasks.realtime.flood import process_flood
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
@@ -34,7 +37,7 @@ def process_hazard_layer(flood):
     :param flood: Event id of flood
     :type flood: realtime.models.flood.Flood
     """
-    LOGGER.info('Processing impact layer %s - %s' % (
+    LOGGER.info('Processing hazard layer %s - %s' % (
         flood.event_id,
         flood.hazard_layer.name
     ))
@@ -103,7 +106,7 @@ def process_hazard_layer(flood):
                     boundary_alias=rw)
                 boundary_rw.save()
 
-            if int(state) == 0:
+            if not state or int(state) == 0:
                 continue
 
             FloodEventBoundary.objects.create(
@@ -173,11 +176,16 @@ def process_impact_layer(flood):
                 boundary_kelurahan = Boundary.objects.get(
                     name__iexact=level_7_name,
                     boundary_alias=kelurahan)
-            except Boundary.DoesNotExist as e:
+            except Boundary.DoesNotExist:
                 LOGGER.debug('Boundary does not exists: %s' % level_7_name)
                 LOGGER.debug('Kelurahan Boundary should have been filled '
                              'already')
-                raise e
+                # Will try to create new one
+                boundary_kelurahan = Boundary.objects.create(
+                    geometry=geos_geometry,
+                    name=level_7_name,
+                    boundary_alias=kelurahan)
+                boundary_kelurahan.save()
 
             ImpactEventBoundary.objects.create(
                 flood=flood,

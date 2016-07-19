@@ -34,7 +34,7 @@ class TestFlood(APITestCase):
     default_media_path = None
 
     def data_path(self, filename):
-        return u'realtime/tests/data/flood/'+filename
+        return u'realtime/tests/data/flood/' + filename
 
     def assertEqualDictionaryWithFiles(self, dict_value, dict_control):
         assertEqualDictionaryWithFiles(self, dict_value, dict_control)

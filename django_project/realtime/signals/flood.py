@@ -1,6 +1,7 @@
 # coding=utf-8
 import logging
 
+from celery.canvas import chain
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 
@@ -23,7 +24,8 @@ def flood_post_save(sender, **kwargs):
     """Extract impact layer of the flood"""
     try:
         instance = kwargs.get('instance')
-        process_hazard_layer.delay(instance)
-        process_impact_layer.delay(instance)
+        chain(
+            process_hazard_layer.s(instance),
+            process_impact_layer.s(instance))()
     except:
         pass

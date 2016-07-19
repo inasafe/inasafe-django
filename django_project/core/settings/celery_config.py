@@ -34,13 +34,20 @@ CELERYBEAT_SCHEDULE = {
         'task': 'realtime.tasks.flood.create_flood_report',
         'schedule': crontab(minute='0')
     },
+    # executes every 2 minutes
     'check-realtime-broker-connection': {
         'task': 'realtime.tasks.indicator.check_realtime_broker',
         'schedule': crontab(minute='*/2')
     },
+    # executes every night
     'send-indicator-status-nightly': {
         'task': 'realtime.tasks.indicator.notify_indicator_status',
         'schedule': crontab(hour='0', minute='0')
+    },
+    # executes every hour
+    'retrieve-felt-earthquake-list': {
+        'task': 'realtime.tasks.earthquake.retrieve_felt_earthquake_list',
+        'schedule': crontab(minute='0')
     }
 }
 

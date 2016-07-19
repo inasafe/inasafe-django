@@ -14,6 +14,6 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 @app.task(
     name='realtime.tasks.flood.process_flood',
     queue='inasafe-realtime')
-def process_flood():
+def process_flood(event_folder=None):
     LOGGER.info('proxy tasks')
     pass

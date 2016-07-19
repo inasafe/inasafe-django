@@ -50,7 +50,8 @@ class RealtimeConfig(AppConfig):
         if settings.DEV_MODE:
             # User = self.get_model('user_map.models.user.User')
             try:
-                test_user = User.objects.get(email='test@realtime.inasafe.org')
+                test_user = User.objects.get(
+                    email='test@realtime.inasafe.org')
             except User.DoesNotExist:
                 location = Point(106.8222713, -6.1856145)
                 realtime_group = Group.objects.get(name=REST_GROUP)

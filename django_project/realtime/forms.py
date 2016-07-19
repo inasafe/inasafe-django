@@ -18,7 +18,7 @@ class EarthquakeForm(forms.ModelForm):
             'depth',
             'location',
             'location_description'
-            ]
+        ]
 
 
 date_format = 'YYYY-MM-DD'
@@ -50,6 +50,8 @@ class FilterForm(forms.Form):
         min_value=0,
         max_value=10,
         label=_('Maximum Magnitude'))
+    # hidden field for felt shakes
+    felt = forms.BooleanField()
 
 
 class AshUploadForm(forms.ModelForm):

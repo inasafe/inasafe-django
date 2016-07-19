@@ -146,7 +146,6 @@ function createShowReportHandler(report_url) {
                 }
             }
         }).fail(function(e){
-            console.log(e);
             if(e.status == 404){
                 alert("No Report recorded for this event.");
             }
@@ -188,7 +187,6 @@ function createDownloadGridHandler(grid_url) {
                 break;
             }
         }
-        console.log(shake_grid);
         if(shake_grid){
             SaveToDisk(url, shake_id + '-grid.xml');
         }
@@ -211,7 +209,12 @@ function createUpdateFilterHandler(url, form_filter, location_filter, dataHandle
         if (e.preventDefault) {
             e.preventDefault();
         }
-        var form_filter_query = form_filter.serialize();
+        var form_filter_clone = form_filter.clone();
+        var felt_input = form_filter_clone.find("#id_felt");
+        if(felt_input.prop('checked') != true){
+            felt_input.parent().empty();
+        }
+        var form_filter_query = form_filter_clone.serialize();
         var location_filter_query = "";
         if (location_filter.isEnabled() && reset!==true) {
             location_filter_query += "&in_bbox=" + location_filter.getBounds().toBBoxString();
@@ -230,7 +233,7 @@ function createUpdateFilterHandler(url, form_filter, location_filter, dataHandle
  * @param max_magnitude {string} float string
  * @return {{features: Array, type: *}}
  */
-function clientFilter(data_input, min_date, max_date, min_magnitude, max_magnitude){
+function clientFilter(data_input, min_date, max_date, min_magnitude, max_magnitude, felt_toggle){
     var filtered_features = [];
     var features = data_input.features;
     for(var i=0;i<features.length;i++){
@@ -253,6 +256,12 @@ function clientFilter(data_input, min_date, max_date, min_magnitude, max_magnitu
         }
 
         if(max_magnitude && magnitude > parseFloat(max_magnitude)){
+            continue
+        }
+
+        // felt
+        var felt = feature.properties.felt;
+        if(felt_toggle == true && felt != true){
             continue
         }
 
@@ -319,7 +328,8 @@ function createClientUpdateFilterHandler(url, form_filter, location_filter, data
             $("#id_start_date", form_filter).val(),
             $("#id_end_date", form_filter).val(),
             $("#id_minimum_magnitude", form_filter).val(),
-            $("#id_maximum_magnitude", form_filter).val()
+            $("#id_maximum_magnitude", form_filter).val(),
+            $("#id_felt", form_filter).prop("checked")
         );
         dataHandler(filtered);
     };
@@ -340,10 +350,10 @@ function modifyMapDescriptions(target){
         magnitude_string = 'with magnitudes between '+min_magnitude+' and '+max_magnitude;
     }
     else if(min_magnitude){
-        magnitude_string = 'with magnitudes greater or equal than '+min_magnitude;
+        magnitude_string = 'with magnitudes greater than or equal '+min_magnitude;
     }
     else if(max_magnitude){
-        magnitude_string = 'with magnitudes less or equal than '+max_magnitude;
+        magnitude_string = 'with magnitudes less than or equal '+max_magnitude;
     }
 
     var date_string = '';
@@ -356,7 +366,7 @@ function modifyMapDescriptions(target){
     }
     else if(start_date){
         var start_moment = moment(start_date);
-        date_string = 'after '+start_moment.format('LL');
+        date_string = 'since '+start_moment.format('LL');
     }
     else if(end_date){
         var end_moment = moment(end_date);
@@ -452,4 +462,48 @@ function createActionRowWriter(button_templates, date_format) {
         return '<tr>' + tr + '</tr>';
     };
     return writer;
+}
+
+
+/**
+ * Filter shake table to show only shake with 5.0 MMI for the previous month
+ */
+function filterRecentBigShake(){
+    var $min_magnitude = $("#id_minimum_magnitude");
+    var $start_date = $("#id_start_date");
+    var now = moment();
+    var start = now.clone().subtract(1, 'month');
+    var format = 'YYYY-MM-DD';
+
+    $("#event-filter .clear-filter").click();
+    $min_magnitude.val(5);
+    $start_date.val(start.format(format));
+    $("#event-filter .submit-filter").click();
+}
+
+
+/**
+ * Filter shake table to show only shake with 5.0 MMI below for the previous month
+ */
+function filterRecentSmallShake(){
+    var $max_magnitude = $("#id_maximum_magnitude");
+    var $start_date = $("#id_start_date");
+    var now = moment();
+    var start = now.clone().subtract(1, 'month');
+    var format = 'YYYY-MM-DD';
+
+    $("#event-filter .clear-filter").click();
+    $max_magnitude.val(5);
+    $start_date.val(start.format(format));
+    $("#event-filter .submit-filter").click();
+}
+
+/**
+ * Filter shake table to show only felt shake for the previous month
+ */
+function filterRecentFeltShake(){
+    var $felt = $("#id_felt");
+    $("#event-filter .clear-filter").click();
+    $felt.prop("checked", true);
+    $("#event-filter .submit-filter").click();
 }

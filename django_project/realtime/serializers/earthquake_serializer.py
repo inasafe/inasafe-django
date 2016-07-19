@@ -111,7 +111,8 @@ class EarthquakeSerializer(GeoModelSerializer):
             'depth',
             'location',
             'location_description',
-            'reports'
+            'felt',
+            'reports',
         )
 
 
@@ -128,5 +129,6 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
             'time',
             'depth',
             'location',
-            'location_description'
+            'location_description',
+            'felt',
         )

@@ -15,7 +15,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def data_path(filename):
-        return u'realtime/tests/data/'+filename
+        return u'realtime/tests/data/' + filename
 
     def handle(self, *args, **options):
         delete_all = raw_input('Delete all existing data? (y/N)')

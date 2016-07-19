@@ -363,6 +363,7 @@ class EarthquakeFeatureList(EarthquakeList):
     * min_time or time_start
     * max_time or time_end
     * location_description
+    * felt shakes
     * in_bbox filled with BBox String in the format SWLon,SWLat,NELon,NELat
     this is used as geographic box filter
     """

@@ -56,6 +56,7 @@ class FloodEventBoundaryAdmin(ModelAdmin):
 class FloodReportAdmin(ModelAdmin):
     pass
 
+
 class AshAdmin(ModelAdmin):
     pass
 
