@@ -33,7 +33,9 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 EXPOSE 8080
 
 ADD REQUIREMENTS.txt /REQUIREMENTS.txt
+ADD REQUIREMENTS-dev.txt /REQUIREMENTS-dev.txt
 RUN pip install -r /REQUIREMENTS.txt
+RUN pip install -r /REQUIREMENTS-dev.txt
 ADD bashrc /root/.bashrc
 
 # --------------------------------------------------------

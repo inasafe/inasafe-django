@@ -5,7 +5,7 @@ import random
 
 from django.contrib.gis.geos import Point
 from django.contrib.gis.geos import Polygon
-from factory import DjangoModelFactory
+from factory.django import DjangoModelFactory
 
 from realtime.models.earthquake import Earthquake
 from realtime.models.flood import Boundary, Flood

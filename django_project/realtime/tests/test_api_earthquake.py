@@ -15,6 +15,7 @@ from django.db import connections
 from django.test.client import Client
 from rest_framework import status
 from rest_framework.test import APITestCase
+from rest_framework_gis.fields import GeoJsonDict
 
 from core.settings.utils import ABS_PATH
 from realtime.app_settings import REST_GROUP
@@ -223,8 +224,29 @@ class TestEarthquake(APITestCase):
         earthquake = Earthquake.objects.get(shake_id=u'20150619200629')
         serializer = EarthquakeSerializer(earthquake)
         for key, value in shake_json.iteritems():
-            self.assertEqual(value, serializer.data[key])
+            if isinstance(serializer.data[key], GeoJsonDict):
+                self.compare_geo_json_dict(value, serializer.data[key])
+            else:
+                self.assertEqual(value, serializer.data[key])
         earthquake.delete()
+
+    def compare_geo_json_dict(self, val1, val2):
+        if isinstance(val1, dict) and isinstance(val2, GeoJsonDict):
+            self.compare_geo_json_dict(val2, val1)
+        elif isinstance(val1, GeoJsonDict) and isinstance(val2, GeoJsonDict):
+            return self.assertDictEqual(val1, val2)
+        elif isinstance(val1, GeoJsonDict) and isinstance(val2, dict):
+            self.assertEqual(
+                [v for v in val1.iterkeys()],
+                [v for v in val2.iterkeys()])
+            for key in val1.iterkeys():
+                v1 = val1[key]
+                v2 = val2[key]
+                if isinstance(v1, tuple):
+                    v1 = list(v1)
+                self.assertEqual(v1, v2)
+        elif isinstance(val1, dict) and isinstance(val2, dict):
+            self.assertDictEqual(val1, val2)
 
     def test_earthquake_detail_put(self):
         shake_json = {
