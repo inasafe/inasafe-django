@@ -6,6 +6,7 @@ pytz
 celery
 django-celery
 django-kombu
+django-leaflet==0.14.0
 django-braces
 django-model-utils
 django-pipeline<1.6,>=1.5
@@ -19,4 +20,4 @@ django-filter==0.11.0
 pillow
 numpy
 hammock
-flower
+scrapy

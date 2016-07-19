@@ -49,17 +49,21 @@
                                 <a title="For Users" href="http://inasafe.org/for-users/">For Users</a>
                             </li>
                             <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-155 menu-for-contributors dropdown">
-                                <a title="For Contributors" href="#" data-toggle="dropdown" class="dropdown-toggle" aria-haspopup="true">For Contributors
+                                <a title="For Contributors" href="#" data-toggle="dropdown" class="dropdown-toggle"
+                                   aria-haspopup="true">For Contributors
                                     <span class="caret"></span></a>
                                 <ul role="menu" class=" dropdown-menu">
                                     <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-171 menu-coders">
                                         <a title="Coders" href="http://inasafe.org/for-coders/">Coders</a>
                                     </li>
                                     <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-170 menu-writers-and-designers">
-                                        <a title="Writers and Designers" href="http://inasafe.org/for-documentation-writers-and-designers/">Writers and Designers</a>
+                                        <a title="Writers and Designers"
+                                           href="http://inasafe.org/for-documentation-writers-and-designers/">Writers
+                                            and Designers</a>
                                     </li>
                                     <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-169 menu-translators">
-                                        <a title="Translators" href="http://inasafe.org/for-translators/">Translators</a>
+                                        <a title="Translators"
+                                           href="http://inasafe.org/for-translators/">Translators</a>
                                     </li>
                                 </ul>
                             </li>
@@ -70,7 +74,8 @@
                                 <a title="Chat Live!" href="http://inasafe.org/chat-live/">Chat Live!</a>
                             </li>
                             <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-160 menu-report-an-issue">
-                                <a title="Report an Issue" target="_blank" href="https://github.com/AIFDR/inasafe/issues">Report an Issue</a>
+                                <a title="Report an Issue" target="_blank"
+                                   href="https://github.com/AIFDR/inasafe/issues">Report an Issue</a>
                             </li>
                         </ul>
                         <div id="lang_sel">
@@ -99,6 +104,7 @@
             <div class="second-menu">
                 <div class="container">
                     {% block nav_second %}
+                        {% include 'realtime/nav_second.html' %}
                     {% endblock %}
                 </div>
             </div>
