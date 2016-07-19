@@ -94,4 +94,4 @@ default_leaflet_tiles = (
 )
 LEAFLET_TILES = getattr(settings, 'LEAFLET_TILES', default_leaflet_tiles)
 
-MAPQUEST_MAP_KEY = getattr(settings, 'MAPQUEST_MAP_KEY')
+MAPQUEST_MAP_KEY = getattr(settings, 'MAPQUEST_MAP_KEY', '')

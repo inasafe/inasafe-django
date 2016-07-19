@@ -108,7 +108,7 @@ REALTIME_BROKER_INTERVAL_RANGE = getattr(
     settings, 'REALTIME_BROKER_INTERVAL_RANGE',
     default_realtime_broker_interval_range)
 
-MAPQUEST_MAP_KEY = getattr(settings, 'MAPQUEST_MAP_KEY')
+MAPQUEST_MAP_KEY = getattr(settings, 'MAPQUEST_MAP_KEY', '')
 
 OSM_LEVEL_7_NAME = 'Kelurahan'
 
