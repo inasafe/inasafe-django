@@ -18,7 +18,7 @@ class EarthquakeForm(forms.ModelForm):
             'depth',
             'location',
             'location_description'
-            ]
+        ]
 
 
 date_format = 'YYYY-MM-DD'

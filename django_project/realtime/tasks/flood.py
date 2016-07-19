@@ -7,8 +7,6 @@ import shutil
 import tempfile
 from zipfile import ZipFile
 
-from django.core.exceptions import MultipleObjectsReturned
-
 from realtime.apps import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME
 from core.celery_app import app
 from django.conf import settings
@@ -18,8 +16,11 @@ from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.contrib.gis.geos.polygon import Polygon
 
 from realtime.app_settings import LOGGER_NAME
-from realtime.models.flood import FloodEventBoundary, Boundary, BoundaryAlias, \
-    ImpactEventBoundary
+from realtime.models.flood import (
+    FloodEventBoundary,
+    Boundary,
+    BoundaryAlias,
+    ImpactEventBoundary)
 from realtime.tasks.realtime.flood import process_flood
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
@@ -175,7 +176,7 @@ def process_impact_layer(flood):
                 boundary_kelurahan = Boundary.objects.get(
                     name__iexact=level_7_name,
                     boundary_alias=kelurahan)
-            except Boundary.DoesNotExist as e:
+            except Boundary.DoesNotExist:
                 LOGGER.debug('Boundary does not exists: %s' % level_7_name)
                 LOGGER.debug('Kelurahan Boundary should have been filled '
                              'already')

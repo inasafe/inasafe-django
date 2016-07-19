@@ -82,7 +82,7 @@ def average_shake_interval(num_days=30):
     shakes = Earthquake.objects.filter(time__gte=last_span)
     intervals = []
     for i in range(1, len(shakes)):
-        prev_shake = shakes[i-1]
+        prev_shake = shakes[i - 1]
         shake = shakes[i]
         intervals.append(shake.time - prev_shake.time)
 

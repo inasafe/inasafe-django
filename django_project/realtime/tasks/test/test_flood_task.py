@@ -26,7 +26,7 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 class TestFloodTask(APITestCase):
 
     def data_path(self, filename):
-        return u'realtime/tests/data/flood/'+filename
+        return u'realtime/tests/data/flood/' + filename
 
     def setUp(self):
         if settings.TESTING:

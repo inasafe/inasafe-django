@@ -28,6 +28,7 @@ class Command(BaseCommand):
            '[osm_level_alias]'
     help = 'Command to import boundary data from shp layer'
 
+    # noqa: max-complexity=20
     def handle(self, *args, **options):
         print args
         try:
@@ -73,7 +74,7 @@ class Command(BaseCommand):
                 if parent_name:
                     parent_boundary = Boundary.objects.get(
                         name__iexact=parent_name.strip(),
-                        boundary_alias__osm_level=osm_level-1)
+                        boundary_alias__osm_level=osm_level - 1)
             except Boundary.DoesNotExist:
                 pass
 
@@ -87,9 +88,10 @@ class Command(BaseCommand):
                 if parent_boundary:
                     query = query & Q(parent=parent_boundary)
                 boundary = Boundary.objects.get(query)
-                existing_boundary += 1
+                if boundary:
+                    existing_boundary += 1
             except Boundary.DoesNotExist:
-                boundary = Boundary.objects.create(
+                Boundary.objects.create(
                     name=name.strip(),
                     parent=parent_boundary,
                     geometry=geos_geometry,

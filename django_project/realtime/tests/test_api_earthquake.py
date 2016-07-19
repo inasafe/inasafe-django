@@ -37,7 +37,7 @@ class TestEarthquake(APITestCase):
     default_media_path = None
 
     def data_path(self, filename):
-        return u'realtime/tests/data/earthquake/'+filename
+        return u'realtime/tests/data/earthquake/' + filename
 
     def setUp(self):
         if settings.TESTING:
@@ -59,9 +59,9 @@ class TestEarthquake(APITestCase):
             )
             earthquake = Earthquake.objects.get(shake_id='20150619200628')
             earthquake.save()
-        report_pdf = earthquake.shake_id+'-id.pdf'
-        report_png = earthquake.shake_id+'-id.png'
-        report_thumb = earthquake.shake_id+'-thumb-id.png'
+        report_pdf = earthquake.shake_id + '-id.pdf'
+        report_png = earthquake.shake_id + '-id.png'
+        report_thumb = earthquake.shake_id + '-thumb-id.png'
         report = EarthquakeReport()
         report.language = 'id'
         report.earthquake = earthquake

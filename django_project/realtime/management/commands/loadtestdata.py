@@ -21,7 +21,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def data_path(filename):
-        return u'realtime/tests/data/'+filename
+        return u'realtime/tests/data/' + filename
 
     def handle(self, *args, **options):
         delete_all = raw_input('Delete all existing data? (y/N)')
@@ -32,7 +32,7 @@ class Command(BaseCommand):
             EarthquakeReport.objects.all().delete()
             Earthquake.objects.all().delete()
 
-            shutil.rmtree(settings.MEDIA_ROOT+"/reports")
+            shutil.rmtree(settings.MEDIA_ROOT + "/reports")
 
             Earthquake.objects.create(
                 shake_id='20150619200628',
