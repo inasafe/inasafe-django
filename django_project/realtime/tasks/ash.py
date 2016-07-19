@@ -16,8 +16,11 @@ from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.contrib.gis.geos.polygon import Polygon
 
 from realtime.app_settings import LOGGER_NAME
-from realtime.models.flood import FloodEventBoundary, Boundary, BoundaryAlias, \
-    ImpactEventBoundary
+from realtime.models.flood import (
+    FloodEventBoundary,
+    Boundary,
+    BoundaryAlias,
+    ImpactEventBoundary)
 from realtime.tasks.realtime.flood import process_flood
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
