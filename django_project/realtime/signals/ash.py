@@ -45,7 +45,7 @@ def ash_post_save(sender, **kwargs):
                 volcano_name=instance.volcano.volcano_name,
                 volcano_location=location,
                 eruption_height=instance.volcano.elevation,
-                region=instance.volcano.region,
+                region=instance.volcano.subregion,
                 alert_level=instance.alert_level,
                 hazard_url=hazard_url)
     except:
