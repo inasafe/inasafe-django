@@ -19,42 +19,16 @@
     {{ form.media }}
 {% endblock head_resources %}
 
-<<<<<<< HEAD
-{% block nav_second %}
-    <nav class="nav-second navbar-collapse collapse">
-        <ul class="menu">
-            <li class="menu-item active">
-                <a href="#">Shake Map</a>
-            </li>
-{#            {% if user.is_authenticated %}#}
-            <li class="menu-item">
-                <a href="{% url 'realtime:flood_index' %}">Flood Map</a>
-            </li>
-{#            {% endif %}#}
-            <li class="menu-item">
-                <a href="{% url 'realtime:api_root' %}">API Browser</a>
-            </li>
-{#            {% if user.is_authenticated %}#}
-                <li class="menu-item">
-                    <a href="{% url 'realtime:indicator' %}">Indicator</a>
-                </li>
-{#            {% endif %}#}
-        </ul>
-    </nav>
-{% endblock %}
-
-=======
->>>>>>> 9b9ed706ff81ca2bcda3115c2eb51256057e28d0
 {% block main_content %}
     <div class="row center-block">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h2 class="panel-title">InaSAFE Shake Realtime</h2>
+                <h2 class="panel-title">InaSAFE Realtime Earthquake Reports</h2>
             </div>
             <div class="panel-body">
                 <p class="text-justify">
                     {% blocktrans %}
-                        This page contains near realtime earthquake impact assessments
+                        This page contains <b>near realtime</b> earthquake impact assessments
                         following recent earthquakes in the Indonesia region.
                         Shakemaps of earthquake ground shaking are produced by the
                         Indonesian Agency for Meteorology, Climatology and Geophysics (BMKG)
@@ -158,10 +132,16 @@
                 <h3 class="panel-title">{% trans "Contextual Filters" %}</h3>
             </div>
             <div class="panel-body">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-default" onclick="filterRecentBigShake()">{% trans "Recent Large Earthquakes" %}</button>
-                    <button type="button" class="btn btn-default" onclick="filterRecentSmallShake()">{% trans "Recent Small Earthquakes" %}</button>
-                    <button type="button" class="btn btn-default" onclick="filterRecentFeltShake()">{% trans "Recent Felt Earthquakes" %}</button>
+                <div id="earthquake-fast-filters" class="btn-group" role="group" data-toggle="buttons">
+                    <label class="btn btn-default" onclick="filterRecentBigShake()">
+                        <input name="earthquake-fast-filters" type="radio"/>{% trans "Recent Large Earthquakes" %}
+                    </label>
+                    <label class="btn btn-default" onclick="filterRecentSmallShake()">
+                        <input name="earthquake-fast-filters" type="radio"/>{% trans "Recent Small Earthquakes" %}
+                    </label>
+                    <label class="btn btn-default" onclick="filterRecentFeltShake()">
+                        <input name="earthquake-fast-filters" type="radio"/>{% trans "Recent Felt Earthquakes" %}
+                    </label>
                 </div>
             </div>
         </div>
@@ -457,6 +437,7 @@
                 $event_filter.find("input[type=text].form-control").val('');
                 $event_filter.find("input[type=number].form-control").val('');
                 $event_filter.find("input[type=checkbox]").prop("checked", false);
+                $("#earthquake-fast-filters .active").removeClass("active");
                 updateFilterHandler(e);
                 $(".submit-filter, .clear-filter").hide();
             };

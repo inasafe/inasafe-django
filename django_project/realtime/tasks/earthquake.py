@@ -3,9 +3,12 @@ from __future__ import absolute_import
 
 import logging
 import urllib2
+from urlparse import urljoin
 from xml.etree import ElementTree
 
 from datetime import datetime
+
+from django.conf import settings
 from django.core.urlresolvers import reverse
 
 from realtime.app_settings import LOGGER_NAME, FELT_EARTHQUAKE_URL
@@ -42,6 +45,9 @@ def push_shake_to_inaware(self, shake_id):
             'language': 'en',
             'language2': 'en',
         })
+        pdf_url = urljoin(
+            settings.SITE_DOMAIN_NAME,
+            pdf_url)
         inaware.post_url_product(
             hazard_id, pdf_url, 'InaSAFE Estimated Earthquake Impact - EN')
         pdf_url = reverse('realtime_report:report_pdf', kwargs={
@@ -49,6 +55,9 @@ def push_shake_to_inaware(self, shake_id):
             'language': 'id',
             'language2': 'id',
         })
+        pdf_url = urljoin(
+            settings.SITE_DOMAIN_NAME,
+            pdf_url)
         inaware.post_url_product(
             hazard_id, pdf_url, 'InaSAFE Perkiraan Dampak Gempa - ID')
 
