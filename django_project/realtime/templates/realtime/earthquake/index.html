@@ -132,10 +132,16 @@
                 <h3 class="panel-title">{% trans "Contextual Filters" %}</h3>
             </div>
             <div class="panel-body">
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-default" onclick="filterRecentBigShake()">{% trans "Recent Large Earthquakes" %}</button>
-                    <button type="button" class="btn btn-default" onclick="filterRecentSmallShake()">{% trans "Recent Small Earthquakes" %}</button>
-                    <button type="button" class="btn btn-default" onclick="filterRecentFeltShake()">{% trans "Recent Felt Earthquakes" %}</button>
+                <div id="earthquake-fast-filters" class="btn-group" role="group" data-toggle="buttons">
+                    <label class="btn btn-default" onclick="filterRecentBigShake()">
+                        <input name="earthquake-fast-filters" type="radio"/>{% trans "Recent Large Earthquakes" %}
+                    </label>
+                    <label class="btn btn-default" onclick="filterRecentSmallShake()">
+                        <input name="earthquake-fast-filters" type="radio"/>{% trans "Recent Small Earthquakes" %}
+                    </label>
+                    <label class="btn btn-default" onclick="filterRecentFeltShake()">
+                        <input name="earthquake-fast-filters" type="radio"/>{% trans "Recent Felt Earthquakes" %}
+                    </label>
                 </div>
             </div>
         </div>
@@ -431,6 +437,7 @@
                 $event_filter.find("input[type=text].form-control").val('');
                 $event_filter.find("input[type=number].form-control").val('');
                 $event_filter.find("input[type=checkbox]").prop("checked", false);
+                $("#earthquake-fast-filters .active").removeClass("active");
                 updateFilterHandler(e);
                 $(".submit-filter, .clear-filter").hide();
             };
