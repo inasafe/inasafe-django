@@ -25,7 +25,7 @@ def flood_post_save(sender, **kwargs):
     try:
         instance = kwargs.get('instance')
         chain(
-            process_hazard_layer.s(instance),
-            process_impact_layer.s(instance))()
-    except:
-        pass
+            process_hazard_layer.si(instance),
+            process_impact_layer.si(instance))()
+    except Exception as e:
+        LOGGER.exception(e)
