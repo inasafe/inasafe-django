@@ -98,6 +98,8 @@ deployment/sftp_backup/target/pg/
 !deployment/sftp_backup/backups/media/README.md
 !deployment/sftp_backup/backups/pg/README.md
 django_project/realtime/tasks/realtime/celeryconfig.py
+django_project/core/custom_settings.py
+django_project/core/mapquest.py
 django_project/realtime/local_settings.py
 django_project/celerybeat.pid
 django_project/temp

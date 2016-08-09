@@ -129,7 +129,7 @@ def process_impact_layer(flood):
     """
     LOGGER.info('Processing impact layer %s - %s' % (
         flood.event_id,
-        flood.hazard_layer.name
+        flood.impact_layer.name
     ))
     # extract hazard layer zip file
     if not flood.impact_layer or not flood.impact_layer.name:
