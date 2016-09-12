@@ -1,5 +1,6 @@
 # coding=utf-8
 """Forms for realtime app."""
+import datetime
 from bootstrap3_datetime.widgets import DateTimePicker
 
 from django import forms
@@ -55,14 +56,22 @@ class FilterForm(forms.Form):
 
 
 class AshUploadForm(forms.ModelForm):
+
     class Meta:
         model = Ash
         fields = [
             'volcano_name',
-            'location',
+            'volcano',
+            # 'volcano_name',
+            # 'location',
             'alert_level',
-            'eruption_height',
+            # 'eruption_height',
             'event_time',
-            'region',
+            # 'region',
             'hazard_file'
         ]
+
+    event_time = forms.DateTimeField(initial=datetime.datetime.now())
+    volcano_name = forms.CharField(
+        max_length=50,
+        widget=forms.TextInput(attrs={'autocomplete': 'off'}))

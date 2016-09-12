@@ -21,11 +21,15 @@ from realtime.views.flood import (
 from realtime.views.reports import latest_report
 
 from realtime.views.ash import (
-    index as ash_index
-)
+    index as ash_index,
+    upload_form as ash_upload_form, AshList, AshReportList, AshReportDetail,
+    AshDetail, AshFeatureList)
+from realtime.views.volcano import VolcanoFeatureList, VolcanoList
 
 urlpatterns = [
     url(r'^api/v1/$', root.api_root, name='api_root'),
+
+    # Earthquake
     url(r'^api/v1/earthquake/$',
         EarthquakeList.as_view(),
         name='earthquake_list'),
@@ -48,6 +52,7 @@ urlpatterns = [
         EarthquakeReportDetail.as_view(),
         name='earthquake_report_detail'),
 
+    # Flood
     url(r'^api/v1/flood/$',
         FloodList.as_view(),
         name='flood_list'),
@@ -79,15 +84,63 @@ urlpatterns = [
         FloodReportDetail.as_view(),
         name='flood_report_detail'),
 
+    # Volcano
+    url(r'^api/v1/volcano-feature/$',
+        VolcanoFeatureList.as_view(),
+        name='volcano_feature_list'),
+    url(r'^api/v1/volcano-list/$',
+        VolcanoList.as_view(),
+        name='volcano_list'),
+
+    # Ash
+    url(r'^api/v1/ash/$',
+        AshList.as_view(),
+        name='ash_list'),
+    url(r'^api/v1/ash-report/$',
+        AshReportList.as_view(),
+        name='ash_report_list'),
+    url(r'^api/v1/ash/'
+        r'(?P<volcano_name>[\w ]+)/'
+        r'(?P<event_time>[\d+-]{19})/$',
+        AshDetail.as_view(),
+        name='ash_detail'),
+    url(r'^api/v1/ash-report/'
+        r'(?P<volcano_name>[\w ]+)/$',
+        AshReportList.as_view(),
+        name='ash_report_list'),
+    url(r'^api/v1/ash-report/'
+        r'(?P<volcano_name>[\w ]+)/'
+        r'(?P<event_time>[\d+-]{19})/$',
+        AshReportList.as_view(),
+        name='ash_report_list'),
+    url(r'^api/v1/ash-report/'
+        r'(?P<volcano_name>[\w ]+)/'
+        r'(?P<event_time>[\d+-]{19})/'
+        r'(?P<language>[-\w]+)/$',
+        AshReportDetail.as_view(),
+        name='ash_report_detail'),
+    url(r'^api/v1/ash-feature/$',
+        AshFeatureList.as_view(),
+        name='ash_feature_list'),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
 
 urlpatterns += [
     url(r'^$', shake_index, name='index'),
+
+    # SHake
     url(r'^shake/$', shake_index, name='shake_index'),
     url(r'^shake/grid/(?P<shake_id>[-\d]+)', get_grid_xml, name='shake_grid'),
+
+    # Flood
     url(r'^flood/$', flood_index, name='flood_index'),
+
+    # Ash
+    url(r'^ash/$', ash_index, name='ash_index'),
+    url(r'^ash/upload$', ash_upload_form, name='ash_upload_form'),
+
+    # IFrame
     url(r'^iframe$', iframe_index, name='iframe'),
     url(r'^api/v1/is_logged_in/$', root.is_logged_in),
     url(r'^api/v1/indicator/notify_shakemap_push/$',
@@ -111,10 +164,4 @@ urlpatterns += [
         r'(?P<end_date_timestamp>[\w-]*)',
         rw_histogram,
         name='rw_histogram'),
-]
-
-# Ash
-
-urlpatterns += [
-    url(r'^ash/$', ash_index, name='ash_index'),
 ]

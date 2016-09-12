@@ -5,9 +5,9 @@ storage:
   hostname: storage
   volumes:
     - /var/lib/postgresql
-
-db:
-  # Patch for OSX, mount postgresql db filesystem from another container
-  # to persist the data
-  volumes_from:
-    - storage
+#
+#db:
+#  # Patch for OSX, mount postgresql db filesystem from another container
+#  # to persist the data
+#  volumes_from:
+#    - storage

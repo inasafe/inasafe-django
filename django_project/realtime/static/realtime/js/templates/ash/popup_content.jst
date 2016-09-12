@@ -1,0 +1,42 @@
+<div id="popup_template">
+    <h3>Ash Event</h3>
+
+    <div>
+        <span>
+            <table class="table-striped table-hover">
+                <tbody>
+                <tr>
+                    <th>Volcano Name</th>
+                    <td class="volcano-name"><%= volcano.volcano_name %></td>
+                </tr>
+                <tr>
+                    <th>Event Time</th>
+                    <td class="event-time"><%= moment(new Date(Date.parse(event_time))).fromNow() %></td>
+                </tr>
+                <tr>
+                    <th>Region</th>
+                    <td class="region"><%= volcano.subregion %></td>
+                </tr>
+                <tr>
+                    <th>Alert Level</th>
+                    <td class="magnitude"><%= alert_level %></td>
+                </tr>
+                </tbody>
+            </table>
+        </span>
+        <span>
+            <button class="show-report btn btn-primary row-action-container"
+                    title="Open Report"
+                    onclick="showReportHandler('<%= id %>')">
+                <span class="row-action-icon glyphicon glyphicon-file"></span>
+            </button>
+            <button class="download-report btn btn-primary
+            row-action-container"
+                    title="Download Report"
+                    onclick="downloadReportHandler('<%= id %>')">
+                <span class="row-action-icon glyphicon
+                glyphicon-download"></span>
+            </button>
+        </span>
+    </div>
+</div>

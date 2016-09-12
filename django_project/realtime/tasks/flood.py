@@ -7,7 +7,7 @@ import shutil
 import tempfile
 from zipfile import ZipFile
 
-from realtime.apps import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME
+from realtime.app_settings import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME
 from core.celery_app import app
 from django.conf import settings
 from django.contrib.gis.gdal.datasource import DataSource

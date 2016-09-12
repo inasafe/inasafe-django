@@ -102,12 +102,15 @@ django_project/core/custom_settings.py
 django_project/core/mapquest.py
 django_project/realtime/local_settings.py
 django_project/celerybeat.pid
+django_project/temp
 
 sftp_media_credential.env
 sftp_pg_credential.env
 sftp_media_credential-dev.env
 sftp_pg_credential-dev.env
 inaware_credential.env
+mapquest.py
+custom_settings.py
 
 # apt-cacher-ng
 71-apt-cacher-ng

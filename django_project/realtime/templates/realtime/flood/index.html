@@ -99,6 +99,7 @@
     {% javascript 'realtime_contrib' %}
     {% javascript 'realtime_appjs' %}
     {% javascript 'realtime_floodjs' %}
+    <script src="https://www.mapquestapi.com/sdk/leaflet/v2.2/mq-map.js?key={{ mapquest_key }}"></script>
     <script type="text/javascript">
     var base_map, dynatable;
 
@@ -114,6 +115,9 @@
             {% endif %}
         {% endfor %}
     };
+
+    // Override because of new MapQuest policy to use licensed API
+    base_map['MapQuest'] = MQ.mapLayer();
 
     //Create Map with prepared base_map
     map = L.map('map', {

@@ -61,3 +61,9 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     )
 }
+
+try:
+    # This settings will be used for mapquest tiles for realtime and user_map
+    from .mapquest import MAPQUEST_MAP_KEY  # noqa
+except:
+    pass

@@ -43,3 +43,12 @@ EMAIL_HOST_PASSWORD = 'docker'
 EMAIL_USE_TLS = False
 EMAIL_SUBJECT_PREFIX = '[InaSAFE]'
 DEFAULT_FROM_EMAIL = 'noreply@inasafe.org'
+
+
+SITE_DOMAIN_NAME = 'http://realtime.inasafe.org'
+
+try:
+    # Used to load final custom settings override
+    from .custom_settings import *  # noqa
+except:
+    pass

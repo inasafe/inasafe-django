@@ -19,7 +19,12 @@ def api_root(request, format=None, **kwargs):
                 'realtime:earthquake_report_list', **kwargs),
             'earthquake-feature-list': reverse(
                 'realtime:earthquake_feature_list', **kwargs),
-            'floods': reverse('realtime:flood_list', **kwargs)
+            'floods': reverse('realtime:flood_list', **kwargs),
+            'volcanos': reverse('realtime:volcano_list', **kwargs),
+            'volcano-feature-list': reverse(
+                'realtime:volcano_feature_list', **kwargs),
+            'ash': reverse('realtime:ash_list', **kwargs),
+            'ash-report': reverse('realtime:ash_report_list', **kwargs),
         }
     })
 
