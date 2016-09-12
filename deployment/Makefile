@@ -64,14 +64,14 @@ migrate: confinfo
 	@echo "------------------------------------------------------------------"
 	@echo "Running migrate static in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) run uwsgi python manage.py migrate
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) exec uwsgi python manage.py migrate
 
 makemigrations: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Running make migrations static in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) run uwsgi python manage.py makemigrations
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) exec uwsgi python manage.py makemigrations
 
 collectstatic:
 	@echo
@@ -95,7 +95,7 @@ celery-worker-logs:
 	@echo "------------------------------------------------------------------"
 	@echo "Running celery worker in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs worker
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f --tail=50 worker
 
 kill: confinfo
 	@echo
