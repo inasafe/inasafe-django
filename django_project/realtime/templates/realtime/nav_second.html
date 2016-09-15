@@ -3,11 +3,9 @@
         <li class="menu-item">
             <a href="{% url 'realtime:shake_index' %}">Earthquake</a>
         </li>
-        {% if user.is_authenticated %}
-            <li class="menu-item">
-                <a href="{% url 'realtime:flood_index' %}">Flood</a>
-            </li>
-        {% endif %}
+        <li class="menu-item">
+            <a href="{% url 'realtime:flood_index' %}">Flood</a>
+        </li>
         {% if user.is_authenticated %}
             <li class="menu-item">
                 <a href="{% url 'realtime:ash_index' %}">Ash</a>
