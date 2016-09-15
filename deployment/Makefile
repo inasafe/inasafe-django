@@ -97,6 +97,9 @@ celery-worker-logs:
 	@echo "------------------------------------------------------------------"
 	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs worker
 
+status:
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) ps
+
 kill: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
