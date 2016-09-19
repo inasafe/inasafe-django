@@ -125,6 +125,15 @@ function createShowReportHandler(report_url) {
         var volcano_name = feature.properties.volcano.volcano_name;
         var event_time = feature.properties.event_time;
         var event_time_string = moment(event_time).format('YYYYMMDDHHmmssZZ');
+        var task_status = feature.properties.task_status;
+        if(task_status == 'PENDING'){
+            alert("Report is currently being generated. Refresh this page later.");
+            return;
+        }
+        else if(task_status == 'FAILED'){
+            alert("Report failed to generate.");
+            return;
+        }
         url = url.replace('VOLCANOTEMPLATENAME', volcano_name)
             .replace('1234567890123456789', event_time_string);
         $.get(url, function (data) {

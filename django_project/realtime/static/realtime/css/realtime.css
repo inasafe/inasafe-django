@@ -256,3 +256,11 @@ th.dynatable-head a, th.dynatable-head a:hover {
 	height: 26px !important;
 	background-size: 18px !important;
 }
+
+
+/* ******************** */
+/*     Plugin override  */
+/* ******************** */
+.timepicker-picker td.separator{
+    line-height: 54px;
+}

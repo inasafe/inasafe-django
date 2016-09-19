@@ -23,26 +23,23 @@ class EarthquakeForm(forms.ModelForm):
 
 
 date_format = 'YYYY-MM-DD'
-datetime_picker = DateTimePicker(
+date_picker = DateTimePicker(
     format=date_format,
     options={
         'pickTime': False
     })
+datetime_format = 'YYYY-MM-DD HH:mm:ss'
+datetime_picker = DateTimePicker(
+    format=datetime_format,
+    options={
+        'pickTime': True,
+        'pickSeconds': True,
+    })
 
 
 class FilterForm(forms.Form):
-    start_date = forms.DateField(widget=DateTimePicker(
-        format=date_format,
-        options={
-            'pickTime': False
-        }),
-        label=_('Start Date'))
-    end_date = forms.DateField(widget=DateTimePicker(
-        format=date_format,
-        options={
-            'pickTime': False
-        }),
-        label=_('End Date'))
+    start_date = forms.DateField(widget=date_picker, label=_('Start Date'))
+    end_date = forms.DateField(widget=date_picker, label=_('End Date'))
     minimum_magnitude = forms.IntegerField(
         min_value=0,
         max_value=10,
@@ -71,7 +68,9 @@ class AshUploadForm(forms.ModelForm):
             'hazard_file'
         ]
 
-    event_time = forms.DateTimeField(initial=datetime.datetime.now())
+    event_time = forms.DateTimeField(
+        # initial=datetime.datetime.now(),
+        widget=datetime_picker)
     volcano_name = forms.CharField(
         max_length=50,
         widget=forms.TextInput(attrs={'autocomplete': 'off'}))

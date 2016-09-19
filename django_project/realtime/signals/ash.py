@@ -27,6 +27,10 @@ def ash_post_save(sender, **kwargs):
     try:
         instance = kwargs.get('instance')
         if isinstance(instance, Ash):
+            # Only do processing when it is a new ash
+            if instance.task_status and not instance.task_status == 'None':
+                return
+
             if instance.event_time.tzinfo:
                 event_time = instance.event_time
             else:
@@ -40,7 +44,7 @@ def ash_post_save(sender, **kwargs):
                 settings.SITE_DOMAIN_NAME,
                 instance.hazard_file.url)
             LOGGER.info('Sending task ash processing.')
-            process_ash.delay(
+            result = process_ash.delay(
                 event_time=event_time,
                 volcano_name=instance.volcano.volcano_name,
                 volcano_location=location,
@@ -48,5 +52,8 @@ def ash_post_save(sender, **kwargs):
                 region=instance.volcano.subregion,
                 alert_level=instance.alert_level,
                 hazard_url=hazard_url)
+            instance.task_id = result.id
+            instance.task_status = 'PENDING'
+            instance.save()
     except:
         pass
