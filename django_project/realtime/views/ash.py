@@ -3,6 +3,7 @@ import json
 import logging
 
 from dateutil.parser import parse
+from django.contrib.auth.decorators import login_required, permission_required
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.db.utils import IntegrityError
 from django.shortcuts import render_to_response, redirect
@@ -37,6 +38,15 @@ __copyright__ = 'lana.pcfre@gmail.com'
 LOGGER = logging.getLogger(__name__)
 
 
+@permission_required(
+    perm=[
+        'realtime.change_ashreport',
+        'realtime.delete_ashreport',
+        'realtime.add_ashreport',
+        'realtime.change_ash',
+        'realtime.delete_ash',
+        'realtime.add_ash'],
+    login_url='/realtime/admin/login')
 def index(request):
     if request.method == 'POST':
         pass
@@ -80,6 +90,9 @@ def index(request):
         context_instance=context)
 
 
+@permission_required(
+    perm=['realtime.add_ash'],
+    login_url='/realtime/admin/login')
 def upload_form(request):
     """Upload ash event."""
     context = RequestContext(request)

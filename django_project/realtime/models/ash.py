@@ -38,6 +38,18 @@ class Ash(models.Model):
         verbose_name='Event Date and Time',
         help_text='The time the ash happened.',
         blank=False)
+    task_id = models.CharField(
+        verbose_name='Celery task id',
+        help_text='Task id for processing',
+        max_length=255,
+        default='',
+        blank=True)
+    task_status = models.CharField(
+        verbose_name='Celery task status',
+        help_text='Task status for processing',
+        max_length=30,
+        default='None',
+        blank=True)
 
     objects = models.GeoManager()
 

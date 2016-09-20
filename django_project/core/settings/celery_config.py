@@ -48,6 +48,11 @@ CELERYBEAT_SCHEDULE = {
     'retrieve-felt-earthquake-list': {
         'task': 'realtime.tasks.earthquake.retrieve_felt_earthquake_list',
         'schedule': crontab(minute='0')
+    },
+    # executes every minute
+    'check-realtime-ash-processing': {
+        'task': 'realtime.tasks.ash.check_processing_task',
+        'schedule': crontab(minute='*')
     }
 }
 
