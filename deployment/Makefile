@@ -223,6 +223,9 @@ mediasync:
 	@echo "Syncing media files from live server"
 	@echo "------------------------------------------------------------------"
 	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/media/ media
+	@rsync -av --progress --exclude *.mbtiles inasafe-docker:/home/data/inasafe-django/django_project/core/settings/secret.py ../django_project/core/settings/
+	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/*.env .
+
 
 dbsync:
 	@echo
@@ -230,7 +233,8 @@ dbsync:
 	@echo "Syncing database files from live server"
 	@echo "------------------------------------------------------------------"
 	-@ssh inasafe-docker "cd /home/data/inasafe-django/deployment; make dbbackup"
-	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/backups/ backups
+	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/sftp_backup/target/pg/latest.dmp backups
+	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/sftp_backup/backups/pg backups
 
 reload:
 	@echo
