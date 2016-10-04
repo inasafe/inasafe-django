@@ -38,6 +38,9 @@ RUN pip install -r /REQUIREMENTS.txt
 RUN pip install -r /REQUIREMENTS-dev.txt
 ADD bashrc /root/.bashrc
 
+# Install Gettext
+RUN apt-get update -y; apt-get install -y gettext
+
 # --------------------------------------------------------
 # Open ports as needed
 # --------------------------------------------------------

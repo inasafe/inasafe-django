@@ -19,5 +19,8 @@ ADD REQUIREMENTS.txt /REQUIREMENTS.txt
 RUN pip install -r /REQUIREMENTS.txt
 RUN pip install uwsgi
 
+# Install Gettext
+RUN apt-get update -y; apt-get install -y gettext
+
 WORKDIR /home/web/django_project
 CMD ["uwsgi", "--ini", "/uwsgi.conf"]
