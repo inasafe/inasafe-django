@@ -83,19 +83,33 @@ collectstatic:
 	# uwsgi container it seems so I use docker exec here
 	@docker exec -t -i $(PROJECT_ID)_uwsgi_1 python manage.py collectstatic --noinput
 
-celery-worker:
+inasafe-worker:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Running celery worker in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d worker
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d inasafe-worker
 
-celery-worker-logs:
+inasafe-worker-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Running celery worker in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f --tail=50 worker
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f --tail=50 inasafe-worker
+
+indicator-worker:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker in $(MODE_STRING) mode"
+	@echo "------------------------------------------------------------------"
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d indicator-worker
+
+indicator-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker in $(MODE_STRING) mode"
+	@echo "------------------------------------------------------------------"
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f --tail=50 indicator-worker
 
 status:
 	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) ps

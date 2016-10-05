@@ -294,7 +294,7 @@ def flood_event_features(request, event_id):
     flood = Flood.objects.get(event_id=event_id)
     # build feature layer
     features = []
-    for b in flood.flooded_boundaries.all():
+    for b in flood.flooded_boundaries.filter(boundary_alias__osm_level=8):
         event_data = b.flood_event.get(flood=flood)
         if event_data.hazard_data > 0:
             feat = {
@@ -304,6 +304,7 @@ def flood_event_features(request, event_id):
                 'properties': {
                     'event_id': flood.event_id,
                     'name': b.name,
+                    'parent_name': b.parent.name,
                     'hazard_data': event_data.hazard_data
                 }
             }

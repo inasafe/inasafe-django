@@ -96,7 +96,11 @@ def process_hazard_layer(flood):
 
             rw = BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
             try:
-                boundary_rw = Boundary.objects.get(upstream_id=pkey)
+                boundary_rw = Boundary.objects.get(
+                    upstream_id=pkey, boundary_alias=rw)
+                boundary_rw.geometry = geos_geometry
+                boundary_rw.name = level_name
+                boundary_rw.parent = boundary_kelurahan
             except Boundary.DoesNotExist:
                 boundary_rw = Boundary.objects.create(
                     upstream_id=pkey,
@@ -104,7 +108,8 @@ def process_hazard_layer(flood):
                     name=level_name,
                     parent=boundary_kelurahan,
                     boundary_alias=rw)
-                boundary_rw.save()
+
+            boundary_rw.save()
 
             if not state or int(state) == 0:
                 continue
@@ -158,7 +163,7 @@ def process_impact_layer(flood):
         ImpactEventBoundary.objects.filter(flood=flood).delete()
         for feat in layer:
             level_7_name = feat.get('NAMA_KELUR').strip()
-            hazard_class = feat.get('safe_ag')
+            hazard_class = feat.get('affected')
             population_affected = feat.get('Pop_Total')
             geometry = feat.geom
             geos_geometry = GEOSGeometry(geometry.geojson)

@@ -21,38 +21,56 @@ CELERY_DEFAULT_EXCHANGE = "default"
 CELERY_DEFAULT_EXCHANGE_TYPE = "direct"
 CELERY_DEFAULT_ROUTING_KEY = "default"
 CELERY_CREATE_MISSING_QUEUES = True
+CELERYD_CONCURRENCY = 1
 
 CELERY_QUEUES = [
     Queue('default', routing_key='default'),
     Queue('inasafe-realtime', routing_key='inasafe-realtime'),
     Queue('inasafe-django', routing_key='inasafe-django'),
+    Queue('inasafe-django-indicator', routing_key='inasafe-django-indicator'),
 ]
 
 CELERYBEAT_SCHEDULE = {
     # executes every hour
     'process-hourly-flood-report': {
         'task': 'realtime.tasks.flood.create_flood_report',
-        'schedule': crontab(minute='0')
+        'schedule': crontab(minute='0'),
+        'options': {
+            'queue': 'inasafe-django'
+        }
     },
     # executes every 2 minutes
     'check-realtime-broker-connection': {
         'task': 'realtime.tasks.indicator.check_realtime_broker',
-        'schedule': crontab(minute='*/2')
+        'schedule': crontab(minute='*/2'),
+        'options': {
+            'queue': 'inasafe-django-indicator'
+        }
     },
     # executes every night
     'send-indicator-status-nightly': {
         'task': 'realtime.tasks.indicator.notify_indicator_status',
-        'schedule': crontab(hour='0', minute='0')
+        # 'schedule': crontab(hour='0', minute='0'),
+        'schedule': crontab(hour='0', minute='0'),
+        'options': {
+            'queue': 'inasafe-django-indicator'
+        }
     },
     # executes every hour
     'retrieve-felt-earthquake-list': {
         'task': 'realtime.tasks.earthquake.retrieve_felt_earthquake_list',
-        'schedule': crontab(minute='0')
+        'schedule': crontab(minute='0'),
+        'options': {
+            'queue': 'inasafe-django'
+        }
     },
     # executes every minute
     'check-realtime-ash-processing': {
         'task': 'realtime.tasks.ash.check_processing_task',
-        'schedule': crontab(minute='*')
+        'schedule': crontab(minute='*'),
+        'options': {
+            'queue': 'inasafe-django'
+        }
     }
 }
 
