@@ -40,11 +40,17 @@ uwsgi:
     - sftpmediabackup:sftpmediabackup
     - rabbitmq:rabbitmq
 
-worker:
+inasafe-worker:
   environment:
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
   ports:
     - "61105:22"
+
+indicator-worker:
+  environment:
+    - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+  ports:
+    - "61106:22"
 
 web:
   links:

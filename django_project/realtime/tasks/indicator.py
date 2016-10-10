@@ -21,7 +21,7 @@ __date__ = '2/17/16'
 LOGGER = logging.getLogger(LOGGER_NAME)
 
 
-@app.task(queue='inasafe-django')
+@app.task(queue='inasafe-django-indicator')
 def log_error(task_id):
     result = app.AsyncResult(task_id)
     result.get(propagate=False)  # make sure result written.
@@ -31,7 +31,7 @@ def log_error(task_id):
                 task_id, result.result, result.traceback))
 
 
-@app.task(queue='inasafe-django')
+@app.task(queue='inasafe-django-indicator')
 def update_indicator(check_broker_retval):
     if check_broker_retval:
         indicator = RealtimeBrokerIndicator()
@@ -39,7 +39,7 @@ def update_indicator(check_broker_retval):
         indicator.value = now
 
 
-@app.task(queue='inasafe-django')
+@app.task(queue='inasafe-django-indicator')
 def check_realtime_broker():
     res = check_broker_connection.delay()
     # wait to sync result
@@ -49,6 +49,6 @@ def check_realtime_broker():
         pass
 
 
-@app.task(queue='inasafe-django')
+@app.task(queue='inasafe-django-indicator')
 def notify_indicator_status():
     check_indicator_status()
