@@ -19,7 +19,9 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 
 @app.task(queue='inasafe-django')
 def check_processing_task():
-    for ash in Ash.objects.exclude(task_id__isnull=True).exclude(task_id__exact=''):
+    for ash in Ash.objects.exclude(
+            task_id__isnull=True).exclude(
+            task_id__exact=''):
         task_id = ash.task_id
         result = AsyncResult(id=task_id, app=realtime_app)
         ash.task_status = result.state

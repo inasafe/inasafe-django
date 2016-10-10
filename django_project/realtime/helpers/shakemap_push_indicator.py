@@ -86,31 +86,34 @@ class ShakemapPushIndicator(Indicator):
         available_notes = {
             STATUS_HEALTHY: _(
                 'Status is considered in healthy state when the value is '
-                'less than %.2f times of deviation (%s) from average '
-                'intervals (%s) which is %s') % (
-                SHAKE_INTERVAL_MULTIPLIER['healthy'],
-                naturaltimedelta(self._deviation, clarity=2),
-                naturaltimedelta(self._mean_interval, clarity=2),
-                naturaltimedelta(self._healthy_range, clarity=2)
-            ),
+                'less than %(factor).2f times of deviation (%(deviation)s) '
+                'from average '
+                'intervals (%(interval)s) which is %(range)s') % {
+                'factor': SHAKE_INTERVAL_MULTIPLIER['healthy'],
+                'deviation': naturaltimedelta(self._deviation, clarity=2),
+                'interval': naturaltimedelta(self._mean_interval, clarity=2),
+                'range': naturaltimedelta(self._healthy_range, clarity=2)
+            },
             STATUS_WARNING: _(
                 'Status is considered in healthy state when the value is '
-                'less than %.2f times of deviation (%s) from average '
-                'intervals (%s) which is %s') % (
-                SHAKE_INTERVAL_MULTIPLIER['warning'],
-                naturaltimedelta(self._deviation, clarity=2),
-                naturaltimedelta(self._mean_interval, clarity=2),
-                naturaltimedelta(self._warning_range, clarity=2)
-            ),
+                'less than %(factor).2f times of deviation (%(deviation)) '
+                'from average '
+                'intervals (%(interval)s) which is %(range)s') % {
+                'factor': SHAKE_INTERVAL_MULTIPLIER['warning'],
+                'deviation': naturaltimedelta(self._deviation, clarity=2),
+                'interval': naturaltimedelta(self._mean_interval, clarity=2),
+                'range': naturaltimedelta(self._warning_range, clarity=2)
+            },
             STATUS_CRITICAL: _(
                 'Status is considered in healthy state when the value is '
-                'less than %.2f times of deviation (%s) from average '
-                'intervals (%s) which is %s') % (
-                SHAKE_INTERVAL_MULTIPLIER['warning'],
-                naturaltimedelta(self._deviation, clarity=2),
-                naturaltimedelta(self._mean_interval, clarity=2),
-                naturaltimedelta(self._warning_range, clarity=2)
-            )
+                'less than %(factor).2f times of deviation (%(deviation)s) '
+                'from average '
+                'intervals (%(interval)s) which is %(range)s') % {
+                'factor': SHAKE_INTERVAL_MULTIPLIER['warning'],
+                'deviation': naturaltimedelta(self._deviation, clarity=2),
+                'interval': naturaltimedelta(self._mean_interval, clarity=2),
+                'range': naturaltimedelta(self._warning_range, clarity=2)
+            }
         }
         return available_notes.get(self.status)
 

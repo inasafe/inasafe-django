@@ -1,6 +1,5 @@
 # coding=utf-8
 """Forms for realtime app."""
-import datetime
 from bootstrap3_datetime.widgets import DateTimePicker
 
 from django import forms

@@ -69,9 +69,24 @@ migrate: confinfo
 makemigrations: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running make migrations static in $(MODE_STRING) mode"
+	@echo "Running make migrations in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
 	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) exec uwsgi python manage.py makemigrations
+
+makemessages:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running make messages $(LANG) in $(MODE_STRING) mode"
+	@echo "------------------------------------------------------------------"
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) exec uwsgi python manage.py makemessages -l $(LANG)
+
+compilemessages:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running compile messages $(LANG) in $(MODE_STRING) mode"
+	@echo "------------------------------------------------------------------"
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) exec uwsgi python manage.py compilemessages -l $(LANG)
+
 
 collectstatic:
 	@echo
