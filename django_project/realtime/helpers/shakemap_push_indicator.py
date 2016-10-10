@@ -96,7 +96,7 @@ class ShakemapPushIndicator(Indicator):
             },
             STATUS_WARNING: _(
                 'Status is considered in healthy state when the value is '
-                'less than %(factor).2f times of deviation (%(deviation)) '
+                'less than %(factor).2f times of deviation (%(deviation)s) '
                 'from average '
                 'intervals (%(interval)s) which is %(range)s') % {
                 'factor': SHAKE_INTERVAL_MULTIPLIER['warning'],
