@@ -15,6 +15,7 @@ class Volcano(models.Model):
     class Meta:
         """Meta class."""
         app_label = 'realtime'
+        verbose_name_plural = 'Volcanoes'
 
     volcano_name = models.CharField(
         verbose_name='The Volcano Name',

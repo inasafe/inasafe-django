@@ -67,7 +67,10 @@
 
                 }
             }
-        })
+        });
+
+        var $timezone = $("#id_timezone");
+        $timezone.val(moment.tz.guess());
     });
     </script>
 {% endblock %}

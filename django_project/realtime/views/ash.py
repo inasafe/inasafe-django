@@ -3,6 +3,7 @@ import json
 import logging
 
 from dateutil.parser import parse
+from pytz import timezone
 from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.db.utils import IntegrityError
@@ -99,6 +100,11 @@ def upload_form(request):
     if request.method == 'POST':
         form = AshUploadForm(request.POST, request.FILES)
         if form.is_valid():
+            # convert timezone from browser and add it to time information
+            tz_string = form.data['timezone']
+            tz = timezone(tz_string)
+            instance = form.instance
+            instance.event_time = instance.event_time.replace(tzinfo=tz)
             form.save()
 
             # Redirect to the document list after POST
