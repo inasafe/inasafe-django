@@ -3,7 +3,7 @@ import json
 import logging
 
 from dateutil.parser import parse
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.db.utils import IntegrityError
 from django.shortcuts import render_to_response, redirect

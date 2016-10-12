@@ -26,7 +26,7 @@ class InAWARERest(object):
         """
         get_hazard_url = self.inaware.hp_srv.services.hazards(1)\
             .json.get_hazards
-        query_string = "master_Incident_ID like '%%%s%%'" % shake_id
+        query_string = "comment_text like '%%BMKG-ID%%%s%%'" % shake_id
         data = {
             'app_id': 1393,
             'where': query_string

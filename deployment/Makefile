@@ -69,9 +69,24 @@ migrate: confinfo
 makemigrations: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running make migrations static in $(MODE_STRING) mode"
+	@echo "Running make migrations in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
 	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) exec uwsgi python manage.py makemigrations
+
+makemessages:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running make messages $(LANG) in $(MODE_STRING) mode"
+	@echo "------------------------------------------------------------------"
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) exec uwsgi python manage.py makemessages -l $(LANG)
+
+compilemessages:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running compile messages $(LANG) in $(MODE_STRING) mode"
+	@echo "------------------------------------------------------------------"
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) exec uwsgi python manage.py compilemessages -l $(LANG)
+
 
 collectstatic:
 	@echo
@@ -83,19 +98,33 @@ collectstatic:
 	# uwsgi container it seems so I use docker exec here
 	@docker exec -t -i $(PROJECT_ID)_uwsgi_1 python manage.py collectstatic --noinput
 
-celery-worker:
+inasafe-worker:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Running celery worker in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d worker
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d inasafe-worker
 
-celery-worker-logs:
+inasafe-worker-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Running celery worker in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f --tail=50 worker
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f --tail=50 inasafe-worker
+
+indicator-worker:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker in $(MODE_STRING) mode"
+	@echo "------------------------------------------------------------------"
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d indicator-worker
+
+indicator-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker in $(MODE_STRING) mode"
+	@echo "------------------------------------------------------------------"
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f --tail=50 indicator-worker
 
 status:
 	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) ps
@@ -223,6 +252,9 @@ mediasync:
 	@echo "Syncing media files from live server"
 	@echo "------------------------------------------------------------------"
 	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/media/ media
+	@rsync -av --progress --exclude *.mbtiles inasafe-docker:/home/data/inasafe-django/django_project/core/settings/secret.py ../django_project/core/settings/
+	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/*.env .
+
 
 dbsync:
 	@echo
@@ -230,7 +262,8 @@ dbsync:
 	@echo "Syncing database files from live server"
 	@echo "------------------------------------------------------------------"
 	-@ssh inasafe-docker "cd /home/data/inasafe-django/deployment; make dbbackup"
-	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/backups/ backups
+	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/sftp_backup/target/pg/latest.dmp backups
+	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/sftp_backup/backups/pg backups
 
 reload:
 	@echo
