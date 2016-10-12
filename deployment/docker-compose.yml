@@ -117,11 +117,10 @@ uwsgi: &uwsgi
   env_file:
     - inaware_credential.env
 
-worker:
+inasafe-worker: &inasafe-worker
   <<: *uwsgi
-  hostname: worker
   working_dir: /home/web/django_project
-  command: celery -A core.celery_app worker --loglevel=info -Q inasafe-django,default -B
+  command: celery -A core.celery_app worker --loglevel=info -Q inasafe-django -n inasafe-django.%h
   environment:
     - DATABASE_NAME=gis
     - DATABASE_USERNAME=docker
@@ -135,6 +134,10 @@ worker:
     - smtp:smtp
     - db:db
     - rabbitmq:rabbitmq
+
+indicator-worker:
+  <<: *inasafe-worker
+  command: celery -A core.celery_app worker --loglevel=info -Q inasafe-django-indicator -B -n indicator.%h
 
 web: &web
   image: nginx
