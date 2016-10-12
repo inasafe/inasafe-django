@@ -50,6 +50,7 @@ PIPELINE_JS = {
             'realtime/js/validator.js',
             'realtime/js/moment.js',
             'realtime/js/typeahead.jquery.js',
+            'realtime/js/sprintf.js',
         ),
         'output_filename': 'js/realtime_contrib.js',
     },

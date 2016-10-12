@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-11 10:49+0000\n"
+"POT-Creation-Date: 2016-10-12 10:15+0000\n"
 "PO-Revision-Date: 2016-10-11 10:29+0700\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -189,7 +189,7 @@ msgid "Region"
 msgstr "Daerah"
 
 #: realtime/templates/realtime/ash/index.html:226
-#: realtime/templates/realtime/earthquake/index.html:395
+#: realtime/templates/realtime/earthquake/index.html:405
 #: realtime/templates/realtime/flood/index.html:189
 msgid "YYYY-MM-DD [at] HH:mm:ss"
 msgstr "YYYY-MM-DD [pukul] HH:mm:ss"
@@ -348,7 +348,42 @@ msgstr ""
 msgid "Grid"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:404
+#: realtime/templates/realtime/earthquake/index.html:386
+#, python-format
+msgid "Earthquake events %%(magnitude)s %%(date)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:387
+#, python-format
+msgid "with magnitudes between %%(min_magnitude)s and %%(max_magnitude)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:388
+#, python-format
+msgid "with magnitudes greater than or equal %%(min_magnitude)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:389
+#, python-format
+msgid "with magnitudes less than or equal %%(max_magnitude)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:390
+#, python-format
+msgid "over the period %%(start_moment) and %%(end_moment)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:391
+#, python-format
+msgid "since %%(start_moment)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:392
+#, python-format
+msgid "before %%(end_moment)"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:414
 msgid "Action"
 msgstr ""
 
@@ -400,10 +435,6 @@ msgstr "Banjir"
 #: realtime/templates/realtime/flood/index.html:81
 msgid "Event ID"
 msgstr "ID Kejadian"
-
-#: realtime/templates/realtime/flood/index.html:83
-msgid "Interval"
-msgstr "Interval"
 
 #: realtime/templates/realtime/indicator.html:36
 msgid "Username"
@@ -465,6 +496,9 @@ msgstr "Hapus Pilihan"
 #: realtime/views/earthquake.py:96 realtime/views/flood.py:92
 msgid "Select area within current zoom"
 msgstr "Pilih area dalam level perbesaran saat ini"
+
+#~ msgid "Interval"
+#~ msgstr "Interval"
 
 #~ msgid "Table"
 #~ msgstr "Tabel"

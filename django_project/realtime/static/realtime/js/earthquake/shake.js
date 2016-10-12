@@ -340,46 +340,65 @@ function createClientUpdateFilterHandler(url, form_filter, location_filter, data
  * Modify a given target text with relevant map filters descriptions
  * @param target {string} Jquery selector string for target element
  */
-function modifyMapDescriptions(target){
-    var $target = $(target);
+function modifyMapDescriptionsHandler(
+        message_prefix,
+        min_max_magnitude_message, min_magnitude_message, max_magnitude_message,
+        start_end_date_message, start_date_message, end_date_message){
+    return function(target) {
+        var $target = $(target);
 
-    var magnitude_string = "";
-    var min_magnitude = $("#id_minimum_magnitude").val();
-    var max_magnitude = $("#id_maximum_magnitude").val();
-    if(min_magnitude && max_magnitude){
-        magnitude_string = 'with magnitudes between '+min_magnitude+' and '+max_magnitude;
-    }
-    else if(min_magnitude){
-        magnitude_string = 'with magnitudes greater than or equal '+min_magnitude;
-    }
-    else if(max_magnitude){
-        magnitude_string = 'with magnitudes less than or equal '+max_magnitude;
-    }
+        var magnitude_string = "";
+        var min_magnitude = $("#id_minimum_magnitude").val();
+        var max_magnitude = $("#id_maximum_magnitude").val();
+        var magnitude_map = {
+            'min_magnitude': min_magnitude,
+            'max_magnitude': max_magnitude
+        };
+        if (min_magnitude && max_magnitude) {
+            magnitude_string = sprintf(min_max_magnitude_message, magnitude_map);
+        }
+        else if (min_magnitude) {
+            magnitude_string = sprintf(min_magnitude_message, magnitude_map);
+        }
+        else if (max_magnitude) {
+            magnitude_string = sprintf(max_magnitude_message, magnitude_map);
+        }
 
-    var date_string = '';
-    var start_date = $("#id_start_date").val();
-    var end_date = $("#id_end_date").val();
-    if(start_date && end_date){
-        var start_moment = moment(start_date);
-        var end_moment = moment(end_date);
-        date_string = 'over the period '+start_moment.format('LL')+' and '+end_moment.format('LL');
+        var date_string = '';
+        var start_date = $("#id_start_date").val();
+        var end_date = $("#id_end_date").val();
+        if (start_date && end_date) {
+            var start_moment = moment(start_date).format('LL');
+            var end_moment = moment(end_date).format('LL');
+            var moment_map = {
+                'start_moment': start_moment,
+                'end_moment': end_moment
+            };
+            date_string = sprintf(start_end_date_message, moment_map);
+        }
+        else if (start_date) {
+            var start_moment = moment(start_date).format('LL');
+            var moment_map = {
+                'start_moment': start_moment
+            };
+            date_string = sprintf(start_date_message, moment_map);
+        }
+        else if (end_date) {
+            var end_moment = moment(end_date).format('LL');
+            var moment_map = {
+                'end_moment': end_moment
+            };
+            date_string = sprintf(end_date_message, moment_map);
+        }
+
+        var description_map = {
+            'magnitude': magnitude_string,
+            'date': date_string
+        };
+        var description = sprintf(message_prefix, description_map);
+
+        $target.text(description);
     }
-    else if(start_date){
-        var start_moment = moment(start_date);
-        date_string = 'since '+start_moment.format('LL');
-    }
-    else if(end_date){
-        var end_moment = moment(end_date);
-        date_string = 'before '+end_moment.format('LL');
-    }
-    var description = 'Earthquake events';
-    if(magnitude_string){
-        description+=' '+magnitude_string;
-    }
-    if(date_string){
-        description+=' '+date_string;
-    }
-    $target.text(description);
 }
 
 /**
