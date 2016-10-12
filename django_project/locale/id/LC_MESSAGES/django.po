@@ -7,30 +7,30 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-04 09:20+0000\n"
+"POT-Creation-Date: 2016-10-11 10:49+0000\n"
 "PO-Revision-Date: 2016-10-11 10:29+0700\n"
+"Last-Translator: \n"
+"Language-Team: \n"
 "Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"Last-Translator: \n"
-"Language-Team: \n"
 "X-Generator: Poedit 1.8.9\n"
 
-#: realtime/forms.py:41
+#: realtime/forms.py:40
 msgid "Start Date"
 msgstr "Tanggal Awal"
 
-#: realtime/forms.py:42
+#: realtime/forms.py:41
 msgid "End Date"
 msgstr "Tanggal Akhir"
 
-#: realtime/forms.py:46
+#: realtime/forms.py:45
 msgid "Minimum Magnitude"
 msgstr "Magnitudo Minimal"
 
-#: realtime/forms.py:50
+#: realtime/forms.py:49
 msgid "Maximum Magnitude"
 msgstr "Magnitudo Maksimal"
 
@@ -86,6 +86,7 @@ msgstr ""
 #: realtime/helpers/shake_event_indicator.py:91
 #: realtime/helpers/shake_event_indicator.py:101
 #: realtime/helpers/shakemap_push_indicator.py:88
+#: realtime/helpers/shakemap_push_indicator.py:98
 #: realtime/helpers/shakemap_push_indicator.py:108
 #, python-format
 msgid ""
@@ -97,13 +98,6 @@ msgstr ""
 #: realtime/helpers/shakemap_push_indicator.py:83
 #: realtime/templates/realtime/indicator.html:38
 msgid "Last Shakemap Push"
-msgstr ""
-
-#: realtime/helpers/shakemap_push_indicator.py:98
-msgid ""
-"Status is considered in healthy state when the value is less than "
-"%(factor).2f times of deviation (%(deviation)) from average intervals "
-"(%(interval)s) which is %(range)s"
 msgstr ""
 
 #: realtime/templates/admin/base_site.html:4
@@ -195,13 +189,17 @@ msgid "Region"
 msgstr ""
 
 #: realtime/templates/realtime/ash/index.html:226
-#: realtime/templates/realtime/earthquake/index.html:388
-#: realtime/templates/realtime/flood/index.html:193
+#: realtime/templates/realtime/earthquake/index.html:395
+#: realtime/templates/realtime/flood/index.html:189
 msgid "YYYY-MM-DD [at] HH:mm:ss"
 msgstr "YYYY-MM-DD [pukul] HH:mm:ss"
 
 #: realtime/templates/realtime/ash/upload_modal.html:25
 msgid "Upload Ash Event"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:26
+msgid "InaSAFE Realtime Earthquake Reports"
 msgstr ""
 
 #: realtime/templates/realtime/earthquake/index.html:30
@@ -290,6 +288,70 @@ msgstr "Kedalaman"
 msgid "Shake Id"
 msgstr "Id Gempa"
 
+#: realtime/templates/realtime/earthquake/index.html:179
+msgid ""
+"\n"
+"                <h2>Supporters</h2>\n"
+"\n"
+"                <p>Funded and supported by the\n"
+"                    <a href=\"http://dfat.gov.au/geo/indonesia/pages/"
+"indonesia.aspx\">Australian Government</a>,\n"
+"                    <a href=\"http://www.ga.gov.au/\">Geoscience Australia</"
+"a> and\n"
+"                    the <a href=\"http://www.gfdrr.org\">World Bank-GFDRR</"
+"a>.\n"
+"                </p>\n"
+"            "
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:190
+msgid ""
+"\n"
+"                <h2>Partners</h2>\n"
+"\n"
+"                <p>This software was developed with our partners in "
+"Indonesia:\n"
+"                    <a href=\"http://bnpb.go.id\">Badan Nasional\n"
+"                        Penanggulangan Bencana (BNPB)</a> and\n"
+"                    <a href=\"http://www.bmkg.go.id\">Badan Meteorologi, "
+"Klimatologi, dan\n"
+"                        Geofisika (BMKG)</a>\n"
+"                </p>\n"
+"\n"
+"            "
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:203
+msgid ""
+"\n"
+"                <h2>InaSAFE</h2>\n"
+"\n"
+"                <p>This software is part of the\n"
+"                    <a href=\"http://inasafe.org\">InaSAFE</a> project.\n"
+"                </p>\n"
+"            "
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:313
+msgid "Zoom"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:318
+msgid "Report"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:323
+msgid "Download"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:328
+msgid "Grid"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:404
+msgid "Action"
+msgstr ""
+
 #: realtime/templates/realtime/flood/index.html:30
 msgid ""
 "\n"
@@ -337,10 +399,6 @@ msgstr ""
 
 #: realtime/templates/realtime/flood/index.html:81
 msgid "Event ID"
-msgstr ""
-
-#: realtime/templates/realtime/flood/index.html:83
-msgid "Interval"
 msgstr ""
 
 #: realtime/templates/realtime/indicator.html:36

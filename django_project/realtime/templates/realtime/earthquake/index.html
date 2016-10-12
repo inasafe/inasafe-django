@@ -23,7 +23,7 @@
     <div class="row center-block">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h2 class="panel-title">InaSAFE Realtime Earthquake Reports</h2>
+                <h2 class="panel-title">{% trans "InaSAFE Realtime Earthquake Reports" %}</h2>
             </div>
             <div class="panel-body">
                 <p class="text-justify">
@@ -176,30 +176,37 @@
     </div>
     <div id="disclaimer" class="row">
         <div class="col-md-4">
-            <h2>Supporters</h2>
+            {% blocktrans %}
+                <h2>Supporters</h2>
 
-            <p>Funded and supported by the
-                <a href="http://dfat.gov.au/geo/indonesia/pages/indonesia.aspx">Australian Government</a>,
-                <a href="http://www.ga.gov.au/">Geoscience Australia</a> and
-                the <a href="http://www.gfdrr.org">World Bank-GFDRR</a>.
-            </p>
+                <p>Funded and supported by the
+                    <a href="http://dfat.gov.au/geo/indonesia/pages/indonesia.aspx">Australian Government</a>,
+                    <a href="http://www.ga.gov.au/">Geoscience Australia</a> and
+                    the <a href="http://www.gfdrr.org">World Bank-GFDRR</a>.
+                </p>
+            {% endblocktrans %}
         </div>
         <div class="col-md-4">
-            <h2>Partners</h2>
+            {% blocktrans %}
+                <h2>Partners</h2>
 
-            <p>This software was developed with our partners in Indonesia:
-                <a href="http://bnpb.go.id">Badan Nasional
-                    Penanggulangan Bencana (BNPB)</a> and
-                <a href="http://www.bmkg.go.id">Badan Meteorologi, Klimatologi, dan
-                    Geofisika (BMKG)</a>
-            </p>
+                <p>This software was developed with our partners in Indonesia:
+                    <a href="http://bnpb.go.id">Badan Nasional
+                        Penanggulangan Bencana (BNPB)</a> and
+                    <a href="http://www.bmkg.go.id">Badan Meteorologi, Klimatologi, dan
+                        Geofisika (BMKG)</a>
+                </p>
+
+            {% endblocktrans %}
         </div>
         <div class="span4">
-            <h2>InaSAFE</h2>
+            {% blocktrans %}
+                <h2>InaSAFE</h2>
 
-            <p>This software is part of the
-                <a href="http://inasafe.org">InaSAFE</a> project.
-            </p>
+                <p>This software is part of the
+                    <a href="http://inasafe.org">InaSAFE</a> project.
+                </p>
+            {% endblocktrans %}
         </div>
     </div>
     <div id="affiliates_logos" class="row">
@@ -303,22 +310,22 @@
         var downloadGridHandler = createDownloadGridHandler(grid_url);
         var button_templates = [
             {
-                name: 'Zoom',
+                name: '{% trans "Zoom" %}',
                 css_class: 'glyphicon glyphicon-search',
                 handler: 'showEventHandler'
             },
             {
-                name: 'Report',
+                name: '{% trans "Report" %}',
                 css_class: 'glyphicon glyphicon-file',
                 handler: 'showReportHandler'
             },
             {
-                name: 'Download',
+                name: '{% trans "Download" %}',
                 css_class: 'glyphicon glyphicon-download',
                 handler: 'downloadReportHandler'
             },
             {
-                name: 'Grid',
+                name: '{% trans "Grid" %}',
                 css_class: 'glyphicon glyphicon-download',
                 handler: 'downloadGridHandler',
                 label: 'XML'
@@ -394,7 +401,7 @@
             }).data('dynatable');
 
             // add action column to dynatable
-            addActionColumn('#realtime-table', 'Action');
+            addActionColumn('#realtime-table', '{% trans "Action"%}');
 
             $.get(get_events_url, function (data) {
                 event_json = data;
