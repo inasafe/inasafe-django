@@ -168,7 +168,7 @@ msgstr "Peta"
 
 #: realtime/templates/realtime/ash/index.html:72
 msgid "Ash Fall"
-msgstr ""
+msgstr "Abu Vulkanik"
 
 #: realtime/templates/realtime/ash/index.html:79
 #: realtime/templates/realtime/earthquake/index.html:162
@@ -178,15 +178,15 @@ msgstr "Waktu"
 
 #: realtime/templates/realtime/ash/index.html:80
 msgid "Volcano Name"
-msgstr ""
+msgstr "Nama Gunung"
 
 #: realtime/templates/realtime/ash/index.html:81
 msgid "Alert Level"
-msgstr ""
+msgstr "Tingkat Peringatan"
 
 #: realtime/templates/realtime/ash/index.html:82
 msgid "Region"
-msgstr ""
+msgstr "Daerah"
 
 #: realtime/templates/realtime/ash/index.html:226
 #: realtime/templates/realtime/earthquake/index.html:395
@@ -196,7 +196,7 @@ msgstr "YYYY-MM-DD [pukul] HH:mm:ss"
 
 #: realtime/templates/realtime/ash/upload_modal.html:25
 msgid "Upload Ash Event"
-msgstr ""
+msgstr "Unggah Kejadian"
 
 #: realtime/templates/realtime/earthquake/index.html:26
 msgid "InaSAFE Realtime Earthquake Reports"
@@ -254,27 +254,27 @@ msgstr "Filter"
 
 #: realtime/templates/realtime/earthquake/index.html:132
 msgid "Contextual Filters"
-msgstr ""
+msgstr "Filter kontekstual"
 
 #: realtime/templates/realtime/earthquake/index.html:137
 msgid "Recent Large Earthquakes"
-msgstr "Gempa Bumi"
+msgstr "Gempa Besar Terkini"
 
 #: realtime/templates/realtime/earthquake/index.html:140
 msgid "Recent Small Earthquakes"
-msgstr "Gempa Bumi"
+msgstr "Gempa Kecil Terkini"
 
 #: realtime/templates/realtime/earthquake/index.html:143
 msgid "Recent Felt Earthquakes"
-msgstr "Gempa Bumi"
+msgstr "Gempa Dirasakan Terkini"
 
 #: realtime/templates/realtime/earthquake/index.html:155
 msgid "Earthquakes"
-msgstr "Gempa Bumi"
+msgstr "Gempabumi"
 
 #: realtime/templates/realtime/earthquake/index.html:163
 msgid "Location Description"
-msgstr "Deskripsi Tempat"
+msgstr "Deskripsi Wilayah"
 
 #: realtime/templates/realtime/earthquake/index.html:164
 msgid "Magnitude"
@@ -395,60 +395,64 @@ msgstr ""
 
 #: realtime/templates/realtime/flood/index.html:74
 msgid "Flood"
-msgstr ""
+msgstr "Banjir"
 
 #: realtime/templates/realtime/flood/index.html:81
 msgid "Event ID"
-msgstr ""
+msgstr "ID Kejadian"
+
+#: realtime/templates/realtime/flood/index.html:83
+msgid "Interval"
+msgstr "Interval"
 
 #: realtime/templates/realtime/indicator.html:36
 msgid "Username"
-msgstr ""
+msgstr "Username"
 
 #: realtime/templates/realtime/indicator.html:37
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: realtime/templates/realtime/indicator.html:58
 msgid "Indicator"
-msgstr ""
+msgstr "Indikator"
 
 #: realtime/templates/realtime/indicator.html:59
 msgid "Value"
-msgstr ""
+msgstr "Nilai"
 
 #: realtime/templates/realtime/indicator.html:60
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: realtime/templates/realtime/indicator.html:61
 msgid "Notes"
-msgstr ""
+msgstr "Catatan"
 
 #: realtime/templatetags/realtime_extras.py:45
 #, python-format
 msgid "%d days"
-msgstr ""
+msgstr "%d hari"
 
 #: realtime/templatetags/realtime_extras.py:49
 #, python-format
 msgid "%d hours"
-msgstr ""
+msgstr "%d jam"
 
 #: realtime/templatetags/realtime_extras.py:53
 #, python-format
 msgid "%d minutes"
-msgstr ""
+msgstr "%d menit"
 
 #: realtime/templatetags/realtime_extras.py:57
 #, python-format
 msgid "%d seconds"
-msgstr ""
+msgstr "%d detik"
 
 #: realtime/templatetags/realtime_extras.py:59
 #, python-format
 msgid "%d microseconds"
-msgstr ""
+msgstr "%d mikrodetik"
 
 #: realtime/views/earthquake.py:94 realtime/views/flood.py:90
 msgid "Select Area"
