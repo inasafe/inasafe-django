@@ -49,6 +49,7 @@ PIPELINE_JS = {
             'realtime/js/locationfilter.js',
             'realtime/js/validator.js',
             'realtime/js/moment.js',
+            'realtime/js/moment-timezone-all-years.js',
             'realtime/js/typeahead.jquery.js',
         ),
         'output_filename': 'js/realtime_contrib.js',

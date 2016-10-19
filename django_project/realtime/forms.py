@@ -70,6 +70,8 @@ class AshUploadForm(forms.ModelForm):
     event_time = forms.DateTimeField(
         # initial=datetime.datetime.now(),
         widget=datetime_picker)
+    timezone = forms.CharField(
+        widget=forms.HiddenInput())
     volcano_name = forms.CharField(
         max_length=50,
         widget=forms.TextInput(attrs={'autocomplete': 'off'}))

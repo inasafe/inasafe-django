@@ -148,7 +148,7 @@ logs: confinfo
 	@echo "------------------------------------------------------------------"
 	@echo "Showing uwsgi logs in $(MODE_STRING) mode"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs uwsgi
+	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f --tail=50  uwsgi
 
 dblogs: confinfo
 	@echo

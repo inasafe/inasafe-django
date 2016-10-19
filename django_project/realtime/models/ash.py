@@ -17,6 +17,7 @@ class Ash(models.Model):
     class Meta:
         """Meta class."""
         app_label = 'realtime'
+        verbose_name_plural = 'Ashes'
 
     volcano = models.ForeignKey(
         Volcano,
