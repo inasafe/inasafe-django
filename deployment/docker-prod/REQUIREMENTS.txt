@@ -22,3 +22,5 @@ numpy
 hammock
 scrapy
 python-dateutil
+unicodecsv
+beautifulsoup4

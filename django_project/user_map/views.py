@@ -1,6 +1,6 @@
 # coding=utf-8
 """Views of the apps."""
-import csv
+import unicodecsv as csv
 
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -448,7 +448,7 @@ def download(request):
 
     users = User.objects.filter(
         is_confirmed=True, is_active=True)
-    writer = csv.writer(response)
+    writer = csv.writer(response, encoding='utf-8')
 
     fields = ['name', 'website', 'location']
     headers = ['No.']

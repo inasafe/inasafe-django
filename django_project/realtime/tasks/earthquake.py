@@ -5,6 +5,7 @@ import logging
 import urllib2
 from urlparse import urljoin
 from xml.etree import ElementTree
+from bs4 import BeautifulSoup
 
 from datetime import datetime
 
@@ -61,6 +62,9 @@ def push_shake_to_inaware(self, shake_id):
         inaware.post_url_product(
             hazard_id, pdf_url, 'InaSAFE Perkiraan Dampak Gempa - ID')
 
+    except ValueError as exc:
+        LOGGER.debug(exc)
+
     except Exception as exc:
         # retry in 30 mins
         LOGGER.debug(exc)
@@ -75,19 +79,15 @@ def retrieve_felt_earthquake_list():
 
     :return:
     """
-    # Date format will be something like:
-    # 24/06/2016-07:41:36 WIB
-    time_format = '%d/%m/%Y-%H:%M:%S WIB'
-    event_id_format = '%Y%m%d%H%M%S'
+    # Scraped from BMKG's web
     target_url = FELT_EARTHQUAKE_URL
     response = urllib2.urlopen(target_url)
-    xml = response.read()
-    root = ElementTree.fromstring(xml)
-    shakes = root.findall('Gempa')
-    for shake in shakes:
-        shake_time_el = shake.find('Tanggal')
-        shake_time = datetime.strptime(shake_time_el.text, time_format)
-        event_id = shake_time.strftime(event_id_format)
+    html = response.read()
+    soup = BeautifulSoup(html, 'html.parser')
+    trs = soup.table.tbody.find_all('tr')
+    for tr in trs:
+        tds = tr.find_all('td')
+        event_id = tds[1].a['data-target'][1:]
         try:
             shake = Earthquake.objects.get(shake_id=event_id)
             shake.felt = True
