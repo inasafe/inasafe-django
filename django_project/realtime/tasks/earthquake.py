@@ -4,10 +4,7 @@ from __future__ import absolute_import
 import logging
 import urllib2
 from urlparse import urljoin
-from xml.etree import ElementTree
 from bs4 import BeautifulSoup
-
-from datetime import datetime
 
 from django.conf import settings
 from django.core.urlresolvers import reverse

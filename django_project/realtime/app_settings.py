@@ -109,7 +109,8 @@ REALTIME_BROKER_INTERVAL_RANGE = getattr(
     default_realtime_broker_interval_range)
 
 # URL to get BMKG's Felt Earthquake list
-FELT_EARTHQUAKE_URL = 'http://bmkg.go.id/BMKG_Pusat/Gempabumi_-_Tsunami/Gempabumi/Gempabumi_Dirasakan.bmkg'
+FELT_EARTHQUAKE_URL = 'http://bmkg.go.id/BMKG_Pusat/Gempabumi_-_Tsunami/' \
+                      'Gempabumi/Gempabumi_Dirasakan.bmkg'
 
 MAPQUEST_MAP_KEY = getattr(settings, 'MAPQUEST_MAP_KEY', '')
 

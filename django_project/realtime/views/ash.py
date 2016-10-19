@@ -144,7 +144,6 @@ class AshList(mixins.ListModelMixin, mixins.CreateModelMixin,
                      'subregion', 'morphology')
     ordering = ('volcano__volcano_name', )
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
-    # pagination_class = Pagina
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
