@@ -291,31 +291,34 @@ class FloodEventList(FloodList):
 
 
 def flood_event_features(request, event_id):
-    flood = Flood.objects.get(event_id=event_id)
-    # build feature layer
-    features = []
-    for b in flood.flooded_boundaries.filter(boundary_alias__osm_level=8):
-        event_data = b.flood_event.get(flood=flood)
-        if event_data.hazard_data > 0:
-            feat = {
-                'id': b.upstream_id,
-                'type': 'Feature',
-                'geometry': json.loads(b.geometry.geojson),
-                'properties': {
-                    'event_id': flood.event_id,
-                    'name': b.name,
-                    'parent_name': b.parent.name,
-                    'hazard_data': event_data.hazard_data
+    try:
+        flood = Flood.objects.get(event_id=event_id)
+        # build feature layer
+        features = []
+        for b in flood.flooded_boundaries.filter(boundary_alias__osm_level=8):
+            event_data = b.flood_event.get(flood=flood)
+            if event_data.hazard_data > 0:
+                feat = {
+                    'id': b.upstream_id,
+                    'type': 'Feature',
+                    'geometry': json.loads(b.geometry.geojson),
+                    'properties': {
+                        'event_id': flood.event_id,
+                        'name': b.name,
+                        'parent_name': b.parent.name,
+                        'hazard_data': event_data.hazard_data
+                    }
                 }
-            }
-            features.append(feat)
+                features.append(feat)
 
-    feature_collection = {
-        'type': 'FeatureCollection',
-        'features': features
-    }
+        feature_collection = {
+            'type': 'FeatureCollection',
+            'features': features
+        }
 
-    return JsonResponse(feature_collection)
+        return JsonResponse(feature_collection)
+    except:
+        return HttpResponseServerError()
 
 
 def impact_event_features(request, event_id):

@@ -1,13 +1,6 @@
 # Specific configuration for OSX
 
-storage:
-  image: busybox
-  hostname: storage
+db: &db
+# Mount postgres db from host filesystem
   volumes:
-    - /var/lib/postgresql
-#
-#db:
-#  # Patch for OSX, mount postgresql db filesystem from another container
-#  # to persist the data
-#  volumes_from:
-#    - storage
+    - ./pg/postgres_data:/var/lib/postgresql
