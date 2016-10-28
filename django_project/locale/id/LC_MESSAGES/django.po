@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2016-10-12 10:15+0000\n"
-"PO-Revision-Date: 2016-10-11 10:29+0700\n"
+"PO-Revision-Date: 2016-10-28 09:37+0700\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: id\n"
@@ -303,6 +303,18 @@ msgid ""
 "                </p>\n"
 "            "
 msgstr ""
+"\n"
+"                <h2>Pendukung</h2>\n"
+"\n"
+"                <p>Didanai dan didukung oleh\n"
+"                    <a href=\"http://dfat.gov.au/geo/indonesia/pages/"
+"indonesia.aspx\">Australian Government</a>,\n"
+"                    <a href=\"http://www.ga.gov.au/\">Geoscience Australia</"
+"a> and\n"
+"                    the <a href=\"http://www.gfdrr.org\">World Bank-GFDRR</"
+"a>.\n"
+"                </p>\n"
+"            "
 
 #: realtime/templates/realtime/earthquake/index.html:190
 msgid ""
@@ -320,6 +332,19 @@ msgid ""
 "\n"
 "            "
 msgstr ""
+"\n"
+"                <h2>Mitra</h2>\n"
+"\n"
+"                <p>Perangkat lunak ini dikembangkan dengan bekerjasama "
+"bersama mitra kami di Indonesia:\n"
+"                    <a href=\"http://bnpb.go.id\">Badan Nasional\n"
+"                        Penanggulangan Bencana (BNPB)</a> dan\n"
+"                    <a href=\"http://www.bmkg.go.id\">Badan Meteorologi, "
+"Klimatologi, dan\n"
+"                        Geofisika (BMKG)</a>\n"
+"                </p>\n"
+"\n"
+"            "
 
 #: realtime/templates/realtime/earthquake/index.html:203
 msgid ""
@@ -331,61 +356,69 @@ msgid ""
 "                </p>\n"
 "            "
 msgstr ""
+"\n"
+"                <h2>InaSAFE</h2>\n"
+"\n"
+"                <p>Perangkat lunak ini adalah bagian dari\n"
+"                    proyek <a href=\"http://inasafe.org\">InaSAFE</a> .\n"
+"                </p>\n"
+"            "
 
 #: realtime/templates/realtime/earthquake/index.html:313
 msgid "Zoom"
-msgstr ""
+msgstr "Perbesar"
 
 #: realtime/templates/realtime/earthquake/index.html:318
 msgid "Report"
-msgstr ""
+msgstr "Laporan"
 
 #: realtime/templates/realtime/earthquake/index.html:323
 msgid "Download"
-msgstr ""
+msgstr "Unduh"
 
 #: realtime/templates/realtime/earthquake/index.html:328
 msgid "Grid"
-msgstr ""
+msgstr "Grid"
 
 #: realtime/templates/realtime/earthquake/index.html:386
 #, python-format
 msgid "Earthquake events %%(magnitude)s %%(date)s"
-msgstr ""
+msgstr "Kejadian gempabumi %%(magnitude)s %%(date)s"
 
 #: realtime/templates/realtime/earthquake/index.html:387
 #, python-format
 msgid "with magnitudes between %%(min_magnitude)s and %%(max_magnitude)s"
 msgstr ""
+"dengan magnitude antara %%(min_magnitude)s sampai dengan %%(max_magnitude)s"
 
 #: realtime/templates/realtime/earthquake/index.html:388
 #, python-format
 msgid "with magnitudes greater than or equal %%(min_magnitude)s"
-msgstr ""
+msgstr "dengan magnitude lebih besar dari atau sama dengan %%(min_magnitude)s"
 
 #: realtime/templates/realtime/earthquake/index.html:389
 #, python-format
 msgid "with magnitudes less than or equal %%(max_magnitude)s"
-msgstr ""
+msgstr "dengan magnitude kurang dari atau sama dengan %%(max_magnitude)s"
 
 #: realtime/templates/realtime/earthquake/index.html:390
 #, python-format
 msgid "over the period %%(start_moment) and %%(end_moment)s"
-msgstr ""
+msgstr "mulai dari %%(start_moment) sampai dengan %%(end_moment)s"
 
 #: realtime/templates/realtime/earthquake/index.html:391
 #, python-format
 msgid "since %%(start_moment)s"
-msgstr ""
+msgstr "sejak %%(start_moment)s"
 
 #: realtime/templates/realtime/earthquake/index.html:392
 #, python-format
 msgid "before %%(end_moment)"
-msgstr ""
+msgstr "sebelum %%(end_moment)"
 
 #: realtime/templates/realtime/earthquake/index.html:414
 msgid "Action"
-msgstr ""
+msgstr "Aksi"
 
 #: realtime/templates/realtime/flood/index.html:30
 msgid ""
