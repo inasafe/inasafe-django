@@ -3,36 +3,36 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-04 09:20+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2016-10-12 10:15+0000\n"
+"PO-Revision-Date: 2016-10-28 09:37+0700\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: id\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 1.8.9\n"
 
-#: realtime/forms.py:41
+#: realtime/forms.py:40
 msgid "Start Date"
 msgstr "Tanggal Awal"
 
-#: realtime/forms.py:42
+#: realtime/forms.py:41
 msgid "End Date"
 msgstr "Tanggal Akhir"
 
-#: realtime/forms.py:46
+#: realtime/forms.py:45
 msgid "Minimum Magnitude"
 msgstr "Magnitudo Minimal"
 
-#: realtime/forms.py:50
+#: realtime/forms.py:49
 msgid "Maximum Magnitude"
-msgstr "Magnitudo Maximal"
+msgstr "Magnitudo Maksimal"
 
 #: realtime/helpers/base_indicator.py:59
 msgid "Healthy"
@@ -86,6 +86,7 @@ msgstr ""
 #: realtime/helpers/shake_event_indicator.py:91
 #: realtime/helpers/shake_event_indicator.py:101
 #: realtime/helpers/shakemap_push_indicator.py:88
+#: realtime/helpers/shakemap_push_indicator.py:98
 #: realtime/helpers/shakemap_push_indicator.py:108
 #, python-format
 msgid ""
@@ -97,13 +98,6 @@ msgstr ""
 #: realtime/helpers/shakemap_push_indicator.py:83
 #: realtime/templates/realtime/indicator.html:38
 msgid "Last Shakemap Push"
-msgstr ""
-
-#: realtime/helpers/shakemap_push_indicator.py:98
-msgid ""
-"Status is considered in healthy state when the value is less than "
-"%(factor).2f times of deviation (%(deviation)) from average intervals "
-"(%(interval)s) which is %(range)s"
 msgstr ""
 
 #: realtime/templates/admin/base_site.html:4
@@ -119,35 +113,6 @@ msgid "Welcome, "
 msgstr "Selamat datang, "
 
 #: realtime/templates/realtime/ash/index.html:30
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                        This page contains near realtime earthquake "
-#| "impact assessments\n"
-#| "                        following recent earthquakes in the Indonesia "
-#| "region.\n"
-#| "                        Shakemaps of earthquake ground shaking are "
-#| "produced by the\n"
-#| "                        Indonesian Agency for Meteorology, Climatology "
-#| "and Geophysics (BMKG)\n"
-#| "                        and used by the Indonesian National Disaster "
-#| "Management Agency (BNPB)\n"
-#| "                        to produce InaSAFE impact assessments within "
-#| "minutes of an earthquake\n"
-#| "                        (<a href=\"http://www.bnpb.go.id\">http://www."
-#| "bnpb.go.id</a>\n"
-#| "                        or <a href=\"http://realtime.inasafe.org\">http://"
-#| "realtime.inasafe.org</a>).\n"
-#| "                        This information is used by disaster managers to "
-#| "help them understand\n"
-#| "                        the potential scale of a disaster and to respond "
-#| "faster to the\n"
-#| "                        hardest hit communities. This is particularly "
-#| "important in the\n"
-#| "                        first few hours after a large earthquake when it "
-#| "may be difficult\n"
-#| "                        to get accurate on-the-ground information.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        This page contains <b>near realtime</b> volcanic "
@@ -175,18 +140,25 @@ msgid ""
 "                    "
 msgstr ""
 "\n"
-"Halaman ini memuat laporan perhitungan dampak gempa bumi yangmendekati "
-"realtime setelah gempa bumi terjadi diwilayah Indonesia. Peta guncangan "
-"dibuat oleh Badan Meterologi,Klimatologi, dan Geofisika (BMKG) dan digunakan "
-"olehBadan Nasional Penanggulangan Bencana (BNPB) untukmenghasilkan analisis "
-"dampak InaSAFE dalam hitunganmenit setelah gempa bumi terjadi(<a href="
-"\"http://www.bnpb.go.id\">http://www.bnpb.go.id</a> atau<a href=\"http://"
-"realtime.inasafe.org\">http://realtime.inasafe.org</a>).Informasi ini "
-"digunakan oleh pemangku kepentingan terkait bencanauntuk membantu memahami "
-"skala potensial dan agar dapat meresponlebih cepat kepada komunitas yang "
-"terkena dampak paling besar. Halini penting khususnya pada waktu-waktu awal "
-"semenjak gempa bumiterjadi saat informasi di lapangan yang akurat mungkin "
-"sulitdidapat."
+"                        Halaman ini memuat data kajian dampak abu vulkanik "
+"erupsi gunung berapi di Indonesia \n"
+"                        secara <b><i>near-realtime</i></b> yg dibuat sebelum "
+"maupun selama erupsi terjadi. \n"
+"                        Peta ketebalan abu vulkanik dibuat oleh Badan "
+"Geologi Kementerian Energi dan Sumber Daya Mineral Indonesia  \n"
+"                       (<a href=\"http://www.bgl.esdm.go.id\">http://www.bgl."
+"esdm.go.id</a>), dan digunakan oleh \n"
+"                       Badan Nasional Penanggulangan Bencana (BNPB) dalam "
+"perhitungan kajian dampak bencana abu vulkanik \n"
+"                       menggunakan InaSAFE (<a href=\"http://www.bnpb.go.id"
+"\">http://www.bnpb.go.id</a> atau\n"
+"                       <a href=\"http://realtime.inasafe.org\">http://"
+"realtime.inasafe.org</a>). \n"
+"                       Informasi ini digunakan oleh pemangku kepentingan "
+"terkait bencana untuk membantu memahami \n"
+"                       skala potensial bencana gunungapi dan agar dapat "
+"merespon lebih cepat kepada daerah/masyarakat \n"
+"                       yang terkena dampak paling besar."
 
 #: realtime/templates/realtime/ash/index.html:52
 #: realtime/templates/realtime/earthquake/index.html:54
@@ -196,7 +168,7 @@ msgstr "Peta"
 
 #: realtime/templates/realtime/ash/index.html:72
 msgid "Ash Fall"
-msgstr ""
+msgstr "Abu Vulkanik"
 
 #: realtime/templates/realtime/ash/index.html:79
 #: realtime/templates/realtime/earthquake/index.html:162
@@ -206,56 +178,31 @@ msgstr "Waktu"
 
 #: realtime/templates/realtime/ash/index.html:80
 msgid "Volcano Name"
-msgstr ""
+msgstr "Nama Gunung"
 
 #: realtime/templates/realtime/ash/index.html:81
 msgid "Alert Level"
-msgstr ""
+msgstr "Tingkat Peringatan"
 
 #: realtime/templates/realtime/ash/index.html:82
 msgid "Region"
-msgstr ""
+msgstr "Daerah"
 
 #: realtime/templates/realtime/ash/index.html:226
-#: realtime/templates/realtime/earthquake/index.html:388
-#: realtime/templates/realtime/flood/index.html:193
+#: realtime/templates/realtime/earthquake/index.html:405
+#: realtime/templates/realtime/flood/index.html:189
 msgid "YYYY-MM-DD [at] HH:mm:ss"
 msgstr "YYYY-MM-DD [pukul] HH:mm:ss"
 
 #: realtime/templates/realtime/ash/upload_modal.html:25
 msgid "Upload Ash Event"
+msgstr "Unggah Kejadian"
+
+#: realtime/templates/realtime/earthquake/index.html:26
+msgid "InaSAFE Realtime Earthquake Reports"
 msgstr ""
 
 #: realtime/templates/realtime/earthquake/index.html:30
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "                        This page contains near realtime earthquake "
-#| "impact assessments\n"
-#| "                        following recent earthquakes in the Indonesia "
-#| "region.\n"
-#| "                        Shakemaps of earthquake ground shaking are "
-#| "produced by the\n"
-#| "                        Indonesian Agency for Meteorology, Climatology "
-#| "and Geophysics (BMKG)\n"
-#| "                        and used by the Indonesian National Disaster "
-#| "Management Agency (BNPB)\n"
-#| "                        to produce InaSAFE impact assessments within "
-#| "minutes of an earthquake\n"
-#| "                        (<a href=\"http://www.bnpb.go.id\">http://www."
-#| "bnpb.go.id</a>\n"
-#| "                        or <a href=\"http://realtime.inasafe.org\">http://"
-#| "realtime.inasafe.org</a>).\n"
-#| "                        This information is used by disaster managers to "
-#| "help them understand\n"
-#| "                        the potential scale of a disaster and to respond "
-#| "faster to the\n"
-#| "                        hardest hit communities. This is particularly "
-#| "important in the\n"
-#| "                        first few hours after a large earthquake when it "
-#| "may be difficult\n"
-#| "                        to get accurate on-the-ground information.\n"
-#| "                    "
 msgid ""
 "\n"
 "                        This page contains <b>near realtime</b> earthquake "
@@ -288,7 +235,7 @@ msgid ""
 "                    "
 msgstr ""
 "\n"
-"Halaman ini memuat laporan perhitungan dampak gempa bumi yangmendekati "
+"Halaman ini memuat laporan perhitungan dampak gempabumi yangmendekati "
 "realtime setelah gempa bumi terjadi diwilayah Indonesia. Peta guncangan "
 "dibuat oleh Badan Meterologi,Klimatologi, dan Geofisika (BMKG) dan digunakan "
 "olehBadan Nasional Penanggulangan Bencana (BNPB) untukmenghasilkan analisis "
@@ -307,33 +254,27 @@ msgstr "Filter"
 
 #: realtime/templates/realtime/earthquake/index.html:132
 msgid "Contextual Filters"
-msgstr ""
+msgstr "Filter kontekstual"
 
 #: realtime/templates/realtime/earthquake/index.html:137
-#, fuzzy
-#| msgid "Earthquakes"
 msgid "Recent Large Earthquakes"
-msgstr "Gempa Bumi"
+msgstr "Gempa Besar Terkini"
 
 #: realtime/templates/realtime/earthquake/index.html:140
-#, fuzzy
-#| msgid "Earthquakes"
 msgid "Recent Small Earthquakes"
-msgstr "Gempa Bumi"
+msgstr "Gempa Kecil Terkini"
 
 #: realtime/templates/realtime/earthquake/index.html:143
-#, fuzzy
-#| msgid "Earthquakes"
 msgid "Recent Felt Earthquakes"
-msgstr "Gempa Bumi"
+msgstr "Gempa Dirasakan Terkini"
 
 #: realtime/templates/realtime/earthquake/index.html:155
 msgid "Earthquakes"
-msgstr "Gempa Bumi"
+msgstr "Gempabumi"
 
 #: realtime/templates/realtime/earthquake/index.html:163
 msgid "Location Description"
-msgstr "Deskripsi Tempat"
+msgstr "Deskripsi Wilayah"
 
 #: realtime/templates/realtime/earthquake/index.html:164
 msgid "Magnitude"
@@ -346,6 +287,138 @@ msgstr "Kedalaman"
 #: realtime/templates/realtime/earthquake/index.html:166
 msgid "Shake Id"
 msgstr "Id Gempa"
+
+#: realtime/templates/realtime/earthquake/index.html:179
+msgid ""
+"\n"
+"                <h2>Supporters</h2>\n"
+"\n"
+"                <p>Funded and supported by the\n"
+"                    <a href=\"http://dfat.gov.au/geo/indonesia/pages/"
+"indonesia.aspx\">Australian Government</a>,\n"
+"                    <a href=\"http://www.ga.gov.au/\">Geoscience Australia</"
+"a> and\n"
+"                    the <a href=\"http://www.gfdrr.org\">World Bank-GFDRR</"
+"a>.\n"
+"                </p>\n"
+"            "
+msgstr ""
+"\n"
+"                <h2>Pendukung</h2>\n"
+"\n"
+"                <p>Didanai dan didukung oleh\n"
+"                    <a href=\"http://dfat.gov.au/geo/indonesia/pages/"
+"indonesia.aspx\">Australian Government</a>,\n"
+"                    <a href=\"http://www.ga.gov.au/\">Geoscience Australia</"
+"a> and\n"
+"                    the <a href=\"http://www.gfdrr.org\">World Bank-GFDRR</"
+"a>.\n"
+"                </p>\n"
+"            "
+
+#: realtime/templates/realtime/earthquake/index.html:190
+msgid ""
+"\n"
+"                <h2>Partners</h2>\n"
+"\n"
+"                <p>This software was developed with our partners in "
+"Indonesia:\n"
+"                    <a href=\"http://bnpb.go.id\">Badan Nasional\n"
+"                        Penanggulangan Bencana (BNPB)</a> and\n"
+"                    <a href=\"http://www.bmkg.go.id\">Badan Meteorologi, "
+"Klimatologi, dan\n"
+"                        Geofisika (BMKG)</a>\n"
+"                </p>\n"
+"\n"
+"            "
+msgstr ""
+"\n"
+"                <h2>Mitra</h2>\n"
+"\n"
+"                <p>Perangkat lunak ini dikembangkan dengan bekerjasama "
+"bersama mitra kami di Indonesia:\n"
+"                    <a href=\"http://bnpb.go.id\">Badan Nasional\n"
+"                        Penanggulangan Bencana (BNPB)</a> dan\n"
+"                    <a href=\"http://www.bmkg.go.id\">Badan Meteorologi, "
+"Klimatologi, dan\n"
+"                        Geofisika (BMKG)</a>\n"
+"                </p>\n"
+"\n"
+"            "
+
+#: realtime/templates/realtime/earthquake/index.html:203
+msgid ""
+"\n"
+"                <h2>InaSAFE</h2>\n"
+"\n"
+"                <p>This software is part of the\n"
+"                    <a href=\"http://inasafe.org\">InaSAFE</a> project.\n"
+"                </p>\n"
+"            "
+msgstr ""
+"\n"
+"                <h2>InaSAFE</h2>\n"
+"\n"
+"                <p>Perangkat lunak ini adalah bagian dari\n"
+"                    proyek <a href=\"http://inasafe.org\">InaSAFE</a> .\n"
+"                </p>\n"
+"            "
+
+#: realtime/templates/realtime/earthquake/index.html:313
+msgid "Zoom"
+msgstr "Perbesar"
+
+#: realtime/templates/realtime/earthquake/index.html:318
+msgid "Report"
+msgstr "Laporan"
+
+#: realtime/templates/realtime/earthquake/index.html:323
+msgid "Download"
+msgstr "Unduh"
+
+#: realtime/templates/realtime/earthquake/index.html:328
+msgid "Grid"
+msgstr "Grid"
+
+#: realtime/templates/realtime/earthquake/index.html:386
+#, python-format
+msgid "Earthquake events %%(magnitude)s %%(date)s"
+msgstr "Kejadian gempabumi %%(magnitude)s %%(date)s"
+
+#: realtime/templates/realtime/earthquake/index.html:387
+#, python-format
+msgid "with magnitudes between %%(min_magnitude)s and %%(max_magnitude)s"
+msgstr ""
+"dengan magnitude antara %%(min_magnitude)s sampai dengan %%(max_magnitude)s"
+
+#: realtime/templates/realtime/earthquake/index.html:388
+#, python-format
+msgid "with magnitudes greater than or equal %%(min_magnitude)s"
+msgstr "dengan magnitude lebih besar dari atau sama dengan %%(min_magnitude)s"
+
+#: realtime/templates/realtime/earthquake/index.html:389
+#, python-format
+msgid "with magnitudes less than or equal %%(max_magnitude)s"
+msgstr "dengan magnitude kurang dari atau sama dengan %%(max_magnitude)s"
+
+#: realtime/templates/realtime/earthquake/index.html:390
+#, python-format
+msgid "over the period %%(start_moment) and %%(end_moment)s"
+msgstr "mulai dari %%(start_moment) sampai dengan %%(end_moment)s"
+
+#: realtime/templates/realtime/earthquake/index.html:391
+#, python-format
+msgid "since %%(start_moment)s"
+msgstr "sejak %%(start_moment)s"
+
+#: realtime/templates/realtime/earthquake/index.html:392
+#, python-format
+msgid "before %%(end_moment)"
+msgstr "sebelum %%(end_moment)"
+
+#: realtime/templates/realtime/earthquake/index.html:414
+msgid "Action"
+msgstr "Aksi"
 
 #: realtime/templates/realtime/flood/index.html:30
 msgid ""
@@ -368,67 +441,82 @@ msgid ""
 "regions easily.\n"
 "                    "
 msgstr ""
+"\n"
+"                        Halaman web ini memuat data kajian dampak banjir "
+"secara <i>near-realtime</i> di DKI Jakarta.\n"
+"                        Data kajian banjir ini bersumber dari <a href="
+"\"http://petajakarta.org\">PetaJakarta.org</a>   yang dikumpulkan dari <a "
+"href=\"http://twitter.com\">twitter</a>,\n"
+"                        <a href=\"http://qluein.com/\">qlue</a>, <a href="
+"\"http://pasangmata.detik.com/\">detik.com</a> dan review data lanjut oleh "
+"BPBD DKI Jakarta.\n"
+"                        Informasi kajian banjir ini digunakan oleh para "
+"pemangku kepentingan terkait bencana untuk membantu memahami potensial skala "
+"bencana dan untuk merespon lebih cepat pada \n"
+"                        area maupun masyarakat yg terdampak oleh bencana "
+"paling parah. Hal ini penting khususnya pada waktu-waktu awal semenjak "
+"banjir terjadi dimana data-data lapangan yang akurat \n"
+"                        masih sulit diperoleh. Walaupun layanan ini untuk "
+"sementara hanya spesifik untuk DKI Jakarta, perangkat ini dapat dikembangkan "
+"sehingga wilayah lain dapat ditambahkan dengan mudah.\n"
+"                    "
 
 #: realtime/templates/realtime/flood/index.html:74
 msgid "Flood"
-msgstr ""
+msgstr "Banjir"
 
 #: realtime/templates/realtime/flood/index.html:81
 msgid "Event ID"
-msgstr ""
-
-#: realtime/templates/realtime/flood/index.html:83
-msgid "Interval"
-msgstr ""
+msgstr "ID Kejadian"
 
 #: realtime/templates/realtime/indicator.html:36
 msgid "Username"
-msgstr ""
+msgstr "Username"
 
 #: realtime/templates/realtime/indicator.html:37
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: realtime/templates/realtime/indicator.html:58
 msgid "Indicator"
-msgstr ""
+msgstr "Indikator"
 
 #: realtime/templates/realtime/indicator.html:59
 msgid "Value"
-msgstr ""
+msgstr "Nilai"
 
 #: realtime/templates/realtime/indicator.html:60
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: realtime/templates/realtime/indicator.html:61
 msgid "Notes"
-msgstr ""
+msgstr "Catatan"
 
 #: realtime/templatetags/realtime_extras.py:45
 #, python-format
 msgid "%d days"
-msgstr ""
+msgstr "%d hari"
 
 #: realtime/templatetags/realtime_extras.py:49
 #, python-format
 msgid "%d hours"
-msgstr ""
+msgstr "%d jam"
 
 #: realtime/templatetags/realtime_extras.py:53
 #, python-format
 msgid "%d minutes"
-msgstr ""
+msgstr "%d menit"
 
 #: realtime/templatetags/realtime_extras.py:57
 #, python-format
 msgid "%d seconds"
-msgstr ""
+msgstr "%d detik"
 
 #: realtime/templatetags/realtime_extras.py:59
 #, python-format
 msgid "%d microseconds"
-msgstr ""
+msgstr "%d mikrodetik"
 
 #: realtime/views/earthquake.py:94 realtime/views/flood.py:90
 msgid "Select Area"
@@ -441,6 +529,9 @@ msgstr "Hapus Pilihan"
 #: realtime/views/earthquake.py:96 realtime/views/flood.py:92
 msgid "Select area within current zoom"
 msgstr "Pilih area dalam level perbesaran saat ini"
+
+#~ msgid "Interval"
+#~ msgstr "Interval"
 
 #~ msgid "Table"
 #~ msgstr "Tabel"

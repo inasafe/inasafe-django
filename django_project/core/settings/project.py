@@ -51,6 +51,7 @@ PIPELINE_JS = {
             'realtime/js/moment.js',
             'realtime/js/moment-timezone-all-years.js',
             'realtime/js/typeahead.jquery.js',
+            'realtime/js/sprintf.js',
         ),
         'output_filename': 'js/realtime_contrib.js',
     },
