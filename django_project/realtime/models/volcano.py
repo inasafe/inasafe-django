@@ -51,6 +51,20 @@ class Volcano(models.Model):
         blank=True,
     )
 
+    province = models.CharField(
+        verbose_name='The province name',
+        help_text='The province where the volcano located',
+        max_length=50,
+        blank=True,
+    )
+
+    district = models.CharField(
+        verbose_name='The district name',
+        help_text='The district where the volcano located',
+        max_length=50,
+        blank=True,
+    )
+
     morphology = models.CharField(
         verbose_name='Morphology',
         help_text='Morphology of the volcano',
@@ -60,7 +74,7 @@ class Volcano(models.Model):
 
     def __unicode__(self):
         return '%s - %s - %s' % (
-            self.volcano_name, self.region, self.subregion)
+            self.volcano_name, self.province, self.district)
 
 
 def load_volcano_data(Volcano, volcano_shapefile):
@@ -74,6 +88,8 @@ def load_volcano_data(Volcano, volcano_shapefile):
         region = feat.get('region')
         subregion = feat.get('subregion')
         morphology = feat.get('morphology')
+        province = feat.get('province')
+        district = feat.get('district')
 
         geometry = feat.geom
 
@@ -85,9 +101,9 @@ def load_volcano_data(Volcano, volcano_shapefile):
         try:
             volcano = Volcano.objects.get(
                 volcano_name__iexact=volcano_name,
-                region__iexact=region,
-                subregion__iexact=subregion,
-                morphology__iexact=morphology)
+                province__iexact=province,
+                district__iexact=district,
+                morphology__iexact=morphology,)
             print 'Volcano %s already exists' % volcano.volcano_name
         except Volcano.DoesNotExist:
             volcano = Volcano.objects.create(
@@ -96,5 +112,7 @@ def load_volcano_data(Volcano, volcano_shapefile):
                 elevation=elevation,
                 region=region,
                 subregion=subregion,
-                morphology=morphology)
+                morphology=morphology,
+                province=province,
+                district=district)
             print 'Volcano %s created' % volcano.volcano_name

@@ -50,7 +50,7 @@ class RealtimeConfig(AppConfig):
             dirname = os.path.dirname(__file__)
             volcano_fixtures = os.path.join(
                 dirname,
-                'fixtures/ash/GVP_Volcano_List_Darwin_VAAC_AOR_final.shp')
+                'fixtures/ash/IDN_Volcano_GVP_VAAC_AOR_WGS84.shp')
             Volcano = self.get_model('Volcano')
             if Volcano.objects.all().count() == 0:
                 load_volcano_data(Volcano, volcano_fixtures)

@@ -48,8 +48,8 @@ def ash_post_save(sender, **kwargs):
                 event_time=event_time,
                 volcano_name=instance.volcano.volcano_name,
                 volcano_location=location,
-                eruption_height=instance.volcano.elevation,
-                region=instance.volcano.subregion,
+                eruption_height=instance.eruption_height,
+                region=instance.volcano.province,
                 alert_level=instance.alert_level,
                 hazard_url=hazard_url)
             instance.task_id = result.id
