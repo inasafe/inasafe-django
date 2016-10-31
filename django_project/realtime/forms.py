@@ -61,7 +61,7 @@ class AshUploadForm(forms.ModelForm):
             # 'volcano_name',
             # 'location',
             'alert_level',
-            # 'eruption_height',
+            'eruption_height',
             'event_time',
             # 'region',
             'hazard_file'
@@ -70,6 +70,13 @@ class AshUploadForm(forms.ModelForm):
     event_time = forms.DateTimeField(
         # initial=datetime.datetime.now(),
         widget=datetime_picker)
+    alert_level = forms.ChoiceField(
+        choices=[
+            ('normal', 'Normal'),
+            ('waspada', 'Waspada'),
+            ('siaga', 'Siaga'),
+            ('awas', 'Awas')
+        ])
     timezone = forms.CharField(
         widget=forms.HiddenInput())
     volcano_name = forms.CharField(

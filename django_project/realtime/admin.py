@@ -70,10 +70,9 @@ class AshReportAdmin(ModelAdmin):
 
 class VolcanoAdmin(ModelAdmin):
     """Admin class for volcano model"""
-    list_display = ('volcano_name', 'location', 'elevation', 'region',
-                    'subregion', 'morphology')
-    list_filter = ('region', 'morphology')
-    search_fields = ['volcano_name', 'region', 'subregion', 'morphology']
+    list_display = ('volcano_name', 'location', 'elevation', 'province', 'district', 'morphology')
+    list_filter = ('province', 'district', 'morphology')
+    search_fields = ['volcano_name', 'province', 'district', 'morphology']
 
 
 realtime_admin_site.register(Earthquake, EarthquakeAdmin)

@@ -39,6 +39,10 @@ class Ash(models.Model):
         verbose_name='Event Date and Time',
         help_text='The time the ash happened.',
         blank=False)
+    eruption_height = models.IntegerField(
+        verbose_name='Eruption height in meter',
+        blank=False,
+        default=0)
     task_id = models.CharField(
         verbose_name='Celery task id',
         help_text='Task id for processing',
