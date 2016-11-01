@@ -84,7 +84,7 @@ def retrieve_felt_earthquake_list():
     trs = soup.table.tbody.find_all('tr')
     for tr in trs:
         tds = tr.find_all('td')
-        event_id = tds[1].a['data-target'][1:]
+        event_id = tds[5].a['data-target'][1:]
         try:
             shake = Earthquake.objects.get(shake_id=event_id)
             shake.felt = True
