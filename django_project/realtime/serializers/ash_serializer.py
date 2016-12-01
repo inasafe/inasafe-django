@@ -120,6 +120,7 @@ class AshSerializer(serializers.ModelSerializer):
             'reports',
             'event_time',
             'task_status',
+            'eruption_height',
         )
 
 
@@ -141,4 +142,5 @@ class AshGeoJsonSerializer(GeoFeatureModelSerializer):
             'event_time',
             'alert_level',
             'task_status',
+            'eruption_height',
         )

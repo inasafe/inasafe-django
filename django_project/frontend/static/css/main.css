@@ -180,7 +180,7 @@ body {
     overflow: hidden;
 }
 
-.dropdown-menu>li>a {
+.navbar .dropdown-menu>li>a {
     color: #939ca6!important;
     line-height: 1.2;
     padding: 7px 20px!important;

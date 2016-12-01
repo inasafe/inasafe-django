@@ -189,8 +189,8 @@ function createActionRowWriter(button_templates, date_format) {
         if(date_format === undefined){
             date_format = 'YYYY-MM-DD [at] HH:mm:ss';
         }
-        //record.time = moment_time.format(date_format);
-        record.event_time = moment_time.fromNow();
+        record.event_time = moment_time.format(date_format);
+        // record.event_time = moment_time.fromNow();
 
         // grab the record's attribute for each column
         for (var i = 0, len = columns.length; i < len; i++) {

@@ -19,6 +19,8 @@ class VolcanoSerializer(GeoModelSerializer):
             'region',
             'location',
             'subregion',
+            'province',
+            'district',
         )
 
 
@@ -34,4 +36,6 @@ class VolcanoGeoJsonSerializer(GeoFeatureModelSerializer):
             'morphology',
             'region',
             'subregion',
+            'province',
+            'district',
         )
