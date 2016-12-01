@@ -79,7 +79,8 @@
                             <th data-dynatable-column="event_time">{% trans "Time" %}</th>
                             <th data-dynatable-column="volcano_name">{% trans "Volcano Name" %}</th>
                             <th data-dynatable-column="alert_level">{% trans "Alert Level" %}</th>
-                            <th data-dynatable-column="subregion">{% trans "Region" %}</th>
+                            <th data-dynatable-column="district">{% trans "District" %}</th>
+                            <th data-dynatable-column="eruption_height">{% trans "Eruption Height" %}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -207,7 +208,7 @@
                 var properties = feature.properties;
                 properties.id = feature.id;
                 properties.volcano_name = properties.volcano.volcano_name;
-                properties.subregion = properties.volcano.subregion;
+                properties.district = properties.volcano.district;
                 var popup_content = window.JST.popup_content(properties);
                 layer.bindPopup(popup_content);
             }

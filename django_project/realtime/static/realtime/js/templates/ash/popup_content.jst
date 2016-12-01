@@ -11,15 +11,27 @@
                 </tr>
                 <tr>
                     <th>Event Time</th>
-                    <td class="event-time"><%= moment(new Date(Date.parse(event_time))).fromNow() %></td>
+                    <td class="event-time"><%= moment(new Date(Date.parse(event_time))).format('YYYY-MM-DD [at] HH:mm:ss') %></td>
                 </tr>
                 <tr>
-                    <th>Region</th>
-                    <td class="region"><%= volcano.subregion %></td>
+                    <th>Province</th>
+                    <td class="province"><%= volcano.province %></td>
+                </tr>
+                <tr>
+                    <th>District</th>
+                    <td class="district"><%= volcano.district %></td>
+                </tr>
+                <tr>
+                    <th>Elevation</th>
+                    <td class="elevation"><%= volcano.elevation %></td>
+                </tr>
+                <tr>
+                    <th>Eruption Height</th>
+                    <td class="eruption-height"><%= eruption_height %></td>
                 </tr>
                 <tr>
                     <th>Alert Level</th>
-                    <td class="magnitude"><%= alert_level %></td>
+                    <td class="alert-level"><%= alert_level %></td>
                 </tr>
                 </tbody>
             </table>
