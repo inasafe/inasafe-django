@@ -100,21 +100,21 @@ urlpatterns = [
         AshReportList.as_view(),
         name='ash_report_list'),
     url(r'^api/v1/ash/'
-        r'(?P<volcano_name>[\w ]+)/'
+        r'(?P<volcano_name>[\w -]+)/'
         r'(?P<event_time>[\d+-]{19})/$',
         AshDetail.as_view(),
         name='ash_detail'),
     url(r'^api/v1/ash-report/'
-        r'(?P<volcano_name>[\w ]+)/$',
+        r'(?P<volcano_name>[\w -]+)/$',
         AshReportList.as_view(),
         name='ash_report_list'),
     url(r'^api/v1/ash-report/'
-        r'(?P<volcano_name>[\w ]+)/'
+        r'(?P<volcano_name>[\w -]+)/'
         r'(?P<event_time>[\d+-]{19})/$',
         AshReportList.as_view(),
         name='ash_report_list'),
     url(r'^api/v1/ash-report/'
-        r'(?P<volcano_name>[\w ]+)/'
+        r'(?P<volcano_name>[\w -]+)/'
         r'(?P<event_time>[\d+-]{19})/'
         r'(?P<language>[-\w]+)/$',
         AshReportDetail.as_view(),

@@ -196,8 +196,8 @@
                 jsonTableContents[i] = event_json.features[i].properties;
             }
             dynaTable.settings.dataset.originalRecords = jsonTableContents;
-            dynaTable.paginationPerPage.set(30);
-            dynaTable.sorts.add('time', -1);
+            dynaTable.paginationPerPage.set(10);
+            dynaTable.sorts.add('event_time', -1);
             dynaTable.process();
         }
 
