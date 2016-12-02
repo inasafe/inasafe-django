@@ -69,8 +69,23 @@
             }
         });
 
-        var $timezone = $("#id_timezone");
-        $timezone.val(moment.tz.guess());
+        var $timezone = $("#id_timezone_string");
+        var $utc_offset = $("#id_utc_offset");
+        var timezone_name = moment.tz.guess();
+        var timezone_moment = moment().tz(timezone_name);
+        $utc_offset.val(timezone_moment.utcOffset());
+        var timezone_offset = timezone_moment.format('Z');
+        var timezone_string = '';
+        if(timezone_name){
+            timezone_string += timezone_name;
+            if(timezone_offset){
+                timezone_string += ' ('+timezone_offset+')';
+            }
+        }
+        if(!timezone_name && timezone_offset){
+            timezone_string += timezone_offset;
+        }
+        $timezone.val(timezone_string);
     });
     </script>
 {% endblock %}
