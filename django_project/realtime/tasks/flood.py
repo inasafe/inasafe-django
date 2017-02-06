@@ -14,6 +14,7 @@ from django.contrib.gis.gdal.datasource import DataSource
 from django.contrib.gis.geos.collections import MultiPolygon
 from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.contrib.gis.geos.polygon import Polygon
+from django.db.models import Sum
 
 from realtime.app_settings import LOGGER_NAME
 from realtime.models.flood import (
@@ -65,6 +66,9 @@ def process_hazard_layer(flood):
 
         FloodEventBoundary.objects.filter(flood=flood).delete()
 
+        kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
+        rw = BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
+
         for feat in layer:
             pkey = feat.get('pkey')
             level_name = feat.get('level_name')
@@ -81,7 +85,6 @@ def process_hazard_layer(flood):
                 geos_geometry = MultiPolygon(geos_geometry)
 
             # check parent exists
-            kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
             try:
                 boundary_kelurahan = Boundary.objects.get(
                     name__iexact=parent_name.strip(),
@@ -94,7 +97,6 @@ def process_hazard_layer(flood):
                     boundary_alias=kelurahan)
                 boundary_kelurahan.save()
 
-            rw = BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
             try:
                 boundary_rw = Boundary.objects.get(
                     upstream_id=pkey, boundary_alias=rw)
@@ -161,6 +163,9 @@ def process_impact_layer(flood):
         layer = source[0]
 
         ImpactEventBoundary.objects.filter(flood=flood).delete()
+
+        kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
+
         for feat in layer:
             level_7_name = feat.get('NAMA_KELUR').strip()
             hazard_class = feat.get('affected')
@@ -174,8 +179,6 @@ def process_impact_layer(flood):
 
             if hazard_class <= 1:
                 continue
-
-            kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
 
             try:
                 boundary_kelurahan = Boundary.objects.get(
@@ -202,6 +205,38 @@ def process_impact_layer(flood):
         shutil.rmtree(tmpdir)
     LOGGER.info('Impact layer processed...')
     return True
+
+
+@app.task(queue='inasafe-django')
+def recalculate_impact_info(flood):
+    """Recalculate flood impact data.
+
+    :param flood: Flood object
+    :type flood: realtime.models.flood.Flood
+    """
+    # calculate total boundary flooded in RW level
+    rw = BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
+    boundary_flooded = FloodEventBoundary.objects.filter(
+        flood=flood,
+        boundary__boundary_alias=rw).count()
+    flood.boundary_flooded = boundary_flooded or 0
+
+    # calculate total population affected in kelurahan level
+    kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
+    total_population_affected = ImpactEventBoundary.objects.filter(
+        flood=flood,
+        parent_boundary__boundary_alias=kelurahan
+    ).aggregate(
+        total_population_affected=Sum('population_affected'))
+    try:
+        flood.total_affected = total_population_affected[
+            'total_population_affected'] or 0
+    except KeyError:
+        flood.total_affected = 0
+        pass
+
+    # prevent infinite recursive save
+    flood.save(update_fields=['total_affected', 'boundary_flooded'])
 
 
 @app.task(queue='inasafe-django')

@@ -112,6 +112,14 @@ class Flood(models.Model):
         through='FloodEventBoundary',
         verbose_name='Flooded Boundaries',
         help_text='The linked boundaries flooded by this event')
+    total_affected = models.IntegerField(
+        verbose_name='Total affected people by flood',
+        help_text='Total affected people by flood',
+        default=0)
+    boundary_flooded = models.IntegerField(
+        verbose_name='Total boundary flooded',
+        help_text='Total boundary affected by flood',
+        default=0)
 
     objects = models.GeoManager()
 

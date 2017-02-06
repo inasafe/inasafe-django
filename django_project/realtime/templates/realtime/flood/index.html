@@ -55,16 +55,84 @@
 {% endblock main_content %}
 
 {% block filter_content %}
-{#    <div class="row center-block">#}
-{#        <div class="panel panel-default">#}
-{#            <div class="panel-heading">#}
-{#                <h3 class="panel-title">{% trans "Filters" %}</h3>#}
-{#            </div>#}
-{#            <div class="panel-body">#}
-{#                Lorem Ip-sunni...#}
-{#            </div>#}
-{#        </div>#}
-{#    </div>#}
+    <div class="row center-block">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{% trans "Filters" %}</h3>
+            </div>
+            <div class="panel-body">
+                <form id="event-filter" data-toggle="validator">
+                    <span class="row">
+                        <span class="date-filter col-xs-12 col-sm-4">
+                            <span class="row">
+                                <label class="control-label col-xs-12 col-sm-12">{% trans "Event Time" %}</label>
+                                <span class="col-xs-6 col-sm-6">
+                                    {{ form.start_date|bootstrap }}
+                                    <div class="help-block with-errors"></div>
+                                </span>
+                                <span class="col-xs-6 col-sm-6">
+                                    {{ form.end_date|bootstrap }}
+                                    <div class="help-block with-errors"></div>
+                                </span>
+                            </span>
+                        </span>
+                        <span class="people-affected-filter col-xs-12 col-sm-3">
+                            <span class="row">
+                                <label class="control-label col-xs-12 col-sm-12">{% trans "Number of People Affected"%}</label>
+                                <span class="col-xs-6 col-sm-6">
+                                    {{ form.min_people_affected|bootstrap }}
+                                    <div class="help-block with-errors"></div>
+                                </span>
+                                <span class="col-xs-6 col-sm-6">
+                                    {{ form.max_people_affected|bootstrap }}
+                                    <div class="help-block with-errors"></div>
+                                </span>
+                            </span>
+                        </span>
+                        <span class="boundary-flooded-filter col-xs-12 col-sm-3">
+                            <span class="row">
+                                <label class="control-label col-xs-12 col-sm-12">{% trans "Number of RW Flooded" %}</label>
+                                <span class="col-xs-6 col-sm-6">
+                                    {{ form.min_boundary_flooded|bootstrap }}
+                                    <div class="help-block with-errors"></div>
+                                </span>
+                                <span class="col-xs-6 col-sm-6">
+                                    {{ form.max_boundary_flooded|bootstrap }}
+                                    <div class="help-block with-errors"></div>
+                                </span>
+                            </span>
+                        </span>
+                        <span class="col-sm-1 hidden-xs">
+                            <button class="btn clear-filter" title="Clear Filter">
+                                <span class="glyphicon glyphicon-erase"></span>
+                            </button>
+                        </span>
+                        <span class="col-sm-1 hidden-xs">
+                            <button class="btn btn-primary submit-filter"
+                                    title="Update Filter"
+                                    type="submit">
+                                <span class="glyphicon glyphicon-ok"></span>
+                            </button>
+                        </span>
+                        <span class="clearfix"></span>
+                    </span>
+                    <span class="row">
+                        <span class="col-xs-2 visible-xs">
+                            <button class="btn clear-filter" title="Clear Filter">
+                                <span class="glyphicon glyphicon-erase"></span>
+                            </button>
+                        </span>
+                        <span class="col-xs-2 visible-xs">
+                            <button class="btn btn-primary submit-filter"
+                                    title="Update Filter">
+                                <span class="glyphicon glyphicon-ok"></span>
+                            </button>
+                        </span>
+                    </span>
+                </form>
+            </div>
+        </div>
+    </div>
 {% endblock filter_content %}
 
 {% block table_content %}
@@ -79,7 +147,10 @@
                         <thead>
                         <tr>
                             <th data-dynatable-column="event_id" style="display: none">{% trans "Event ID" %}</th>
-                            <th data-dynatable-column="time">{% trans "Time" %}</th>
+                            <th data-dynatable-column="event_id_formatted">{% trans "Event ID" %}</th>
+                            <th data-dynatable-column="time_description">{% trans "Time" %}</th>
+                            <th data-dynatable-column="total_affected">{% trans "Population Affected" %}</th>
+                            <th data-dynatable-column="boundary_flooded">{% trans "RW Flooded" %}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -149,8 +220,8 @@
         jsonTableContents = event_json;
 
         dynatable.settings.dataset.originalRecords = jsonTableContents;
-        dynatable.paginationPerPage.set(100);
-        dynatable.sorts.add('time', -1);
+        dynatable.paginationPerPage.set(10);
+        dynatable.sorts.add('event_id_formatted', -1);
         dynatable.process();
 
         // programatically show first flood in row
@@ -197,6 +268,9 @@
             dataset: {
                 records: jsonTableContents,
                 sorts: {'magnitude': -1}
+            },
+            features: {
+                search: false
             }
         }).data('dynatable');
 
@@ -204,9 +278,69 @@
         addActionColumn('#realtime-table', 'Action');
 
         $.get(get_events_url, function(data){
-            var event_json = data;
+            event_json = data;
             getEventsJson(event_json);
         });
+
+        // add content filter handler
+        // update via ajax request
+        var $event_filter = $("#event-filter");
+        {% if server_side_filter %}
+            var _updateFilterHandler = createUpdateFilterHandler(get_events_url,
+                    $event_filter,
+                    getEventsJson);
+        {% else %}
+            // update via client filters
+            var _updateFilterHandler = createClientUpdateFilterHandler(get_events_url,
+                    $event_filter,
+                    getEventsJson);
+        {% endif %}
+        var updateFilterHandler = function (e, reset) {
+            _updateFilterHandler(e, reset);
+            modifyMapDescriptions(".map-title");
+        };
+
+        {#            Modify location filter styles#}
+        modifySearchAndShowLabels();
+
+        $(".submit-filter").click(updateFilterHandler);
+        var clearFilterHandler = function (e) {
+            e.preventDefault();
+            var $event_filter = $("#event-filter");
+            $event_filter.find("input[type=text].form-control").val('');
+            $event_filter.find("input[type=number].form-control").val('');
+            $event_filter.find("input[type=checkbox]").prop("checked", false);
+            updateFilterHandler(e);
+            $(".submit-filter, .clear-filter").hide();
+        };
+        $(".clear-filter").click(clearFilterHandler);
+
+        {#            Disable date input text#}
+        $event_filter.find(".date-filter input").attr("readonly", "readonly");
+        {#            Disable filter button if no filter exists#}
+
+        var show_filter_button = function (e) {
+            var is_show_filter = false;
+            $event_filter.find("input[type=text],input[type=number]").each(function (idx, el) {
+                if ($(el).val()) {
+                    is_show_filter = true;
+                }
+            });
+            $event_filter.find("input[type=checkbox]").each(function (idx, el) {
+                if($(el).prop("checked") == true){
+                    is_show_filter = true;
+                }
+            });
+            if (is_show_filter) {
+                $event_filter.find("button.btn").show();
+            }
+            else {
+                $event_filter.find("button.btn").hide();
+            }
+        };
+
+        show_filter_button();
+        $event_filter.bind('mousemove click keyup focus blur', show_filter_button);
     });
     </script>
 {% endblock js_container %}
