@@ -25,7 +25,7 @@ from rest_framework import status
 from realtime.app_settings import LEAFLET_TILES, LANGUAGE_LIST, \
     MAPQUEST_MAP_KEY
 from realtime.models.ash import Ash, AshReport
-from realtime.forms import AshUploadForm
+from realtime.forms.ash import AshUploadForm
 from realtime.models.volcano import Volcano
 from realtime.serializers.ash_serializer import AshSerializer, \
     AshReportSerializer, AshGeoJsonSerializer

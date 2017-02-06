@@ -5,6 +5,7 @@ import logging
 from datetime import datetime, timedelta
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.models.aggregates import Count
+from django.db.models import Q
 from django.db.utils import IntegrityError
 from django.http.response import JsonResponse, HttpResponseServerError
 from django.shortcuts import render_to_response
@@ -21,7 +22,7 @@ from rest_framework.response import Response
 
 from realtime.app_settings import (
     LEAFLET_TILES, LANGUAGE_LIST, MAPQUEST_MAP_KEY)
-from realtime.forms import FilterForm
+from realtime.forms.flood import FilterForm
 from realtime.models.flood import Flood, FloodReport, Boundary, \
     FloodEventBoundary
 from realtime.serializers.flood_serializer import FloodSerializer, \
@@ -114,7 +115,6 @@ class FloodList(mixins.ListModelMixin, mixins.CreateModelMixin,
     search_fields = ('event_id', )
     ordering = ('event_id', )
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
-    # pagination_class = Pagina
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
@@ -286,8 +286,21 @@ class FloodReportDetail(mixins.ListModelMixin,
 
 
 class FloodEventList(FloodList):
+    # only retrieve for 6 interval hours
     serializer_class = FloodSerializer
     pagination_class = None
+
+    def get_queryset(self):
+        """Return only 6-interval hours.
+
+        :return:
+        """
+        # this interval is specific for Jakarta (GMT+07)
+        # it will show up as 6 hourly flood data from 00:00
+        query = (
+            Q(time__hour=23) | Q(time__hour=5) |
+            Q(time__hour=11) | Q(time__hour=17))
+        return Flood.objects.filter(query)
 
 
 def flood_event_features(request, event_id):

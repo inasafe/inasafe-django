@@ -280,17 +280,13 @@ function createDownloadReportHandler(report_url) {
  * @param {function} dataHandler Function to handle retrieved data
  * @return {Function} Update handler function
  */
-function createUpdateFilterHandler(url, form_filter, location_filter, dataHandler) {
+function createUpdateFilterHandler(url, form_filter, dataHandler) {
     var updateFilterHandler = function (e, reset) {
         if (e.preventDefault) {
             e.preventDefault();
         }
         var form_filter_query = form_filter.serialize();
-        var location_filter_query = "";
-        if (location_filter.isEnabled() && reset!==true) {
-            location_filter_query += "&in_bbox=" + location_filter.getBounds().toBBoxString();
-        }
-        $.get(url + "?" + form_filter_query + location_filter_query, dataHandler);
+        $.get(url + "?" + form_filter_query, dataHandler);
     };
     return updateFilterHandler;
 }
@@ -300,18 +296,18 @@ function createUpdateFilterHandler(url, form_filter, location_filter, dataHandle
  * @param data_input {{}} a geo json collections
  * @param min_date {string} date formattable string
  * @param max_date {string} date formattable string
- * @param min_magnitude {string} float string
- * @param max_magnitude {string} float string
+ * @param min_people_affected {string} float string
+ * @param max_people_affected {string} float string
  * @return {{features: Array, type: *}}
  */
-function clientFilter(data_input, min_date, max_date, min_magnitude, max_magnitude){
+function clientFilter(data_input, min_date, max_date, min_people_affected, max_people_affected, min_boundary_flooded, max_boundary_flooded){
     var filtered_features = [];
-    var features = data_input.features;
+    var features = data_input;
     for(var i=0;i<features.length;i++){
         var feature = features[i];
 
         // time filter
-        var time = new Date(Date.parse(feature.properties.time));
+        var time = new Date(Date.parse(feature.time));
         if(min_date && time < new Date(Date.parse(min_date))){
             continue
         }
@@ -320,23 +316,30 @@ function clientFilter(data_input, min_date, max_date, min_magnitude, max_magnitu
             continue
         }
 
-        // magnitude
-        var magnitude = feature.properties.magnitude;
-        if(min_magnitude && magnitude < parseFloat(min_magnitude)){
+        // people affected
+        var people_affected = feature.total_affected;
+        if(min_people_affected && people_affected < parseFloat(min_people_affected)){
             continue
         }
 
-        if(max_magnitude && magnitude > parseFloat(max_magnitude)){
+        if(max_people_affected && people_affected > parseFloat(max_people_affected)){
+            continue
+        }
+
+        // boundary flooded
+        var boundary_flooded = feature.boundary_flooded;
+        if(min_boundary_flooded && boundary_flooded < parseFloat(min_boundary_flooded)){
+            continue
+        }
+
+        if(max_boundary_flooded && boundary_flooded > parseFloat(max_boundary_flooded)){
             continue
         }
 
         // filtered
         filtered_features.push(feature);
     }
-    return {
-        features: filtered_features,
-        type: data_input.type
-    };
+    return filtered_features;
 }
 
 /**
@@ -378,22 +381,21 @@ function clientExtentFilter(data_input, bounds){
  * @param {function} dataHandler Function to handle retrieved data
  * @return {Function} Update handler function
  */
-function createClientUpdateFilterHandler(url, form_filter, location_filter, dataHandler) {
+function createClientUpdateFilterHandler(url, form_filter, dataHandler) {
     var updateFilterHandler = function (e, reset) {
         if (e.preventDefault) {
             e.preventDefault();
         }
         // filter by bounds
         var filtered = event_json;
-        if(reset !== true){
-            filtered = clientExtentFilter(event_json, location_filter.getBounds());
-        }
         filtered = clientFilter(
             filtered,
             $("#id_start_date", form_filter).val(),
             $("#id_end_date", form_filter).val(),
-            $("#id_minimum_magnitude", form_filter).val(),
-            $("#id_maximum_magnitude", form_filter).val()
+            $("#id_min_people_affected", form_filter).val(),
+            $("#id_max_people_affected", form_filter).val(),
+            $("#id_min_boundary_flooded", form_filter).val(),
+            $("#id_max_boundary_flooded", form_filter).val()
         );
         dataHandler(filtered);
     };
@@ -407,17 +409,30 @@ function createClientUpdateFilterHandler(url, form_filter, location_filter, data
 function modifyMapDescriptions(target){
     var $target = $(target);
 
-    var magnitude_string = "";
-    var min_magnitude = $("#id_minimum_magnitude").val();
-    var max_magnitude = $("#id_maximum_magnitude").val();
-    if(min_magnitude && max_magnitude){
-        magnitude_string = 'with magnitudes between '+min_magnitude+' and '+max_magnitude;
+    var people_affected_string = "";
+    var min_people_affected = $("#id_min_people_affected").val();
+    var max_people_affected = $("#id_max_people_affected").val();
+    var boundary_flooded_string = "";
+    var min_boundary_flooded = $("#id_min_boundary_flooded").val();
+    var max_boundary_flooded = $("#id_max_boundary_flooded").val();
+    if(min_people_affected && max_people_affected){
+        people_affected_string = 'with people affected between '+min_people_affected+' and '+max_people_affected;
     }
-    else if(min_magnitude){
-        magnitude_string = 'with magnitudes greater or equal than '+min_magnitude;
+    else if(min_people_affected){
+        people_affected_string = 'with people affected greater or equal than '+min_people_affected;
     }
-    else if(max_magnitude){
-        magnitude_string = 'with magnitudes less or equal than '+max_magnitude;
+    else if(max_people_affected){
+        people_affected_string = 'with people affected less or equal than '+max_people_affected;
+    }
+
+    if(min_boundary_flooded && max_boundary_flooded){
+        boundary_flooded_string = 'with RW flooded between '+min_boundary_flooded+' and '+max_boundary_flooded;
+    }
+    else if(min_boundary_flooded){
+        boundary_flooded_string = 'with RW flooded greater or equal than '+min_boundary_flooded;
+    }
+    else if(max_boundary_flooded){
+        boundary_flooded_string = 'with RW flooded less or equal than '+max_boundary_flooded;
     }
 
     var date_string = '';
@@ -436,31 +451,17 @@ function modifyMapDescriptions(target){
         var end_moment = moment(end_date);
         date_string = 'before '+end_moment.format('LL');
     }
-    var description = 'Earthquake events';
-    if(magnitude_string){
-        description+=' '+magnitude_string;
+    var description = 'Flood events';
+    if(people_affected_string){
+        description+=' '+people_affected_string;
+    }
+    if(boundary_flooded_string){
+        description+=' '+boundary_flooded_string;
     }
     if(date_string){
         description+=' '+date_string;
     }
     $target.text(description);
-}
-
-/**
- * Modify location filter plugin styles.
- * This function is used to overrides original styles
- */
-function modifyLocationFilterStyle(){
-    var $location_filter_container = $(".location-filter");
-    $location_filter_container.removeClass('button-container').addClass('leaflet-bar');
-    var $enable_button = $(".enable-button", $location_filter_container);
-    $enable_button.text("");
-    $enable_button.click(function(){
-        // disable text
-        $("a", $location_filter_container).text("");
-        var $toggle_button = $(".enable-button", $location_filter_container);
-        $toggle_button.toggleClass("remove-button");
-    });
 }
 
 /**

@@ -1,5 +1,5 @@
 # coding=utf-8
-
+import pytz
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
 from realtime.models.flood import Flood, FloodReport
@@ -96,12 +96,54 @@ class FloodSerializer(serializers.ModelSerializer):
     # auto bind to get_url method
     url = CustomSerializerMethodField()
 
+    def get_time_description(self, serializer_field, obj):
+        """
+        :param serializer_field:
+        :type serializer_field: CustomSerializerMethodField
+
+        :param obj:
+        :type obj: Flood
+
+        :return:
+        """
+        utc_time = obj.time.replace(tzinfo=pytz.utc)
+        jakarta_time = utc_time.astimezone(tz=pytz.timezone('Asia/Jakarta'))
+        description_format = (
+            '{interval} hour report for %d %B %Y at %H:%M:%S').format(
+            interval=obj.interval)
+        return jakarta_time.strftime(description_format)
+
+    # auto bind to get_time_description method
+    time_description = CustomSerializerMethodField()
+
+    def get_event_id_formatted(self, serializer_field, obj):
+        """
+        :param serializer_field:
+        :type serializer_field: CustomSerializerMethodField
+
+        :param obj:
+        :type obj: Flood
+
+        :return:
+        """
+        utc_time = obj.time.replace(tzinfo=pytz.utc)
+        jakarta_time = utc_time.astimezone(tz=pytz.timezone('Asia/Jakarta'))
+        event_id_format = '%Y%m%d%H%M%S'
+        return jakarta_time.strftime(event_id_format)
+
+    # auto bind to get_event_id_formatted method
+    event_id_formatted = CustomSerializerMethodField()
+
     class Meta:
         model = Flood
         fields = (
             'url',
             'event_id',
+            'event_id_formatted',
             'time',
+            'time_description',
+            'total_affected',
+            'boundary_flooded',
             'interval',
             'source',
             'region',

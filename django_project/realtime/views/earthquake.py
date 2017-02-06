@@ -21,7 +21,7 @@ from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 from realtime.app_settings import (
     LEAFLET_TILES, LANGUAGE_LIST, MAPQUEST_MAP_KEY)
-from realtime.forms import FilterForm
+from realtime.forms.earthquake import FilterForm
 from realtime.filters.earthquake_filter import EarthquakeFilter
 from realtime.models.earthquake import Earthquake, EarthquakeReport
 from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
