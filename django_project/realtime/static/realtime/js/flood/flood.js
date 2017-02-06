@@ -91,22 +91,30 @@ function createShowFeaturesHandler(event_features_url){
                 }
                 var style_classes = {
                     1: {
-                        color: "#bdc5f7",
+                        stroke: true,
+                        color: "#000",
+                        weight: 2,
                         fillColor: "#bdc5f7",
                         fillOpacity: 0.8
                     },
                     2: {
-                        color: "#fffe73",
+                        stroke: true,
+                        color: "#000",
+                        weight: 2,
                         fillColor: "#fffe73",
                         fillOpacity: 0.8
                     },
                     3: {
-                        color: "#fea865",
+                        stroke: true,
+                        color: "#000",
+                        weight: 2,
                         fillColor: "#fea865",
                         fillOpacity: 0.8
                     },
                     4: {
-                        color: "#da6c7b",
+                        stroke: true,
+                        color: "#000",
+                        weight: 2,
                         fillColor: "#da6c7b",
                         fillOpacity: 0.8
                     }
@@ -114,6 +122,16 @@ function createShowFeaturesHandler(event_features_url){
                 event_layer = L.geoJson(data,{
                     style: function(feature){
                         return style_classes[feature.properties.hazard_data];
+                    },
+                    filter: function(feature){
+                        if(feature.properties){
+                            var props = feature.properties;
+                            var hazard_data = props.hazard_data;
+                            return hazard_data >= 1;
+                        }
+                        else {
+                            return false;
+                        }
                     },
                     onEachFeature: function(feature, layer) {
                         // Set popup content
@@ -134,7 +152,7 @@ function createShowFeaturesHandler(event_features_url){
                     scrollTop: $("#"+map_id).offset().top
                 }, 500);
                 var fitBoundsOption = {
-                    maxZoom: 10,
+                    maxZoom: 15,
                     pan: {
                         animate: true,
                         duration: 0.5

@@ -152,6 +152,12 @@
         dynatable.paginationPerPage.set(100);
         dynatable.sorts.add('time', -1);
         dynatable.process();
+
+        // programatically show first flood in row
+        if(jsonTableContents.length > 0) {
+            var flood_id = jsonTableContents[0].event_id;
+            showFeaturesHandler(flood_id);
+        }
     }
 
     // Create handler for table
