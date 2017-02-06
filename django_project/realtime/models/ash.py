@@ -31,7 +31,7 @@ class Ash(models.Model):
     )
     hazard_file = models.FileField(
         verbose_name='Hazard File',
-        help_text='Collection of hazard file in zip.',
+        help_text='Hazard file formatted as GeoTIFF (*.tif) in EPSG:4326.',
         upload_to='ash/hazard_file/%Y/%m/%d',
         blank=False
     )
@@ -40,7 +40,7 @@ class Ash(models.Model):
         help_text='The time the ash happened.',
         blank=False)
     eruption_height = models.IntegerField(
-        verbose_name='Eruption height in meter',
+        verbose_name='Eruption height in metres',
         blank=False,
         default=0)
     task_id = models.CharField(
