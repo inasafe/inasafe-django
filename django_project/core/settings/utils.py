@@ -23,5 +23,6 @@ with a random generated SECRET_KEY setting."""
         with open(secret_path, 'w') as f:
             f.write("SECRET_KEY = " + repr(secret_key) + "\n")
 
+
 # Import the secret key
 ensure_secret_key_file()
