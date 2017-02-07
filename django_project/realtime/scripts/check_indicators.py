@@ -32,5 +32,6 @@ def check_indicator_status():
                 ind.label,
                 ind.value_humanize)
 
+
 if __name__ == '__main__':
     check_indicator_status()
