@@ -9,6 +9,7 @@ from django.contrib.auth.models import Group
 from django.conf import settings
 from django.contrib.gis.geos.point import Point
 from django.core.files.base import File
+from django.apps import apps as django_apps
 from rest_framework.test import APITestCase
 
 from core.settings.utils import ABS_PATH
@@ -33,6 +34,9 @@ class TestFloodTask(APITestCase):
             # move to media root for testing purposes
             self.default_media_path = settings.MEDIA_ROOT
             settings.MEDIA_ROOT = ABS_PATH('media_test')
+
+        app_config = django_apps.get_app_config('realtime')
+        app_config.ready()
 
         Flood.objects.create(
             event_id=u'2015112518-3-rw',
