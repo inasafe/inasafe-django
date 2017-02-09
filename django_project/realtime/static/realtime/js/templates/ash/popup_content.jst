@@ -42,13 +42,37 @@
                     onclick="showReportHandler('<%= id %>')">
                 <span class="row-action-icon glyphicon glyphicon-file"></span>
             </button>
-            <button class="download-report btn btn-primary
-            row-action-container"
-                    title="Download Report"
-                    onclick="downloadReportHandler('<%= id %>')">
-                <span class="row-action-icon glyphicon
-                glyphicon-download"></span>
-            </button>
+            <div class="btn-group">
+                <button class="download-report btn btn-primary dropdown-toggle row-action-container"
+                        title="Download"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                    <span class="row-action-icon glyphicon
+                    glyphicon-download"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="#" onclick="downloadReportHandler('<%= id %>')">
+                            Report
+                        </a>
+                    </li>
+                    <% if(hazard_file) { %>
+                    <li>
+                        <a href="<%= hazard_file %>" download="<%= event_id_formatted+'-hazard.zip' %>">
+                            Hazard File
+                        </a>
+                    </li>
+                    <% } %>
+                    <% if(impact_files){ %>
+                    <li>
+                        <a href="<%= impact_files %>" download="<%= event_id_formatted+'-impacts.zip' %>">
+                            Impact Files
+                        </a>
+                    </li>
+                    <% } %>
+                </ul>
+            </div>
         </span>
     </div>
 </div>

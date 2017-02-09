@@ -165,7 +165,7 @@ class AshDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     queryset = Ash.objects.all()
     serializer_class = AshSerializer
     lookup_field = 'id'
-    parser_classes = [JSONParser, FormParser]
+    parser_classes = [JSONParser, FormParser, MultiPartParser]
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
     def get(self, request, volcano_name=None, event_time=None):
@@ -192,12 +192,18 @@ class AshDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
             serializer = self.get_serializer(instance)
             return Response(serializer.data)
 
-    def put(self, request, *args, **kwargs):
+    def put(self, request, volcano_name=None, event_time=None,
+            *args, **kwargs):
         try:
-            event_id = request.data['id']
-            if event_id:
-                event = Ash.objects.get(id=event_id)
-                event.hazard_file.delete()
+            if volcano_name and event_time:
+                instance = Ash.objects.get(
+                    volcano__volcano_name__iexact=volcano_name,
+                    event_time=parse(event_time))
+                self.kwargs.update(id=instance.id)
+                if 'hazard_file' in request.FILES and instance.hazard_file:
+                    instance.hazard_file.delete()
+                if 'impact_files' in request.FILES and instance.impact_files:
+                    instance.impact_files.delete()
                 retval = self.update(request, partial=True, *args, **kwargs)
                 return retval
             else:

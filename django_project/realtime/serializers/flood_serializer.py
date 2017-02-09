@@ -139,6 +139,7 @@ class FloodSerializer(serializers.ModelSerializer):
         fields = (
             'url',
             'event_id',
+            'data_source',
             'event_id_formatted',
             'time',
             'time_description',

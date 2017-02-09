@@ -106,15 +106,15 @@ function createShowEventHandler(map, markers, map_events) {
 
 /**
  * Closure to create handler for showReport
- * use magic number 000 for url placeholder
+ * use magic number for url placeholder
  *
- * @param {string} report_url A report url that contains shake_id placeholder
- * @return {function} Open the report based on shake_id in a new tab
+ * @param {string} report_url A report url that contains event_id placeholder
+ * @return {function} Open the report based on event_id in a new tab
  */
 function createShowReportHandler(report_url) {
     var showReportHandler = function (id) {
         var url = report_url;
-        // replace magic number 000 with shake_id
+        // replace magic number
         function createFindWithId(id){
             return function (event) {
                 return event.properties.id == id;
@@ -171,6 +171,54 @@ function createShowReportHandler(report_url) {
     return showReportHandler;
 }
 
+/**
+ * Closure to create handler for downloadReport
+ * use magic number for url placeholder
+ *
+ * @param {string} report_url A report url that contains event_id placeholder
+ * @return {function} Open the report based on event_id in a new tab
+ */
+function createDownloadReportHandler(report_url) {
+    var downloadReportHandler = function (id) {
+        var url = report_url;
+        // replace magic number 000 with shake_id
+        function createFindWithId(id){
+            return function (event) {
+                return event.properties.id == id;
+            }
+        }
+        var findWithId = createFindWithId(id);
+        var feature = event_json.features.find(findWithId);
+        var volcano_name = feature.properties.volcano.volcano_name;
+        var event_time = feature.properties.event_time;
+        var event_time_string = moment(event_time).format('YYYYMMDDHHmmssZZ');
+        var event_id_formatted = feature.properties.event_id_formatted;
+        var task_status = feature.properties.task_status;
+        if(task_status == 'PENDING'){
+            alert("Report is currently being generated. Refresh this page later.");
+            return;
+        }
+        else if(task_status == 'FAILED'){
+            alert("Report failed to generate.");
+            return;
+        }
+        url = url.replace('VOLCANOTEMPLATENAME', volcano_name)
+            .replace('1234567890123456789', event_time_string);
+        $.get(url, function (data) {
+            if (data && data.report_map) {
+                var pdf_url = data.report_map;
+                SaveToDisk(pdf_url, event_id_formatted+'-'+data.language+'.pdf');
+            }
+        }).fail(function(e){
+            console.log(e);
+            if(e.status == 404){
+                alert("No Report recorded for this event.");
+            }
+        });
+    };
+    return downloadReportHandler;
+}
+
 
 /**
  * Create Action Writer based on button_templates
@@ -200,17 +248,64 @@ function createActionRowWriter(button_templates, date_format) {
         var $span = $('<span></span>');
         for (var i = 0; i < button_templates.length; i++) {
             var button = button_templates[i];
-            var $inner_button = $('<span></span>');
-            $inner_button.addClass('row-action-icon')
-            $inner_button.addClass(button.css_class);
-            $inner_button.attr('title', button.name);
-            $inner_button.text(button.label);
-            var $button = $('<button></button>');
-            $button.addClass('btn btn-primary row-action-container');
-            $button.attr('title', button.name);
-            $button.attr('onclick', button.handler + "('" + record.id + "')");
-            $button.append($inner_button);
-            $span.append($button);
+            if(button.type == 'simple-button') {
+                var $inner_button = $('<span></span>');
+                $inner_button.addClass('row-action-icon');
+                $inner_button.addClass(button.css_class);
+                $inner_button.attr('title', button.name);
+                var $button = $('<button></button>');
+                $button.addClass('btn btn-primary row-action-container');
+                $button.attr('title', button.name);
+                $button.attr('onclick', button.handler + "('" + record.id + "')");
+                $button.append($inner_button);
+                $span.append($button);
+            }
+            else if(button.type == 'dropdown'){
+                var $button = $('<button></button>');
+                $button.addClass('btn btn-primary dropdown-toggle row-action-container');
+                $button.attr('title', button.name);
+                $button.attr('data-toggle', 'dropdown');
+                $button.attr('aria-haspopup', 'true');
+                $button.attr('aria-expanded', 'false');
+                var $inner_button = $('<span></span>');
+                $inner_button.addClass('row-action-icon');
+                $inner_button.addClass(button.css_class);
+                $inner_button.attr(button.name);
+                $button.append($inner_button);
+                var $menu = $('<ul></ul>');
+                $menu.addClass('dropdown-menu');
+                for(var j=0;j < button.actions.length;j++){
+                    var action = button.actions[j];
+                    if(action.active && $.isFunction(action.active) && !action.active(record)){
+                        continue;
+                    }
+                    var $li = $('<li></li>');
+                    var $action = $('<a></a>');
+                    if(action.href == undefined){
+                        $action.attr('href', '#');
+                    }
+                    else if($.isFunction(action.href)){
+                        $action.attr('href', action.href(record));
+                    }
+
+                    if(action.download && $.isFunction(action.download)){
+                        $action.attr('download', action.download(record));
+                    }
+
+                    if(action.handler){
+                        $action.attr('onclick', action.handler + "('" + record.id + "')");
+                    }
+
+                    $action.text(action.text);
+                    $li.append($action);
+                    $menu.append($li);
+                }
+                var $group = $('<div></div>');
+                $group.addClass('btn-group');
+                $group.append($button);
+                $group.append($menu);
+                $span.append($group);
+            }
         }
         tr += '<td>' + $span.html() + '</td>';
 

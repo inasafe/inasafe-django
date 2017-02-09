@@ -30,19 +30,37 @@
                     onclick="showReportHandler('<%= shake_id %>')">
                 <span class="row-action-icon glyphicon glyphicon-file"></span>
             </button>
-            <button class="download-report btn btn-primary
-            row-action-container"
-                    title="Download Report"
-                    onclick="downloadReportHandler('<%= shake_id %>')">
-                <span class="row-action-icon glyphicon
-                glyphicon-download"></span>
-            </button>
-            <button class="btn btn-primary row-action-container"
-                    title="Download Grid XML"
-                    onclick="downloadGridHandler('<%= shake_id %>', '<%= shake_grid %>')">
-                <span class="row-action-icon glyphicon
-                glyphicon-download">XML</span>
-            </button>
+            <div class="btn-group">
+                <button class="download-report btn btn-primary dropdown-toggle row-action-container"
+                        title="Download"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                    <span class="row-action-icon glyphicon
+                    glyphicon-download"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="#" onclick="downloadReportHandler('<%= shake_id %>')">
+                            Report
+                        </a>
+                    </li>
+                    <% if(shake_grid) { %>
+                    <li>
+                        <a href="#" onclick="downloadGridHandler('<%= shake_id %>', '<%= shake_grid %>')">
+                            Grid XML
+                        </a>
+                    </li>
+                    <% } %>
+                    <% if(mmi_output){ %>
+                    <li>
+                        <a href="<%= mmi_output %>" download="<%= shake_id+'-mmi.zip' %>">
+                            MMI Output
+                        </a>
+                    </li>
+                    <% } %>
+                </ul>
+            </div>
         </span>
     </div>
 </div>

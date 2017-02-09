@@ -168,16 +168,42 @@
         {#  Use magic number 000 for placeholders #}
         var report_url = '{% url "realtime:ash_report_detail" volcano_name='VOLCANOTEMPLATENAME' event_time='1234567890123456789' language=language.selected_language.id %}';
         var showReportHandler = createShowReportHandler(report_url);
+        var downloadReportHandler = createDownloadReportHandler(report_url);
         var button_templates = [
             {
-                name: 'Zoom',
+                type: 'simple-button',
+                name: '{% trans "Zoom" %}',
                 css_class: 'glyphicon glyphicon-search',
                 handler: 'showEventHandler'
             },
             {
-                name: 'Report',
+                type: 'simple-button',
+                name: '{% trans "Report" %}',
                 css_class: 'glyphicon glyphicon-file',
                 handler: 'showReportHandler'
+            },
+            {
+                type: 'dropdown',
+                name: '{% trans "Download" %}',
+                css_class: 'glyphicon glyphicon-download',
+                actions: [
+                    {
+                        active: function(event){return event.hazard_file != undefined;},
+                        text: '{% trans "Hazard File" %}',
+                        href:  function(event){return event.hazard_file;},
+                        download: function(event){return event.event_id_formatted+'-hazard.tif';}
+                    },
+                    {
+                        active: function(event){return event.impact_files != undefined;},
+                        text: '{% trans "Impact Files" %}',
+                        href:  function(event){return event.impact_files;},
+                        download: function(event){return event.event_id_formatted+'-impact.zip';}
+                    },
+                    {
+                        text: '{% trans "Report" %}',
+                        handler: 'downloadReportHandler'
+                    }
+                ]
             }
         ];
 
@@ -199,6 +225,11 @@
             dynaTable.paginationPerPage.set(10);
             dynaTable.sorts.add('event_time', -1);
             dynaTable.process();
+
+            if(jsonTableContents.length > 0){
+                var event_id = jsonTableContents[0].id
+                showEventHandler(event_id);
+            }
         }
 
         function onEachFeature(feature, layer) {
@@ -237,7 +268,6 @@
             $.get(get_events_url, function (data) {
                 event_json = data;
                 getAshEventsJson(data);
-                mapFitAll(map, markers);
             });
         });
     </script>

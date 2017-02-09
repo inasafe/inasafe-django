@@ -55,6 +55,7 @@ function browser_identity(){
  */
 function SaveToDisk(fileURL, fileName) {
     if (!window.ActiveXObject) {
+        // emulate button click on a element
         var save = document.createElement('a');
         save.href = fileURL;
         if(!browser_identity().is_safari){
@@ -70,7 +71,7 @@ function SaveToDisk(fileURL, fileName) {
         });
         save.dispatchEvent(evt);
 
-        (window.URL || window.webkitURL).revokeObjectURL(save.href);
+        // (window.URL || window.webkitURL).revokeObjectURL(save.href);
     }
 
     // for IE < 11
