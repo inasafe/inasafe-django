@@ -464,17 +464,64 @@ function createActionRowWriter(button_templates, date_format) {
         var $span = $('<span></span>');
         for (var i = 0; i < button_templates.length; i++) {
             var button = button_templates[i];
-            var $inner_button = $('<span></span>');
-            $inner_button.addClass('row-action-icon')
-            $inner_button.addClass(button.css_class);
-            $inner_button.attr('title', button.name);
-            $inner_button.text(button.label);
-            var $button = $('<button></button>');
-            $button.addClass('btn btn-primary row-action-container');
-            $button.attr('title', button.name);
-            $button.attr('onclick', button.handler + "('" + record.shake_id + "')");
-            $button.append($inner_button);
-            $span.append($button);
+            if(button.type == 'simple-button') {
+                var $inner_button = $('<span></span>');
+                $inner_button.addClass('row-action-icon');
+                $inner_button.addClass(button.css_class);
+                $inner_button.attr('title', button.name);
+                var $button = $('<button></button>');
+                $button.addClass('btn btn-primary row-action-container');
+                $button.attr('title', button.name);
+                $button.attr('onclick', button.handler + "('" + record.shake_id + "')");
+                $button.append($inner_button);
+                $span.append($button);
+            }
+            else if(button.type == 'dropdown'){
+                var $button = $('<button></button>');
+                $button.addClass('btn btn-primary dropdown-toggle row-action-container');
+                $button.attr('title', button.name);
+                $button.attr('data-toggle', 'dropdown');
+                $button.attr('aria-haspopup', 'true');
+                $button.attr('aria-expanded', 'false');
+                var $inner_button = $('<span></span>');
+                $inner_button.addClass('row-action-icon');
+                $inner_button.addClass(button.css_class);
+                $inner_button.attr(button.name);
+                $button.append($inner_button);
+                var $menu = $('<ul></ul>');
+                $menu.addClass('dropdown-menu');
+                for(var j=0;j < button.actions.length;j++){
+                    var action = button.actions[j];
+                    if(action.active && $.isFunction(action.active) && !action.active(record)){
+                        continue;
+                    }
+                    var $li = $('<li></li>');
+                    var $action = $('<a></a>');
+                    if(action.href == undefined){
+                        $action.attr('href', '#');
+                    }
+                    else if($.isFunction(action.href)){
+                        $action.attr('href', action.href(record));
+                    }
+
+                    if(action.download && $.isFunction(action.download)){
+                        $action.attr('download', action.download(record));
+                    }
+
+                    if(action.handler){
+                        $action.attr('onclick', action.handler + "('" + record.shake_id + "')");
+                    }
+
+                    $action.text(action.text);
+                    $li.append($action);
+                    $menu.append($li);
+                }
+                var $group = $('<div></div>');
+                $group.addClass('btn-group');
+                $group.append($button);
+                $group.append($menu);
+                $span.append($group);
+            }
         }
         tr += '<td>' + $span.html() + '</td>';
 

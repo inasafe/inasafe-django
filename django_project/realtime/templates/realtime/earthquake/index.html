@@ -299,8 +299,7 @@
 
         // create dynatable
         var jsonTableContents = [];
-        var showEventHandler = createShowEventHandler(map, markers,
-                map_events);
+        var showEventHandler = createShowEventHandler(map, markers, map_events);
         {#    Use magic number 000 for placeholder#}
         var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' language=language.selected_language.id %}';
         var report_download_url = '{% url "realtime_report:report_pdf" shake_id='000' language=language.selected_language.id language2=language.selected_language.id %}';
@@ -310,25 +309,38 @@
         var downloadGridHandler = createDownloadGridHandler(grid_url);
         var button_templates = [
             {
+                type: 'simple-button',
                 name: '{% trans "Zoom" %}',
                 css_class: 'glyphicon glyphicon-search',
                 handler: 'showEventHandler'
             },
             {
+                type: 'simple-button',
                 name: '{% trans "Report" %}',
                 css_class: 'glyphicon glyphicon-file',
                 handler: 'showReportHandler'
             },
             {
+                type: 'dropdown',
                 name: '{% trans "Download" %}',
                 css_class: 'glyphicon glyphicon-download',
-                handler: 'downloadReportHandler'
-            },
-            {
-                name: '{% trans "Grid" %}',
-                css_class: 'glyphicon glyphicon-download',
-                handler: 'downloadGridHandler',
-                label: 'XML'
+                actions: [
+                    {
+                        text: '{% trans "Report" %}',
+                        handler: 'downloadReportHandler'
+                    },
+                    {
+                        active: function(event){return event.shake_grid != undefined;},
+                        text: '{% trans "Grid XML" %}',
+                        handler: 'downloadGridHandler'
+                    },
+                    {
+                        active: function(event){return event.mmi_output != undefined;},
+                        text: '{% trans "MMI output" %}',
+                        href: function(event){return event.mmi_output;},
+                        download: function(event){return event.shake_id+'-mmi.zip'}
+                    }
+                ]
             }
         ];
 
@@ -351,6 +363,11 @@
             dynaTable.paginationPerPage.set(20);
             dynaTable.sorts.add('time', -1);
             dynaTable.process();
+
+            if(jsonTableContents.length > 0){
+                var shake_id = jsonTableContents[0].shake_id;
+                showEventHandler(shake_id);
+            }
         }
 
         function onEachFeature(feature, layer) {
@@ -417,7 +434,6 @@
                 event_json = data;
                 getEarthquakeEventsJson(data);
                 modifyMapDescriptions(".map-title");
-                mapFitAll(map, markers);
             });
 
             // add content filter handler

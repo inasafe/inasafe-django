@@ -182,21 +182,13 @@ class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
             data = request.data
             shake_id = kwargs.get('shake_id') or data.get('shake_id')
             instance = Earthquake.objects.get(shake_id=shake_id)
-            if instance.shake_grid:
+            if 'shake_grid' in request.FILES and instance.shake_grid:
                 instance.shake_grid.delete()
-            if 'shake_grid' in request.data:
-                # posting shake grid means only updating its shake_grid
-                # properties
-                request.data['shake_id'] = shake_id
-                request.data['location'] = instance.location
-                request.data['location_description'] = \
-                    instance.location_description
-                request.data['time'] = instance.time
-                request.data['magnitude'] = instance.magnitude
-                request.data['depth'] = instance.depth
+            if 'mmi_output' in request.FILES and instance.mmi_output:
+                instance.mmi_output.delete()
         except Earthquake.DoesNotExist:
             pass
-        retval = self.update(request, *args, **kwargs)
+        retval = self.update(request, partial=True, *args, **kwargs)
         track_rest_push(request)
         return retval
 

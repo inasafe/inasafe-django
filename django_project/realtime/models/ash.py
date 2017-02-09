@@ -35,6 +35,13 @@ class Ash(models.Model):
         upload_to='ash/hazard_file/%Y/%m/%d',
         blank=False
     )
+    impact_files = models.FileField(
+        verbose_name='Impact Files',
+        help_text='Impact files processed zipped',
+        upload_to='ash/impact_files/%Y/%m/%d',
+        blank=True,
+        null=True
+    )
     event_time = models.DateTimeField(
         verbose_name='Event Date and Time',
         help_text='The time the ash happened.',
@@ -67,6 +74,8 @@ class Ash(models.Model):
         # delete all report
         if self.hazard_file:
             self.hazard_file.delete()
+        if self.impact_files:
+            self.impact_files.delete()
         return super(Ash, self).delete(using=using)
 
 

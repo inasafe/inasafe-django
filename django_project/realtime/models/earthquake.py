@@ -22,6 +22,12 @@ class Earthquake(models.Model):
         upload_to='earthquake/grid',
         blank=True,
         null=True)
+    mmi_output = models.FileField(
+        verbose_name='MMI related file zipped',
+        help_text='MMI related file, layers, and data, zipped.',
+        upload_to='earthquake/mmi_output',
+        blank=True,
+        null=True)
     magnitude = models.FloatField(
         verbose_name='The magnitude',
         help_text='The magnitude of the event.')
@@ -61,6 +67,8 @@ class Earthquake(models.Model):
         # delete all report
         if self.shake_grid:
             self.shake_grid.delete()
+        if self.mmi_output:
+            self.mmi_output.delete()
         for report in self.reports.all():
             report.delete(using=using)
         super(Earthquake, self).delete(using=using)

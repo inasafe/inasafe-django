@@ -38,6 +38,6 @@ def flood_post_save(
             chain(
                 process_hazard_layer.si(instance),
                 process_impact_layer.si(instance),
-                recalculate_impact_info(instance))()
+                recalculate_impact_info.si(instance))()
     except Exception as e:
         LOGGER.exception(e)

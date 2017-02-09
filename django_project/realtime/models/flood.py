@@ -81,6 +81,13 @@ class Flood(models.Model):
         max_length=20,
         unique=True,
         blank=False)
+    data_source = models.CharField(
+        verbose_name='The source of hazard data',
+        help_text='The source of the hazard data used for analysis',
+        max_length=255,
+        blank=True,
+        null=True,
+        default=None)
     time = models.DateTimeField(
         verbose_name='Date and Time',
         help_text='The time the flood reported.',

@@ -237,24 +237,44 @@
     var report_url = '{% url "realtime:flood_report_detail" event_id='0000000000-6-rw' language=language.selected_language.id %}';
     var showReportHandler = createShowReportHandler(report_url);
     var showImpactMapHandler = createShowImpactMapHandler(report_url);
-{#    var downloadReportHandler = createDownloadReportHandler(report_url);#}
+    var downloadImpactMapHandler = createDownloadImpactMapHandler(report_url);
 
     var button_templates = [
         {
-            name: 'Show',
+            type: 'simple-button',
+            name: '{% trans "Show" %}',
             css_class: 'glyphicon glyphicon-search',
             handler: 'showFeaturesHandler'
         },
         {
-            name: 'Impact Map',
-            css_class: 'glyphicon glyphicon-globe',
+            type: 'simple-button',
+            name: '{% trans "Report" %}',
+            css_class: 'glyphicon glyphicon-file',
             handler: 'showImpactMapHandler'
         },
-{#        {#}
-{#            name: 'Download',#}
-{#            css_class: 'glyphicon glyphicon-download',#}
-{#            handler: 'downloadReportHandler'#}
-{#        }#}
+        {
+            type: 'dropdown',
+            name: '{% trans "Download" %}',
+            css_class: 'glyphicon glyphicon-download',
+            actions: [
+                {
+                    active: function(event){return event.hazard_layer !== undefined;},
+                    text: '{% trans "Hazard Layer" %}',
+                    href:  function(event){return event.hazard_layer;},
+                    download: function(event){return event.event_id+'-hazard.zip';}
+                },
+                {
+                    active: function(event){return event.impact_layer !== undefined;},
+                    text: '{% trans "Impact Layer" %}',
+                    href:  function(event){return event.impact_layer;},
+                    download: function(event){return event.event_id+'-impact.zip';}
+                },
+                {
+                    text: '{% trans "Impact Map" %}',
+                    handler: 'downloadImpactMapHandler'
+                }
+            ]
+        }
     ];
 
     $(document).ready(function(){

@@ -7,6 +7,8 @@ import shutil
 import tempfile
 from zipfile import ZipFile
 
+from django.contrib.gis.gdal.error import OGRIndexError
+
 from realtime.app_settings import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME
 from core.celery_app import app
 from django.conf import settings
@@ -70,12 +72,17 @@ def process_hazard_layer(flood):
         rw = BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
 
         for feat in layer:
-            pkey = feat.get('pkey')
-            level_name = feat.get('level_name')
-            # flooded = feat.get('flooded')
-            # count = feat.get('count')
-            parent_name = feat.get('parent_nam')
-            state = feat.get('state')
+            if not flood.data_source or flood.data_source == 'petajakarta':
+                upstream_id = feat.get('pkey')
+                level_name = feat.get('level_name')
+                parent_name = feat.get('parent_nam')
+                state = feat.get('state')
+            elif flood.data_source == 'petabencana':
+                upstream_id = feat.get('area_id')
+                level_name = feat.get('area_name')
+                parent_name = feat.get('parent_nam')
+                state = feat.get('state')
+
             geometry = feat.geom
 
             geos_geometry = GEOSGeometry(geometry.geojson)
@@ -91,7 +98,7 @@ def process_hazard_layer(flood):
                     boundary_alias=kelurahan)
             except Boundary.DoesNotExist:
                 boundary_kelurahan = Boundary.objects.create(
-                    upstream_id=pkey,
+                    upstream_id=upstream_id,
                     geometry=geos_geometry,
                     name=parent_name,
                     boundary_alias=kelurahan)
@@ -99,13 +106,13 @@ def process_hazard_layer(flood):
 
             try:
                 boundary_rw = Boundary.objects.get(
-                    upstream_id=pkey, boundary_alias=rw)
+                    upstream_id=upstream_id, boundary_alias=rw)
                 boundary_rw.geometry = geos_geometry
                 boundary_rw.name = level_name
                 boundary_rw.parent = boundary_kelurahan
             except Boundary.DoesNotExist:
                 boundary_rw = Boundary.objects.create(
-                    upstream_id=pkey,
+                    upstream_id=upstream_id,
                     geometry=geos_geometry,
                     name=level_name,
                     parent=boundary_kelurahan,
@@ -168,7 +175,10 @@ def process_impact_layer(flood):
 
         for feat in layer:
             level_7_name = feat.get('NAMA_KELUR').strip()
-            hazard_class = feat.get('affected')
+            try:
+                hazard_class = feat.get('affected')
+            except OGRIndexError:
+                hazard_class = feat.get('safe_ag')
             population_affected = feat.get('Pop_Total')
             geometry = feat.geom
             geos_geometry = GEOSGeometry(geometry.geojson)
