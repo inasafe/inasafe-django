@@ -80,6 +80,13 @@ scrap.html
 .pycharm_helpers
 .sudo_as_admin_successful
 
+# ansible related
+deployment/ansible/tmp/*
+deployment/ansible/development/group_vars/all
+site.retry
+
+!deployment/ansible/tmp/.gitkeep
+
 # Pg cluster for docker
 deployment/pg/postgres_data/9.3
 deployment/pg/postgres_staging_data/9.3
@@ -99,8 +106,8 @@ deployment/sftp_backup/target/pg/
 !deployment/sftp_backup/backups/media/README.md
 !deployment/sftp_backup/backups/pg/README.md
 django_project/realtime/tasks/realtime/celeryconfig.py
-django_project/core/custom_settings.py
-django_project/core/mapquest.py
+django_project/core/settings/custom_settings.py
+django_project/core/settings/mapquest.py
 django_project/realtime/local_settings.py
 django_project/celerybeat.pid
 django_project/temp
@@ -110,8 +117,6 @@ sftp_pg_credential.env
 sftp_media_credential-dev.env
 sftp_pg_credential-dev.env
 inaware_credential.env
-mapquest.py
-custom_settings.py
 
 # apt-cacher-ng
 71-apt-cacher-ng
@@ -119,7 +124,6 @@ custom_settings.py
 # static files
 deployment/static
 deployment/tmp
-django_project/temp
 django_project/tmp
 media/
 media_settings/

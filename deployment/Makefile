@@ -44,6 +44,15 @@ deploy: run migrate collectstatic
 	@echo "You can access it on http://localhost:61100"
 	@echo "------------------------------------------------------------------"
 
+ansible-check:
+	@echo "Check ansible command"
+	@ansible -i ansible/development/hosts all -m ping
+	@ansible-playbook -i ansible/development/hosts ansible/development/site.yml --check --list-tasks --list-hosts
+
+setup-ansible:
+	@echo "Setup configurations using ansible"
+	@ansible-playbook -i ansible/development/hosts ansible/development/site.yml -v
+
 build: confinfo
 	@echo
 	@echo "------------------------------------------------------------------"
