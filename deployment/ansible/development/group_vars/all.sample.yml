@@ -1,0 +1,67 @@
+---
+
+remote_user: lucernae
+remote_group: staff
+project_path: "/Users/lucernae/Documents/WorkingDir/Projects/InaSAFE/inasafe-django"
+
+inasafe_django:
+  site_domain_name: 'http://somedomain.org'
+  mapquest_map_key: 'secretkey'
+  sentry_secret_key: 'secretkey'
+
+interpreters:
+  inasafe_django:
+    name: 'InaSAFE Django Container'
+    domain_alias: 'docker-inasafe-django'
+    ssh_port: &inasafe_django_ssh_port 61103
+    pycharm_helpers: /home/web/django_project/.pycharm_helpers
+    ipaddress: &inasafe_django_host_ip 192.168.1.7
+  inasafe_realtime:
+    name: 'InaSAFE Realtime Container'
+    ipaddress: 192.168.1.7
+
+sftp_backups:
+  pg:
+    use_backup: False
+    host: remotehost
+    user: remoteuser
+    password: thepassword
+    dir: /inasafe/inasafe-django/pg/
+  pg_dev:
+    use_backup: False
+    host: *inasafe_django_host_ip
+    user: lucernae
+    password: thepassword!
+    dir: /Users/lucernae/Test/pg/
+  media:
+    use_backup: False
+    host: remotehost
+    user: remoteuser
+    password: thepassword
+    dir: /inasafe/inasafe-django/media/
+  media_dev:
+    use_backup: False
+    host: *inasafe_django_host_ip
+    user: lucernae
+    password: thepassword!
+    dir: /Users/lucernae/Test/media/
+
+inaware:
+  host: http://inawaretest.pdc.org/
+  user: inawareuser
+  password: thepassword
+
+docker_port_forward:
+  inasafe_django:
+    ssh: *inasafe_django_ssh_port
+  inasafe_realtime:
+    rabbitmq: 8100
+
+
+realtime_rest_api:
+  host: *inasafe_django_host_ip
+  port: 61102
+  user: test@realtime.inasafe.org
+  password: thepassword
+
+apt_cacher_ng_line: '#Acquire::http { Proxy "http://192.168.1.7:3142"; };'

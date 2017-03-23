@@ -1,0 +1,32 @@
+---
+- name: customize apt cacher ng
+  template:
+    src: apt-cacher-ng.j2
+    dest: '{{ project_path }}/deployment/{{ item }}/71-apt-cacher-ng'
+    owner: '{{ remote_user }}'
+    group: '{{ remote_group }}'
+    mode: "u=rw,g=rw,o=r"
+  with_items:
+    - docker-dev
+    - docker-prod
+
+- name: customize backup
+  template:
+    src: 'sftp_backup/{{ item.template }}'
+    dest: '{{ project_path }}/deployment/{{ item.dest }}'
+    owner: '{{ remote_user }}'
+    group: '{{ remote_group }}'
+    mode: "u=rw,g=rw,o=r"
+  with_items:
+    - { 'template': 'sftp_pg_credential.env.j2', dest: 'sftp_pg_credential.env'}
+    - { 'template': 'sftp_pg_credential-dev.env.j2', dest: 'sftp_pg_credential-dev.env'}
+    - { 'template': 'sftp_media_credential.env.j2', dest: 'sftp_media_credential.env'}
+    - { 'template': 'sftp_media_credential-dev.env.j2', dest: 'sftp_media_credential-dev.env'}
+
+- name: customize inaware credentials
+  template:
+    src: inaware_credential.env.j2
+    dest: '{{ project_path }}/deployment/inaware_credential.env'
+    owner: '{{ remote_user }}'
+    group: '{{ remote_group }}'
+    mode: "u=rw,g=rw,o=r"
