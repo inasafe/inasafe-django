@@ -32,6 +32,10 @@ urlpatterns = patterns(
 
     # url pattern for realtime reports
     url(r'', include('realtime.report_urls', namespace='realtime_report')),
+
+    # url pattern for realtime flatpages
+    # not appending slash because flatpages url starts with one
+    url(r'^realtime/pages', include('django.contrib.flatpages.urls')),
 )
 
 # expose static files and uploded media if DEBUG is active

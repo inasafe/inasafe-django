@@ -7,28 +7,29 @@ from dateutil.parser import parse
 from dateutil.tz import tzoffset
 from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
+from django.core.urlresolvers import reverse
 from django.db.utils import IntegrityError
+from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
 from django.utils import translation
-from rest_framework import mixins
-from rest_framework.filters import DjangoFilterBackend, SearchFilter, \
-    OrderingFilter
+from rest_framework import mixins, status
+from rest_framework.filters import (
+    DjangoFilterBackend,
+    SearchFilter,
+    OrderingFilter)
 from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
-from rest_framework import status
 
-from realtime.app_settings import LEAFLET_TILES, LANGUAGE_LIST, \
-    MAPQUEST_MAP_KEY
-from realtime.models.ash import Ash, AshReport
 from realtime.forms.ash import AshUploadForm
+from realtime.models.ash import Ash, AshReport
 from realtime.models.volcano import Volcano
-from realtime.serializers.ash_serializer import AshSerializer, \
-    AshReportSerializer, AshGeoJsonSerializer
+from realtime.serializers.ash_serializer import (
+    AshSerializer,
+    AshReportSerializer,
+    AshGeoJsonSerializer)
 
 __author__ = 'lucernae'
 __project_name__ = 'inasafe-django'
@@ -53,39 +54,12 @@ def index(request):
     if request.method == 'POST':
         pass
 
-    language_code = 'en'
-
     context = RequestContext(request)
 
-    leaflet_tiles = []
-    for i in range(0, len(LEAFLET_TILES[1])):
-        leaflet_tiles.append(
-            dict(
-                name=LEAFLET_TILES[0][i],
-                url=LEAFLET_TILES[1][i],
-                subdomains=LEAFLET_TILES[2][i],
-                attribution=LEAFLET_TILES[3][i]
-            )
-        )
-
-    context['leaflet_tiles'] = leaflet_tiles
-    selected_language = {
-        'id': 'en',
-        'name': 'English'
-    }
-    for l in LANGUAGE_LIST:
-        if l['id'] == language_code:
-            selected_language = l
-
-    language_list = [l for l in LANGUAGE_LIST if not l['id'] == language_code]
-    context['language'] = {
-        'selected_language': selected_language,
-        'language_list': language_list,
-    }
+    selected_language = context['language']['selected_language']
     translation.activate(selected_language['id'])
     request.session[translation.LANGUAGE_SESSION_KEY] = \
         selected_language['id']
-    context['mapquest_key'] = MAPQUEST_MAP_KEY
     return render_to_response(
         'realtime/ash/index.html',
         {},
