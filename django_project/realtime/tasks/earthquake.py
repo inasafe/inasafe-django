@@ -78,16 +78,19 @@ def retrieve_felt_earthquake_list():
     """
     # Scraped from BMKG's web
     target_url = FELT_EARTHQUAKE_URL
-    response = urllib2.urlopen(target_url)
-    html = response.read()
-    soup = BeautifulSoup(html, 'html.parser')
-    trs = soup.table.tbody.find_all('tr')
-    for tr in trs:
-        tds = tr.find_all('td')
-        event_id = tds[5].a['data-target'][1:]
-        try:
-            shake = Earthquake.objects.get(shake_id=event_id)
-            shake.felt = True
-            shake.save()
-        except Earthquake.DoesNotExist:
-            pass
+    try:
+        response = urllib2.urlopen(target_url)
+        html = response.read()
+        soup = BeautifulSoup(html, 'html.parser')
+        trs = soup.table.tbody.find_all('tr')
+        for tr in trs:
+            tds = tr.find_all('td')
+            event_id = tds[5].a['data-target'][1:]
+            try:
+                shake = Earthquake.objects.get(shake_id=event_id)
+                shake.felt = True
+                shake.save()
+            except Earthquake.DoesNotExist:
+                pass
+    except urllib2.URLError:
+        LOGGER.debug('Failed to connect to {url}'.format(url=target_url))
