@@ -5,29 +5,33 @@ from copy import deepcopy
 from django.conf import settings
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.utils import IntegrityError
-from django.http.response import HttpResponseBadRequest, JsonResponse, \
-    HttpResponse
-from django.utils.translation import ugettext as _
-from django.utils import translation
+from django.http.response import (
+    HttpResponseBadRequest,
+    JsonResponse,
+    HttpResponse)
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from realtime.helpers.rest_push_indicator import track_rest_push
+from django.utils import translation
+from django.utils.translation import ugettext as _
 from rest_framework import status, mixins
-from rest_framework.filters import DjangoFilterBackend, SearchFilter, \
-    OrderingFilter
+from rest_framework.filters import (
+    DjangoFilterBackend,
+    SearchFilter,
+    OrderingFilter)
 from rest_framework.generics import GenericAPIView
 from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
-from realtime.app_settings import (
-    LEAFLET_TILES, LANGUAGE_LIST, MAPQUEST_MAP_KEY)
-from realtime.forms.earthquake import FilterForm
-from realtime.filters.earthquake_filter import EarthquakeFilter
-from realtime.models.earthquake import Earthquake, EarthquakeReport
-from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
-    EarthquakeReportSerializer, EarthquakeGeoJsonSerializer
 from rest_framework_gis.filters import InBBoxFilter
 
+from realtime.filters.earthquake_filter import EarthquakeFilter
+from realtime.forms.earthquake import FilterForm
+from realtime.helpers.rest_push_indicator import track_rest_push
+from realtime.models.earthquake import Earthquake, EarthquakeReport
+from realtime.serializers.earthquake_serializer import (
+    EarthquakeSerializer,
+    EarthquakeReportSerializer,
+    EarthquakeGeoJsonSerializer)
 from realtime.tasks.earthquake import push_shake_to_inaware
 from realtime.tasks.realtime.earthquake import process_shake
 
@@ -53,41 +57,14 @@ def index(request, iframe=False, server_side_filter=False):
     else:
         form = FilterForm()
 
-    language_code = 'en'
     if request.method == 'GET':
         if 'iframe' in request.GET:
             iframe = request.GET.get('iframe')
         if 'server_side_filter' in request.GET:
             server_side_filter = request.GET.get('server_side_filter')
-        if 'lang' in request.GET:
-            language_code = request.GET.get('lang')
-
-    leaflet_tiles = []
-    for i in range(0, len(LEAFLET_TILES[1])):
-        leaflet_tiles.append(
-            dict(
-                name=LEAFLET_TILES[0][i],
-                url=LEAFLET_TILES[1][i],
-                subdomains=LEAFLET_TILES[2][i],
-                attribution=LEAFLET_TILES[3][i]
-            )
-        )
 
     context = RequestContext(request)
-    context['leaflet_tiles'] = leaflet_tiles
-    selected_language = {
-        'id': 'en',
-        'name': 'English'
-    }
-    for l in LANGUAGE_LIST:
-        if l['id'] == language_code:
-            selected_language = l
-
-    language_list = [l for l in LANGUAGE_LIST if not l['id'] == language_code]
-    context['language'] = {
-        'selected_language': selected_language,
-        'language_list': language_list,
-    }
+    selected_language = context['language']['selected_language']
     translation.activate(selected_language['id'])
     request.session[translation.LANGUAGE_SESSION_KEY] = \
         selected_language['id']
@@ -95,7 +72,6 @@ def index(request, iframe=False, server_side_filter=False):
     context['remove_area_text'] = _('Remove Selection')
     context['select_current_zoom_text'] = _('Select area within current zoom')
     context['iframe'] = iframe
-    context['mapquest_key'] = MAPQUEST_MAP_KEY
     return render_to_response(
         'realtime/earthquake/index.html',
         {

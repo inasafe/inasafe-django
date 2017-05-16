@@ -14,10 +14,15 @@
         <li class="menu-item">
             <a href="{% url 'realtime:api_root' %}">API Browser</a>
         </li>
-        {#            {% if user.is_authenticated %}#}
         <li class="menu-item">
             <a href="{% url 'realtime:indicator' %}">Indicator</a>
         </li>
-        {#            {% endif %}#}
+        {% for p in flatpages_navbar %}
+            {% if p.url %}
+                <li class="menu-item">
+                    <a href="{% url 'django.contrib.flatpages.views.flatpage' url=p.url %}">{{ p.title }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
     </ul>
 </nav>

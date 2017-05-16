@@ -86,6 +86,7 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     'django.contrib.admin',
     'django.contrib.sites',
+    'django.contrib.flatpages',
     'django.contrib.humanize'
 )
 
