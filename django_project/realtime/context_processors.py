@@ -57,7 +57,7 @@ def realtime_settings(request):
             page = FlatPage.objects.get(title__iexact=menu_title)
             n['title'] = page.title
             n['url'] = page.url
-        except FlatPage.DoesNotExist:
+        except:
             pass
 
     return {
