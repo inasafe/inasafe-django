@@ -20,6 +20,8 @@ urlpatterns = patterns(
 
     # include application urls
     url(r'', include('frontend.urls', namespace='front_end')),
+    url(r'^tinymce/', include('tinymce.urls')),
+    url(r'^mce_filebrowser/', include('mce_filebrowser.urls')),
     url(r'^user-map/', include('user_map.urls', namespace='user_map')),
     url(r'^jsi18n/$', javascript_catalog, js_info_dict),
     url(r'^realtime/', include('realtime.urls', namespace='realtime')),

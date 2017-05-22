@@ -1,15 +1,41 @@
 # coding=utf-8
 """Model Admin Class."""
 from django.contrib.admin.sites import AdminSite
-
 from django.contrib.admin import ModelAdmin
+
+from django.contrib import admin
+from django.contrib.flatpages.admin import FlatPageAdmin
+from django.contrib.flatpages.models import FlatPage
+
 from leaflet.admin import LeafletGeoAdmin
 
+from realtime.forms.coreflatpage import CoreFlatPageForm
+from realtime.models.coreflatpage import CoreFlatPage
 from realtime.models.earthquake import Earthquake, EarthquakeReport
 from realtime.models.flood import Boundary, Flood, FloodEventBoundary, \
     FloodReport
 from realtime.models.ash import Ash, AshReport
 from realtime.models.volcano import Volcano
+
+
+# Define a new FlatPageAdmin
+class CoreFlatPageAdmin(FlatPageAdmin):
+    fieldsets = (
+        (None, {
+            'fields': (
+                'url',
+                'title',
+                'content',
+                'group',
+                'sites'
+            )
+        }),
+    )
+    form = CoreFlatPageForm
+
+
+admin.site.unregister(FlatPage)
+admin.site.register(CoreFlatPage, CoreFlatPageAdmin)
 
 
 class RealtimeAdminSite(AdminSite):

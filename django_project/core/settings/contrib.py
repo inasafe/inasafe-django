@@ -13,6 +13,9 @@ INSTALLED_APPS += (
     'rest_framework',
     'djcelery',
     'kombu.transport.django',
+    'tinymce',
+    'filebrowser',
+    'mce_filebrowser',
 )
 
 # User map sets up auth where users are identified by their email,
@@ -60,6 +63,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     )
+}
+
+TINYMCE_DEFAULT_CONFIG = {
+    'file_browser_callback': 'mce_filebrowser'
 }
 
 try:
