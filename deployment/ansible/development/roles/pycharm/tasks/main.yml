@@ -1,7 +1,7 @@
 ---
 - name: gather os specific variables
   include_vars:
-    file: "{{ ansible_distribution }}.yml"
+    file: "{{ pycharm_version }}/{{ ansible_distribution }}.yml"
 
 - name: customize /etc/hosts
   become: yes

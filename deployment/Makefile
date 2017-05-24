@@ -1,48 +1,34 @@
 SHELL := /bin/bash
 PROJECT_ID := inasafedjango
-
-CONF_FILE := -f docker-compose.yml
-CONF_HELP := Uses docker-compose.yml
-
-UNAME_S := $(shell uname -s)
-
-ifeq ($(UNAME_S),Linux)
-	CONF_HELP := Detecting Linux Environment. Use docker-compose-linux.yml
-	CONF_FILE += -f docker-compose-linux.yml
-endif
-ifeq ($(UNAME_S),Darwin)
-	CONF_HELP := Detecting OSX Environment. Use docker-compose-osx.yml
-	CONF_FILE += -f docker-compose-osx.yml
-endif
-
-ifeq ($(MODE),dev)
-	MODE_HELP := Using Development Environment. Use docker-compose-dev.yml
-	CONF_FILE += -f docker-compose-dev.yml
-	MODE_STRING := development
-else
-	MODE_HELP := Using Production Environment.
-	MODE_STRING := production
-endif
+DELAY = 10
+LANG = en
+TARGET_SERVER = realtime.inasafe.org
 
 # ----------------------------------------------------------------------------
 #    P R O D U C T I O N     C O M M A N D S
 # ----------------------------------------------------------------------------
 
-confinfo:
-	@echo
-	@echo $(CONF_HELP)
-	@echo $(MODE_HELP)
-
 default: web
 
-run: build web
+up: build web
 
-deploy: run migrate collectstatic
+complete-deploy: up wait migrate collectstatic makemessages compilemessages inasafe-worker indicator-worker reload status
+
+wait:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Gives $(DELAY) second delay before running additional command "
+	@echo "------------------------------------------------------------------"
+	sleep $(DELAY)
+
+deploy: up wait inasafe-worker indicator-worker
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Bringing up fresh instance "
 	@echo "You can access it on http://localhost:61100"
 	@echo "------------------------------------------------------------------"
+
+restart: kill deploy
 
 ansible-check:
 	@echo "Check ansible command"
@@ -53,240 +39,255 @@ setup-ansible:
 	@echo "Setup configurations using ansible"
 	@ansible-playbook -i ansible/development/hosts ansible/development/site.yml -v
 
-build: confinfo
+build:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Building in $(MODE_STRING) mode"
+	@echo "Building docker images"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) build
+	@docker-compose -p $(PROJECT_ID) build
 
-web: confinfo
+web:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running in $(MODE_STRING) mode"
+	@echo "Running web services"
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d web
-	#@dipall
+	@docker-compose -p $(PROJECT_ID) up -d web
 
-migrate: confinfo
+migrate:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running migrate static in $(MODE_STRING) mode"
+	@echo "Running migrate static "
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) exec uwsgi python manage.py migrate
+	@docker-compose -p $(PROJECT_ID) exec uwsgi python manage.py migrate
 
-makemigrations: confinfo
+makemigrations:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running make migrations in $(MODE_STRING) mode"
+	@echo "Running make migrations "
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) exec uwsgi python manage.py makemigrations
+	@docker-compose -p $(PROJECT_ID) exec uwsgi python manage.py makemigrations
 
 makemessages:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running make messages $(LANG) in $(MODE_STRING) mode"
+	@echo "Running make messages $(LANG) "
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) exec uwsgi python manage.py makemessages -l $(LANG)
+	@docker-compose -p $(PROJECT_ID) exec uwsgi python manage.py makemessages -l $(LANG)
 
 compilemessages:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running compile messages $(LANG) in $(MODE_STRING) mode"
+	@echo "Running compile messages $(LANG) "
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) exec uwsgi python manage.py compilemessages -l $(LANG)
+	@docker-compose -p $(PROJECT_ID) exec uwsgi python manage.py compilemessages -l $(LANG)
 
 
 collectstatic:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Collecting static in $(MODE_STRING) mode"
+	@echo "Collecting static "
 	@echo "------------------------------------------------------------------"
-	#@docker-compose $(CONF_FILE) -p $(PROJECT_ID) run uwsgi python manage.py collectstatic --noinput
-	#We need to run collect static in the same context as the running
+	# We need to run collect static in the same context as the running
 	# uwsgi container it seems so I use docker exec here
-	@docker exec -t -i $(PROJECT_ID)_uwsgi_1 python manage.py collectstatic --noinput
+	@docker-compose -p $(PROJECT_ID) exec uwsgi python manage.py collectstatic --noinput
 
 inasafe-worker:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker in $(MODE_STRING) mode"
+	@echo "Running celery worker "
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d inasafe-worker
+	@docker-compose -p $(PROJECT_ID) up -d inasafe-worker
+
+inasafe-worker-restart:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) restart inasafe-worker
+
+inasafe-worker-stop:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Stop celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) stop inasafe-worker
 
 inasafe-worker-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker in $(MODE_STRING) mode"
+	@echo "Running celery worker "
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f --tail=50 inasafe-worker
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 inasafe-worker
 
 indicator-worker:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker in $(MODE_STRING) mode"
+	@echo "Running celery worker "
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) up -d indicator-worker
+	@docker-compose -p $(PROJECT_ID) up -d indicator-worker
+
+indicator-worker-restart:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) restart indicator-worker
+
+indicator-worker-stop:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) stop indicator-worker
 
 indicator-worker-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker in $(MODE_STRING) mode"
+	@echo "Running celery worker "
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f --tail=50 indicator-worker
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 indicator-worker
 
 status:
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) ps
+	@docker-compose -p $(PROJECT_ID) ps
 
-kill: confinfo
+kill:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Killing in $(MODE_STRING) mode"
+	@echo "Killing "
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) kill
+	@docker-compose -p $(PROJECT_ID) kill
 
 rm: kill
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Removing $(MODE_STRING) instance!!! "
+	@echo "Removing container instances!!! "
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) rm
+	@docker-compose -p $(PROJECT_ID) rm
 
-logs: confinfo
+uwsgi-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Showing uwsgi logs in $(MODE_STRING) mode"
+	@echo "Showing uwsgi logs "
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs -f --tail=50  uwsgi
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50  uwsgi
 
-dblogs: confinfo
+db-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Showing db logs in $(MODE_STRING) mode"
+	@echo "Showing db logs "
 	@echo "------------------------------------------------------------------"
-	@docker logs -f --tail=50 $(PROJECT_ID)_db_1
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 db
 
-nginxlogs: confinfo
+nginx-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Showing nginx logs in $(MODE_STRING) mode"
+	@echo "Showing nginx logs "
 	@echo "------------------------------------------------------------------"
-	@docker-compose $(CONF_FILE) -p $(PROJECT_ID) logs web
+	@docker-compose -p $(PROJECT_ID) logs web
 
-shell: confinfo
+shell:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Shelling in in $(MODE_STRING) mode"
+	@echo "Shelling in "
 	@echo "------------------------------------------------------------------"
-	#@docker-compose $(CONF_FILE) -p $(PROJECT_ID) run uwsgi /bin/bash
-	@docker exec -it $(PROJECT_ID)_uwsgi_1 /bin/bash
+	@docker-compose -p $(PROJECT_ID) exec uwsgi /bin/bash
 
-dbshell:
+db-shell:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Shelling in in $(MODE_STRING) database"
+	@echo "Shelling in database containers"
 	@echo "------------------------------------------------------------------"
-	@docker exec -t -i $(PROJECT_ID)_db_1 /bin/bash
+	@docker-compose -p $(PROJECT_ID) exec db /bin/bash
 
-postgreshell:
+postgres-shell:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Shelling in in $(MODE_STRING) postgres"
+	@echo "Shelling in postgres"
 	@echo "------------------------------------------------------------------"
-	@docker exec -t -i $(PROJECT_ID)_db_1 psql -U docker -h localhost gis
+	@docker-compose -p $(PROJECT_ID) exec db psql -U docker -h localhost gis
 
 qgis:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running QGIS desktop in $(MODE_STRING) mode"
+	@echo "Running QGIS desktop "
 	@echo "Make sure you have started the services with make run first"
 	@echo "------------------------------------------------------------------"
-	@xhost +; docker run --rm --name="qgis-desktop-2-4" \
+	@xhost +; docker run --rm --name="qgis-desktop-2.14" \
 	-i -t \
 	--link $(PROJECT_ID)_db_1:db \
-	--link $(PROJECT_ID)_qgisserver_1:qgisserver \
-	--link $(PROJECT_ID)_mapproxy_1:mapproxy \
-	--volumes-from $(PROJECT_ID)_qgisserver_1 \
 	-v ${HOME}:/home/$(USER) \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	-e DISPLAY=unix$(DISPLAY) \
-	kartoza/qgis-desktop:latest; xhost -
+	kartoza/qgis-desktop:2.14.6; xhost -
 
 dbrestore:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Restore dump from backups/latest.dmp in $(MODE_STRING) mode"
+	@echo "Restore dump from backups/latest.dmp "
 	@echo "------------------------------------------------------------------"
 	@echo "Copy .dmp file as latest.dmp in deployment/pg/dbbackup/backups/latest.dmp"
+	@echo "Press any key to continue. Ctrl+C to cancel."
 	@# - prefix causes command to continue even if it fails
-	-@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "dropdb gis"
-	@docker exec -t -i $(PROJECT_ID)_db_1 su - postgres -c "createdb -O docker -T template_postgis gis"
-	@docker exec -t -i $(PROJECT_ID)_dbbackup_1 pg_restore /backups/latest.dmp | docker exec -i $(PROJECT_ID)_db_1 su - postgres -c "psql gis"
+	@read
+	@echo "Dropping database gis"
+	-@docker-compose -p $(PROJECT_ID) exec db su - postgres -c "dropdb gis"
+	@echo "Create database gis"
+	@docker-compose -p $(PROJECT_ID) exec db su - postgres -c "createdb -O docker -T template_postgis gis"
+	@echo "Dumping to database gis"
+	@docker-compose -p $(PROJECT_ID) exec dbbackup pg_restore /backups/latest.dmp | docker exec -i $(PROJECT_ID)_db_1 su - postgres -c "psql gis"
 
 dbbackup:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Create `date +%d-%B-%Y`.dmp in $(MODE_STRING) mode"
+	@echo "Create `date +%d-%B-%Y`.dmp "
 	@echo "Warning: backups/latest.dmp will be replaced with a symlink to "
 	@echo "the new backup."
 	@echo "------------------------------------------------------------------"
 	@# - prefix causes command to continue even if it fails
-	docker exec -t -i $(PROJECT_ID)_dbbackup_1 /backups.sh
-	@docker exec -t -i $(PROJECT_ID)_dbbackup_1 cat /var/log/cron.log | tail -2 | head -1 | awk '{print $4}'
+	@docker-compose -p $(PROJECT_ID) exec dbbackup /backups.sh
+	@docker-compose -p $(PROJECT_ID) exec dbbackup cat /var/log/cron.log | tail -2 | head -1 | awk '{print $4}'
 	# backups is intentionally missing from front of first clause below otherwise symlink comes
 	# out with wrong path...
 	# trigger sftp backups
-	@docker exec -t -i $(PROJECT_ID)_sftppgbackup_1 /backups.sh
-	@docker exec -t -i $(PROJECT_ID)_sftpmediabackup_1 /backups.sh
+	@docker-compose -p $(PROJECT_ID) exec sftppgbackup /backups.sh
+	@docker-compose -p $(PROJECT_ID) exec sftpmediabackup /backups.sh
 
 pushbackup:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Push local backup in sftpbackup to sftp remote server"
 	@echo "------------------------------------------------------------------"
-	@docker exec -t -i $(PROJECT_ID)_sftppgbackup_1 /start.sh push-to-remote-sftp
-	@docker exec -t -i $(PROJECT_ID)_sftpmediabackup_1 /start.sh push-to-remote-sftp
+	@docker-compose -p $(PROJECT_ID) exec sftppgbackup /start.sh push-to-remote-sftp
+	@docker-compose -p $(PROJECT_ID) exec sftpmediabackup /start.sh push-to-remote-sftp
 
 pullbackup:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Pull remote sftp backup to local backup"
 	@echo "------------------------------------------------------------------"
-	@docker exec -t -i $(PROJECT_ID)_sftppgbackup_1 /start.sh pull-from-remote-sftp
-	@docker exec -t -i $(PROJECT_ID)_sftpmediabackup_1 /start.sh pull-from-remote-sftp
+	@docker -p $(PROJECT_ID) exec sftppgbackup /start.sh pull-from-remote-sftp
+	@docker -p $(PROJECT_ID) exec sftpmediabackup /start.sh pull-from-remote-sftp
 
 mediasync:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Syncing media files from live server"
+	@echo "Syncing media files from live server $(TARGET_SERVER)"
 	@echo "------------------------------------------------------------------"
-	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/media/ media
-	@rsync -av --progress --exclude *.mbtiles inasafe-docker:/home/data/inasafe-django/django_project/core/settings/secret.py ../django_project/core/settings/
-	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/*.env .
-
+	rsync -av --progress --exclude *.mbtiles $(TARGET_SERVER):/home/data/inasafe-django/deployment/media/ media
+	rsync -av --progress --exclude *.mbtiles $(TARGET_SERVER):/home/data/inasafe-django/django_project/core/settings/secret.py ../django_project/core/settings/
 
 dbsync:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Syncing database files from live server"
+	@echo "Syncing database files from live server $(TARGET_SERVER)"
 	@echo "------------------------------------------------------------------"
-	-@ssh inasafe-docker "cd /home/data/inasafe-django/deployment; make dbbackup"
-	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/sftp_backup/target/pg/latest.dmp backups
-	@rsync -av --progress inasafe-docker:/home/data/inasafe-django/deployment/sftp_backup/backups/pg backups
+	-@ssh $(TARGET_SERVER) "cd /home/data/inasafe-django/deployment; make dbbackup"
+	rsync -av --progress $(TARGET_SERVER):/home/data/inasafe-django/deployment/sftp_backup/target/pg/latest.dmp backups
+	rsync -av --progress $(TARGET_SERVER):/home/data/inasafe-django/deployment/sftp_backup/backups/pg backups
 
 reload:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Reload django project in $(MODE_STRING) mode"
+	@echo "Reload django project "
 	@echo "------------------------------------------------------------------"
-	@docker exec -t -i $(PROJECT_ID)_uwsgi_1 uwsgi --reload  /tmp/django.pid
-
-create-machine:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Creating a docker machine. Only useful for OSX and Windows"
-	@echo "------------------------------------------------------------------"
-	@docker-machine create --driver virtualbox inasafe-django
-	@echo "Now attach to your machine by doing:"
-	@echo '"$(docker-machine env inasafe-django)"'
-
+	@docker-compose -p $(PROJECT_ID) exec uwsgi uwsgi --reload /tmp/django.pid

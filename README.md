@@ -6,11 +6,11 @@ InaSAFE project in particular:
 
 * A user map
 * Realtime Earthquake Reports
-
-**Please note that this project is in the early phase of its development.**
+* Realtime Flood Reports
+* Realtime Ash Reports
 
 You can visit a running instance of this project at
-[users.inasafe.org](http://inasafe.org).
+[realtime.inasafe.org](http://realtime.inasafe.org).
 
 # Status
 
@@ -33,12 +33,19 @@ nefarious purposes.
 
 # Setup instructions
 
-## Production, Staging
+## Production
 
-We provide for simple deployment under docker. Please see the 
-deployment/README-docker.md file for details.
+We provide for simple deployment under a mix of docker and ansible. Please 
+see the [Docker Readme](deployment/README-docker.md)  file for details.
 
 ## For local development
+
+We provide for simple deployment under a mix of docker and ansible. Please 
+see the [Docker Readme](deployment/README-docker.md) file for details.
+
+The following method was not needed if you use our docker orchestration 
+because it will set up everything. Instructions below was left for knowledge 
+purposes.
 
 ### Install dependencies
 
@@ -132,16 +139,17 @@ make run MODE=dev
 ### Connect Pycharm remote interpreter to docker
 
 1. Go to Pycharm settings > Project Interpreter > Add remote interpreter.
+
 2. Choose SSH and fill the following field:
 
-   ```
+```
 Host: (your docker machine IP, or just localhost in linux docker environment)
 Port: 61103
 Username: root
 Auth type: password
 Password: docker
 Interpreter path: /usr/local/bin/python
-   ```
+```
 
 3. Press Ok
 
@@ -160,18 +168,19 @@ interpreter to create django configuration.
 1. Go to Run > Edit Configurations
 2. Fill the following information
 
-   ```
+```
 Host: 0.0.0.0 # so we can access it outside docker machine
 Port: 8080 # we already portforward port 8080 to the outside of docker machine
 Python Interpreter: (Choose remote docker interpreter that we made)
 Environment: Add environment for DJANGO_SETTINGS_MODULE=core.settings.dev_docker
-   If you want production settings (compressed staticfiles), use core.settings.prod_docker
-   ```
+	If you want production settings (compressed staticfiles), use core.settings.prod_docker
+```
 
 3. Edit file path mappings. Go to Tools > Deployment > Configurations
+
 4. Add new SFTP Connections. Fill the Following information
 
-   ```
+```
 Visible for this project only: Check this
 Type: SFTP
 Host: Your docker machine IP (or localhost for linux)
@@ -180,20 +189,21 @@ Root path: /
 User: root
 Auth type: password
 Password: docker
-   ```
+```
    
    Additionally you can check that the configurations is correct by clicking
    Test SFTP connections.
+   
 5. Add Path mappings by clicking Mappings tab. Fill out the following mappings
 
-   ```
+ ```
 (Your django_project directory) to /home/web/django_project
 (Your deployment/static directory) to /home/web/static
 
 Optionally, you can also add this:
 (Your deployment/media directory) to /home/web/media
 (Your deployment/reports directory) to /home/web/reports
-   ```
+```
    
-4. To run django, click Run or Debug respectively
+6. To run django, click Run or Debug respectively
    In debug mode, you can put breakpoints like you would do in local dev environment.

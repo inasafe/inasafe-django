@@ -1,6 +1,0 @@
-# Specific configuration for OSX
-
-db: &db
-# Mount postgres db from host filesystem
-  volumes:
-    - ./pg/postgres_data:/var/lib/postgresql

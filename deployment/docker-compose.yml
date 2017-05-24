@@ -13,15 +13,16 @@ smtp:
 
 db: &db
   image: kartoza/postgis:9.3-2.1
-# This line should be allowed in Linux env
-#  volumes:
-#    - ./pg/postgres_data:/var/lib/postgresql
+  restart: on-failure
+  volumes:
+    - ./pg/postgres_data:/var/lib/postgresql
   environment:
     - USERNAME=docker
     - PASS=docker
 
 rabbitmq:
   image: library/rabbitmq
+  restart: on-failure
   hostname: rabbitmq
   environment:
      - RABBIT_PASSWORD=rabbit_test_password
@@ -152,9 +153,3 @@ web: &web
     - uwsgi:uwsgi
   ports:
     - "61100:8080"
-
-# Exactly the same as web but for staging we use a different port.
-stagingweb:
-  <<: *web
-  ports:
-    - "61101:8080"
