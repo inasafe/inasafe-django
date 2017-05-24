@@ -14,6 +14,8 @@ uwsgi:
   ports:
     # expose ssh port so we can access it via pycharm remote interpreter
     - "61103:22"
+    # expose django runserver port directly to localhost, because we're not
+    # using nginx forwarder for debugging
     - "61102:8080"
     - "61104:8088"
   volumes:
@@ -28,6 +30,7 @@ uwsgi:
     - DATABASE_USERNAME=docker
     - DATABASE_PASSWORD=docker
     - DATABASE_HOST=db
+    # Use development settings file
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
     - VIRTUAL_HOST=users.inasafe.org
     - VIRTUAL_PORT=8080
@@ -42,16 +45,10 @@ uwsgi:
 
 inasafe-worker:
   environment:
+    # Use development settings file
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
-  ports:
-    - "61105:22"
 
 indicator-worker:
   environment:
+    # Use development settings file
     - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
-  ports:
-    - "61106:22"
-
-web:
-  links:
-    - uwsgi:uwsgi

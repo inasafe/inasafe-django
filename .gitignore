@@ -83,12 +83,13 @@ scrap.html
 # ansible related
 deployment/ansible/tmp/*
 deployment/ansible/development/group_vars/all
+deployment/ansible/development/group_vars/all.yml
 site.retry
 
 !deployment/ansible/tmp/.gitkeep
 
 # Pg cluster for docker
-deployment/pg/postgres_data/9.3
+deployment/pg/postgres_data/
 deployment/pg/postgres_staging_data/9.3
 deployment/pg/postgres_dev_data/9.3
 deployment/pg/dbbackup/*
@@ -99,6 +100,7 @@ deployment/pg/dbbackup/devbackups/*
 deployment/sftp_backup/backups/media/
 deployment/sftp_backup/backups/pg/
 deployment/sftp_backup/target/pg/
+deployment/docker-compose.override.yml
 
 !deployment/pg/dbbackup/backups/README.md
 !deployment/pg/dbbackup/devbackups/README.md
@@ -108,6 +110,7 @@ deployment/sftp_backup/target/pg/
 django_project/realtime/tasks/realtime/celeryconfig.py
 django_project/core/settings/custom_settings.py
 django_project/core/settings/mapquest.py
+django_project/locale
 django_project/realtime/local_settings.py
 django_project/celerybeat.pid
 django_project/temp
