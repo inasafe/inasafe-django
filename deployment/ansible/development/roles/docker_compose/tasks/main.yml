@@ -8,6 +8,8 @@
     group: '{{ remote_group }}'
     mode: "u=rw,g=rw,o=r"
   when: development_mode
+  tags:
+    - development
 
 - name: customize apt cacher ng
   template:
@@ -19,6 +21,8 @@
   with_items:
     - docker-dev
     - docker-prod
+  tags:
+    - development
 
 - name: customize backup
   template:
@@ -29,9 +33,7 @@
     mode: "u=rw,g=rw,o=r"
   with_items:
     - { 'template': 'sftp_pg_credential.env.j2', dest: 'sftp_pg_credential.env'}
-    - { 'template': 'sftp_pg_credential-dev.env.j2', dest: 'sftp_pg_credential-dev.env'}
     - { 'template': 'sftp_media_credential.env.j2', dest: 'sftp_media_credential.env'}
-    - { 'template': 'sftp_media_credential-dev.env.j2', dest: 'sftp_media_credential-dev.env'}
 
 - name: customize inaware credentials
   template:

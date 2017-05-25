@@ -8,9 +8,9 @@ using ansible (copy and configure necessary files).
 ## Ansible configuration
 
 Of course, make sure you have ansible in your machine. Next step, configure 
-various facts and variables in [ansible vars file](deployment/ansible/development/group_vars/all.sample.yml), 
+various facts and variables in [ansible vars file](ansible/development/group_vars/all.sample.yml), 
 then create a new file called `all` or `all.yml` with modified configuration.
-For a full detail and comments for various variables related, see: [all.sample.yml](deployment/ansible/development/group_vars/all.sample.yml),
+For a full detail and comments for various variables related, see: [all.sample.yml](ansible/development/group_vars/all.sample.yml),
 
 **What Ansible will do**
 

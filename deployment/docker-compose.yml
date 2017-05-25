@@ -120,6 +120,7 @@ uwsgi: &uwsgi
 
 inasafe-worker: &inasafe-worker
   <<: *uwsgi
+  restart: on-failure
   working_dir: /home/web/django_project
   command: celery -A core.celery_app worker --loglevel=info -Q inasafe-django -n inasafe-django.%h
   environment:
@@ -138,6 +139,7 @@ inasafe-worker: &inasafe-worker
 
 indicator-worker:
   <<: *inasafe-worker
+  restart: on-failure
   command: celery -A core.celery_app worker --loglevel=info -Q inasafe-django-indicator -B -n indicator.%h
 
 web: &web

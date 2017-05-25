@@ -60,24 +60,12 @@ sftp_backups:
     user: remoteuser
     password: thepassword
     dir: /inasafe/inasafe-django/pg/
-  pg_dev:
-    use_backup: False
-    host: *inasafe_django_host_ip
-    user: lucernae
-    password: thepassword!
-    dir: /Users/lucernae/Test/pg/
   media:
     use_backup: False
     host: remotehost
     user: remoteuser
     password: thepassword
     dir: /inasafe/inasafe-django/media/
-  media_dev:
-    use_backup: False
-    host: *inasafe_django_host_ip
-    user: lucernae
-    password: thepassword!
-    dir: /Users/lucernae/Test/media/
 
 # This is used to push pdf products to InAWARE system
 # Set this fact to your appropriate credentials. If not used,

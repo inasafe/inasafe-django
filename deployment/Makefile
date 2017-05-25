@@ -33,11 +33,11 @@ restart: kill deploy
 ansible-check:
 	@echo "Check ansible command"
 	@ansible -i ansible/development/hosts all -m ping
-	@ansible-playbook -i ansible/development/hosts ansible/development/site.yml --check --list-tasks --list-hosts
+	@ansible-playbook -i ansible/development/hosts ansible/development/site.yml --check --list-tasks --list-hosts $(ANSIBLE_ARGS)
 
 setup-ansible:
 	@echo "Setup configurations using ansible"
-	@ansible-playbook -i ansible/development/hosts ansible/development/site.yml -v
+	@ansible-playbook -i ansible/development/hosts ansible/development/site.yml -v $(ANSIBLE_ARGS)
 
 build:
 	@echo
