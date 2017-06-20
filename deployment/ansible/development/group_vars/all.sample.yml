@@ -1,7 +1,5 @@
 ---
 
-# Set to yes, if you're using development mode. Otherwise, no
-development_mode: yes
 # Set to yes, if you're using pycharm for development
 # Otherwise, set no
 use_pycharm: yes
