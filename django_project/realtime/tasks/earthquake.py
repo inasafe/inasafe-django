@@ -21,7 +21,7 @@ __date__ = '3/15/16'
 LOGGER = logging.getLogger(LOGGER_NAME)
 
 
-@app.task(queue='inasafe-django', default_retry_delay=30 * 60, bind=True)
+@app.task(queue='inasafe-django', default_retry_delay=10 * 60, bind=True)
 def push_shake_to_inaware(self, shake_id):
     """
 
@@ -37,7 +37,7 @@ def push_shake_to_inaware(self, shake_id):
         if not hazard_id:
             # hazard id is not there?
             # then BMKG haven't pushed it yet to InaWARE then
-            raise Exception('Hazard id is none')
+            raise Exception('Hazard id is none: %s' % shake_id)
         pdf_url = reverse('realtime_report:report_pdf', kwargs={
             'shake_id': shake_id,
             'language': 'en',

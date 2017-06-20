@@ -7,7 +7,6 @@
     owner: '{{ remote_user }}'
     group: '{{ remote_group }}'
     mode: "u=rw,g=rw,o=r"
-  when: development_mode
   tags:
     - development
 
