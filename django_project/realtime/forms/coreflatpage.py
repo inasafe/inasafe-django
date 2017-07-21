@@ -22,3 +22,4 @@ class CoreFlatPageForm(forms.ModelForm):
 
     class Meta:
         model = CoreFlatPage
+        fields = '__all__'
