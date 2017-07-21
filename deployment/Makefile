@@ -81,6 +81,26 @@ compilemessages:
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) exec uwsgi python manage.py compilemessages -l $(LANG)
 
+transifex-pull:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Download translation from Transifex "
+	@echo "------------------------------------------------------------------"
+	@cd ../; tx pull
+
+transifex-push-language:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Push translation to Transifex for language $(LANG)"
+	@echo "------------------------------------------------------------------"
+	@cd ../; tx push -t -l id
+
+transifex-push-source:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Push translation source to Transifex"
+	@echo "------------------------------------------------------------------"
+	@cd ../; tx push -s
 
 collectstatic:
 	@echo

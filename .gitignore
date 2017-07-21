@@ -110,7 +110,6 @@ deployment/docker-compose.override.yml
 django_project/realtime/tasks/realtime/celeryconfig.py
 django_project/core/settings/custom_settings.py
 django_project/core/settings/mapquest.py
-django_project/locale
 django_project/realtime/local_settings.py
 django_project/celerybeat.pid
 django_project/temp
