@@ -12,3 +12,6 @@ DATABASES = {
         'PORT': '',
     }
 }
+
+# For local testing without celery worker
+CELERY_ALWAYS_EAGER = True

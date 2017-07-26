@@ -1,0 +1,366 @@
+{% extends "realtime/base.html" %}
+{% load staticfiles %}
+{% load leaflet_tags %}
+{% load bootstrap %}
+{% load pipeline %}
+{% load i18n %}
+
+{% block head_resources %}
+    {{ block.super }}
+    {% leaflet_js %}
+    {% leaflet_css %}
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="{% static 'realtime/css/MarkerCluster.user-map.ie.css' %}" />
+    <![endif]-->
+    {% stylesheet 'realtime_contrib' %}
+    {% stylesheet 'realtime_appcss' %}
+    {% stylesheet 'realtime_floodcss' %}
+    {% stylesheet 'main' %}
+    {{ form.media }}
+{% endblock head_resources %}
+
+{% block main_content %}
+    <div class="row center-block">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2 class="panel-title">InaSAFE Flood Realtime</h2>
+            </div>
+            <div class="panel-body">
+                <p class="text-justify">
+                    {% blocktrans %}
+                        This page contains near realtime flood impact assessments following recent floods in the Jakarta, Indonesia.
+                        Flood data used here is sourced from <a href="http://petajakarta.org">PetaJakarta.org</a> who use crowd sourcing data from <a href="http://twitter.com">twitter</a>,
+                        <a href="http://qluein.com/">qlue</a>, <a href="http://pasangmata.detik.com/">detik.com</a> and expert data review by BPBD-DKI.
+                        This information is used by disaster managers to help them understand the potential scale of a disaster and to
+                        respond faster to the hardest hit communities. This is particularly important in the first few hours after a
+                        flood when it may be difficult to get accurate on-the-ground information. Although this service is currently specific to Jakarta, the platform is extensible so that we can add more cities and regions easily.
+                    {% endblocktrans %}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="row center-block">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title map-title">{% trans "Map" %}</h3>
+            </div>
+            <div class="panel-body" style="height: 500px">
+                <!-- Leaflet Map div -->
+                {% leaflet_map "map" %}
+
+                <!-- All the templates from view-->
+            </div>
+        </div>
+    </div>
+{% endblock main_content %}
+
+{% block filter_content %}
+    <div class="row center-block">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{% trans "Filters" %}</h3>
+            </div>
+            <div class="panel-body">
+                <form id="event-filter" data-toggle="validator">
+                    <span class="row">
+                        <span class="date-filter col-xs-12 col-sm-4">
+                            <span class="row">
+                                <label class="control-label col-xs-12 col-sm-12">{% trans "Event Time" %}</label>
+                                <span class="col-xs-6 col-sm-6">
+                                    {{ form.start_date|bootstrap }}
+                                    <div class="help-block with-errors"></div>
+                                </span>
+                                <span class="col-xs-6 col-sm-6">
+                                    {{ form.end_date|bootstrap }}
+                                    <div class="help-block with-errors"></div>
+                                </span>
+                            </span>
+                        </span>
+                        <span class="people-affected-filter col-xs-12 col-sm-3" style="display: none;">
+                            <span class="row">
+                                <label class="control-label col-xs-12 col-sm-12">{% trans "Number of People Affected"%}</label>
+                                <span class="col-xs-6 col-sm-6">
+                                    {{ form.min_people_affected|bootstrap }}
+                                    <div class="help-block with-errors"></div>
+                                </span>
+                                <span class="col-xs-6 col-sm-6">
+                                    {{ form.max_people_affected|bootstrap }}
+                                    <div class="help-block with-errors"></div>
+                                </span>
+                            </span>
+                        </span>
+                        <span class="boundary-flooded-filter col-xs-12 col-sm-3">
+                            <span class="row">
+                                <label class="control-label col-xs-12 col-sm-12">{% trans "Number of RW Flooded" %}</label>
+                                <span class="col-xs-6 col-sm-6">
+                                    {{ form.min_boundary_flooded|bootstrap }}
+                                    <div class="help-block with-errors"></div>
+                                </span>
+                                <span class="col-xs-6 col-sm-6">
+                                    {{ form.max_boundary_flooded|bootstrap }}
+                                    <div class="help-block with-errors"></div>
+                                </span>
+                            </span>
+                        </span>
+                        <span class="col-sm-1 hidden-xs">
+                            <button class="btn clear-filter" title="Clear Filter">
+                                <span class="glyphicon glyphicon-erase"></span>
+                            </button>
+                        </span>
+                        <span class="col-sm-1 hidden-xs">
+                            <button class="btn btn-primary submit-filter"
+                                    title="Update Filter"
+                                    type="submit">
+                                <span class="glyphicon glyphicon-ok"></span>
+                            </button>
+                        </span>
+                        <span class="clearfix"></span>
+                    </span>
+                    <span class="row">
+                        <span class="col-xs-2 visible-xs">
+                            <button class="btn clear-filter" title="Clear Filter">
+                                <span class="glyphicon glyphicon-erase"></span>
+                            </button>
+                        </span>
+                        <span class="col-xs-2 visible-xs">
+                            <button class="btn btn-primary submit-filter"
+                                    title="Update Filter">
+                                <span class="glyphicon glyphicon-ok"></span>
+                            </button>
+                        </span>
+                    </span>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock filter_content %}
+
+{% block table_content %}
+    <div class="row center-block" id="realtime_table_div">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{% trans "Flood" %}</h3>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-12 table-responsive">
+                    <table class="table table-striped table-bordered table-hover" id="realtime-table">
+                        <thead>
+                        <tr>
+                            <th data-dynatable-column="event_id" style="display: none">{% trans "Event ID" %}</th>
+                            <th data-dynatable-column="event_id_formatted">{% trans "Event ID" %}</th>
+                            <th data-dynatable-column="time_description">{% trans "Time" %}</th>
+                            <th data-dynatable-column="total_affected" style="display: none">{% trans "Population Affected" %}</th>
+                            <th data-dynatable-column="boundary_flooded">{% trans "RW Flooded" %}</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock table_content %}
+
+{% block js_container %}
+    {% javascript 'realtime_contrib' %}
+    {% javascript 'realtime_appjs' %}
+    {% javascript 'realtime_floodjs' %}
+    <script src="https://www.mapquestapi.com/sdk/leaflet/v2.2/mq-map.js?key={{ mapquest_key }}"></script>
+    <script type="text/javascript">
+    var base_map, dynatable;
+
+    // Initialize Basemap Layer
+    base_map = {
+        {% for tile in leaflet_tiles %}
+            '{{ tile.name }}': createBasemap(
+                    '{{ tile.url }}',
+                    '{{ tile.subdomains }}',
+                    '{{ tile.attribution | safe }}')
+            {% if not forloop.last %}
+                ,
+            {% endif %}
+        {% endfor %}
+    };
+
+    // Override because of new MapQuest policy to use licensed API
+    base_map['MapQuest'] = MQ.mapLayer();
+
+    //Create Map with prepared base_map
+    map = L.map('map', {
+        layers: [base_map["{{ leaflet_tiles.0.name }}"]]
+    });
+    map.fitWorld().zoomIn();
+    // make popup in center when opened
+    map.on('popupopen', function (e) {
+        var px = map.project(e.popup._latlng); // find the pixel location on the map where the popup anchor is
+        px.y -= e.popup._container.clientHeight / 2; // find the height of the popup container, divide by 2, subtract from the Y axis of marker location
+        map.panTo(map.unproject(px), {animate: true}); // pan to new center
+    });
+
+    // create control layers
+    layer_control = L.control.layers(base_map, {}, {
+        position: 'topleft'
+    }).addTo(map);
+
+    // add FitAll control
+    var fitAll = L.control.fitAll({
+        position: 'topleft',
+        title: 'Fit All',
+        markers: function(){
+            return event_layer;
+        }
+    }).addTo(map);
+
+    // Get table data
+    var get_events_url = '{% url "realtime:flood_event_list" %}';
+
+    var jsonTableContents;
+    function getEventsJson(event_json){
+        jsonTableContents = event_json;
+
+        dynatable.settings.dataset.originalRecords = jsonTableContents;
+        dynatable.paginationPerPage.set(10);
+        dynatable.sorts.add('event_id_formatted', -1);
+        dynatable.process();
+
+        // programatically show first flood in row
+        if(jsonTableContents.length > 0) {
+            var flood_id = jsonTableContents[0].event_id;
+            showFeaturesHandler(flood_id);
+        }
+    }
+
+    // Create handler for table
+    var event_feature_url = '{% url "realtime:flood_event_features" event_id="0000000000-6-rw" %}';
+    var showFeaturesHandler = createShowFeaturesHandler(event_feature_url);
+    var report_url = '{% url "realtime:flood_report_detail" event_id='0000000000-6-rw' language=language.selected_language.id %}';
+    var showReportHandler = createShowReportHandler(report_url);
+    var showImpactMapHandler = createShowImpactMapHandler(report_url);
+    var downloadImpactMapHandler = createDownloadImpactMapHandler(report_url);
+
+    var button_templates = [
+        {
+            type: 'simple-button',
+            name: '{% trans "Show" %}',
+            css_class: 'glyphicon glyphicon-search',
+            handler: 'showFeaturesHandler'
+        },
+        {
+            type: 'simple-button',
+            name: '{% trans "Report" %}',
+            css_class: 'glyphicon glyphicon-file',
+            handler: 'showImpactMapHandler'
+        },
+        {
+            type: 'dropdown',
+            name: '{% trans "Download" %}',
+            css_class: 'glyphicon glyphicon-download',
+            actions: [
+                {
+                    active: function(event){return event.hazard_layer !== undefined;},
+                    text: '{% trans "Hazard Layer" %}',
+                    href:  function(event){return event.hazard_layer;},
+                    download: function(event){return event.event_id+'-hazard.zip';}
+                },
+                {
+                    active: function(event){return event.impact_layer !== undefined;},
+                    text: '{% trans "Impact Layer" %}',
+                    href:  function(event){return event.impact_layer;},
+                    download: function(event){return event.event_id+'-impact.zip';}
+                },
+                {
+                    text: '{% trans "Impact Map" %}',
+                    handler: 'downloadImpactMapHandler'
+                }
+            ]
+        }
+    ];
+
+    $(document).ready(function(){
+        dynatable = $("#realtime-table").dynatable({
+            table: {
+                defaultColumnIdStyle: 'underscore',
+            },
+            writers: {
+                _rowWriter: createActionRowWriter(button_templates, '{% trans "YYYY-MM-DD [at] HH:mm:ss" %}')
+            },
+            dataset: {
+                records: jsonTableContents,
+                sorts: {'magnitude': -1}
+            },
+            features: {
+                search: false
+            }
+        }).data('dynatable');
+
+        // add action column to dynatable
+        addActionColumn('#realtime-table', 'Action');
+
+        $.get(get_events_url, function(data){
+            event_json = data;
+            getEventsJson(event_json);
+        });
+
+        // add content filter handler
+        // update via ajax request
+        var $event_filter = $("#event-filter");
+        {% if server_side_filter %}
+            var _updateFilterHandler = createUpdateFilterHandler(get_events_url,
+                    $event_filter,
+                    getEventsJson);
+        {% else %}
+            // update via client filters
+            var _updateFilterHandler = createClientUpdateFilterHandler(get_events_url,
+                    $event_filter,
+                    getEventsJson);
+        {% endif %}
+        var updateFilterHandler = function (e, reset) {
+            _updateFilterHandler(e, reset);
+            modifyMapDescriptions(".map-title");
+        };
+
+        {#            Modify location filter styles#}
+        modifySearchAndShowLabels();
+
+        $(".submit-filter").click(updateFilterHandler);
+        var clearFilterHandler = function (e) {
+            e.preventDefault();
+            var $event_filter = $("#event-filter");
+            $event_filter.find("input[type=text].form-control").val('');
+            $event_filter.find("input[type=number].form-control").val('');
+            $event_filter.find("input[type=checkbox]").prop("checked", false);
+            updateFilterHandler(e);
+            $(".submit-filter, .clear-filter").hide();
+        };
+        $(".clear-filter").click(clearFilterHandler);
+
+        {#            Disable date input text#}
+        $event_filter.find(".date-filter input").attr("readonly", "readonly");
+        {#            Disable filter button if no filter exists#}
+
+        var show_filter_button = function (e) {
+            var is_show_filter = false;
+            $event_filter.find("input[type=text],input[type=number]").each(function (idx, el) {
+                if ($(el).val()) {
+                    is_show_filter = true;
+                }
+            });
+            $event_filter.find("input[type=checkbox]").each(function (idx, el) {
+                if($(el).prop("checked") == true){
+                    is_show_filter = true;
+                }
+            });
+            if (is_show_filter) {
+                $event_filter.find("button.btn").show();
+            }
+            else {
+                $event_filter.find("button.btn").hide();
+            }
+        };
+
+        show_filter_button();
+        $event_filter.bind('mousemove click keyup focus blur', show_filter_button);
+    });
+    </script>
+{% endblock js_container %}

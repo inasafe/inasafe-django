@@ -28,6 +28,7 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+.DS_Store
 
 # PyInstaller
 # Usually these files are written by a python script from a template
@@ -66,18 +67,69 @@ target/
 
 # Virtual env
 venv
+nenv
 
 # Node
 django_project/static
 node_modules
 
 # Working data not intended to be versioned
+/temp/
 data_for_import
 scrap.html
 .pycharm_helpers
 .sudo_as_admin_successful
 
+# ansible related
+deployment/ansible/tmp/*
+deployment/ansible/development/group_vars/all
+deployment/ansible/development/group_vars/all.yml
+site.retry
+
+!deployment/ansible/tmp/.gitkeep
+
 # Pg cluster for docker
-deployment/pg/postgres_data/9.3
+deployment/pg/postgres_data/
 deployment/pg/postgres_staging_data/9.3
 deployment/pg/postgres_dev_data/9.3
+deployment/pg/dbbackup/*
+!deployment/pg/dbbackup/backups/
+deployment/pg/dbbackup/backups/*
+!deployment/pg/dbbackup/devbackups/
+deployment/pg/dbbackup/devbackups/*
+deployment/sftp_backup/backups/media/
+deployment/sftp_backup/backups/pg/
+deployment/sftp_backup/target/pg/
+deployment/docker-compose.override.yml
+
+!deployment/pg/dbbackup/backups/README.md
+!deployment/pg/dbbackup/devbackups/README.md
+!deployment/sftp_backup/target/pg/.gitkeep
+!deployment/sftp_backup/backups/media/README.md
+!deployment/sftp_backup/backups/pg/README.md
+django_project/realtime/tasks/realtime/celeryconfig.py
+django_project/core/settings/custom_settings.py
+django_project/core/settings/mapquest.py
+django_project/realtime/local_settings.py
+django_project/celerybeat.pid
+django_project/temp
+
+sftp_media_credential.env
+sftp_pg_credential.env
+sftp_media_credential-dev.env
+sftp_pg_credential-dev.env
+inaware_credential.env
+
+# apt-cacher-ng
+71-apt-cacher-ng
+
+# static files
+deployment/static
+deployment/tmp
+django_project/tmp
+media/
+media_settings/
+django_project/media_test
+
+# pickled indicator
+.realtime_broker_indicator.pickle

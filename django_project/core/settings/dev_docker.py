@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
+
 from .dev import *  # noqa
-import os
-print os.environ
+from .celery_config import *  # noqa
+
+DEBUG = True
 
 DATABASES = {
     'default': {
@@ -65,3 +67,12 @@ LOGGING = {
         'level': 'WARNING'
     }
 }
+
+
+SITE_DOMAIN_NAME = 'http://192.168.99.100:61102'
+
+try:
+    # Used to load final custom settings override
+    from .custom_settings import *  # noqa
+except:
+    pass

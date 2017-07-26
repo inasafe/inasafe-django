@@ -6,7 +6,6 @@ from django.contrib.gis.geos import Point
 from django.utils.crypto import get_random_string
 
 
-
 class CustomUserManager(BaseUserManager, GeoManager):
     """Custom user manager for user map."""
     class Meta:
@@ -15,16 +14,17 @@ class CustomUserManager(BaseUserManager, GeoManager):
 
     def create_user(
             self,
-            name,
-            email,
-            location,
-            email_updates,
+            username=None,
+            email=None,
+            password=None,
+            location=None,
+            email_updates=None,
             website='',
-            password=None):
+            **kwargs):
         """Create and save a User.
 
-        :param name: The name of the user.
-        :type name: str
+        :param username: The name of the user.
+        :type username: str
 
         :param email: The email of the user.
         :type email: str
@@ -41,7 +41,7 @@ class CustomUserManager(BaseUserManager, GeoManager):
         :param password: The password of the user.
         :type password: str
         """
-        if not name:
+        if not username:
             raise ValueError('User must have name.')
 
         if not email:
@@ -50,16 +50,17 @@ class CustomUserManager(BaseUserManager, GeoManager):
         if not location:
             raise ValueError('User must have location.')
 
-        if not email_updates:
+        if email_updates is None:
             raise ValueError('User must have email_updates status.')
 
         user = self.model(
-            name=name,
+            name=username,
             email=self.normalize_email(email),
             location=location,
             email_updates=email_updates,
             website=website,
-            key=get_random_string()
+            key=get_random_string(),
+            **kwargs
         )
 
         user.set_password(password)
@@ -67,7 +68,7 @@ class CustomUserManager(BaseUserManager, GeoManager):
 
         return user
 
-    def create_superuser(self, name, email, password):
+    def create_superuser(self, name, email, password, **kwargs):
         """Create and save a superuser.
 
         :param name: The name of the superuser.
@@ -92,5 +93,6 @@ class CustomUserManager(BaseUserManager, GeoManager):
         user.is_confirmed = True
         user.is_active = True
         user.is_admin = True
+        user.is_superuser = True
         user.save(using=self._db)
         return user

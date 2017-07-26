@@ -1,0 +1,32 @@
+{% extends "realtime/base.html" %}
+{% load staticfiles %}
+{% load leaflet_tags %}
+{% load bootstrap %}
+{% load pipeline %}
+{% load humanize %}
+{% load i18n %}
+{% load realtime_extras %}
+
+{% block title %}
+    {{ flatpage.title }}
+{% endblock title %}
+
+{% block head_resources %}
+    {{ block.super }}
+    {% leaflet_js %}
+    {% leaflet_css %}
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="{% static 'realtime/css/MarkerCluster.user-map.ie.css' %}" />
+    <![endif]-->
+    {% stylesheet 'realtime_contrib' %}
+    {% stylesheet 'realtime_appcss' %}
+    {% stylesheet 'main' %}
+    {% javascript 'realtime_contrib' %}
+    {% javascript 'realtime_templates' %}
+    {% javascript 'realtime_appjs' %}
+    {{ form.media }}
+{% endblock head_resources %}
+
+{% block main_content %}
+    {{ flatpage.content }}
+{% endblock %}

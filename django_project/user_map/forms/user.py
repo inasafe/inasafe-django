@@ -4,7 +4,9 @@ from django.contrib.gis import forms
 from django.contrib.auth.forms import PasswordResetForm
 from leaflet.forms.widgets import LeafletWidget
 
-from user_map.models import User, InasafeRole, OsmRole
+from user_map.models.user import User
+from user_map.models.inasafe_role import InasafeRole
+from user_map.models.osm_role import OsmRole
 from user_map.forms.custom_widget import CustomClearableFileInput
 
 

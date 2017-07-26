@@ -1,0 +1,274 @@
+/* ******************** */
+/*         Map          */
+/* ******************** */
+body {
+
+}
+
+html, body, #map {
+    height: 100%;
+}
+
+body > .container {
+    margin-top: 70px;
+}
+
+.transparent {
+    background-color: rgba(250, 250, 250, 0.5);
+}
+
+/* Navbar Styles */
+.navbar-nav>li.active{
+    background: url('images/current-menu.png') no-repeat center 49px;
+}
+
+.navbar-nav .active>a,.navbar-nav .current-page-ancestor>a,.navbar-nav .active>a:hover,.navbar-nav .active>a:focus {
+    background: none!important;
+    color: #ffffff!important;
+}
+
+#lang_sel {
+    float: right;
+}
+
+#lang_sel ul {
+    list-style: none;
+    margin-bottom: 0;
+    padding: 0 20px;
+}
+
+#lang_sel>ul {
+    position: relative;
+}
+
+#lang_sel>ul>li>a {
+    padding-top: 23px!important;
+    padding-bottom: 10px!important;
+    display: block;
+}
+
+#lang_sel ul ul {
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 0;
+    background: #2f3338;
+    z-index: 400;
+    padding-bottom: 15px;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+#lang_sel:hover ul ul {
+    display: block;
+}
+
+#lang_sel ul a {
+    color: #939CA6!important;
+}
+
+#lang_sel ul a:hover {
+    text-decoration: none;
+    color: #fff!important;
+}
+
+.second-menu span {
+    display: inline-block;
+    line-height: 39px;
+    background: #46b650;
+    padding: 0 10px;
+    text-transform: uppercase;
+    margin-right: 15px;
+    color: #fff;
+    vertical-align: top;
+}
+
+.second-menu .current-page-ancestor a {
+    font-weight: bold;
+}
+
+.second-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+}
+
+.second-menu ul li {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.second-menu li.active>a{
+    font-weight: bold;
+}
+
+.navbar .second-menu ul li a {
+    color: #fff!important;
+    line-height: 39px;
+}
+
+.navbar .second-menu ul li a:hover {
+    text-decoration: none;
+    opacity: 0.7;
+}
+
+.second-menu {
+    background: #f57d35;
+}
+
+/* Navbar Styles  End*/
+
+.footer {
+    color: rgb(120, 120, 120);
+    margin-bottom: 20px;
+}
+
+.registration-form {
+    max-width: 700px;
+}
+
+.form-group .multiple-checkbox ul {
+    padding-left: 0;
+    list-style: outside none none;
+}
+
+.login-form {
+    max-width: 500px;
+}
+
+.ask-password-reset-form {
+    max-width: 400px;
+}
+
+.set-new-password-form {
+    max-width: 500px;
+}
+
+.profile-content {
+    max-width: 700px;
+}
+
+/* ******************** */
+/*       Misc           */
+/* ******************** */
+
+.centered {
+    text-align: center;
+}
+
+.info {
+    padding: 10px 20px 10px 10px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255, 255, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+}
+
+.info h4 {
+    margin: 4px;
+    color: #777;
+}
+
+.info img {
+    margin: 4px;
+}
+
+.legend {
+    text-align: left;
+    line-height: 18px;
+    color: #555;
+}
+
+.leaflet-popup-content p {
+    margin: 5px 0px !important;
+}
+
+.clear-filter, .submit-filter{
+    margin-top: 28px;
+}
+
+/* ******************** */
+/*     Dynatable        */
+/* ******************** */
+th.dynatable-head a, th.dynatable-head a:hover {
+    color: #428bca;
+    text-decoration: none;
+}
+
+.dynatable-per-page-select{
+    display: inline-block;
+    width: auto;
+}
+
+@media (max-width: 768px) {
+    #dynatable-query-search-realtime-table {
+        width: 150px;
+    }
+}
+
+.row-action-container{
+    margin-right: 8px;
+}
+
+#dynatable-per-page-realtime-table, #dynatable-query-search-realtime-table{
+    margin-left: 10px;
+    border-radius: 5px;
+}
+
+/* ******************** */
+/*     Location Filter  */
+/* ******************** */
+.location-filter a.enable-button{
+    background-image: url("img/select-area.png");
+    background-repeat: no-repeat;
+}
+
+.location-filter a.enable-button.remove-button{
+    background-image: url("img/remove-selection.png");
+    background-repeat: no-repeat;
+}
+
+.location-filter a.adjust-button{
+    background-image: url("img/selec-area-with-current-zoom.png");
+    background-repeat: no-repeat;
+}
+
+/* ******************** */
+/*     Fit All          */
+/* ******************** */
+.control-fit-all a.fit-all-button{
+
+}
+
+
+/* ******************** */
+/*     Layer control    */
+/* ******************** */
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 26px !important;
+	height: 26px !important;
+	background-size: 18px !important;
+}
+
+
+/* ******************** */
+/*     Plugin override  */
+/* ******************** */
+.timepicker-picker td.separator{
+    line-height: 54px;
+}
+
+
+/* ******************** */
+/*  Dropdown in table   */
+/* ******************** */
+.btn-group .dropdown-menu{
+    position: absolute;
+}

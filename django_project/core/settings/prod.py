@@ -17,6 +17,21 @@ DATABASES = {
     }
 }
 
+# enable cached storage - requires uglify.js (node.js)
+STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+MIDDLEWARE_CLASSES += (
+    'django.middleware.gzip.GZipMiddleware',
+    'pipeline.middleware.MinifyHTMLMiddleware',
+)
+
+# define template function (example for underscore)
+# PIPELINE_TEMPLATE_FUNC = '_.template'
+PIPELINE_YUI_BINARY = '/usr/bin/yui-compressor'
+PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.yui.YUICompressor'
+PIPELINE_CSS_COMPRESSOR = 'pipeline.compressors.yui.YUICompressor'
+PIPELINE_YUI_JS_ARGUMENTS = '--nomunge'
+PIPELINE_DISABLE_WRAPPER = True
+
 # Comment if you are not running behind proxy
 USE_X_FORWARDED_HOST = True
 
@@ -25,9 +40,10 @@ DEBUG = TEMPLATE_DEBUG = False
 
 if 'raven.contrib.django.raven_compat' in INSTALLED_APPS:
     print '*********** Setting up sentry logging ************'
-    SENTRY_DSN = (
-        'http://05ac39e9c6754f71b697d0b694bca657:6c2a47fc6ce04e'
-        'd2bb966df9454df7d3@sentry.linfiniti.com/13')
+    RAVEN_CONFIG = {
+        'dsn': 'http://05ac39e9c6754f71b697d0b694bca657'
+               ':6c2a47fc6ce04ed2bb966df9454df7d3@sentry.kartoza.com/13',
+    }
 
     # MIDDLEWARE_CLASSES = (
     #     'raven.contrib.django.middleware.SentryResponseErrorIdMiddleware',

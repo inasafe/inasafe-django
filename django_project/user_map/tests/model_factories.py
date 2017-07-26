@@ -2,9 +2,11 @@
 """Model factories definition for models."""
 from django.contrib.gis.geos import Point
 import factory
-from factory import DjangoModelFactory
+from factory.django import DjangoModelFactory
 
-from user_map.models import InasafeRole, OsmRole, User
+from user_map.models.user import User
+from user_map.models.inasafe_role import InasafeRole
+from user_map.models.osm_role import OsmRole
 
 
 class InasafeRoleFactory(DjangoModelFactory):

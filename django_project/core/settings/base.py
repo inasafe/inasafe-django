@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Django settings for inasafe project.
+import sys
 
 from .utils import ABS_PATH
 
@@ -73,6 +74,7 @@ WSGI_APPLICATION = 'core.wsgi.application'
 TEMPLATE_DIRS = (
     # project level templates
     ABS_PATH('core', 'base_templates'),
+    ABS_PATH('realtime', 'templates')
 )
 
 INSTALLED_APPS = (
@@ -83,7 +85,24 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'django.contrib.admin',
-    'django.contrib.sites'
+    'django.contrib.sites',
+    'django.contrib.flatpages',
+    'django.contrib.humanize'
 )
 
 SITE_ID = 1
+
+# variable to use to indicate testing
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+
+# variable to check is it in dev_mode
+DEV_MODE = False
+
+# Locale folders
+LOCALE_PATHS = (
+    ABS_PATH('locale'),
+)
+
+DJANGO_ROOT = ABS_PATH('.')
+
+SITE_DOMAIN_NAME = 'example.com'

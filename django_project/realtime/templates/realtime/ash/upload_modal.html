@@ -1,0 +1,91 @@
+{% extends "realtime/base.html" %}
+{% load staticfiles %}
+{% load leaflet_tags %}
+{% load bootstrap %}
+{% load pipeline %}
+{% load i18n %}
+
+{% block head_resources %}
+    {{ block.super }}
+    {% leaflet_js %}
+    {% leaflet_css %}
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="{% static 'realtime/css/MarkerCluster.user-map.ie.css' %}" />
+    <![endif]-->
+    {% stylesheet 'realtime_contrib' %}
+    {% stylesheet 'realtime_appcss' %}
+    {% stylesheet 'realtime_ashcss' %}
+    {% stylesheet 'main' %}
+    {{ form.media }}
+{% endblock head_resources %}%}
+
+{% block main_content %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title map-title">{% trans "Upload Ash Event" %}</h3>
+    </div>
+    <div class="panel-body">
+        <div class="col-lg-6 col-lg-offset-3">
+            <form id="form-ash-upload" class="form-horizontal" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form|bootstrap }}
+                <div class="form-group">
+                    <div class="col-lg-6">
+                        <input type="submit" name="upload-ash" value="Submit" class="btn btn-default">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js_container %}
+    {% javascript 'realtime_contrib' %}
+    {% javascript 'realtime_appjs' %}
+    {% javascript 'realtime_ashjs' %}
+    <script type="text/javascript">
+    var volcano_list = {{ volcano_list|safe }};
+
+    $(document).ready(function(){
+        var $volcano_name_input = $("#id_volcano_name");
+        $volcano_name_input.typeahead({
+            source: volcano_list,
+            autoSelect: true
+        });
+
+        var $volcano = $("#id_volcano");
+        $volcano.closest('.form-group').hide();
+
+        $volcano_name_input.change(function(){
+            var current = $volcano_name_input.typeahead('getActive');
+            if(current){
+                if(current.name == $volcano_name_input.val()){
+                    $volcano.val(current.id);
+                }
+                else{
+
+                }
+            }
+        });
+
+        var $timezone = $("#id_timezone_string");
+        var $utc_offset = $("#id_utc_offset");
+        var timezone_name = moment.tz.guess();
+        var timezone_moment = moment().tz(timezone_name);
+        $utc_offset.val(timezone_moment.utcOffset());
+        var timezone_offset = timezone_moment.format('Z');
+        var timezone_string = '';
+        if(timezone_name){
+            timezone_string += timezone_name;
+            if(timezone_offset){
+                timezone_string += ' ('+timezone_offset+')';
+            }
+        }
+        if(!timezone_name && timezone_offset){
+            timezone_string += timezone_offset;
+        }
+        $timezone.val(timezone_string);
+    });
+    </script>
+{% endblock %}

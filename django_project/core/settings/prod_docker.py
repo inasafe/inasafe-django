@@ -1,7 +1,7 @@
 # noinspection PyUnresolvedReferences
+
 from .prod import *  # noqa
-import os
-print os.environ
+from .celery_config import *  # noqa
 
 ALLOWED_HOSTS = ['*']
 
@@ -9,7 +9,10 @@ ADMINS = (
     ('Tim Sutton', 'tim@kartoza.com'),
     ('Ismail Sunni', 'ismail@kartoza.com'),
     ('Christian Christellis', 'christian@kartoza.com'),
-    ('Akbar Gumbira', 'akbargumbira@gmail.com'),)
+    ('Rizky Maulana Nugraha', 'rizky@kartoza.com'),
+    # RM: will be left as it is as a tribute to Akbar :)
+    # ('Akbar Gumbira', 'akbargumbira@gmail.com'),
+)
 
 DATABASES = {
     'default': {
@@ -40,3 +43,12 @@ EMAIL_HOST_PASSWORD = 'docker'
 EMAIL_USE_TLS = False
 EMAIL_SUBJECT_PREFIX = '[InaSAFE]'
 DEFAULT_FROM_EMAIL = 'noreply@inasafe.org'
+
+
+SITE_DOMAIN_NAME = 'http://realtime.inasafe.org'
+
+try:
+    # Used to load final custom settings override
+    from .custom_settings import *  # noqa
+except:
+    pass

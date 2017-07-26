@@ -1,0 +1,518 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-07-20 23:21+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: realtime/forms/ash.py:47
+msgid "Timezone"
+msgstr ""
+
+#: realtime/forms/earthquake.py:34 realtime/forms/flood.py:18
+msgid "Start Date"
+msgstr ""
+
+#: realtime/forms/earthquake.py:41 realtime/forms/flood.py:25
+msgid "End Date"
+msgstr ""
+
+#: realtime/forms/earthquake.py:45
+msgid "Minimum Magnitude"
+msgstr ""
+
+#: realtime/forms/earthquake.py:49
+msgid "Maximum Magnitude"
+msgstr ""
+
+#: realtime/forms/flood.py:28 realtime/forms/flood.py:34
+msgid "Minimum"
+msgstr ""
+
+#: realtime/forms/flood.py:31 realtime/forms/flood.py:37
+msgid "Maximum"
+msgstr ""
+
+#: realtime/helpers/base_indicator.py:59
+msgid "Healthy"
+msgstr ""
+
+#: realtime/helpers/base_indicator.py:61
+msgid "Warning"
+msgstr ""
+
+#: realtime/helpers/base_indicator.py:63
+msgid "Critical"
+msgstr ""
+
+#: realtime/helpers/base_indicator.py:65
+msgid "Not Available"
+msgstr ""
+
+#: realtime/helpers/realtime_broker_indicator.py:56
+msgid "Broker Connection Status"
+msgstr ""
+
+#: realtime/helpers/realtime_broker_indicator.py:73
+#: realtime/helpers/rest_push_indicator.py:69
+#, python-format
+msgid "Status is considered in healthy state when the value is less than %s"
+msgstr ""
+
+#: realtime/helpers/realtime_broker_indicator.py:78
+#: realtime/helpers/rest_push_indicator.py:74
+#, python-format
+msgid "Status is considered in warning state when the value is less than %s"
+msgstr ""
+
+#: realtime/helpers/realtime_broker_indicator.py:83
+#: realtime/helpers/rest_push_indicator.py:79
+#, python-format
+msgid ""
+"Status is considered in critical state when the value is greater than %s"
+msgstr ""
+
+#: realtime/helpers/rest_push_indicator.py:64
+#: realtime/templates/realtime/indicator.html:39
+msgid "Last REST Push"
+msgstr ""
+
+#: realtime/helpers/shake_event_indicator.py:76
+msgid "Last Shake Event"
+msgstr ""
+
+#: realtime/helpers/shake_event_indicator.py:81
+#: realtime/helpers/shake_event_indicator.py:91
+#: realtime/helpers/shake_event_indicator.py:101
+#: realtime/helpers/shakemap_push_indicator.py:88
+#: realtime/helpers/shakemap_push_indicator.py:98
+#: realtime/helpers/shakemap_push_indicator.py:108
+#, python-format
+msgid ""
+"Status is considered in healthy state when the value is less than "
+"%(factor).2f times of deviation (%(deviation)s) from average intervals "
+"(%(interval)s) which is %(range)s"
+msgstr ""
+
+#: realtime/helpers/shakemap_push_indicator.py:83
+#: realtime/templates/realtime/indicator.html:38
+msgid "Last Shakemap Push"
+msgstr ""
+
+#: realtime/templates/admin/base_site.html:4
+msgid "Django site admin"
+msgstr ""
+
+#: realtime/templates/admin/base_site.html:7
+msgid "Django administration"
+msgstr ""
+
+#: realtime/templates/admin/base_site.html:13
+msgid "Welcome, "
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:30
+msgid ""
+"\n"
+"                        This page contains <b>near realtime</b> volcanic "
+"ash\n"
+"                        impact assessments generated prior to or during "
+"recent\n"
+"                        volcanic eruptions in the Indonesia region.\n"
+"                        Ashmaps of volcanic ash thickness are produced by "
+"Indonesia’s\n"
+"                        Geological Agency, Badan Geologi\n"
+"                        (<a href=\"http://www.bgl.esdm.go.id\">http://www."
+"bgl.esdm.go.id</a>)\n"
+"                        and used by the Indonesian National Disaster "
+"Management Agency (BNPB)\n"
+"                        to produce InaSAFE impact assessments\n"
+"                        (<a href=\"http://www.bnpb.go.id\">http://www.bnpb."
+"go.id</a>\n"
+"                        or <a href=\"http://realtime.inasafe.org\">http://"
+"realtime.inasafe.org</a>).\n"
+"                        This information is used by disaster managers to "
+"help\n"
+"                        them understand the potential scale of a volcanic\n"
+"                        disaster and to respond faster to the hardest hit "
+"communities.\n"
+"                    "
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:52
+#: realtime/templates/realtime/earthquake/index.html:54
+#: realtime/templates/realtime/flood/index.html:45
+msgid "Map"
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:72
+msgid "Ash Fall"
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:79
+#: realtime/templates/realtime/earthquake/index.html:162
+#: realtime/templates/realtime/flood/index.html:151
+msgid "Time"
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:80
+msgid "Volcano Name"
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:81
+msgid "Alert Level"
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:82
+msgid "District"
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:83
+msgid "Eruption Height"
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:175
+#: realtime/templates/realtime/earthquake/index.html:313
+msgid "Zoom"
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:181
+#: realtime/templates/realtime/ash/index.html:203
+#: realtime/templates/realtime/earthquake/index.html:319
+#: realtime/templates/realtime/earthquake/index.html:329
+#: realtime/templates/realtime/flood/index.html:251
+msgid "Report"
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:187
+#: realtime/templates/realtime/earthquake/index.html:325
+#: realtime/templates/realtime/flood/index.html:257
+msgid "Download"
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:192
+msgid "Hazard File"
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:198
+msgid "Impact Files"
+msgstr ""
+
+#: realtime/templates/realtime/ash/index.html:258
+#: realtime/templates/realtime/earthquake/index.html:422
+#: realtime/templates/realtime/flood/index.html:286
+msgid "YYYY-MM-DD [at] HH:mm:ss"
+msgstr ""
+
+#: realtime/templates/realtime/ash/upload_modal.html:25
+msgid "Upload Ash Event"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:26
+msgid "InaSAFE Realtime Earthquake Reports"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:30
+msgid ""
+"\n"
+"                        This page contains <b>near realtime</b> earthquake "
+"impact assessments\n"
+"                        following recent earthquakes in the Indonesia "
+"region.\n"
+"                        Shakemaps of earthquake ground shaking are produced "
+"by the\n"
+"                        Indonesian Agency for Meteorology, Climatology and "
+"Geophysics (BMKG)\n"
+"                        and used by the Indonesian National Disaster "
+"Management Agency (BNPB)\n"
+"                        to produce InaSAFE impact assessments within minutes "
+"of an earthquake\n"
+"                        (\n"
+"                        <a href=\"http://www.bnpb.go.id\">http://www.bnpb.go."
+"id</a>\n"
+"                        or\n"
+"                        <a href=\"http://realtime.inasafe.org\">http://"
+"realtime.inasafe.org</a>).\n"
+"                        This information is used by disaster managers to "
+"help them understand\n"
+"                        the potential scale of a disaster and to respond "
+"faster to the\n"
+"                        hardest hit communities. This is particularly "
+"important in the\n"
+"                        first few hours after a large earthquake when it may "
+"be difficult\n"
+"                        to get accurate on-the-ground information.\n"
+"                    "
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:70
+#: realtime/templates/realtime/flood/index.html:61
+msgid "Filters"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:132
+msgid "Contextual Filters"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:137
+msgid "Recent Large Earthquakes"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:140
+msgid "Recent Small Earthquakes"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:143
+msgid "Recent Felt Earthquakes"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:155
+msgid "Earthquakes"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:163
+msgid "Location Description"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:164
+msgid "Magnitude"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:165
+msgid "Depth"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:166
+msgid "Shake Id"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:179
+msgid ""
+"\n"
+"                <h2>Supporters</h2>\n"
+"\n"
+"                <p>Funded and supported by the\n"
+"                    <a href=\"http://dfat.gov.au/geo/indonesia/pages/"
+"indonesia.aspx\">Australian Government</a>,\n"
+"                    <a href=\"http://www.ga.gov.au/\">Geoscience Australia</"
+"a> and\n"
+"                    the <a href=\"http://www.gfdrr.org\">World Bank-GFDRR</"
+"a>.\n"
+"                </p>\n"
+"            "
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:190
+msgid ""
+"\n"
+"                <h2>Partners</h2>\n"
+"\n"
+"                <p>This software was developed with our partners in "
+"Indonesia:\n"
+"                    <a href=\"http://bnpb.go.id\">Badan Nasional\n"
+"                        Penanggulangan Bencana (BNPB)</a> and\n"
+"                    <a href=\"http://www.bmkg.go.id\">Badan Meteorologi, "
+"Klimatologi, dan\n"
+"                        Geofisika (BMKG)</a>\n"
+"                </p>\n"
+"\n"
+"            "
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:203
+msgid ""
+"\n"
+"                <h2>InaSAFE</h2>\n"
+"\n"
+"                <p>This software is part of the\n"
+"                    <a href=\"http://inasafe.org\">InaSAFE</a> project.\n"
+"                </p>\n"
+"            "
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:334
+msgid "Grid XML"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:339
+msgid "MMI output"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:403
+#, python-format
+msgid "Earthquake events %%(magnitude)s %%(date)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:404
+#, python-format
+msgid "with magnitudes between %%(min_magnitude)s and %%(max_magnitude)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:405
+#, python-format
+msgid "with magnitudes greater than or equal %%(min_magnitude)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:406
+#, python-format
+msgid "with magnitudes less than or equal %%(max_magnitude)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:407
+#, python-format
+msgid "over the period %%(start_moment) and %%(end_moment)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:408
+#, python-format
+msgid "since %%(start_moment)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:409
+#, python-format
+msgid "before %%(end_moment)"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:431
+msgid "Action"
+msgstr ""
+
+#: realtime/templates/realtime/flood/index.html:30
+msgid ""
+"\n"
+"                        This page contains near realtime flood impact "
+"assessments following recent floods in the Jakarta, Indonesia.\n"
+"                        Flood data used here is sourced from <a href="
+"\"http://petajakarta.org\">PetaJakarta.org</a> who use crowd sourcing data "
+"from <a href=\"http://twitter.com\">twitter</a>,\n"
+"                        <a href=\"http://qluein.com/\">qlue</a>, <a href="
+"\"http://pasangmata.detik.com/\">detik.com</a> and expert data review by "
+"BPBD-DKI.\n"
+"                        This information is used by disaster managers to "
+"help them understand the potential scale of a disaster and to\n"
+"                        respond faster to the hardest hit communities. This "
+"is particularly important in the first few hours after a\n"
+"                        flood when it may be difficult to get accurate on-"
+"the-ground information. Although this service is currently specific to "
+"Jakarta, the platform is extensible so that we can add more cities and "
+"regions easily.\n"
+"                    "
+msgstr ""
+
+#: realtime/templates/realtime/flood/index.html:68
+msgid "Event Time"
+msgstr ""
+
+#: realtime/templates/realtime/flood/index.html:81
+msgid "Number of People Affected"
+msgstr ""
+
+#: realtime/templates/realtime/flood/index.html:94
+msgid "Number of RW Flooded"
+msgstr ""
+
+#: realtime/templates/realtime/flood/index.html:142
+msgid "Flood"
+msgstr ""
+
+#: realtime/templates/realtime/flood/index.html:149
+#: realtime/templates/realtime/flood/index.html:150
+msgid "Event ID"
+msgstr ""
+
+#: realtime/templates/realtime/flood/index.html:152
+msgid "Population Affected"
+msgstr ""
+
+#: realtime/templates/realtime/flood/index.html:153
+msgid "RW Flooded"
+msgstr ""
+
+#: realtime/templates/realtime/flood/index.html:245
+msgid "Show"
+msgstr ""
+
+#: realtime/templates/realtime/flood/index.html:262
+msgid "Hazard Layer"
+msgstr ""
+
+#: realtime/templates/realtime/flood/index.html:268
+msgid "Impact Layer"
+msgstr ""
+
+#: realtime/templates/realtime/flood/index.html:273
+msgid "Impact Map"
+msgstr ""
+
+#: realtime/templates/realtime/indicator.html:36
+msgid "Username"
+msgstr ""
+
+#: realtime/templates/realtime/indicator.html:37
+msgid "Email"
+msgstr ""
+
+#: realtime/templates/realtime/indicator.html:58
+msgid "Indicator"
+msgstr ""
+
+#: realtime/templates/realtime/indicator.html:59
+msgid "Value"
+msgstr ""
+
+#: realtime/templates/realtime/indicator.html:60
+msgid "Status"
+msgstr ""
+
+#: realtime/templates/realtime/indicator.html:61
+msgid "Notes"
+msgstr ""
+
+#: realtime/templatetags/realtime_extras.py:45
+#, python-format
+msgid "%d days"
+msgstr ""
+
+#: realtime/templatetags/realtime_extras.py:49
+#, python-format
+msgid "%d hours"
+msgstr ""
+
+#: realtime/templatetags/realtime_extras.py:53
+#, python-format
+msgid "%d minutes"
+msgstr ""
+
+#: realtime/templatetags/realtime_extras.py:57
+#, python-format
+msgid "%d seconds"
+msgstr ""
+
+#: realtime/templatetags/realtime_extras.py:59
+#, python-format
+msgid "%d microseconds"
+msgstr ""
+
+#: realtime/views/earthquake.py:71 realtime/views/flood.py:68
+msgid "Select Area"
+msgstr ""
+
+#: realtime/views/earthquake.py:72 realtime/views/flood.py:69
+msgid "Remove Selection"
+msgstr ""
+
+#: realtime/views/earthquake.py:73 realtime/views/flood.py:70
+msgid "Select area within current zoom"
+msgstr ""

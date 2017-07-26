@@ -1,7 +1,6 @@
 # coding=utf-8
 """Views of the apps."""
-import csv
-import json
+import unicodecsv as csv
 
 from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -25,20 +24,21 @@ from django.contrib.auth.decorators import login_required
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
 from django.contrib.sites.models import get_current_site
+from realtime.app_settings import REST_GROUP
 
-from user_map.forms import (
+from user_map.forms.user import (
     RegistrationForm,
     LoginForm,
     BasicInformationForm,
     CustomPasswordResetForm)
-from user_map.models import User
+from user_map.models.user import User
 from user_map.app_settings import (
     PROJECT_NAME,
     PROJECTS,
     INASAFE_CERTIFIED_TRAINER_BADGE,
     OSM_CERTIFIED_TRAINER_BADGE,
     DEFAULT_FROM_MAIL,
-    LEAFLET_TILES)
+    LEAFLET_TILES, MAPQUEST_MAP_KEY)
 from user_map.utilities.decorators import login_forbidden
 
 
@@ -63,16 +63,27 @@ def index(request):
         'user_map/legend.html', {'projects': PROJECTS})
 
     leaflet_tiles = dict(
+        name=LEAFLET_TILES[0],
         url=LEAFLET_TILES[1],
-        attribution=LEAFLET_TILES[2]
+        subdomains=LEAFLET_TILES[2],
+        attribution=LEAFLET_TILES[3]
     )
+    #
+    # projects = [{
+    #     'name': p['name'],
+    #     'icon': do_static(p['icon']),
+    #     'shadow_icon': do_static(p['shadow_icon']),
+    #     'icon_size': p['icon_size']
+    # } for p in PROJECTS]
+
     context = {
         'data_privacy_content': data_privacy_content,
         'information_modal': information_modal,
         'user_menu_button': user_menu_button,
-        'projects': json.dumps(PROJECTS),
+        'projects': PROJECTS,
         'legend': legend,
-        'leaflet_tiles': leaflet_tiles
+        'leaflet_tiles': leaflet_tiles,
+        'mapquest_key': MAPQUEST_MAP_KEY
     }
     return render(request, 'user_map/index.html', context)
 
@@ -96,17 +107,25 @@ def get_users(request):
         project = str(request.GET.get('project', ''))
 
         if project.lower() == 'inasafe':
+            # only inasafe users
             users = User.objects.filter(
                 is_confirmed=True,
                 is_active=True,
-                osm_roles=None)
+                osm_roles=None).exclude(
+                inasafe_roles=None).exclude(groups__name=REST_GROUP)
         elif project.lower() == 'openstreetmap':
-            inasafe_users = User.objects.filter(osm_roles=None).values('id')
+            # only osm users
             users = User.objects.filter(
                 is_confirmed=True,
-                is_active=True).exclude(id__in=inasafe_users)
+                is_active=True,
+                inasafe_roles=None).exclude(osm_roles=None).exclude(
+                groups__name=REST_GROUP)
         else:
-            users = []
+            # get users who have both roles
+            users = User.objects.filter(
+                is_confirmed=True, is_active=True).exclude(
+                osm_roles=None).exclude(inasafe_roles=None).exclude(
+                groups__name=REST_GROUP)
 
         context = {
             'users': users,
@@ -137,7 +156,6 @@ def register(request):
             form.save_m2m()
 
             current_site = get_current_site(request)
-            site_name = current_site.name
             domain = current_site.domain
             context = {
                 'project_name': PROJECT_NAME,
@@ -289,7 +307,7 @@ def update_user(request):
                 request.POST, request.FILES, instance=request.user)
             change_password_form = PasswordChangeForm(user=request.user)
             if basic_info_form.is_valid():
-                user = basic_info_form.save()
+                basic_info_form.save()
                 basic_info_form.save_m2m()
                 messages.success(
                     request, 'You have successfully changed your information!')
@@ -303,7 +321,7 @@ def update_user(request):
                 data=request.POST, user=request.user)
             basic_info_form = BasicInformationForm(instance=request.user)
             if change_password_form.is_valid():
-                user = change_password_form.save()
+                change_password_form.save()
 
                 messages.success(
                     request, 'You have successfully changed your password! '
@@ -430,7 +448,7 @@ def download(request):
 
     users = User.objects.filter(
         is_confirmed=True, is_active=True)
-    writer = csv.writer(response)
+    writer = csv.writer(response, encoding='utf-8')
 
     fields = ['name', 'website', 'location']
     headers = ['No.']

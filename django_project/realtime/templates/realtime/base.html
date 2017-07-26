@@ -1,0 +1,176 @@
+{% load staticfiles %}
+{% load bootstrap %}
+{% load pipeline %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="{{ language }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <link rel="shortcut icon" href="{% static REALTIME_FAVICON_PATH %}">
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:400,300,500,700' rel='stylesheet' type='text/css'>
+    <title>
+        {% block title %} {{ REALTIME_PROJECT_NAME }} {% endblock %}</title>
+
+    {% block head_resources %}
+        {% stylesheet 'contrib' %}
+        {% javascript 'contrib' %}
+        <script type="text/javascript"
+                src="{% url 'django.views.i18n.javascript_catalog' %}">
+        </script>
+    {% endblock head_resources %}
+    <!-- Google Analytics -->
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-93181136-1', 'auto');
+        ga('send', 'pageview');
+    </script>
+</head>
+
+<body>
+{% if not iframe %}
+    {% block navbar %}
+        <header id="banner-header" class="banner navbar navbar-default
+    topnavbar navbar-static-top default" role="banner">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed"
+                            data-toggle="collapse" data-target="#navbar"
+                            aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" rel="home"
+                       href="http://inasafe.org/"
+                       title="InaSAFE">
+                        <img id="site-logo" style="max-width:100px;
+                    margin-top:-7px;" src=
+                                "{% static REALTIME_BRAND_LOGO %}">
+                    </a>
+                </div>
+                {% block nav_main %}
+                    <nav id="navbar" class="nav-main navbar-collapse collapse" role="navigation">
+                        <ul id="menu-default" class="navbar-nav nav">
+                            <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-152 menu-for-users">
+                                <a title="For Users" href="http://inasafe.org/for-users/">For Users</a>
+                            </li>
+                            <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-has-children menu-item-155 menu-for-contributors dropdown">
+                                <a title="For Contributors" href="#" data-toggle="dropdown" class="dropdown-toggle"
+                                   aria-haspopup="true">For Contributors
+                                    <span class="caret"></span></a>
+                                <ul role="menu" class=" dropdown-menu">
+                                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-171 menu-coders">
+                                        <a title="Coders" href="http://inasafe.org/for-coders/">Coders</a>
+                                    </li>
+                                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-170 menu-writers-and-designers">
+                                        <a title="Writers and Designers"
+                                           href="http://inasafe.org/for-documentation-writers-and-designers/">Writers
+                                            and Designers</a>
+                                    </li>
+                                    <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-169 menu-translators">
+                                        <a title="Translators"
+                                           href="http://inasafe.org/for-translators/">Translators</a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="menu-item menu-item-type-post_type menu-item-object-page page_item page-item-157 current_page_item menu-item-158 menu-blog">
+                                <a title="Blog" href="http://inasafe.org/blog/">Blog</a>
+                            </li>
+                            <li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-12 menu-chat-live">
+                                <a title="Chat Live!" href="http://inasafe.org/chat-live/">Chat Live!</a>
+                            </li>
+                            <li class="menu-item menu-item-type-custom menu-item-object-custom menu-item-160 menu-report-an-issue">
+                                <a title="Report an Issue" target="_blank"
+                                   href="https://github.com/AIFDR/inasafe/issues">Report an Issue</a>
+                            </li>
+                        </ul>
+                        <div id="lang_sel">
+                            <ul>
+                                <li>
+                                    <a href="#">{{ language.selected_language.name }}
+                                        {% if language.language_list|length > 0 %}
+                                            <span class="caret"></span>
+                                        {% endif %}
+                                    </a>
+                                    {% if language.language_list|length > 0 %}
+                                        <ul>
+                                            {% for l in language.language_list %}
+                                                <li>
+                                                    <a href="{{ request.path }}?lang={{ l.id }}">{{ l.name }}</a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="nav navbar-nav pull-right">
+                            {% if not user.is_authenticated %}
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle"
+                                       data-toggle="dropdown"><b>Account</b>
+                                        <b class="caret"></b></a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="{% url 'realtime_admin:login' %}">
+                                                Log In
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% endif %}
+                            {% if user.is_authenticated %}
+                                <li class="dropdown">
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Hi, {{ user.name }}</b>
+                                        <b class="caret"></b></a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="{% url 'realtime_admin:index' %}">Admin Page</a>
+                                        </li>
+                                        <li>
+                                            <a href="{% url 'realtime_admin:logout' %}">Log Out</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% endif %}
+                        </div>
+                    </nav>
+                {% endblock %}
+            </div>
+            <div class="second-menu">
+                <div class="container">
+                    {% block nav_second %}
+                        {% include 'realtime/nav_second.html' %}
+                    {% endblock %}
+                </div>
+            </div>
+            <div style="clear: both;"></div>
+        </header>
+    {% endblock navbar %}
+{% endif %}
+
+<div class="container">
+
+    {% block main_content %}
+    {% endblock main_content %}
+
+    {% block filter_content %}
+    {% endblock filter_content %}
+
+    {% block table_content %}
+    {% endblock table_content %}
+</div>
+
+{% block footer %}
+{% endblock footer %}
+
+{% block js_container %}
+{% endblock js_container %}
+</body>
+</html>

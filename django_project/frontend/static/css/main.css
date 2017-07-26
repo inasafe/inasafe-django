@@ -3,85 +3,196 @@ html {
     width: 100%;
 }
 
-
 body {
     margin: 0;
     height: 100%;
     width: 100%;
+    font-family: Ubuntu;
+    line-height: 23px;
+    font-weight: 300;
+    font-style: normal;
+    color: #6e7377;
+    font-size: 16px;
 }
 
-.navbar-brand {
-  color: #EF5829 !important;
-  font-family: "Brandon", sans-serif;
-  font-size: 20pt;
-  font-weight: bold;
-}
-.navbar-nav {
-  font-family: "Open Sans Bold", sans-serif;
-  font-size: 12pt;
-}
-.navbar-default .navbar-nav > li > a:hover, .navbar-default .navbar-nav > li > a:focus {
-  color: #EF5829;  /*Sets the text hover color on navbar*/
+.navbar .navbar-brand{
+    color: #fff !important;
 }
 
 #main-content {
-  opacity: 0.9;
-  filter: alpha(opacity=85); /* For IE8 and earlier */
-  background: url('../img/launch_2.jpg') no-repeat center top fixed  ;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
+    opacity: 0.9;
+    filter: alpha(opacity=85); /* For IE8 and earlier */
+    background: url('../img/launch_2.jpg') no-repeat center top fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
 
 .title {
-  padding-top: 10px;
-  font-family: "Open Sans Bold", sans-serif;
-  font-size: 18px;
-  font-weight: bold;
-  color: #EF5829;
-  text-align: center  ;
+    padding-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #EF5829;
+    text-align: center;
 }
+
 #realtime-assesment {
-  padding-top: 60px;
+    padding-top: 60px;
 }
 
 #user-map {
-  padding-top: 60px;
+    padding-top: 60px;
 }
 
 #about {
-  padding-top: 60px;
+    padding-top: 60px;
 }
 
 .footer {
-  color: rgb(120, 120, 120);
-  margin-bottom: 20px;
+    color: rgb(120, 120, 120);
+    margin-bottom: 20px;
 }
 
 .quotes {
-  display: none;
-  font-family: "Open Sans Bold", sans-serif;
-  font-size: 14pt;
-  font-weight: bold;
-  color: #FFFFFF;
-  text-align: center;
-  text-shadow: 0px 0px 3px #000, -1px -1px #000, 1px 1px #000;;
+    display: none;
+    font-size: 14pt;
+    font-weight: bold;
+    color: #FFFFFF;
+    text-align: center;
+    text-shadow: 0px 0px 3px #000, -1px -1px #000, 1px 1px #000;;
 }
+
 .centered {
-  text-align: center;
+    text-align: center;
 }
 
 .btn-default {
-  border-color     : #EF5829;
-  background-color : #EF5829;
-  color: #FDFDFD;
-  font-weight: bolder;
+    border-color: #EF5829;
+    background-color: #EF5829;
+    color: #FDFDFD;
+    font-weight: bolder;
 }
 
 .btn-default:hover {
-  border-color     : #EF5829;
-  background-color : #FF7849;
-  color: #FDFDFD;
-  font-weight: bolder
+    border-color: #EF5829;
+    background-color: #FF7849;
+    color: #FDFDFD;
+    font-weight: bolder
+}
+/* Navbar styles */
+.navbar {
+    border: none!important;
+    font-size: 13px!important;
+    font-family: "Ubuntu";
+}
+
+.navbar .container {
+    position: relative;
+}
+
+.navbar .navbar-brand.logo {
+    height: 53px!important;
+    padding-top: 8px!important;
+}
+
+.navbar-nav>li>a {
+    padding-top: 26px!important;
+    padding-bottom: 10px!important;
+}
+
+.navbar-nav {
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.navbar-collapse.in {
+    position: relative;
+    overflow-y: visible;
+}
+
+.navbar-collapse.in #lang_sel {
+    position: absolute;
+    top: -60px;
+    right: 120px;
+}
+
+.navbar-collapse.in .navbar-nav>li>a {
+    padding-top: 10px!important;
+}
+
+.second-menu .collapse.in li {
+    display: block;
+}
+
+.second-menu .collapse.in {
+    margin-left: -15px;
+    padding-left: 30px;
+    text-transform: uppercase;
+}
+
+.second-menu .collapse.in .search {
+    display: none;
+}
+
+.navbar-toggle {
+    height: 40px;
+    line-height: 25px;
+}
+
+.navbar-header .search {
+    color: #fff;
+    width: 42px;
+}
+
+.second-menu .search {
+    float: right;
+    border: none;
+    background: none;
+    display: inline-block;
+    width: 32px;
+    height: 39px;
+    font-size: 16px;
+    line-height: 41px;
+    color: #fff;
+}
+
+.navbar-nav>li>a {
+    color: #939ca6!important;
+    text-shadow: none;
+}
+
+.nopadding {
+    padding-left: 0!important;
+    padding-right: 0!important;
+}
+
+.navbar-nav .active>a,.navbar-nav .active>a:hover,.navbar-nav .active>a:focus,.navbar-nav .current_page_parent>a {
+    color: #ffffff!important;
+}
+
+.navbar-nav>li>a:focus,.navbar-nav>li>a:hover {
+    color: #ffffff!important;
+    background-color: transparent;
+}
+
+.dropdown-menu {
+    overflow: hidden;
+}
+
+.navbar .dropdown-menu>li>a {
+    color: #939ca6!important;
+    line-height: 1.2;
+    padding: 7px 20px!important;
+    font-size: 13px;
+}
+
+.navbar-nav .active>a,.navbar-nav .current-page-ancestor>a,.navbar-nav .active>a:hover,.navbar-nav .active>a:focus {
+    background: none!important;
+    color: #ffffff!important;
+}
+
+
+.second-menu {
+    background: #f57d35;
 }

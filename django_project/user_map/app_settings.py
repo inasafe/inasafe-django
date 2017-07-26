@@ -25,13 +25,15 @@ FAVICON_FILE = getattr(settings, 'USER_MAP_FAVICON_FILE', default_favicon_file)
 # PROJECTS
 default_projects = [
     dict(
-        name='InaSAFE',
-        icon='user_map/img/inasafe-icon.png',
-        shadow_icon='user_map/img/shadow-icon.png'),
-    dict(
         name='OpenStreetMap',
         icon='user_map/img/osm-icon.png',
-        shadow_icon='user_map/img/osm-shadow.png')]
+        shadow_icon='',
+        icon_size=[32, 32]),
+    dict(
+        name='InaSAFE',
+        icon='user_map/img/inasafe-icon.png',
+        shadow_icon='',
+        icon_size=[32, 32])]
 PROJECTS = getattr(
     settings, 'USER_MAP_PROJECTS', default_projects)
 
@@ -72,15 +74,24 @@ OSM_CERTIFIED_TRAINER_BADGE = getattr(
 
 # MAIL SENDER
 default_mail_sender = 'noreply@inasafe.org'
-DEFAULT_FROM_MAIL = getattr(settings, 'DEFAULT_FROM_EMAIL', default_mail_sender)
+DEFAULT_FROM_MAIL = getattr(
+    settings,
+    'DEFAULT_FROM_EMAIL',
+    default_mail_sender
+)
 
 # LEAFLET CONFIG
 default_leaflet_tiles = (
-    'OpenStreetMap',
-    'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
-    ('© <a href="http://www.openstreetmap.org" target="_parent">OpenStreetMap'
-     '</a> and contributors, under an <a '
-     'href="http://www.openstreetmap.org/copyright" target="_parent">open '
-     'license</a>')
+    'MapQuest',
+    'http://otile{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
+    '1234',
+    '© <a href="http://www.openstreetmap.org" target="_parent">OpenStreetMap'
+    '</a> and contributors, under an <a '
+    'href="http://www.openstreetmap.org/copyright" target="_parent">open '
+    'license</a>. Tiles Courtesy of <a '
+    'href="http://www.mapquest.com/">MapQuest</a> <img '
+    'src="http://developer.mapquest.com/content/osm/mq_logo.png"'
 )
 LEAFLET_TILES = getattr(settings, 'LEAFLET_TILES', default_leaflet_tiles)
+
+MAPQUEST_MAP_KEY = getattr(settings, 'MAPQUEST_MAP_KEY', '')

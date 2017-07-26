@@ -1,0 +1,103 @@
+---
+
+# Set to yes, if you're using pycharm for development
+# Otherwise, set no
+use_pycharm: yes
+# Your linux/mac user that will run ansible
+remote_user: lucernae
+# Your linux/mac group that will run ansible
+remote_group: staff
+# Your project location (this repo)
+project_path: "/Users/lucernae/Documents/WorkingDir/Projects/InaSAFE/inasafe-django"
+
+# Facts for this web app
+inasafe_django:
+  # Site domain name for this web app.
+  # It can be pointing to domain name or ipaddress:port
+  site_domain_name: 'http://somedomain.org'
+  # We are using mapquest to show basemap. Put your mapquest key here
+  mapquest_map_key: 'secretkey'
+  # We are using sentry to send error messages. Put your sentry key here
+  sentry_secret_key: 'secretkey'
+
+# Facts for PyCharm integrations
+# Not needed for productions
+interpreters:
+  # Interpreter for this web app
+  inasafe_django:
+    # Just a name for interpreter
+    name: 'InaSAFE Django Container'
+    # Domain alias. We set /etc/hosts to point to this domain alias for this
+    # interpreter
+    domain_alias: 'docker-inasafe-django'
+    # The port that this interpreter will use to redirect to SSH. Default to
+    # 61103
+    ssh_port: &inasafe_django_ssh_port 61103
+    # Location of pycharm helpers to cache pycharm index. Leave it be.
+    pycharm_helpers: /home/web/django_project/.pycharm_helpers
+    # The ip address of this interpreter. Set it to your current ipaddress of
+    # wifi or ethernet interface, so it can be resolved from inside docker.
+    ipaddress: &inasafe_django_host_ip 192.168.1.7
+  # Just a reference to InaSAFE Realtime Container
+  inasafe_realtime:
+    name: 'InaSAFE Realtime Container'
+    # Point to the ipaddress/domain name of InaSAFE Realtime processor
+    ipaddress: *inasafe_django_host_ip
+
+# Facts needed for SFTP Backup
+# This is setup to use kartoza hanoi backup scheme
+# The container will push backups to SFTP server if configured.
+# If this is used as development environment, you can set
+# each 'use_backup' key to False. If you're planning to use it in
+# your development environment, set pg_dev and media_dev environment
+# If it is used for production, set pg and media environment.
+sftp_backups:
+  pg:
+    use_backup: False
+    host: remotehost
+    user: remoteuser
+    password: thepassword
+    dir: /inasafe/inasafe-django/pg/
+  media:
+    use_backup: False
+    host: remotehost
+    user: remoteuser
+    password: thepassword
+    dir: /inasafe/inasafe-django/media/
+
+# This is used to push pdf products to InAWARE system
+# Set this fact to your appropriate credentials. If not used,
+# leave as blank
+inaware:
+  host: http://inawaretest.pdc.org/
+  user: inawareuser
+  password: thepassword
+
+# This declaration is used to describe port forwarding that is being used
+# by docker-compose. Leave it as default.
+docker_port_forward:
+  inasafe_django:
+    # We reuse previous declaration that for ssh port to this
+    # interpreter
+    ssh: *inasafe_django_ssh_port
+    # Port forward postgis to local machine
+    db: 6543
+    # Port forward django manage.py runserver port to local machine.
+    # So we can access the web in our machine.
+    django: 61102
+  inasafe_realtime:
+    # We also need to connect to rabbitmq of InaSAFE Realtime
+    rabbitmq: 8100
+
+# This declaration is used to connect InaSAFE Django and InaSAFE Realtime
+# processor
+realtime_rest_api:
+  host: *inasafe_django_host_ip
+  port: 61102
+  # Set your own user & password you set up
+  # This credentials will be used by InaSAFE Realtime
+  user: test@realtime.inasafe.org
+  password: thepassword
+
+# Legacy stuff to set Apt cacher location for docker
+apt_cacher_ng_line: '#Acquire::http { Proxy "http://192.168.1.7:3142"; };'

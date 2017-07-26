@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from .base import *  # noqa
 
 # Extra installed apps
@@ -7,26 +8,15 @@ INSTALLED_APPS += (
     'pipeline',
     'user_map',
     'leaflet',
-    'bootstrapform'
+    'bootstrapform',
+    'bootstrap3_datetime',
+    'rest_framework',
+    'djcelery',
+    'kombu.transport.django',
+    'tinymce',
+    'filebrowser',
+    'mce_filebrowser',
 )
-
-# define template function (example for underscore)
-# PIPELINE_TEMPLATE_FUNC = '_.template'
-
-# define template function (example for underscore)
-# PIPELINE_TEMPLATE_FUNC = '_.template'
-PIPELINE_YUI_BINARY = '/usr/bin/yui-compressor'
-PIPELINE_JS_COMPRESSOR = 'pipeline.compressors.yui.YUICompressor'
-PIPELINE_CSS_COMPRESSOR = 'pipeline.compressors.yui.YUICompressor'
-PIPELINE_YUI_JS_ARGUMENTS = '--nomunge'
-PIPELINE_DISABLE_WRAPPER = True
-# enable cached storage - requires uglify.js (node.js)
-STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
-MIDDLEWARE_CLASSES += (
-   'django.middleware.gzip.GZipMiddleware',
-   'pipeline.middleware.MinifyHTMLMiddleware',
-)
-
 
 # User map sets up auth where users are identified by their email,
 # not by their user name.
@@ -35,13 +25,13 @@ AUTHENTICATION_BACKENDS = [
     'user_map.auth_backend.UserMapAuthBackend',
     'django.contrib.auth.backends.ModelBackend']
 
-
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.request',
     'django.core.context_processors.media',
     'django.contrib.messages.context_processors.messages',
     'user_map.context_processors.user_map_settings',
+    'realtime.context_processors.realtime_settings',
 )
 
 LEAFLET_CONFIG = {
@@ -56,3 +46,31 @@ LEAFLET_CONFIG = {
         )]
 
 }
+
+REST_FRAMEWORK = {
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
+    'TEST_REQUEST_RENDERER_CLASSES': (
+        'rest_framework.renderers.MultiPartRenderer',
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.TemplateHTMLRenderer'
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework.filters.DjangoFilterBackend',),
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 100,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
+
+TINYMCE_DEFAULT_CONFIG = {
+    'file_browser_callback': 'mce_filebrowser'
+}
+
+try:
+    # This settings will be used for mapquest tiles for realtime and user_map
+    from .mapquest import MAPQUEST_MAP_KEY  # noqa
+except:
+    pass

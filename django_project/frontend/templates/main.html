@@ -1,194 +1,222 @@
 {% extends 'base.html' %}
+{% load staticfiles %}
 
 {% block title %}InaSAFE{% endblock %}
 
+{% block navbar %}
+    <header id="banner-header" class="banner navbar navbar-default
+    topnavbar navbar-static-top default" role="banner">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" rel="home" href="{% url 'front_end:home' %}" title="InaSAFE">
+                    <img id="site-logo" style="max-width:100px;
+                    margin-top:-7px;" src=
+                            "{% static BRAND_LOGO %}">
+                </a>
+            </div>
+            {% block nav_main %}
+                <nav class="nav-main navbar-collapse collapse" role="navigation">
+                    <ul class="navbar-nav nav ">
+                        <li class="menu-item">
+                            <a href="#realtime-assesment">REALTIME</a>
+                        </li>
+                        <li class="menu-item">
+                            <a href="#user-map">USER MAP</a></li>
+                        <li class="menu-item">
+                            <a href="#about">ABOUT</a>
+                        </li>
+                    </ul>
+                </nav>
+            {% endblock %}
+        </div>
+        <div class="second-menu">
+            <div class="container" style="min-height: 10px">
+                {% block nav_second %}
+                {% endblock %}
+            </div>
+        </div>
+        <div style="clear: both;"></div>
+    </header>
+{% endblock %}
+
 {% block content %}
-  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div id="main-content">
+        <div class="autoheight">
+            <div class="container">
+                <p class="quotes">
+                    <i>“(InaSAFE) is very beneficial for all of us. It’s a good example of
+                        our partnership.”</i> </br>
+                    Dr Susilo Bambang Yudhoyono – The 6th President of Indonesia
+                </p>
+
+                <p class="quotes">
+                    <i>“In the case of a flood, InaSAFE can help communities understand
+                        affected areas, how many people will need to be evacuated and
+                        sheltered, school and road closures and hospitals still able to
+                        take patients.”</i> </br>
+                    Abhas Jha – Disaster Risk Management Coordinator for East Asia and
+                    the Pacific, World Bank</p>
+
+                <p class="quotes">
+                    <i>"We are pleased to recognize InaSAFE as one of the 2012 Open
+                        Source Rookies of the Year"</i> </br>
+                    Tim Yeaton - CEO and President, Black Duck Software
+                </p>
+
+                <p class="quotes">
+                    <i>"With the help of Australian Government agency Geoscience Australia
+                        and the Australia-Indonesia Facility for Disaster Reduction,
+                        over 1.3 million buildings in Indonesia have already been mapped in
+                        OSM and this data is being incorporated into InaSAFE”</i> </br>
+                    Jean-Bernard Carrasco - Australia’s Minister-Counsellor for
+                    Development Cooperation in Indonesia
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="min-height: 10px; background-color: #EF5829"></div>
+
+    <div id="realtime-assesment">
+        <div class="container autoheight">
+            <p class="title">Realtime Assessment</p>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    {#          <img src="static/img/earthquake.png" class="img-responsive">#}
+                    <div class="embed-responsive embed-responsive-4by3">
+                        <iframe class="embed-responsive-item" src="
+            {% url 'realtime:iframe' %}"></iframe>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <p>
+                        We run near realtime earthquake impact assessments following
+                        recent earthquakes in the Indonesia region. Shakemaps of
+                        earthquake ground shaking are produced by the Indonesian Agency
+                        for Meteorology, Climatology and Geophysics (BMKG) and used by
+                        the Indonesian National Disaster Management Agency (BNPB) to
+                        produce InaSAFE impact assessments within minutes of an earthquake.
+                    </p>
+                    </br>
+                    <a class="btn btn-default" href="{% url "realtime:index" %}"
+                       role="button">Earthquake Realtime</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="min-height: 10px; background-color:#EF5829"></div>
+
+    <div id="user-map">
+        <div class="container autoheight">
+            <p class="title">Community User Map</p>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="embed-responsive embed-responsive-4by3">
+                        <iframe class="embed-responsive-item" src="{% url 'user_map:index' %}"></iframe>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <p>
+                        We have added a community map to our web site. Please take a
+                        moment to register yourself there as an InaSAFE User,
+                        Developer or Trainer! It will help us a lot to see who our users
+                        are and where they are located. The map is built using the
+                        opensource Leaflet javascript library and uses the OpenStreemap
+                        .org Humanitarian Openstreetmap Style
+                    </p>
+                    </br>
+                    <a class="btn btn-default" href="{% url 'user_map:index' %}"
+                       role="button">InaSAFE User Map</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container" style="min-height: 10px; background-color:#EF5829"></div>
+
+    <div id="about">
+        <div class="container autoheight">
+            <p class="title">About</p>
+            <hr>
+            <div class="row">
+                <div class="col-md-6">
+                    <img src="static/img/inasafe_diagram.png" class="img-responsive">
+                </div>
+                <div class="col-md-6">
+                    <p>
+                        InaSAFE is free software that produces realistic natural hazard
+                        impact scenarios for better planning, preparedness and response
+                        activities. It provides a simple but rigorous way to combine data
+                        from scientists, local governments and communities to provide
+                        insights into the likely impacts of future disaster events.
+                    </p>
+                    </br>
+                    <a class="btn btn-default" href="http://inasafe.org"
+                       role="button">InaSAFE</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <a class="navbar-brand" href="#">InaSAFE</a>
-      </div>
-      <div id="navbar" class="navbar-collapse collapse">
-        <ul class="nav navbar-nav navbar-right">
-          <li><a href="#realtime-assesment">Realtime</a></li>
-          <li><a href="#user-map">User Map</a></li>
-          <li><a href="#about">About</a></li>
-        </ul>
-      </div>
-    </div>
-    <div style="clear: both;"></div>
-    <div style="min-height: 10px; background-color: #EF5829"></div>
-  </nav>
-
-  <div id="main-content">
-    <div class="autoheight">
-      <div class="container">
-        <p class="quotes">
-          <i>“(InaSAFE) is very beneficial for all of us. It’s a good example of
-          our partnership.”</i> </br>
-          Dr Susilo Bambang Yudhoyono – The 6th President of Indonesia</p>
-        <p class="quotes">
-          <i>“In the case of a flood, InaSAFE can help communities understand
-          affected areas, how many people will need to be evacuated and
-          sheltered, school and road closures and hospitals still able to
-          take patients.”</i> </br>
-          Abhas Jha – Disaster Risk Management Coordinator for East Asia and
-          the Pacific, World Bank</p>
-        <p class="quotes">
-          <i>"We are pleased to recognize InaSAFE as one of the 2012 Open
-            Source Rookies of the Year"</i> </br>
-          Tim Yeaton - CEO and President, Black Duck Software
-        </p>
-        <p class="quotes">
-          <i>"With the help of Australian Government agency Geoscience Australia
-          and the Australia-Indonesia Facility for Disaster Reduction,
-          over 1.3 million buildings in Indonesia have already been mapped in
-          OSM and this data is being incorporated into InaSAFE”</i> </br>
-          Jean-Bernard Carrasco - Australia’s Minister-Counsellor for
-          Development Cooperation in Indonesia
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <div class="container" style="min-height: 10px; background-color: #EF5829"></div>
-
-  <div id="realtime-assesment">
-    <div class="container autoheight">
-      <p class="title">Realtime Assessment</p>
-      <hr>
-      <div class="row">
-        <div class="col-md-6">
-          <img src="static/img/earthquake.png" class="img-responsive">
+        <hr>
+        <div class="footer centered">
+            © 2014 InaSAFE. All rights reserved.
         </div>
-        <div class="col-md-6">
-          <p>
-            We run near realtime earthquake impact assessments following
-            recent earthquakes in the Indonesia region. Shakemaps of
-            earthquake ground shaking are produced by the Indonesian Agency
-            for Meteorology, Climatology and Geophysics (BMKG) and used by
-            the Indonesian National Disaster Management Agency (BNPB) to
-            produce InaSAFE impact assessments within minutes of an earthquake.
-          </p>
-          </br>
-          <a class="btn btn-default" href="http://realtime.inasafe.org"
-             role="button">Earthquake Realtime</a>
-        </div>
-      </div>
     </div>
-  </div>
-
-  <div class="container" style="min-height: 10px; background-color:#EF5829"></div>
-
-  <div id="user-map">
-    <div class="container autoheight">
-      <p class="title">Community User Map</p>
-      <hr>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="embed-responsive embed-responsive-4by3">
-            <iframe class="embed-responsive-item" src="http://users.inasafe.org"></iframe>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <p>
-            We have added a community map to our web site. Please take a
-            moment to register yourself there as an InaSAFE User,
-            Developer or Trainer! It will help us a lot to see who our users
-            are and where they are located. The map is built using the
-            opensource Leaflet javascript library and uses the OpenStreemap
-            .org Humanitarian Openstreetmap Style
-          </p>
-          </br>
-          <a class="btn btn-default" href="http://users.inasafe.org"
-             role="button">InaSAFE User Map</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="container" style="min-height: 10px; background-color:#EF5829"></div>
-
-  <div id="about">
-    <div class="container autoheight">
-      <p class="title">About</p>
-      <hr>
-      <div class="row">
-        <div class="col-md-6">
-          <img src="static/img/inasafe_diagram.png" class="img-responsive">
-        </div>
-        <div class="col-md-6">
-          <p>
-            InaSAFE is free software that produces realistic natural hazard
-            impact scenarios for better planning, preparedness and response
-            activities. It provides a simple but rigorous way to combine data
-            from scientists, local governments and communities to provide
-            insights into the likely impacts of future disaster events.
-          </p>
-          </br>
-          <a class="btn btn-default" href="http://inasafe.org"
-             role="button">InaSAFE</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-   <div class="container">
-    <hr>
-    <div class="footer centered">
-      © 2014 InaSAFE. All rights reserved.
-    </div>
-  </div>
 {% endblock content %}
 
 {% block extra_js %}
-  <script type="text/javascript">
-    var $root = $('html, body');
+    <script type="text/javascript">
+        var $root = $('html, body');
 
-    $('a').click(function() {
-        $root.animate({
-            scrollTop: $( $.attr(this, 'href') ).offset().top
-        }, 500);
-        return false;
-    });
+        $('a').click(function () {
+            $root.animate({
+                scrollTop: $($.attr(this, 'href')).offset().top
+            }, 500);
+            return false;
+        });
 
-    // To get the height of the window dynamically
-    var setElementHeight = function () {
-      var height = $(window).height();
-      $('.autoheight').css('min-height', height);
-    };
+        // To get the height of the window dynamically
+        var setElementHeight = function () {
+            var height = $(window).height();
+            $('.autoheight').css('min-height', height);
+        };
 
-    // Center the quotes div
-    var setCenterQuotes = function() {
-      $('.quotes').css({
-        position:'relative',
-        top: ($(window).height() - $('.quotes').outerHeight()) * 0.8
-      });
-    };
+        // Center the quotes div
+        var setCenterQuotes = function () {
+            $('.quotes').css({
+                position: 'relative',
+                top: ($(window).height() - $('.quotes').outerHeight()) * 0.8
+            });
+        };
 
-    $(window).on("resize", function () {
-        setElementHeight();
-        setCenterQuotes()
-    }).resize();
-    $(window).resize();
+        $(window).on("resize", function () {
+            setElementHeight();
+            setCenterQuotes()
+        }).resize();
+        $(window).resize();
 
-    // Fade-in and out quotes
-    var quotes = $(".quotes");
-    var quoteIndex = -1;
-    function showNextQuote() {
-      ++quoteIndex;
-      quotes.eq(quoteIndex % quotes.length)
-          .fadeIn(2000)
-          .delay(15000)
-          .fadeOut(2000, showNextQuote);
-    }
-    showNextQuote();
-  </script>
+        // Fade-in and out quotes
+        var quotes = $(".quotes");
+        var quoteIndex = -1;
+        function showNextQuote() {
+            ++quoteIndex;
+            quotes.eq(quoteIndex % quotes.length)
+                    .fadeIn(2000)
+                    .delay(15000)
+                    .fadeOut(2000, showNextQuote);
+        }
+        showNextQuote();
+    </script>
 
 {% endblock extra_js %}

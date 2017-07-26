@@ -1,0 +1,157 @@
+#
+# Production server with UWSGI configured to run on port 8080
+# Please use the accompanying make targets to run rather than
+# calling docker-compose commands directly on this file.
+
+smtp:
+  image: catatnight/postfix
+  hostname: postfix
+  environment:
+    # You could change this to something more suitable
+    - maildomain=kartoza.com
+    - smtp_user=noreply:docker
+
+db: &db
+  image: kartoza/postgis:9.3-2.1
+  restart: on-failure
+  volumes:
+    - ./pg/postgres_data:/var/lib/postgresql
+  environment:
+    - USERNAME=docker
+    - PASS=docker
+
+rabbitmq:
+  image: library/rabbitmq
+  restart: on-failure
+  hostname: rabbitmq
+  environment:
+     - RABBIT_PASSWORD=rabbit_test_password
+     - USER=rabbit_user
+     - RABBITMQ_NODENAME=rabbit
+  links:
+    - db:db
+
+dbbackup: &dbbackup
+  build: docker-backup
+  hostname: pg-backups
+  volumes:
+    - ./pg/dbbackup/backups:/backups
+    # this folder is used as target folder for sftppgbackup as the
+    # source folder
+    - ./sftp_backup/target/pg:/pg_backup
+  links:
+    - db:db
+  environment:
+    # make this equal to PG_$(PROJECT_ID) in makefile
+    - DUMPPREFIX=PG_inasafedjango
+    # These are all defaults anyway, but setting explicitly in
+    # case we ever want to ever use different credentials
+    - PGUSER=docker
+    - PGPASSWORD=docker
+    - PGPORT=5432
+    - PGHOST=db
+    - PGDATABASE=gis
+
+sftppgbackup: &sftppgbackup
+  image: kartoza/sftp-backup:1.0
+  hostname: sftppgbackup
+  volumes:
+    # this folder is used to store local backups from pg dbbackup
+    - ./sftp_backup/backups/pg:/backups
+    # this folder is used as target folder/source where the backup comes from
+    # this backup comes from dbbackup
+    - ./sftp_backup/target/pg:/pg_backup
+  environment:
+    - DUMPPREFIX=PG_inasafedjango
+    - DAILY=14
+    - MONTHLY=12
+    - YEARLY=3
+    # set this to the target/source folder where the backup comes from
+    - TARGET_FOLDER=/pg_backup
+  env_file:
+    - sftp_pg_credential.env
+
+sftpmediabackup: &sftpmediabackup
+  image: kartoza/sftp-backup:1.0
+  hostname: sftpmediabackup
+  volumes:
+    # this folder is used to store local backups from django media
+    - ./sftp_backup/backups/media:/backups
+    # this folder is used as target folder/source where the backup comes from
+    # this backup comes from django media
+    - ./media:/media_backup
+  environment:
+    - DUMPPREFIX=MEDIA_inasafedjango
+    # reduce frequency because the dump is really big
+    - DAILY=3
+    - MONTHLY=2
+    - YEARLY=1
+    - TARGET_FOLDER=/media_backup
+  env_file:
+    - sftp_media_credential.env
+
+uwsgi: &uwsgi
+  build: docker-prod
+  hostname: uwsgi
+  environment:
+    - DATABASE_NAME=gis
+    - DATABASE_USERNAME=docker
+    - DATABASE_PASSWORD=docker
+    - DATABASE_HOST=db
+    - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
+    - VIRTUAL_HOST=users.inasafe.org
+    - VIRTUAL_PORT=8080
+    - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+  volumes:
+    - ../django_project:/home/web/django_project
+    - ./static:/home/web/static
+    - ./media:/home/web/media
+    - ./reports:/home/web/reports
+    - ./logs:/var/log/
+  links:
+    - smtp:smtp
+    - db:db
+    - dbbackup:dbbackup
+    - sftppgbackup:sftppgbackup
+    - sftpmediabackup:sftpmediabackup
+    - rabbitmq:rabbitmq
+  env_file:
+    - inaware_credential.env
+
+inasafe-worker: &inasafe-worker
+  <<: *uwsgi
+  restart: on-failure
+  working_dir: /home/web/django_project
+  command: celery -A core.celery_app worker --loglevel=info -Q inasafe-django -n inasafe-django.%h
+  environment:
+    - DATABASE_NAME=gis
+    - DATABASE_USERNAME=docker
+    - DATABASE_PASSWORD=docker
+    - DATABASE_HOST=db
+    - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
+    - C_FORCE_ROOT=True
+    - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+    - PYTHONPATH=/home/web/django_project
+  links:
+    - smtp:smtp
+    - db:db
+    - rabbitmq:rabbitmq
+
+indicator-worker:
+  <<: *inasafe-worker
+  restart: on-failure
+  command: celery -A core.celery_app worker --loglevel=info -Q inasafe-django-indicator -B -n indicator.%h
+
+web: &web
+  image: nginx
+  hostname: nginx
+  volumes:
+    - ./sites-enabled:/etc/nginx/conf.d:ro
+    # I dont use volumes_from as I want to use the ro modifier
+    - ./static:/home/web/static:ro
+    - ./media:/home/web/media:ro
+    - ./logs:/var/log/nginx
+  links:
+    - uwsgi:uwsgi
+  ports:
+    - "61100:8080"

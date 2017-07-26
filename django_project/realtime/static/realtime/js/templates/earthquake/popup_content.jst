@@ -1,0 +1,66 @@
+<div id="popup_template">
+    <h3>Shake Event</h3>
+
+    <div>
+        <span>
+            <table class="table-striped table-hover">
+                <tbody>
+                <tr>
+                    <th>Date Time</th>
+                    <td class="date-time"><%= moment(new Date(Date.parse(time))).fromNow() %></td>
+                </tr>
+                <tr>
+                    <th>Shake ID</th>
+                    <td class="shake-id"><%= shake_id %></td>
+                </tr>
+                <tr>
+                    <th>Location</th>
+                    <td class="location"><%= location_description %></td>
+                </tr>
+                <tr>
+                    <th>Magnitude</th>
+                    <td class="magnitude"><%= magnitude %></td>
+                </tr>
+                </tbody>
+            </table>
+        </span>
+        <span>
+            <button class="show-report btn btn-primary row-action-container"
+                    title="Open Report"
+                    onclick="showReportHandler('<%= shake_id %>')">
+                <span class="row-action-icon glyphicon glyphicon-file"></span>
+            </button>
+            <div class="btn-group">
+                <button class="download-report btn btn-primary dropdown-toggle row-action-container"
+                        title="Download"
+                        data-toggle="dropdown"
+                        aria-haspopup="true"
+                        aria-expanded="false">
+                    <span class="row-action-icon glyphicon
+                    glyphicon-download"></span>
+                </button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a href="#" onclick="downloadReportHandler('<%= shake_id %>')">
+                            Report
+                        </a>
+                    </li>
+                    <% if(shake_grid) { %>
+                    <li>
+                        <a href="#" onclick="downloadGridHandler('<%= shake_id %>', '<%= shake_grid %>')">
+                            Grid XML
+                        </a>
+                    </li>
+                    <% } %>
+                    <% if(mmi_output){ %>
+                    <li>
+                        <a href="<%= mmi_output %>" download="<%= shake_id+'-mmi.zip' %>">
+                            MMI Output
+                        </a>
+                    </li>
+                    <% } %>
+                </ul>
+            </div>
+        </span>
+    </div>
+</div>

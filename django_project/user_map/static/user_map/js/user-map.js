@@ -14,11 +14,13 @@
  * @property tileLayer
  * @returns {object} base_map
  */
-function createBasemap(url, attribution) {
+function createBasemap(url, subdomains, attribution) {
   var base_map;
   base_map = L.tileLayer(url, {
     attribution: attribution,
-    maxZoom: 18
+    subdomains: subdomains,
+    maxZoom: 18,
+    continuousWorld: true
   });
   return base_map;
 }
@@ -92,9 +94,13 @@ function createIconMarkerBase(shadow_icon_path) {
  * @param {string} shadow_path The shadow path.
  * @return {IconMarkerBase} icon_marker
  */
-function createIconMarker(icon_path, shadow_path) {
+function createIconMarker(icon_path, shadow_path, additional_options) {
   var IconMarkerBase = createIconMarkerBase(shadow_path);
-  return new IconMarkerBase({iconUrl: icon_path});
+  var options = {
+    iconUrl: icon_path
+  };
+  $.extend(options, additional_options);
+  return new IconMarkerBase(options);
 }
 
 /**

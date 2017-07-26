@@ -1,0 +1,24 @@
+<svg width="256" height="256" xmlns="http://www.w3.org/2000/svg">
+ <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
+
+ <g>
+  <title>background</title>
+  <rect fill="none" id="canvas_background" height="258" width="258" y="-1" x="-1"/>
+  <g display="none" id="canvasGrid">
+   <rect fill="url(#gridpattern)" stroke-width="0" y="0" x="0" height="100%" width="100%" id="svg_1"/>
+  </g>
+ </g>
+ <g>
+  <title>Layer 1</title>
+
+  <metadata id="svg_12">image/svg+xml</metadata>
+  <g stroke="null" id="svg_15">
+   <circle stroke="null" transform="matrix(0.993489 0 0 0.989583 -252.881 -252)" id="svg_14" fill="white" r="128" cy="384.000366" cx="383.88082"/>
+   <g stroke="null" transform="matrix(0.674102 0 0 0.671451 -165.405 -163.396)" id="svg_9">
+    <g stroke="null" id="svg_10" transform="matrix(0.589469 0 0 -0.589469 -22.3146 1056.4)">
+     <path stroke="null" fill="currentColor" id="svg_11" d="m810.237122,1136.899292q12,-4 20.5,-5.5q8.5,-1.5 19.5,-1q11,0.5 17.5,8q6.5,7.5 8.5,22.5q2,10 10.5,15q8.5,5 18,5.5q9.5,0.5 20,0.5l17.5,0q21,3 13,28q-9,27 -36,36q-5,2 -11,2q-29,0 -46,-13q-17,-13 -31,-42q-5,-16 -14,-22.5q-9,-6.5 -28,0.5q-23,7 -35,-7.5q-12,-14.5 1,-37.5q7,-11 7,-24.5q0,-13.5 -4,-20.5l-3,-8l44,0q0,15 -10,32q-11,15 -4,27.5q7,12.5 25,4.5zm-234.000061,-273q99.000061,72 137.000061,182l5,16l118,0q1,-4 3.5,-12.5q2.5,-8.5 13.5,-33.000061q11,-24.499939 25,-47.499939q14,-23 40.5,-52.5q26.5,-29.5 57.5,-52.5l-400.000061,0z"/>
+    </g>
+   </g>
+  </g>
+ </g>
+</svg>
