@@ -2,9 +2,9 @@ coverage
 pep8>=1.5.7,<1.6
 pylint
 flake8
-factory_boy
+factory_boy==2.8.1
 
-django-devserver
+django-devserver==0.8.0
 
 # documentation
 Sphinx
@@ -13,6 +13,6 @@ Sphinx
 pdbpp
 
 # hizashi-utils
-hizashi-utils
+hizashi-utils==0.4.1
 
 
