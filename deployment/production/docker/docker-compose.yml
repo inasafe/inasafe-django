@@ -1,0 +1,165 @@
+version: '2'
+volumes:
+  django-postgis-data:
+  django-media-data:
+  django-static-data:
+  django-postgis-dbbackup-data:
+  sftpbackup-postgis-target-data:
+  sftpbackup-postgis-history-data:
+  sftpbackup-media-history-data:
+services:
+  smtp:
+    image: catatnight/postfix
+    environment:
+      # You could change this to something more suitable
+      - maildomain=kartoza.com
+      - smtp_user=noreply:docker
+
+  db:
+    image: kartoza/postgis:9.3-2.1
+    restart: on-failure
+    volumes:
+      - django-postgis-data:/var/lib/postgresql
+    environment:
+      - USERNAME=docker
+      - PASS=docker
+
+  rabbitmq:
+    image: library/rabbitmq
+    restart: on-failure
+    hostname: rabbitmq
+    environment:
+       - RABBIT_PASSWORD=rabbit_test_password
+       - USER=rabbit_user
+       - RABBITMQ_NODENAME=rabbit
+    links:
+      - db:db
+
+  dbbackup: &dbbackup
+    image: inasafe-django_dbbackup
+    volumes:
+      - django-postgis-dbbackup-data:/backups
+      # this folder is used as target folder for sftppgbackup as the
+      # source folder
+      - sftpbackup-postgis-target-data:/pg_backup
+    links:
+      - db:db
+    environment:
+      # make this equal to PG_$(PROJECT_ID) in makefile
+      - DUMPPREFIX=PG_inasafedjango
+      # These are all defaults anyway, but setting explicitly in
+      # case we ever want to ever use different credentials
+      - PGUSER=docker
+      - PGPASSWORD=docker
+      - PGPORT=5432
+      - PGHOST=db
+      - PGDATABASE=gis
+
+  sftppgbackup: &sftppgbackup
+    image: kartoza/sftp-backup:1.0
+    volumes:
+      # this folder is used to store local backups from pg dbbackup
+      - sftpbackup-postgis-history-data:/backups
+      # this folder is used as target folder/source where the backup comes from
+      # this backup comes from dbbackup
+      - sftpbackup-postgis-target-data:/pg_backup
+    environment:
+      - DUMPPREFIX=PG_inasafedjango
+      - DAILY=14
+      - MONTHLY=12
+      - YEARLY=3
+      # set this to the target/source folder where the backup comes from
+      - TARGET_FOLDER=/pg_backup
+      # SFTP push credentials
+      - USE_SFTP_BACKUP=False
+      - SFTP_HOST=192.168.1.5
+      - SFTP_USER=user
+      - SFTP_PASSWORD=password
+      - SFTP_DIR=/
+      - TARGET_FOLDER=/pg_backup
+
+
+  sftpmediabackup: &sftpmediabackup
+    image: kartoza/sftp-backup:1.0
+    volumes:
+      # this folder is used to store local backups from django media
+      - sftpbackup-media-history-data:/backups
+      # this folder is used as target folder/source where the backup comes from
+      # this backup comes from django media
+      - django-media-data:/media_backup
+    environment:
+      - DUMPPREFIX=MEDIA_inasafedjango
+      # reduce frequency because the dump is really big
+      - DAILY=3
+      - MONTHLY=2
+      - YEARLY=1
+      # set this to the target/source folder where the backup comes from
+      - TARGET_FOLDER=/media_backup
+      # SFTP push credentials
+      - USE_SFTP_BACKUP=False
+      - SFTP_HOST=192.168.1.5
+      - SFTP_USER=user
+      - SFTP_PASSWORD=password
+      - SFTP_DIR=/
+      - TARGET_FOLDER=/pg_backup
+
+  uwsgi: &uwsgi
+    image: inasafe-django_uwsgi
+    restart: on-failure
+    environment:
+      - DATABASE_NAME=gis
+      - DATABASE_USERNAME=docker
+      - DATABASE_PASSWORD=docker
+      - DATABASE_HOST=db
+      - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
+      - VIRTUAL_HOST=realtime.inasafe.org
+      - VIRTUAL_PORT=8080
+      - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+      # InAWARE Credentials
+      - INAWARE_HOST=
+      - INAWARE_USER=
+      - INAWARE_PASS=
+    volumes:
+      - django-static-data:/home/web/static
+      - django-media-data:/home/web/media
+    links:
+      - smtp:smtp
+      - db:db
+      - dbbackup:dbbackup
+      - sftppgbackup:sftppgbackup
+      - sftpmediabackup:sftpmediabackup
+      - rabbitmq:rabbitmq
+
+  inasafe-worker: &inasafe-worker
+    <<: *uwsgi
+    restart: on-failure
+    working_dir: /home/web/django_project
+    command: celery -A core.celery_app worker --loglevel=info -Q inasafe-django -n inasafe-django.%h
+    environment:
+      - DATABASE_NAME=gis
+      - DATABASE_USERNAME=docker
+      - DATABASE_PASSWORD=docker
+      - DATABASE_HOST=db
+      - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
+      - C_FORCE_ROOT=True
+      - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+      - PYTHONPATH=/home/web/django_project
+    links:
+      - smtp:smtp
+      - db:db
+      - rabbitmq:rabbitmq
+
+  indicator-worker:
+    <<: *inasafe-worker
+    restart: on-failure
+    command: celery -A core.celery_app worker --loglevel=info -Q inasafe-django-indicator -B -n indicator.%h
+
+  web: &web
+    image: inasafe-django_nginx
+    volumes:
+      - django-static-data:/home/web/static:ro
+      - django-media-data:/home/web/media:ro
+    links:
+      - uwsgi:uwsgi
+    ports:
+      - "61100:8080"
