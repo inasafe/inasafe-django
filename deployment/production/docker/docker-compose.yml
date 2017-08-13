@@ -1,12 +1,33 @@
 version: '2'
 volumes:
   django-postgis-data:
+    driver: rancher-nfs
+    driver_opts:
+      onRemove: retain
   django-media-data:
+    driver: rancher-nfs
+    driver_opts:
+      onRemove: retain
   django-static-data:
+    driver: rancher-nfs
+    driver_opts:
+      onRemove: retain
   django-postgis-dbbackup-data:
+    driver: rancher-nfs
+    driver_opts:
+      onRemove: retain
   sftpbackup-postgis-target-data:
+    driver: rancher-nfs
+    driver_opts:
+      onRemove: retain
   sftpbackup-postgis-history-data:
+    driver: rancher-nfs
+    driver_opts:
+      onRemove: retain
   sftpbackup-media-history-data:
+    driver: rancher-nfs
+    driver_opts:
+      onRemove: retain
 services:
   smtp:
     image: catatnight/postfix
@@ -16,7 +37,7 @@ services:
       - smtp_user=noreply:docker
 
   db:
-    image: kartoza/postgis:9.3-2.1
+    image: kartoza/inasafe-django_db:v3.4
     restart: on-failure
     volumes:
       - django-postgis-data:/var/lib/postgresql
@@ -36,7 +57,7 @@ services:
       - db:db
 
   dbbackup: &dbbackup
-    image: inasafe-django_dbbackup
+    image: kartoza/inasafe-django_dbbackup:v3.4
     volumes:
       - django-postgis-dbbackup-data:/backups
       # this folder is used as target folder for sftppgbackup as the
@@ -76,7 +97,6 @@ services:
       - SFTP_USER=user
       - SFTP_PASSWORD=password
       - SFTP_DIR=/
-      - TARGET_FOLDER=/pg_backup
 
 
   sftpmediabackup: &sftpmediabackup
@@ -101,10 +121,9 @@ services:
       - SFTP_USER=user
       - SFTP_PASSWORD=password
       - SFTP_DIR=/
-      - TARGET_FOLDER=/pg_backup
 
   uwsgi: &uwsgi
-    image: inasafe-django_uwsgi
+    image: kartoza/inasafe-django_uwsgi:v3.4
     restart: on-failure
     environment:
       - DATABASE_NAME=gis
@@ -115,6 +134,10 @@ services:
       - VIRTUAL_HOST=realtime.inasafe.org
       - VIRTUAL_PORT=8080
       - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+      # Secrets
+      - SECRET_KEY=
+      - MAPQUEST_MAP_KEY=
+      - SITE_DOMAIN_NAME=
       # InAWARE Credentials
       - INAWARE_HOST=
       - INAWARE_USER=
@@ -155,7 +178,7 @@ services:
     command: celery -A core.celery_app worker --loglevel=info -Q inasafe-django-indicator -B -n indicator.%h
 
   web: &web
-    image: inasafe-django_nginx
+    image: kartoza/inasafe-django_nginx:v3.4
     volumes:
       - django-static-data:/home/web/static:ro
       - django-media-data:/home/web/media:ro

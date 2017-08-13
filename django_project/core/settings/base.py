@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Django settings for inasafe project.
+import os
 import sys
 
 from .utils import ABS_PATH
@@ -53,7 +54,7 @@ STATICFILES_DIRS = (
 )
 
 # import SECRET_KEY into current namespace
-from .secret import SECRET_KEY  # noqa
+from .secret import *  # noqa
 
 # default middleware classes
 MIDDLEWARE_CLASSES = (
@@ -105,4 +106,4 @@ LOCALE_PATHS = (
 
 DJANGO_ROOT = ABS_PATH('.')
 
-SITE_DOMAIN_NAME = 'example.com'
+SITE_DOMAIN_NAME = os.environ.get('SITE_DOMAIN_NAME', 'example.com')
