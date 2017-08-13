@@ -16,16 +16,16 @@ RUN pip install uwsgi
 RUN apt-get update -y; apt-get install -y gettext
 
 # Clone source code
-
-ADD entry-point.sh /entry-point.sh
-
 RUN mkdir -p /home/src/
 RUN mkdir -p /home/web/
-RUN cd /home/src
+WORKDIR /home/src
 RUN git clone --branch v3.4 --depth 1 https://github.com/inasafe/inasafe-django.git
 
 # Copy only django_project folder
-RUN cp -r /home/src/django_project /home/web/
+RUN mkdir -p /home/web
+RUN cp -r inasafe-django/django_project /home/web/
 
 WORKDIR /home/web/django_project
+
+ADD entry-point.sh /entry-point.sh
 CMD ["/entry-point.sh"]

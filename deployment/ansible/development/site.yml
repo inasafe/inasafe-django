@@ -5,7 +5,6 @@
   roles:
     - { role: pycharm, when: use_pycharm, tags: development }
     - docker_compose
-    - inasafe_django
   vars_prompt:
     - name: "ansible_sudo_pass"
       prompt: "Sudo password"

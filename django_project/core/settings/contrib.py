@@ -69,8 +69,4 @@ TINYMCE_DEFAULT_CONFIG = {
     'file_browser_callback': 'mce_filebrowser'
 }
 
-try:
-    # This settings will be used for mapquest tiles for realtime and user_map
-    from .mapquest import MAPQUEST_MAP_KEY  # noqa
-except:
-    pass
+from .secret import MAPQUEST_MAP_KEY  # noqa

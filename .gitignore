@@ -2,7 +2,6 @@
 *.*~
 
 # project specifc
-django_project/core/settings/secret.py
 xmlrunner
 
 # Byte-compiled / optimized / DLL files
@@ -107,9 +106,6 @@ deployment/docker-compose.override.yml
 !deployment/sftp_backup/target/pg/.gitkeep
 !deployment/sftp_backup/backups/media/README.md
 !deployment/sftp_backup/backups/pg/README.md
-django_project/realtime/tasks/realtime/celeryconfig.py
-django_project/core/settings/custom_settings.py
-django_project/core/settings/mapquest.py
 django_project/realtime/local_settings.py
 django_project/celerybeat.pid
 django_project/temp
