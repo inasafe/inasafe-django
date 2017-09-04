@@ -19,7 +19,8 @@ RUN apt-get update -y; apt-get install -y gettext
 RUN mkdir -p /home/src/
 RUN mkdir -p /home/web/
 WORKDIR /home/src
-RUN git clone --branch v3.4 --depth 1 https://github.com/inasafe/inasafe-django.git
+ARG INASAFE_TAG=develop
+RUN git clone --branch ${INASAFE_TAG} --depth 1 https://github.com/inasafe/inasafe-django.git
 
 # Copy only django_project folder
 RUN mkdir -p /home/web
