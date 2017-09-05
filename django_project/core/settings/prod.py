@@ -46,15 +46,18 @@ LOGGING_MAIL_ADMINS = ast.literal_eval(
 LOGGING_SENTRY = ast.literal_eval(
     os.environ.get('LOGGING_SENTRY', 'False'))
 
+LOGGING_DEFAULT_HANDLER = ast.literal_eval(
+    os.environ.get('LOGGING_DEFAULT_HANDLER', 'console'))
+
 if LOGGING_MAIL_ADMINS:
     mail_admins_handler = 'mail_admins'
 else:
-    mail_admins_handler = 'logfile'
+    mail_admins_handler = LOGGING_DEFAULT_HANDLER
 
 if LOGGING_SENTRY:
     sentry_handler = 'sentry'
 else:
-    sentry_handler = 'logfile'
+    sentry_handler = LOGGING_DEFAULT_HANDLER
 
 if 'raven.contrib.django.raven_compat' in INSTALLED_APPS:
     print '*********** Setting up sentry logging ************'
@@ -95,10 +98,14 @@ if 'raven.contrib.django.raven_compat' in INSTALLED_APPS:
             # file logger
             'logfile': {
                 'class': 'logging.FileHandler',
-                'filename': '/tmp/django.log',
-                'formatter': 'simple',
+                'filename': '/var/log/django.log',
                 'level': 'DEBUG'
-            }
+            },
+            # console output
+            'console': {
+                'class': 'logging.StreamHandler',
+                'level': 'DEBUG',
+            },
         },
         'loggers': {
             'django.db.backends': {
