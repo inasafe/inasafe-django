@@ -27,7 +27,13 @@ class RealtimeBrokerIndicator(Indicator):
         # load from JSON saved object if any
         django_root = settings.DJANGO_ROOT
         pickle_path = os.path.join(
-            django_root, '.realtime_broker_indicator.pickle')
+            django_root, '.run')
+        try:
+            os.makedirs(pickle_path)
+        except OSError:
+            pass
+        pickle_path = os.path.join(
+            pickle_path, '.realtime_broker_indicator.pickle')
         self.pickle_path = pickle_path
         if os.path.exists(pickle_path):
             saved_data = pickle.load(open(pickle_path))

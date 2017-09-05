@@ -128,4 +128,5 @@ media_settings/
 django_project/media_test
 
 # pickled indicator
+django_project/.run/
 .realtime_broker_indicator.pickle
