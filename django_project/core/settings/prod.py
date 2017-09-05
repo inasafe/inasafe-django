@@ -46,8 +46,7 @@ LOGGING_MAIL_ADMINS = ast.literal_eval(
 LOGGING_SENTRY = ast.literal_eval(
     os.environ.get('LOGGING_SENTRY', 'False'))
 
-LOGGING_DEFAULT_HANDLER = ast.literal_eval(
-    os.environ.get('LOGGING_DEFAULT_HANDLER', 'console'))
+LOGGING_DEFAULT_HANDLER = os.environ.get('LOGGING_DEFAULT_HANDLER', 'console')
 
 if LOGGING_MAIL_ADMINS:
     mail_admins_handler = 'mail_admins'
