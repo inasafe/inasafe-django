@@ -8,5 +8,9 @@ echo "Run database migrations"
 echo "Run collectstatic"
 ./manage.py collectstatic --noinput
 
+# Run compile massage
+
+./manage.py compilemessages -l id
+
 # Run uwsgi
 uwsgi --ini /uwsgi.conf
