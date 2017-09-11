@@ -17,12 +17,27 @@
         <li class="menu-item">
             <a href="{% url 'realtime:indicator' %}">Indicator</a>
         </li>
-        {% for p in flatpages_navbar %}
-            {% if p.url %}
-                <li class="menu-item">
-                    <a href="{% url 'django.contrib.flatpages.views.flatpage' url=p.url %}">{{ p.title }}</a>
+        {% for g in flatpages.groups %}
+            {% with pages=g.pages %}
+                {% if pages %}
+                <li class="menu-item dropdown">
+                    <a href="#" class="dropdown-toggle" title="{{ g.title|capfirst }}" data-toggle="dropdown" class="dropdown-toggle" aria-haspopup="true" aria-expanded="true">
+                        {{ g.title|capfirst }}
+                        <span class="caret"></span>
+                    </a>
+                    <ul role="menu" class="dropdown-menu">
+                        {% for p in pages %}
+                            <li class="menu-item">
+                                <a title="{{ p.title }}"
+                                   href="{% url 'django.contrib.flatpages.views.flatpage' url=p.url %}">
+                                    {{ p.title }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </li>
-            {% endif %}
+                {% endif %}
+            {% endwith %}
         {% endfor %}
     </ul>
 </nav>

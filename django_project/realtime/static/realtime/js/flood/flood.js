@@ -145,12 +145,8 @@ function createShowFeaturesHandler(event_features_url){
                 layer_control.addOverlay(
                     event_layer, '<span id="'+layer_control_id+'"></span>Flood Event');
                 // programmatically enable the layer
-                $("#"+layer_control_id).parent().siblings('input').click();
+                event_layer.addTo(map);
 
-                // scroll to map
-                $('html, body').animate({
-                    scrollTop: $("#"+map_id).offset().top
-                }, 500);
                 var fitBoundsOption = {
                     maxZoom: 15,
                     pan: {

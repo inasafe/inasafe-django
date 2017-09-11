@@ -27,10 +27,12 @@ class CoreFlatPageAdmin(FlatPageAdmin):
                 'title',
                 'content',
                 'group',
+                'order',
                 'sites'
             )
         }),
     )
+    list_display = ('title', 'url', 'group', 'order')
     form = CoreFlatPageForm
 
 

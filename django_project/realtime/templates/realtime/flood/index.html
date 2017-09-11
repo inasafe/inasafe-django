@@ -29,7 +29,7 @@
                 <p class="text-justify">
                     {% blocktrans %}
                         This page contains near realtime flood impact assessments following recent floods in the Jakarta, Indonesia.
-                        Flood data used here is sourced from <a href="http://petajakarta.org">PetaJakarta.org</a> who use crowd sourcing data from <a href="http://twitter.com">twitter</a>,
+                        Flood data used here is sourced from <a href="http://petabencana.id">PetaBencana.id</a> who use crowd sourcing data from <a href="http://twitter.com">twitter</a>,
                         <a href="http://qluein.com/">qlue</a>, <a href="http://pasangmata.detik.com/">detik.com</a> and expert data review by BPBD-DKI.
                         This information is used by disaster managers to help them understand the potential scale of a disaster and to
                         respond faster to the hardest hit communities. This is particularly important in the first few hours after a
@@ -166,7 +166,6 @@
     {% javascript 'realtime_contrib' %}
     {% javascript 'realtime_appjs' %}
     {% javascript 'realtime_floodjs' %}
-    <script src="https://www.mapquestapi.com/sdk/leaflet/v2.2/mq-map.js?key={{ mapquest_key }}"></script>
     <script type="text/javascript">
     var base_map, dynatable;
 
@@ -182,9 +181,6 @@
             {% endif %}
         {% endfor %}
     };
-
-    // Override because of new MapQuest policy to use licensed API
-    base_map['MapQuest'] = MQ.mapLayer();
 
     //Create Map with prepared base_map
     map = L.map('map', {
