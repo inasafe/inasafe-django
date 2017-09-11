@@ -14,3 +14,9 @@ class CoreFlatPage(FlatPage):
         help_text='Help categorizes this flat page in a group',
         max_length=100,
         blank=True)
+    order = models.IntegerField(
+        verbose_name='Order of the page',
+        help_text='Help manage the order of the page as shown in the nav bar '
+                  'menu. Smaller means on top. Pages shown in navbar sorted '
+                  'by decreasing order value.',
+        default=0)

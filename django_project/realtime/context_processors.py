@@ -1,12 +1,11 @@
 # coding=utf-8
 """Module for custom context processor for InaSAFE Realtime."""
-from django.contrib.flatpages.models import FlatPage
-
 from realtime import app_settings
 from realtime.app_settings import (
     LANGUAGE_LIST,
     LEAFLET_TILES,
     MAPQUEST_MAP_KEY)
+from realtime.models.coreflatpage import CoreFlatPage
 
 
 def realtime_settings(request):
@@ -45,26 +44,31 @@ def realtime_settings(request):
         )
 
     # Check Navbar flat pages exists and show it
-    flatpages_navbar = [
-        {
-            'title': 'About',
+    # Get distinct Groups
+    groups = CoreFlatPage.objects.order_by().values_list('group')\
+        .distinct()
+    flatpages = {
+        'groups': []
+    }
+    for g in groups:
+        group = {
+            'title': g[0],
+            'pages': []
         }
-    ]
-
-    for idx, n in enumerate(flatpages_navbar):
-        menu_title = n['title']
-        try:
-            page = FlatPage.objects.get(title__iexact=menu_title)
-            n['title'] = page.title
-            n['url'] = page.url
-        except:
-            pass
+        pages = CoreFlatPage.objects.filter(group__iexact=g).order_by('order')
+        for p in pages:
+            page = {
+                'title': p.title,
+                'url': p.url
+            }
+            group['pages'].append(page)
+        flatpages['groups'].append(group)
 
     return {
         'REALTIME_PROJECT_NAME': app_settings.PROJECT_NAME,
         'REALTIME_BRAND_LOGO': app_settings.BRAND_LOGO,
         'REALTIME_FAVICON_PATH': app_settings.FAVICON_FILE,
-        'flatpages_navbar': flatpages_navbar,
+        'flatpages': flatpages,
         'leaflet_tiles': leaflet_tiles,
         'mapquest_key': MAPQUEST_MAP_KEY,
         'language': {
