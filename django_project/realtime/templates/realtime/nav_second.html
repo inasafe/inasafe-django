@@ -1,21 +1,23 @@
+{% load i18n %}
+
 <nav class="nav-second navbar-collapse collapse">
     <ul class="menu">
         <li class="menu-item">
-            <a href="{% url 'realtime:shake_index' %}?lang={{ language.selected_language.id }}">Earthquake</a>
+            <a href="{% url 'realtime:shake_index' %}?lang={{ language.selected_language.id }}">{% trans "Earthquake" %}</a>
         </li>
         <li class="menu-item">
-            <a href="{% url 'realtime:flood_index' %}?lang={{ language.selected_language.id }}">Flood</a>
+            <a href="{% url 'realtime:flood_index' %}?lang={{ language.selected_language.id }}">{% trans "Flood" %}</a>
         </li>
         {% if user.is_authenticated %}
             <li class="menu-item">
-                <a href="{% url 'realtime:ash_index' %}">Ash</a>
+                <a href="{% url 'realtime:ash_index' %}">{% trans "Ash" %}</a>
             </li>
         {% endif %}
         <li class="menu-item">
-            <a href="{% url 'realtime:api_root' %}">API Browser</a>
+            <a href="{% url 'realtime:api_root' %}">{% trans "API Browser" %}</a>
         </li>
         <li class="menu-item">
-            <a href="{% url 'realtime:indicator' %}">Indicator</a>
+            <a href="{% url 'realtime:indicator' %}">{% trans "Indicator" %}</a>
         </li>
         {% for g in flatpages.groups %}
             {% with pages=g.pages %}
@@ -30,7 +32,7 @@
                             <li class="menu-item">
                                 <a title="{{ p.title }}"
                                    href="{% url 'django.contrib.flatpages.views.flatpage' url=p.url %}">
-                                    {{ p.title }}
+                                    {{ p.title|capfirst }}
                                 </a>
                             </li>
                         {% endfor %}

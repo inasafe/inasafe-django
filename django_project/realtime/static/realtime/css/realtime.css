@@ -112,17 +112,18 @@ body > .container {
     opacity: 0.7;
 }
 
-.navbar .second-menu .dropdown-menu{
+.navbar .second-menu .dropdown-menu > li > a{
     background: #f57d35;
+    padding: 0px 20px !important;
+    line-height: 30px;
 }
 
 .navbar .second-menu .dropdown-menu {
     margin-top: 0;
     border-top-right-radius: 0;
     border-top-left-radius: 0;
+    background: #f57d35;
 }
-
-
 
 .nav-second > ul.menu > li.menu-item {
     display: inline-block;
