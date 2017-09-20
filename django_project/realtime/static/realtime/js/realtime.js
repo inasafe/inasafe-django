@@ -7,6 +7,14 @@
  */
 
 /**
+ * Helper function to set language
+ */
+function set_language(lang_code){
+    var $form = $("#set-lang-"+lang_code);
+    $form.submit();
+}
+
+/**
  * Create basemap instance to be used.
  *
  * @param {string} url The URL for the tiles layer

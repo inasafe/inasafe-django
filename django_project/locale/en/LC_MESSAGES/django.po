@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-20 15:55+0000\n"
+"POT-Creation-Date: 2017-09-20 17:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,14 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: core/settings/base.py:20
+msgid "English"
+msgstr ""
+
+#: core/settings/base.py:21
+msgid "Indonesian"
+msgstr ""
 
 #: realtime/forms/ash.py:47
 msgid "Timezone"
@@ -123,11 +131,11 @@ msgstr ""
 msgid "Welcome, "
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:26
+#: realtime/templates/realtime/ash/index.html:28
 msgid "InaSAFE Ash"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:30
+#: realtime/templates/realtime/ash/index.html:32
 msgid ""
 "\n"
 "                        This page contains <b>near realtime</b> volcanic "
@@ -155,72 +163,72 @@ msgid ""
 "                    "
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:52
-#: realtime/templates/realtime/earthquake/index.html:54
-#: realtime/templates/realtime/flood/index.html:47
+#: realtime/templates/realtime/ash/index.html:54
+#: realtime/templates/realtime/earthquake/index.html:56
+#: realtime/templates/realtime/flood/index.html:49
 msgid "Map"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:62
+#: realtime/templates/realtime/ash/index.html:64
 msgid "Upload Ash"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:72
+#: realtime/templates/realtime/ash/index.html:74
 msgid "Ash Fall"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:79
-#: realtime/templates/realtime/earthquake/index.html:162
-#: realtime/templates/realtime/flood/index.html:153
+#: realtime/templates/realtime/ash/index.html:81
+#: realtime/templates/realtime/earthquake/index.html:164
+#: realtime/templates/realtime/flood/index.html:155
 msgid "Time"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:80
+#: realtime/templates/realtime/ash/index.html:82
 msgid "Volcano Name"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:81
+#: realtime/templates/realtime/ash/index.html:83
 msgid "Alert Level"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:82
+#: realtime/templates/realtime/ash/index.html:84
 msgid "District"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:83
+#: realtime/templates/realtime/ash/index.html:85
 msgid "Eruption Height"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:171
-#: realtime/templates/realtime/earthquake/index.html:309
+#: realtime/templates/realtime/ash/index.html:173
+#: realtime/templates/realtime/earthquake/index.html:311
 msgid "Zoom"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:177
-#: realtime/templates/realtime/ash/index.html:199
-#: realtime/templates/realtime/earthquake/index.html:315
-#: realtime/templates/realtime/earthquake/index.html:325
-#: realtime/templates/realtime/flood/index.html:249
+#: realtime/templates/realtime/ash/index.html:179
+#: realtime/templates/realtime/ash/index.html:201
+#: realtime/templates/realtime/earthquake/index.html:317
+#: realtime/templates/realtime/earthquake/index.html:327
+#: realtime/templates/realtime/flood/index.html:251
 msgid "Report"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:183
-#: realtime/templates/realtime/earthquake/index.html:321
-#: realtime/templates/realtime/flood/index.html:255
+#: realtime/templates/realtime/ash/index.html:185
+#: realtime/templates/realtime/earthquake/index.html:323
+#: realtime/templates/realtime/flood/index.html:257
 msgid "Download"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:188
+#: realtime/templates/realtime/ash/index.html:190
 msgid "Hazard File"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:194
+#: realtime/templates/realtime/ash/index.html:196
 msgid "Impact Files"
 msgstr ""
 
-#: realtime/templates/realtime/ash/index.html:254
-#: realtime/templates/realtime/earthquake/index.html:418
-#: realtime/templates/realtime/flood/index.html:284
+#: realtime/templates/realtime/ash/index.html:256
+#: realtime/templates/realtime/earthquake/index.html:420
+#: realtime/templates/realtime/flood/index.html:286
 msgid "YYYY-MM-DD [at] HH:mm:ss"
 msgstr ""
 
@@ -228,11 +236,11 @@ msgstr ""
 msgid "Upload Ash Event"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:26
+#: realtime/templates/realtime/earthquake/index.html:28
 msgid "InaSAFE Realtime Earthquake Reports"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:30
+#: realtime/templates/realtime/earthquake/index.html:32
 msgid ""
 "\n"
 "                        This page contains <b>near realtime</b> earthquake "
@@ -265,48 +273,48 @@ msgid ""
 "                    "
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:70
-#: realtime/templates/realtime/flood/index.html:63
+#: realtime/templates/realtime/earthquake/index.html:72
+#: realtime/templates/realtime/flood/index.html:65
 msgid "Filters"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:132
+#: realtime/templates/realtime/earthquake/index.html:134
 msgid "Contextual Filters"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:137
+#: realtime/templates/realtime/earthquake/index.html:139
 msgid "Recent Large Earthquakes"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:140
+#: realtime/templates/realtime/earthquake/index.html:142
 msgid "Recent Small Earthquakes"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:143
+#: realtime/templates/realtime/earthquake/index.html:145
 msgid "Recent Felt Earthquakes"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:155
+#: realtime/templates/realtime/earthquake/index.html:157
 msgid "Earthquakes"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:163
+#: realtime/templates/realtime/earthquake/index.html:165
 msgid "Location Description"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:164
+#: realtime/templates/realtime/earthquake/index.html:166
 msgid "Magnitude"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:165
+#: realtime/templates/realtime/earthquake/index.html:167
 msgid "Depth"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:166
+#: realtime/templates/realtime/earthquake/index.html:168
 msgid "Shake Id"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:179
+#: realtime/templates/realtime/earthquake/index.html:181
 msgid ""
 "\n"
 "                <h2>Supporters</h2>\n"
@@ -322,7 +330,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:190
+#: realtime/templates/realtime/earthquake/index.html:192
 msgid ""
 "\n"
 "                <h2>Partners</h2>\n"
@@ -339,7 +347,7 @@ msgid ""
 "            "
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:203
+#: realtime/templates/realtime/earthquake/index.html:205
 msgid ""
 "\n"
 "                <h2>InaSAFE</h2>\n"
@@ -350,58 +358,58 @@ msgid ""
 "            "
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:330
+#: realtime/templates/realtime/earthquake/index.html:332
 msgid "Grid XML"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:335
+#: realtime/templates/realtime/earthquake/index.html:337
 msgid "MMI output"
-msgstr ""
-
-#: realtime/templates/realtime/earthquake/index.html:399
-#, python-format
-msgid "Earthquake events %%(magnitude)s %%(date)s"
-msgstr ""
-
-#: realtime/templates/realtime/earthquake/index.html:400
-#, python-format
-msgid "with magnitudes between %%(min_magnitude)s and %%(max_magnitude)s"
 msgstr ""
 
 #: realtime/templates/realtime/earthquake/index.html:401
 #, python-format
-msgid "with magnitudes greater than or equal %%(min_magnitude)s"
+msgid "Earthquake events %%(magnitude)s %%(date)s"
 msgstr ""
 
 #: realtime/templates/realtime/earthquake/index.html:402
 #, python-format
-msgid "with magnitudes less than or equal %%(max_magnitude)s"
+msgid "with magnitudes between %%(min_magnitude)s and %%(max_magnitude)s"
 msgstr ""
 
 #: realtime/templates/realtime/earthquake/index.html:403
 #, python-format
-msgid "over the period %%(start_moment) and %%(end_moment)s"
+msgid "with magnitudes greater than or equal %%(min_magnitude)s"
 msgstr ""
 
 #: realtime/templates/realtime/earthquake/index.html:404
 #, python-format
-msgid "since %%(start_moment)s"
+msgid "with magnitudes less than or equal %%(max_magnitude)s"
 msgstr ""
 
 #: realtime/templates/realtime/earthquake/index.html:405
 #, python-format
+msgid "over the period %%(start_moment) and %%(end_moment)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:406
+#, python-format
+msgid "since %%(start_moment)s"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:407
+#, python-format
 msgid "before %%(end_moment)"
 msgstr ""
 
-#: realtime/templates/realtime/earthquake/index.html:427
+#: realtime/templates/realtime/earthquake/index.html:429
 msgid "Action"
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:26
+#: realtime/templates/realtime/flood/index.html:28
 msgid "InaSAFE Flood Realtime"
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:30
+#: realtime/templates/realtime/flood/index.html:32
 msgid ""
 "\n"
 "                        This page contains near realtime flood impact "
@@ -427,49 +435,49 @@ msgid ""
 "                    "
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:70
+#: realtime/templates/realtime/flood/index.html:72
 msgid "Event Time"
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:83
+#: realtime/templates/realtime/flood/index.html:85
 msgid "Number of People Affected"
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:96
+#: realtime/templates/realtime/flood/index.html:98
 msgid "Number of RW Flooded"
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:144
+#: realtime/templates/realtime/flood/index.html:146
 #: realtime/templates/realtime/nav_second.html:9
 msgid "Flood"
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:151
-#: realtime/templates/realtime/flood/index.html:152
+#: realtime/templates/realtime/flood/index.html:153
+#: realtime/templates/realtime/flood/index.html:154
 msgid "Event ID"
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:154
+#: realtime/templates/realtime/flood/index.html:156
 msgid "Population Affected"
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:155
+#: realtime/templates/realtime/flood/index.html:157
 msgid "RW Flooded"
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:243
+#: realtime/templates/realtime/flood/index.html:245
 msgid "Show"
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:260
+#: realtime/templates/realtime/flood/index.html:262
 msgid "Hazard Layer"
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:266
+#: realtime/templates/realtime/flood/index.html:268
 msgid "Impact Layer"
 msgstr ""
 
-#: realtime/templates/realtime/flood/index.html:271
+#: realtime/templates/realtime/flood/index.html:273
 msgid "Impact Map"
 msgstr ""
 
@@ -535,14 +543,14 @@ msgstr ""
 msgid "%d microseconds"
 msgstr ""
 
-#: realtime/views/earthquake.py:71 realtime/views/flood.py:68
+#: realtime/views/earthquake.py:67 realtime/views/flood.py:64
 msgid "Select Area"
 msgstr ""
 
-#: realtime/views/earthquake.py:72 realtime/views/flood.py:69
+#: realtime/views/earthquake.py:68 realtime/views/flood.py:65
 msgid "Remove Selection"
 msgstr ""
 
-#: realtime/views/earthquake.py:73 realtime/views/flood.py:70
+#: realtime/views/earthquake.py:69 realtime/views/flood.py:66
 msgid "Select area within current zoom"
 msgstr ""

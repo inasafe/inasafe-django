@@ -2,6 +2,8 @@
 {% load bootstrap %}
 {% load pipeline %}
 {% load i18n %}
+
+{% get_language_info for LANGUAGE_CODE as language %}
 <!DOCTYPE html>
 <html lang="{{ language }}">
 <head>
@@ -93,17 +95,26 @@
                         <div id="lang_sel">
                             <ul>
                                 <li>
-                                    <a href="#">{{ language.selected_language.name }}
-                                        {% if language.language_list|length > 0 %}
+                                    <a href="#">{{ language.name_local }}
+                                        {% if LANGUAGES|length > 0 %}
                                             <span class="caret"></span>
                                         {% endif %}
                                     </a>
-                                    {% if language.language_list|length > 0 %}
+                                    {% if LANGUAGES|length > 0 %}
                                         <ul>
-                                            {% for l in language.language_list %}
+                                            {% for lang_key, lang_name in LANGUAGES %}
+                                                {% get_language_info for lang_key as lang %}
+                                                {% if not lang.code == language.code %}
                                                 <li>
-                                                    <a href="{{ request.path }}?lang={{ l.id }}">{{ l.name }}</a>
+                                                    <form id="set-lang-{{ lang.code }}" action="{% url 'set_language' %}" method="post" class="hidden">
+                                                        {% csrf_token %}
+                                                        <input name="next" type="hidden" value="{{ redirect_to }}" />
+                                                        <input name="language" value="{{ lang.code }}" />
+                                                        <input type="submit" />
+                                                    </form>
+                                                    <a href="javascript:set_language('{{ lang.code }}');">{{ lang.name_local }}</a>
                                                 </li>
+                                                {% endif %}
                                             {% endfor %}
                                         </ul>
                                     {% endif %}

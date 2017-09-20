@@ -19,6 +19,7 @@ urlpatterns = patterns(
     # url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
 
     # include application urls
+    url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'', include('frontend.urls', namespace='front_end')),
     url(r'^tinymce/', include('tinymce.urls')),
     url(r'^mce_filebrowser/', include('mce_filebrowser.urls')),

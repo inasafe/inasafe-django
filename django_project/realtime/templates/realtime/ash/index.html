@@ -5,6 +5,8 @@
 {% load pipeline %}
 {% load i18n %}
 
+{% get_language_info for LANGUAGE_CODE as language %}
+
 {% block head_resources %}
     {{ block.super }}
     {% leaflet_js %}
@@ -162,7 +164,7 @@
         var showEventHandler = createShowEventHandler(map, markers, map_events);
 
         {#  Use magic number 000 for placeholders #}
-        var report_url = '{% url "realtime:ash_report_detail" volcano_name='VOLCANOTEMPLATENAME' event_time='1234567890123456789' language=language.selected_language.id %}';
+        var report_url = '{% url "realtime:ash_report_detail" volcano_name='VOLCANOTEMPLATENAME' event_time='1234567890123456789' language=language.code %}';
         var showReportHandler = createShowReportHandler(report_url);
         var downloadReportHandler = createDownloadReportHandler(report_url);
         var button_templates = [
