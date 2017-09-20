@@ -12,6 +12,13 @@ default: web
 
 up: build web
 
+down:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Shutdown docker containers"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) down
+
 complete-deploy: up wait migrate collectstatic makemessages compilemessages inasafe-worker indicator-worker reload status
 
 wait:
@@ -28,7 +35,7 @@ deploy: up wait inasafe-worker indicator-worker
 	@echo "You can access it on http://localhost:61100"
 	@echo "------------------------------------------------------------------"
 
-restart: kill deploy
+restart: down deploy
 
 ansible-check:
 	@echo "Check ansible command"

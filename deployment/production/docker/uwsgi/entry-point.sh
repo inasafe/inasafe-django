@@ -8,7 +8,7 @@ echo "Run database migrations"
 echo "Run collectstatic"
 ./manage.py collectstatic --noinput
 
-# Run compile massage
+# Run compile messages
 
 ./manage.py compilemessages -l id
 
