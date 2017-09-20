@@ -12,7 +12,6 @@ from django.db.utils import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from django.utils import translation
 from rest_framework import mixins, status
 from rest_framework.filters import (
     DjangoFilterBackend,
@@ -55,11 +54,6 @@ def index(request):
         pass
 
     context = RequestContext(request)
-
-    selected_language = context['language']['selected_language']
-    translation.activate(selected_language['id'])
-    request.session[translation.LANGUAGE_SESSION_KEY] = \
-        selected_language['id']
     return render_to_response(
         'realtime/ash/index.html',
         {},

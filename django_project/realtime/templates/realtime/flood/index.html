@@ -5,6 +5,8 @@
 {% load pipeline %}
 {% load i18n %}
 
+{% get_language_info for LANGUAGE_CODE as language %}
+
 {% block head_resources %}
     {{ block.super }}
     {% leaflet_js %}
@@ -232,7 +234,7 @@
     // Create handler for table
     var event_feature_url = '{% url "realtime:flood_event_features" event_id="0000000000-6-rw" %}';
     var showFeaturesHandler = createShowFeaturesHandler(event_feature_url);
-    var report_url = '{% url "realtime:flood_report_detail" event_id='0000000000-6-rw' language=language.selected_language.id %}';
+    var report_url = '{% url "realtime:flood_report_detail" event_id='0000000000-6-rw' language=language.code %}';
     var showReportHandler = createShowReportHandler(report_url);
     var showImpactMapHandler = createShowImpactMapHandler(report_url);
     var downloadImpactMapHandler = createDownloadImpactMapHandler(report_url);

@@ -2,7 +2,6 @@
 """Module for custom context processor for InaSAFE Realtime."""
 from realtime import app_settings
 from realtime.app_settings import (
-    LANGUAGE_LIST,
     LEAFLET_TILES,
     MAPQUEST_MAP_KEY)
 from realtime.models.coreflatpage import CoreFlatPage
@@ -15,21 +14,6 @@ def realtime_settings(request):
     :param request: A django request object.
     :type request: request
     """
-
-    # language related
-    selected_language = {
-        'id': 'en',
-        'name': 'English'
-    }
-    language_code = 'en'
-    if request.method == 'GET':
-        if 'lang' in request.GET:
-            language_code = request.GET.get('lang')
-    for l in LANGUAGE_LIST:
-        if l['id'] == language_code:
-            selected_language = l
-
-    language_list = [l for l in LANGUAGE_LIST if not l['id'] == language_code]
 
     # Leaflet context
     leaflet_tiles = []
@@ -71,8 +55,4 @@ def realtime_settings(request):
         'flatpages': flatpages,
         'leaflet_tiles': leaflet_tiles,
         'mapquest_key': MAPQUEST_MAP_KEY,
-        'language': {
-            'selected_language': selected_language,
-            'language_list': language_list,
-        }
     }

@@ -1,6 +1,12 @@
 # coding=utf-8
 from django.conf.urls import url
-from realtime.views import user_push
+from rest_framework.urlpatterns import format_suffix_patterns
+
+from realtime.views import user_push, root
+from realtime.views.ash import (
+    index as ash_index,
+    upload_form as ash_upload_form, AshList, AshReportList, AshReportDetail,
+    AshDetail, AshFeatureList)
 from realtime.views.earthquake import (
     index as shake_index,
     EarthquakeList,
@@ -8,9 +14,6 @@ from realtime.views.earthquake import (
     EarthquakeReportList,
     EarthquakeReportDetail,
     EarthquakeFeatureList, iframe_index, get_grid_xml)
-from realtime.views import root
-from rest_framework.urlpatterns import format_suffix_patterns
-
 from realtime.views.flood import (
     index as flood_index,
     FloodList,
@@ -19,11 +22,6 @@ from realtime.views.flood import (
     FloodReportDetail, FloodEventList, flood_event_features,
     impact_event_features, rw_flood_frequency, rw_histogram)
 from realtime.views.reports import latest_report
-
-from realtime.views.ash import (
-    index as ash_index,
-    upload_form as ash_upload_form, AshList, AshReportList, AshReportDetail,
-    AshDetail, AshFeatureList)
 from realtime.views.volcano import VolcanoFeatureList, VolcanoList
 
 urlpatterns = [

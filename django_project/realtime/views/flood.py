@@ -10,7 +10,6 @@ from django.db.utils import IntegrityError
 from django.http.response import JsonResponse, HttpResponseServerError
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.utils import translation
 from django.utils.translation import ugettext as _
 from rest_framework import mixins, status
 from rest_framework.filters import (
@@ -61,10 +60,6 @@ def index(request, iframe=False, server_side_filter=False):
             server_side_filter = request.GET.get('server_side_filter')
 
     context = RequestContext(request)
-    selected_language = context['language']['selected_language']
-    translation.activate(selected_language['id'])
-    request.session[translation.LANGUAGE_SESSION_KEY] = \
-        selected_language['id']
     context['select_area_text'] = _('Select Area')
     context['remove_area_text'] = _('Remove Selection')
     context['select_current_zoom_text'] = _('Select area within current zoom')
