@@ -23,16 +23,18 @@
     <div class="row center-block">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h2 class="panel-title">InaSAFE Flood Realtime</h2>
+                <h2 class="panel-title">{% trans "InaSAFE Flood Realtime" %}</h2>
             </div>
             <div class="panel-body">
                 <p class="text-justify">
                     {% blocktrans %}
-                        This page contains near realtime flood impact assessments following recent floods in the Jakarta, Indonesia.
-                        Flood data used here is sourced from <a href="http://petabencana.id">PetaBencana.id</a> who use crowd sourcing data from <a href="http://twitter.com">twitter</a>,
-                        <a href="http://qluein.com/">qlue</a>, <a href="http://pasangmata.detik.com/">detik.com</a> and expert data review by BPBD-DKI.
+                        This page contains near realtime flood impact assessments following recent floods in Jakarta, Indonesia.
+                        Flood data used here is sourced from <a href="https://petabencana.id/">PetaBencana.id</a> who use crowdsourced data from <a href="http://twitter.com">Twitter</a>,
+                        Telegram, <a href="http://qlue.co.id/">Qlue</a>, <a href="http://pasangmata.detik.com/">PasangMata</a>, Z-Alert, and expert data review by BPBD-DKI Jakarta.
+                        A report is then generated every 6 hours for floods from the last 6 hour interval (if there was any flooding in that period).
+                        This report includes all RW flooded during the last 6 hours and shows the deepest water depth recorded in the last 6 hours.
                         This information is used by disaster managers to help them understand the potential scale of a disaster and to
-                        respond faster to the hardest hit communities. This is particularly important in the first few hours after a
+                        respond more quickly to the hardest hit communities. This is particularly important in the first few hours after a
                         flood when it may be difficult to get accurate on-the-ground information. Although this service is currently specific to Jakarta, the platform is extensible so that we can add more cities and regions easily.
                     {% endblocktrans %}
                 </p>
