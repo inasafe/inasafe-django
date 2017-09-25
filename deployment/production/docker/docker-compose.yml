@@ -16,6 +16,7 @@ volumes:
     driver: rancher-nfs
     driver_opts:
       onRemove: retain
+  django-realtime-indicator:
   sftpbackup-postgis-target-data:
     driver: rancher-nfs
     driver_opts:
@@ -41,6 +42,7 @@ services:
     restart: on-failure
     volumes:
       - django-postgis-data:/var/lib/postgresql
+      - django-postgis-dbbackup-data:/backups
     environment:
       - USERNAME=docker
       - PASS=docker
@@ -146,6 +148,7 @@ services:
     volumes:
       - django-static-data:/home/web/static
       - django-media-data:/home/web/media
+      - django-realtime-indicator:/home/web/django_project/.run
     links:
       - smtp:smtp
       - db:db
@@ -165,6 +168,18 @@ services:
       - DATABASE_PASSWORD=docker
       - DATABASE_HOST=db
       - DJANGO_SETTINGS_MODULE=core.settings.prod_docker
+      - VIRTUAL_HOST=realtime.inasafe.org
+      - VIRTUAL_PORT=8080
+      - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+      - INASAFE_REALTIME_BROKER_URL=amqp://guest:guest@rabbitmq.realtime:5672/
+      # Secrets
+      - SECRET_KEY=
+      - MAPQUEST_MAP_KEY=
+      - SITE_DOMAIN_NAME=
+      # InAWARE Credentials
+      - INAWARE_HOST=
+      - INAWARE_USER=
+      - INAWARE_PASS=
       - C_FORCE_ROOT=True
       - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
       - PYTHONPATH=/home/web/django_project
