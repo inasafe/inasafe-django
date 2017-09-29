@@ -361,11 +361,6 @@
             dynaTable.paginationPerPage.set(20);
             dynaTable.sorts.add('time', -1);
             dynaTable.process();
-
-            if(jsonTableContents.length > 0){
-                var shake_id = jsonTableContents[0].shake_id;
-                showEventHandler(shake_id);
-            }
         }
 
         function onEachFeature(feature, layer) {
@@ -388,7 +383,7 @@
                 text: "{{ select_current_zoom_text }}"
             },
             buttonPosition: 'topleft'
-        });
+        }).addTo(map);
 
         // add FitAll control
         var fitAll = L.control.fitAll({
@@ -402,9 +397,9 @@
                 '{% trans "with magnitudes between %(min_magnitude)s and %(max_magnitude)s" %}',
                 '{% trans "with magnitudes greater than or equal %(min_magnitude)s" %}',
                 '{% trans "with magnitudes less than or equal %(max_magnitude)s" %}',
-                '{% trans "over the period %(start_moment) and %(end_moment)s" %}',
+                '{% trans "over the period %(start_moment)s and %(end_moment)s" %}',
                 '{% trans "since %(start_moment)s" %}',
-                '{% trans "before %(end_moment)" %}'
+                '{% trans "before %(end_moment)s" %}'
         );
 
         $(document).ready(function () {
@@ -434,6 +429,9 @@
             $.get(get_events_url, function (data) {
                 event_json = data;
                 getEarthquakeEventsJson(data);
+                jsonTableContents = dynaTable.settings.dataset.originalRecords
+                var shake_id = jsonTableContents[0].shake_id;
+                showEventHandler(shake_id);
                 modifyMapDescriptions(".map-title");
             });
 
