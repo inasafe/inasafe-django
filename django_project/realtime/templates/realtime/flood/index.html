@@ -279,8 +279,11 @@
 
     $(document).ready(function(){
         dynatable = $("#realtime-table").dynatable({
+            features: {
+                pushState: false
+            },
             table: {
-                defaultColumnIdStyle: 'underscore',
+                defaultColumnIdStyle: 'underscore'
             },
             writers: {
                 _rowWriter: createActionRowWriter(button_templates, '{% trans "YYYY-MM-DD [at] HH:mm:ss" %}')
