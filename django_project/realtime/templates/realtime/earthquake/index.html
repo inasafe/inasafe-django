@@ -136,13 +136,13 @@
             <div class="panel-body">
                 <div id="earthquake-fast-filters" class="btn-group" role="group" data-toggle="buttons">
                     <label class="btn btn-default" onclick="filterRecentBigShake()">
-                        <input name="earthquake-fast-filters" type="radio"/>{% trans "Recent Large Earthquakes" %}
+                        <input name="earthquake-fast-filters" type="radio" value="recent-big"/>{% trans "Recent Large Earthquakes" %}
                     </label>
                     <label class="btn btn-default" onclick="filterRecentSmallShake()">
-                        <input name="earthquake-fast-filters" type="radio"/>{% trans "Recent Small Earthquakes" %}
+                        <input name="earthquake-fast-filters" type="radio" value="recent-small"/>{% trans "Recent Small Earthquakes" %}
                     </label>
                     <label class="btn btn-default" onclick="filterRecentFeltShake()">
-                        <input name="earthquake-fast-filters" type="radio"/>{% trans "Recent Felt Earthquakes" %}
+                        <input name="earthquake-fast-filters" type="radio" value="recent-felt"/>{% trans "Recent Felt Earthquakes" %}
                     </label>
                 </div>
             </div>
@@ -291,8 +291,8 @@
             position: 'topleft'
         }).addTo(map);
 
-        project_icon_path = "{% static 'realtime/img/earthquake.png' %}";
-        ashIcon = createIconMarker(
+        var project_icon_path = "{% static 'realtime/img/earthquake.png' %}";
+        var marker_icon = createIconMarker(
                 project_icon_path);
 
         // create dynatable
@@ -348,7 +348,7 @@
             L.geoJson(event_json, {
                 onEachFeature: onEachFeature,
                 pointToLayer: function (feature, latlng) {
-                    var marker = L.marker(latlng, {icon: ashIcon});
+                    var marker = L.marker(latlng, {icon: marker_icon});
                     map_events[feature.properties.shake_id] = marker;
                     return marker;
                 }
@@ -413,8 +413,11 @@
             var $navbar = $('#navbar');
 
             dynaTable = $('#realtime-table').dynatable({
+                features: {
+                    pushState: false
+                },
                 table: {
-                    defaultColumnIdStyle: 'underscore',
+                    defaultColumnIdStyle: 'underscore'
                 },
                 writers: {
                     _rowWriter: createActionRowWriter(button_templates, '{% trans "YYYY-MM-DD [at] HH:mm:ss" %}')
