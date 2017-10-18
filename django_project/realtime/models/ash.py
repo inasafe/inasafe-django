@@ -2,6 +2,7 @@
 """Model class for ash realtime."""
 
 from django.contrib.gis.db import models
+from django.utils.translation import ugettext_lazy as _
 
 from realtime.models.volcano import Volcano
 
@@ -24,41 +25,41 @@ class Ash(models.Model):
         related_name='ash',
         null=True)
     alert_level = models.CharField(
-        verbose_name='Alert Level',
-        help_text='The alert level of the volcano ash event.',
+        verbose_name=_('Alert Level'),
+        help_text=_('The alert level of the volcano ash event.'),
         max_length='30',
         blank=False
     )
     hazard_file = models.FileField(
-        verbose_name='Hazard File',
-        help_text='Hazard file formatted as GeoTIFF (*.tif) in EPSG:4326.',
+        verbose_name=_('Hazard File'),
+        help_text=_('Hazard file formatted as GeoTIFF (*.tif) in EPSG:4326.'),
         upload_to='ash/hazard_file/%Y/%m/%d',
         blank=False
     )
     impact_files = models.FileField(
-        verbose_name='Impact Files',
-        help_text='Impact files processed zipped',
+        verbose_name=_('Impact Files'),
+        help_text=_('Impact files processed zipped'),
         upload_to='ash/impact_files/%Y/%m/%d',
         blank=True,
         null=True
     )
     event_time = models.DateTimeField(
-        verbose_name='Event Date and Time',
-        help_text='The time the ash happened.',
+        verbose_name=_('Event Date and Time'),
+        help_text=_('The time the ash happened.'),
         blank=False)
     eruption_height = models.IntegerField(
-        verbose_name='Eruption height in metres',
+        verbose_name=_('Eruption height in metres'),
         blank=False,
         default=0)
     task_id = models.CharField(
-        verbose_name='Celery task id',
-        help_text='Task id for processing',
+        verbose_name=_('Celery task id'),
+        help_text=_('Task id for processing'),
         max_length=255,
         default='',
         blank=True)
     task_status = models.CharField(
-        verbose_name='Celery task status',
-        help_text='Task status for processing',
+        verbose_name=_('Celery task status'),
+        help_text=_('Task status for processing'),
         max_length=30,
         default='None',
         blank=True)
@@ -90,14 +91,14 @@ class AshReport(models.Model):
         Ash,
         related_name='reports')
     language = models.CharField(
-        verbose_name='Language ID',
-        help_text='The language ID of the report',
+        verbose_name=_('Language ID'),
+        help_text=_('The language ID of the report'),
         max_length=4,
         default='en'
     )
     report_map = models.FileField(
-        verbose_name='Map PDF Report',
-        help_text='The map impact report stored as PDF',
+        verbose_name=_('Map PDF Report'),
+        help_text=_('The map impact report stored as PDF'),
         upload_to='reports/ash/pdf'
     )
 

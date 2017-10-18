@@ -74,7 +74,7 @@ def upload_form(request):
             try:
                 offset_second = int(tz_offset_string) * 60
                 tz = tzoffset('', offset=offset_second)
-            except:
+            except BaseException:
                 tz = pytz.utc
 
             instance = form.instance

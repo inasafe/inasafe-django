@@ -45,7 +45,7 @@ def check_realtime_broker():
     # wait to sync result
     try:
         update_indicator.delay(res.get())
-    except:
+    except BaseException:
         pass
 
 

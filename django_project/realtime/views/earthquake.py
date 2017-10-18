@@ -352,7 +352,7 @@ def get_grid_xml(request, shake_id):
             'inline; filename="%s-grid.xml"' % shake_id
 
         return response
-    except:
+    except BaseException:
         return HttpResponseBadRequest()
 
 
@@ -363,5 +363,5 @@ def trigger_process_shake(request, shake_id):
     try:
         process_shake.delay(shake_id)
         return JsonResponse({'success': True})
-    except:
+    except BaseException:
         return HttpResponseBadRequest()

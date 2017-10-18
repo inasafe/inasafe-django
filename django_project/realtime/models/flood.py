@@ -2,6 +2,7 @@
 """Model class for flood realtime."""
 
 from django.contrib.gis.db import models
+from django.utils.translation import ugettext_lazy as _
 
 
 class BoundaryAlias(models.Model):
@@ -11,17 +12,17 @@ class BoundaryAlias(models.Model):
         app_label = 'realtime'
 
     alias = models.CharField(
-        verbose_name='Alias of Boundary Level',
-        help_text='Alternate or human readable name for boundary level',
+        verbose_name=_('Alias of Boundary Level'),
+        help_text=_('Alternate or human readable name for boundary level'),
         max_length=64)
     osm_level = models.IntegerField(
-        verbose_name='OSM Boundary Level',
-        help_text='OSM Equivalent of boundary level')
+        verbose_name=_('OSM Boundary Level'),
+        help_text=_('OSM Equivalent of boundary level'))
     parent = models.ForeignKey(
         'BoundaryAlias',
-        verbose_name='Parent boundary alias',
-        help_text='The parent of this boundary alias, it should also be a '
-                  'boundary alias',
+        verbose_name=_('Parent boundary alias'),
+        help_text=_('The parent of this boundary alias, it should also be a '
+                    'boundary alias'),
         blank=True,
         null=True)
 
@@ -37,31 +38,31 @@ class Boundary(models.Model):
         verbose_name_plural = 'Boundaries'
 
     upstream_id = models.CharField(
-        verbose_name='Upstream ID',
-        help_text='ID used by upstream data source to identify boundaries',
+        verbose_name=_('Upstream ID'),
+        help_text=_('ID used by upstream data source to identify boundaries'),
         max_length=64,
         blank=False)
     name = models.CharField(
-        verbose_name='Boundary name',
-        help_text='Name entitled to this particular boundary',
+        verbose_name=_('Boundary name'),
+        help_text=_('Name entitled to this particular boundary'),
         max_length=64,
         blank=True,
         null=True)
     parent = models.ForeignKey(
         'Boundary',
-        verbose_name='Parent boundary',
-        help_text='The boundary parent of this particular boundary, if any. '
-                  'This should also be a boundary.',
+        verbose_name=_('Parent boundary'),
+        help_text=_('The boundary parent of this particular boundary, if any. '
+                    'This should also be a boundary.'),
         blank=True,
         null=True)
     geometry = models.MultiPolygonField(
-        verbose_name='Geometry of the boundary',
-        help_text='Geometry of the boundary',
+        verbose_name=_('Geometry of the boundary'),
+        help_text=_('Geometry of the boundary'),
         blank=False)
     boundary_alias = models.ForeignKey(
         BoundaryAlias,
-        verbose_name='Boundary level alias',
-        help_text='The alias of boundary level of this boundary',
+        verbose_name=_('Boundary level alias'),
+        help_text=_('The alias of boundary level of this boundary'),
         blank=True,
         null=True)
 
@@ -76,56 +77,56 @@ class Flood(models.Model):
         app_label = 'realtime'
 
     event_id = models.CharField(
-        verbose_name='The id of the event',
-        help_text='The id of the event, which represents time and interval',
+        verbose_name=_('The id of the event'),
+        help_text=_('The id of the event, which represents time and interval'),
         max_length=20,
         unique=True,
         blank=False)
     data_source = models.CharField(
-        verbose_name='The source of hazard data',
-        help_text='The source of the hazard data used for analysis',
+        verbose_name=_('The source of hazard data'),
+        help_text=_('The source of the hazard data used for analysis'),
         max_length=255,
         blank=True,
         null=True,
         default=None)
     time = models.DateTimeField(
-        verbose_name='Date and Time',
-        help_text='The time the flood reported.',
+        verbose_name=_('Date and Time'),
+        help_text=_('The time the flood reported.'),
         blank=False)
     interval = models.IntegerField(
-        verbose_name='Report interval',
-        help_text='The interval of aggregated report in hours',
+        verbose_name=_('Report interval'),
+        help_text=_('The interval of aggregated report in hours'),
         default=0)
     source = models.CharField(
-        verbose_name='Flood Data Source',
-        help_text='The source of hazard data',
+        verbose_name=_('Flood Data Source'),
+        help_text=_('The source of hazard data'),
         max_length=255)
     region = models.CharField(
-        verbose_name='The Region id for source',
-        help_text='The region of hazard data',
+        verbose_name=_('The Region id for source'),
+        help_text=_('The region of hazard data'),
         max_length=255)
     hazard_layer = models.FileField(
         blank=True,
-        verbose_name='Hazard Layer',
-        help_text='Zipped file of Hazard Layer related files',
+        verbose_name=_('Hazard Layer'),
+        help_text=_('Zipped file of Hazard Layer related files'),
         upload_to='reports/flood/zip')
     impact_layer = models.FileField(
         blank=True,
-        verbose_name='Impact Layer',
-        help_text='Zipped file of Impact Layer related files',
+        verbose_name=_('Impact Layer'),
+        help_text=_('Zipped file of Impact Layer related files'),
         upload_to='reports/flood/zip')
     flooded_boundaries = models.ManyToManyField(
         Boundary,
         through='FloodEventBoundary',
-        verbose_name='Flooded Boundaries',
-        help_text='The linked boundaries flooded by this event')
+        verbose_name=_('Flooded Boundaries'),
+        help_text=_('The linked boundaries flooded by this event'))
     total_affected = models.IntegerField(
-        verbose_name='Total affected people by flood',
-        help_text='Total affected people by flood',
+        verbose_name=_('Total affected people by flood'),
+        help_text=_('Total affected people by flood'),
         default=0)
     boundary_flooded = models.IntegerField(
-        verbose_name='Total boundary flooded',
-        help_text='Total boundary affected by flood',
+        verbose_name=_('Total boundary flooded'),
+        help_text=_('Total boundary affected by flood'),
         default=0)
 
     objects = models.GeoManager()
@@ -151,20 +152,20 @@ class FloodReport(models.Model):
         Flood,
         related_name='reports')
     language = models.CharField(
-        verbose_name='Language ID',
-        help_text='The language ID of the report',
+        verbose_name=_('Language ID'),
+        help_text=_('The language ID of the report'),
         max_length=4,
         default='id'
     )
     impact_report = models.FileField(
         blank=True,
-        verbose_name='Impact Report',
-        help_text='Impact Report file in PDF',
+        verbose_name=_('Impact Report'),
+        help_text=_('Impact Report file in PDF'),
         upload_to='reports/flood/pdf')
     impact_map = models.FileField(
         blank=True,
-        verbose_name='Impact Map',
-        help_text='Impact Map file in PDF',
+        verbose_name=_('Impact Map'),
+        help_text=_('Impact Map file in PDF'),
         upload_to='reports/flood/pdf')
 
     def delete(self, using=None):
@@ -183,17 +184,17 @@ class FloodEventBoundary(models.Model):
     flood = models.ForeignKey(
         Flood,
         to_field='event_id',
-        verbose_name='Flood Event',
-        help_text='The flood event of the linked boundary',
+        verbose_name=_('Flood Event'),
+        help_text=_('The flood event of the linked boundary'),
         related_name='flood_event')
     boundary = models.ForeignKey(
         Boundary,
-        verbose_name='Boundary',
-        help_text='The linked boundary of the flood events',
+        verbose_name=_('Boundary'),
+        help_text=_('The linked boundary of the flood events'),
         related_name='flood_event')
     hazard_data = models.IntegerField(
-        verbose_name='Impact Data',
-        help_text='Impact data in the given boundary',
+        verbose_name=_('Impact Data'),
+        help_text=_('Impact data in the given boundary'),
         blank=True,
         null=True)
 
@@ -206,26 +207,26 @@ class ImpactEventBoundary(models.Model):
     flood = models.ForeignKey(
         Flood,
         to_field='event_id',
-        verbose_name='Flood Event',
-        help_text='The flood event of the linked boundary',
+        verbose_name=_('Flood Event'),
+        help_text=_('The flood event of the linked boundary'),
         related_name='impact_event')
     parent_boundary = models.ForeignKey(
         Boundary,
-        verbose_name='Boundary',
-        help_text='The linked parent boundary of the impact',
+        verbose_name=_('Boundary'),
+        help_text=_('The linked parent boundary of the impact'),
         related_name='impact_event')
     geometry = models.MultiPolygonField(
-        verbose_name='Geometry of the boundary of impact',
-        help_text='Geometry of the boundary of impact',
+        verbose_name=_('Geometry of the boundary of impact'),
+        help_text=_('Geometry of the boundary of impact'),
         blank=False)
     hazard_class = models.IntegerField(
-        verbose_name='Hazard Class',
-        help_text='Hazard class in the given boundary',
+        verbose_name=_('Hazard Class'),
+        help_text=_('Hazard class in the given boundary'),
         blank=True,
         null=True)
     population_affected = models.IntegerField(
-        verbose_name='Population Affected',
-        help_text='The affected population in a given flood boundary',
+        verbose_name=_('Population Affected'),
+        help_text=_('The affected population in a given flood boundary'),
         blank=True,
         null=True)
 

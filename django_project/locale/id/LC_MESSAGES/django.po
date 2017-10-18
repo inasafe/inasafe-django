@@ -8,15 +8,23 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-07-20 23:21+0000\n"
+"POT-Creation-Date: 2017-10-18 11:34+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Ivan Busthomi <ivanbusthomi@gmail.com>, 2017\n"
+"Last-Translator: Rizky Maulana Nugraha <lana.pcfre@gmail.com>, 2017\n"
 "Language-Team: Indonesian (https://www.transifex.com/inasafe/teams/57794/id/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: id\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+
+#: core/settings/base.py:20
+msgid "English"
+msgstr "Inggris"
+
+#: core/settings/base.py:21
+msgid "Indonesian"
+msgstr "Indonesia"
 
 #: realtime/forms/ash.py:47
 msgid "Timezone"
@@ -62,23 +70,23 @@ msgstr "Kritis"
 msgid "Not Available"
 msgstr "Tidak Tersedia"
 
-#: realtime/helpers/realtime_broker_indicator.py:56
+#: realtime/helpers/realtime_broker_indicator.py:62
 msgid "Broker Connection Status"
 msgstr "Status Koneksi Broker"
 
-#: realtime/helpers/realtime_broker_indicator.py:73
+#: realtime/helpers/realtime_broker_indicator.py:79
 #: realtime/helpers/rest_push_indicator.py:69
 #, python-format
 msgid "Status is considered in healthy state when the value is less than %s"
 msgstr "Status dianggap dalam kondisi baik jika nilainya kurang dari %s"
 
-#: realtime/helpers/realtime_broker_indicator.py:78
+#: realtime/helpers/realtime_broker_indicator.py:84
 #: realtime/helpers/rest_push_indicator.py:74
 #, python-format
 msgid "Status is considered in warning state when the value is less than %s"
 msgstr "Status dianggap dalam kondisi waspada jika nilainya kurang dari %s"
 
-#: realtime/helpers/realtime_broker_indicator.py:83
+#: realtime/helpers/realtime_broker_indicator.py:89
 #: realtime/helpers/rest_push_indicator.py:79
 #, python-format
 msgid ""
@@ -115,6 +123,437 @@ msgstr ""
 msgid "Last Shakemap Push"
 msgstr "Kiriman Shakemap Terakhir"
 
+#: realtime/models/ash.py:28 realtime/templates/realtime/ash/index.html:83
+msgid "Alert Level"
+msgstr "Tingkat Peringatan"
+
+#: realtime/models/ash.py:29
+msgid "The alert level of the volcano ash event."
+msgstr ""
+
+#: realtime/models/ash.py:34 realtime/templates/realtime/ash/index.html:190
+msgid "Hazard File"
+msgstr "File Ancaman"
+
+#: realtime/models/ash.py:35
+msgid "Hazard file formatted as GeoTIFF (*.tif) in EPSG:4326."
+msgstr ""
+
+#: realtime/models/ash.py:40 realtime/templates/realtime/ash/index.html:196
+msgid "Impact Files"
+msgstr "File Dampak"
+
+#: realtime/models/ash.py:41
+msgid "Impact files processed zipped"
+msgstr ""
+
+#: realtime/models/ash.py:47
+msgid "Event Date and Time"
+msgstr ""
+
+#: realtime/models/ash.py:48
+msgid "The time the ash happened."
+msgstr ""
+
+#: realtime/models/ash.py:51
+msgid "Eruption height in metres"
+msgstr ""
+
+#: realtime/models/ash.py:55
+msgid "Celery task id"
+msgstr ""
+
+#: realtime/models/ash.py:56
+msgid "Task id for processing"
+msgstr ""
+
+#: realtime/models/ash.py:61
+msgid "Celery task status"
+msgstr ""
+
+#: realtime/models/ash.py:62
+msgid "Task status for processing"
+msgstr ""
+
+#: realtime/models/ash.py:94 realtime/models/earthquake.py:91
+#: realtime/models/flood.py:155
+msgid "Language ID"
+msgstr ""
+
+#: realtime/models/ash.py:95 realtime/models/earthquake.py:92
+#: realtime/models/flood.py:156
+msgid "The language ID of the report"
+msgstr ""
+
+#: realtime/models/ash.py:100
+msgid "Map PDF Report"
+msgstr ""
+
+#: realtime/models/ash.py:101
+msgid "The map impact report stored as PDF"
+msgstr ""
+
+#: realtime/models/earthquake.py:15
+msgid "The Shake ID"
+msgstr ""
+
+#: realtime/models/earthquake.py:16
+msgid "The Shake ID, which represents the time of the event."
+msgstr ""
+
+#: realtime/models/earthquake.py:21
+msgid "Shake Grid XML File"
+msgstr ""
+
+#: realtime/models/earthquake.py:22
+msgid "The Shake Grid to process"
+msgstr ""
+
+#: realtime/models/earthquake.py:27
+msgid "MMI related file zipped"
+msgstr ""
+
+#: realtime/models/earthquake.py:28
+msgid "MMI related file, layers, and data, zipped."
+msgstr ""
+
+#: realtime/models/earthquake.py:33
+msgid "The magnitude"
+msgstr ""
+
+#: realtime/models/earthquake.py:34
+msgid "The magnitude of the event."
+msgstr ""
+
+#: realtime/models/earthquake.py:36 realtime/models/flood.py:93
+msgid "Date and Time"
+msgstr ""
+
+#: realtime/models/earthquake.py:37
+msgid "The time the shake happened."
+msgstr ""
+
+#: realtime/models/earthquake.py:40
+msgid "The depth"
+msgstr ""
+
+#: realtime/models/earthquake.py:41
+msgid "The depth of the event in km unit."
+msgstr ""
+
+#: realtime/models/earthquake.py:43 realtime/models/volcano.py:28
+msgid "Location"
+msgstr "Lokasi"
+
+#: realtime/models/earthquake.py:45 realtime/models/volcano.py:29
+msgid "The location of the shake event in longitude and latitude."
+msgstr ""
+
+#: realtime/models/earthquake.py:51
+#: realtime/templates/realtime/earthquake/index.html:165
+msgid "Location Description"
+msgstr "Deskripsi Wilayah"
+
+#: realtime/models/earthquake.py:52
+msgid "The description of the location e.g \"Bali\"."
+msgstr ""
+
+#: realtime/models/earthquake.py:55
+msgid "Felt Earthquake"
+msgstr ""
+
+#: realtime/models/earthquake.py:56
+msgid ""
+"Set to True if this particular event showed up as felt Earthquake in BMKG's "
+"List"
+msgstr ""
+
+#: realtime/models/earthquake.py:97
+msgid "PDF Report"
+msgstr ""
+
+#: realtime/models/earthquake.py:98
+msgid "The impact report stored as PDF"
+msgstr ""
+
+#: realtime/models/earthquake.py:102
+msgid "Image Report"
+msgstr ""
+
+#: realtime/models/earthquake.py:103
+msgid "The impact report stored as PNG File"
+msgstr ""
+
+#: realtime/models/earthquake.py:107
+msgid "Image Report Thumbnail"
+msgstr ""
+
+#: realtime/models/earthquake.py:108
+msgid "The thumbnail of the report stored as PNG File"
+msgstr ""
+
+#: realtime/models/flood.py:15
+msgid "Alias of Boundary Level"
+msgstr ""
+
+#: realtime/models/flood.py:16
+msgid "Alternate or human readable name for boundary level"
+msgstr ""
+
+#: realtime/models/flood.py:19
+msgid "OSM Boundary Level"
+msgstr ""
+
+#: realtime/models/flood.py:20
+msgid "OSM Equivalent of boundary level"
+msgstr ""
+
+#: realtime/models/flood.py:23
+msgid "Parent boundary alias"
+msgstr ""
+
+#: realtime/models/flood.py:24
+msgid "The parent of this boundary alias, it should also be a boundary alias"
+msgstr ""
+
+#: realtime/models/flood.py:41
+msgid "Upstream ID"
+msgstr ""
+
+#: realtime/models/flood.py:42
+msgid "ID used by upstream data source to identify boundaries"
+msgstr ""
+
+#: realtime/models/flood.py:46
+msgid "Boundary name"
+msgstr ""
+
+#: realtime/models/flood.py:47
+msgid "Name entitled to this particular boundary"
+msgstr ""
+
+#: realtime/models/flood.py:53
+msgid "Parent boundary"
+msgstr ""
+
+#: realtime/models/flood.py:54
+msgid ""
+"The boundary parent of this particular boundary, if any. This should also be"
+" a boundary."
+msgstr ""
+
+#: realtime/models/flood.py:59 realtime/models/flood.py:60
+msgid "Geometry of the boundary"
+msgstr ""
+
+#: realtime/models/flood.py:64
+msgid "Boundary level alias"
+msgstr ""
+
+#: realtime/models/flood.py:65
+msgid "The alias of boundary level of this boundary"
+msgstr ""
+
+#: realtime/models/flood.py:80
+msgid "The id of the event"
+msgstr ""
+
+#: realtime/models/flood.py:81
+msgid "The id of the event, which represents time and interval"
+msgstr ""
+
+#: realtime/models/flood.py:86 realtime/models/flood.py:102
+msgid "The source of hazard data"
+msgstr ""
+
+#: realtime/models/flood.py:87
+msgid "The source of the hazard data used for analysis"
+msgstr ""
+
+#: realtime/models/flood.py:94
+msgid "The time the flood reported."
+msgstr ""
+
+#: realtime/models/flood.py:97
+msgid "Report interval"
+msgstr ""
+
+#: realtime/models/flood.py:98
+msgid "The interval of aggregated report in hours"
+msgstr ""
+
+#: realtime/models/flood.py:101
+msgid "Flood Data Source"
+msgstr ""
+
+#: realtime/models/flood.py:105
+msgid "The Region id for source"
+msgstr ""
+
+#: realtime/models/flood.py:106
+msgid "The region of hazard data"
+msgstr ""
+
+#: realtime/models/flood.py:110
+#: realtime/templates/realtime/flood/index.html:262
+msgid "Hazard Layer"
+msgstr "Lapisan Ancaman"
+
+#: realtime/models/flood.py:111
+msgid "Zipped file of Hazard Layer related files"
+msgstr ""
+
+#: realtime/models/flood.py:115
+#: realtime/templates/realtime/flood/index.html:268
+msgid "Impact Layer"
+msgstr "Lapisan Dampak"
+
+#: realtime/models/flood.py:116
+msgid "Zipped file of Impact Layer related files"
+msgstr ""
+
+#: realtime/models/flood.py:121
+msgid "Flooded Boundaries"
+msgstr ""
+
+#: realtime/models/flood.py:122
+msgid "The linked boundaries flooded by this event"
+msgstr ""
+
+#: realtime/models/flood.py:124 realtime/models/flood.py:125
+msgid "Total affected people by flood"
+msgstr ""
+
+#: realtime/models/flood.py:128
+msgid "Total boundary flooded"
+msgstr ""
+
+#: realtime/models/flood.py:129
+msgid "Total boundary affected by flood"
+msgstr ""
+
+#: realtime/models/flood.py:162
+msgid "Impact Report"
+msgstr ""
+
+#: realtime/models/flood.py:163
+msgid "Impact Report file in PDF"
+msgstr ""
+
+#: realtime/models/flood.py:167
+#: realtime/templates/realtime/flood/index.html:273
+msgid "Impact Map"
+msgstr "Peta Dampak"
+
+#: realtime/models/flood.py:168
+msgid "Impact Map file in PDF"
+msgstr ""
+
+#: realtime/models/flood.py:187 realtime/models/flood.py:210
+msgid "Flood Event"
+msgstr ""
+
+#: realtime/models/flood.py:188 realtime/models/flood.py:211
+msgid "The flood event of the linked boundary"
+msgstr ""
+
+#: realtime/models/flood.py:192 realtime/models/flood.py:215
+msgid "Boundary"
+msgstr ""
+
+#: realtime/models/flood.py:193
+msgid "The linked boundary of the flood events"
+msgstr ""
+
+#: realtime/models/flood.py:196
+msgid "Impact Data"
+msgstr ""
+
+#: realtime/models/flood.py:197
+msgid "Impact data in the given boundary"
+msgstr ""
+
+#: realtime/models/flood.py:216
+msgid "The linked parent boundary of the impact"
+msgstr ""
+
+#: realtime/models/flood.py:219 realtime/models/flood.py:220
+msgid "Geometry of the boundary of impact"
+msgstr ""
+
+#: realtime/models/flood.py:223
+msgid "Hazard Class"
+msgstr "Kelas Ancaman"
+
+#: realtime/models/flood.py:224
+msgid "Hazard class in the given boundary"
+msgstr ""
+
+#: realtime/models/flood.py:228
+#: realtime/templates/realtime/flood/index.html:156
+msgid "Population Affected"
+msgstr "Penduduk Terdampak"
+
+#: realtime/models/flood.py:229
+msgid "The affected population in a given flood boundary"
+msgstr ""
+
+#: realtime/models/volcano.py:22
+msgid "The Volcano Name"
+msgstr ""
+
+#: realtime/models/volcano.py:23
+msgid "The name of the volcano"
+msgstr ""
+
+#: realtime/models/volcano.py:36
+msgid "Volcano Elevation"
+msgstr ""
+
+#: realtime/models/volcano.py:37
+msgid "The elevation of the volcano in meters"
+msgstr ""
+
+#: realtime/models/volcano.py:42
+msgid "The region main name"
+msgstr ""
+
+#: realtime/models/volcano.py:43
+msgid "The region where the volcano located"
+msgstr ""
+
+#: realtime/models/volcano.py:49
+msgid "The sub region main name"
+msgstr ""
+
+#: realtime/models/volcano.py:50
+msgid "The sub region where the volcano located"
+msgstr ""
+
+#: realtime/models/volcano.py:56
+msgid "The province name"
+msgstr ""
+
+#: realtime/models/volcano.py:57
+msgid "The province where the volcano located"
+msgstr ""
+
+#: realtime/models/volcano.py:63
+msgid "The district name"
+msgstr ""
+
+#: realtime/models/volcano.py:64
+msgid "The district where the volcano located"
+msgstr ""
+
+#: realtime/models/volcano.py:70
+msgid "Morphology"
+msgstr ""
+
+#: realtime/models/volcano.py:71
+msgid "Morphology of the volcano"
+msgstr ""
+
 #: realtime/templates/admin/base_site.html:4
 msgid "Django site admin"
 msgstr "Situs admin Django"
@@ -127,7 +566,11 @@ msgstr "Administrasi Django"
 msgid "Welcome, "
 msgstr "Selamat datang, "
 
-#: realtime/templates/realtime/ash/index.html:30
+#: realtime/templates/realtime/ash/index.html:28
+msgid "InaSAFE Ash"
+msgstr "InaSAFE Abu"
+
+#: realtime/templates/realtime/ash/index.html:32
 msgid ""
 "\n"
 "                        This page contains <b>near realtime</b> volcanic ash\n"
@@ -157,67 +600,59 @@ msgstr ""
 "                       skala potensial bencana gunungapi dan agar dapat merespon lebih cepat kepada daerah/masyarakat \n"
 "                       yang terkena dampak paling besar."
 
-#: realtime/templates/realtime/ash/index.html:52
-#: realtime/templates/realtime/earthquake/index.html:54
-#: realtime/templates/realtime/flood/index.html:45
+#: realtime/templates/realtime/ash/index.html:54
+#: realtime/templates/realtime/earthquake/index.html:56
+#: realtime/templates/realtime/flood/index.html:49
 msgid "Map"
 msgstr "Peta"
 
-#: realtime/templates/realtime/ash/index.html:72
+#: realtime/templates/realtime/ash/index.html:64
+msgid "Upload Ash"
+msgstr "Mengunggah Abu"
+
+#: realtime/templates/realtime/ash/index.html:74
 msgid "Ash Fall"
 msgstr "Abu Vulkanik"
 
-#: realtime/templates/realtime/ash/index.html:79
-#: realtime/templates/realtime/earthquake/index.html:162
-#: realtime/templates/realtime/flood/index.html:151
+#: realtime/templates/realtime/ash/index.html:81
+#: realtime/templates/realtime/earthquake/index.html:164
+#: realtime/templates/realtime/flood/index.html:155
 msgid "Time"
 msgstr "Waktu"
 
-#: realtime/templates/realtime/ash/index.html:80
+#: realtime/templates/realtime/ash/index.html:82
 msgid "Volcano Name"
 msgstr "Nama Gunung"
 
-#: realtime/templates/realtime/ash/index.html:81
-msgid "Alert Level"
-msgstr "Tingkat Peringatan"
-
-#: realtime/templates/realtime/ash/index.html:82
+#: realtime/templates/realtime/ash/index.html:84
 msgid "District"
 msgstr "Kabupaten"
 
-#: realtime/templates/realtime/ash/index.html:83
+#: realtime/templates/realtime/ash/index.html:85
 msgid "Eruption Height"
 msgstr "Tinggi Erupsi"
 
-#: realtime/templates/realtime/ash/index.html:175
-#: realtime/templates/realtime/earthquake/index.html:313
+#: realtime/templates/realtime/ash/index.html:173
+#: realtime/templates/realtime/earthquake/index.html:311
 msgid "Zoom"
 msgstr "Perbesar"
 
-#: realtime/templates/realtime/ash/index.html:181
-#: realtime/templates/realtime/ash/index.html:203
-#: realtime/templates/realtime/earthquake/index.html:319
-#: realtime/templates/realtime/earthquake/index.html:329
+#: realtime/templates/realtime/ash/index.html:179
+#: realtime/templates/realtime/ash/index.html:201
+#: realtime/templates/realtime/earthquake/index.html:317
+#: realtime/templates/realtime/earthquake/index.html:327
 #: realtime/templates/realtime/flood/index.html:251
 msgid "Report"
 msgstr "Laporan"
 
-#: realtime/templates/realtime/ash/index.html:187
-#: realtime/templates/realtime/earthquake/index.html:325
+#: realtime/templates/realtime/ash/index.html:185
+#: realtime/templates/realtime/earthquake/index.html:323
 #: realtime/templates/realtime/flood/index.html:257
 msgid "Download"
 msgstr "Unduh"
 
-#: realtime/templates/realtime/ash/index.html:192
-msgid "Hazard File"
-msgstr "File Ancaman"
-
-#: realtime/templates/realtime/ash/index.html:198
-msgid "Impact Files"
-msgstr "File Dampak"
-
-#: realtime/templates/realtime/ash/index.html:258
-#: realtime/templates/realtime/earthquake/index.html:422
+#: realtime/templates/realtime/ash/index.html:256
+#: realtime/templates/realtime/earthquake/index.html:420
 #: realtime/templates/realtime/flood/index.html:286
 msgid "YYYY-MM-DD [at] HH:mm:ss"
 msgstr "YYYY-MM-DD [pukul] HH:mm:ss"
@@ -226,11 +661,15 @@ msgstr "YYYY-MM-DD [pukul] HH:mm:ss"
 msgid "Upload Ash Event"
 msgstr "Unggah Kejadian"
 
-#: realtime/templates/realtime/earthquake/index.html:26
+#: realtime/templates/realtime/ash/upload_modal.html:34
+msgid "Submit"
+msgstr ""
+
+#: realtime/templates/realtime/earthquake/index.html:28
 msgid "InaSAFE Realtime Earthquake Reports"
 msgstr "Laporan InaSAFE Realtime Gempabumi"
 
-#: realtime/templates/realtime/earthquake/index.html:30
+#: realtime/templates/realtime/earthquake/index.html:32
 msgid ""
 "\n"
 "                        This page contains <b>near realtime</b> earthquake impact assessments\n"
@@ -253,48 +692,44 @@ msgstr ""
 "\n"
 "Halaman ini memuat laporan perhitungan dampak gempabumi yangmendekati realtime setelah gempa bumi terjadi diwilayah Indonesia. Peta guncangan dibuat oleh Badan Meterologi,Klimatologi, dan Geofisika (BMKG) dan digunakan olehBadan Nasional Penanggulangan Bencana (BNPB) untukmenghasilkan analisis dampak InaSAFE dalam hitunganmenit setelah gempa bumi terjadi(<a href=\"http://www.bnpb.go.id\">http://www.bnpb.go.id</a> atau<a href=\"http://realtime.inasafe.org\">http://realtime.inasafe.org</a>).Informasi ini digunakan oleh pemangku kepentingan terkait bencanauntuk membantu memahami skala potensial dan agar dapat meresponlebih cepat kepada komunitas yang terkena dampak paling besar. Halini penting khususnya pada waktu-waktu awal semenjak gempa bumiterjadi saat informasi di lapangan yang akurat mungkin sulitdidapat."
 
-#: realtime/templates/realtime/earthquake/index.html:70
-#: realtime/templates/realtime/flood/index.html:61
+#: realtime/templates/realtime/earthquake/index.html:72
+#: realtime/templates/realtime/flood/index.html:65
 msgid "Filters"
 msgstr "Filter"
 
-#: realtime/templates/realtime/earthquake/index.html:132
+#: realtime/templates/realtime/earthquake/index.html:134
 msgid "Contextual Filters"
 msgstr "Filter kontekstual"
 
-#: realtime/templates/realtime/earthquake/index.html:137
+#: realtime/templates/realtime/earthquake/index.html:139
 msgid "Recent Large Earthquakes"
 msgstr "Gempa Besar Terkini"
 
-#: realtime/templates/realtime/earthquake/index.html:140
+#: realtime/templates/realtime/earthquake/index.html:142
 msgid "Recent Small Earthquakes"
 msgstr "Gempa Kecil Terkini"
 
-#: realtime/templates/realtime/earthquake/index.html:143
+#: realtime/templates/realtime/earthquake/index.html:145
 msgid "Recent Felt Earthquakes"
 msgstr "Gempa Dirasakan Terkini"
 
-#: realtime/templates/realtime/earthquake/index.html:155
+#: realtime/templates/realtime/earthquake/index.html:157
 msgid "Earthquakes"
 msgstr "Gempabumi"
 
-#: realtime/templates/realtime/earthquake/index.html:163
-msgid "Location Description"
-msgstr "Deskripsi Wilayah"
-
-#: realtime/templates/realtime/earthquake/index.html:164
+#: realtime/templates/realtime/earthquake/index.html:166
 msgid "Magnitude"
 msgstr "Magnitudo"
 
-#: realtime/templates/realtime/earthquake/index.html:165
+#: realtime/templates/realtime/earthquake/index.html:167
 msgid "Depth"
 msgstr "Kedalaman"
 
-#: realtime/templates/realtime/earthquake/index.html:166
+#: realtime/templates/realtime/earthquake/index.html:168
 msgid "Shake Id"
 msgstr "Id Gempa"
 
-#: realtime/templates/realtime/earthquake/index.html:179
+#: realtime/templates/realtime/earthquake/index.html:181
 msgid ""
 "\n"
 "                <h2>Supporters</h2>\n"
@@ -316,7 +751,7 @@ msgstr ""
 "                </p>\n"
 "            "
 
-#: realtime/templates/realtime/earthquake/index.html:190
+#: realtime/templates/realtime/earthquake/index.html:192
 msgid ""
 "\n"
 "                <h2>Partners</h2>\n"
@@ -342,7 +777,7 @@ msgstr ""
 "\n"
 "            "
 
-#: realtime/templates/realtime/earthquake/index.html:203
+#: realtime/templates/realtime/earthquake/index.html:205
 msgid ""
 "\n"
 "                <h2>InaSAFE</h2>\n"
@@ -360,118 +795,111 @@ msgstr ""
 "                </p>\n"
 "            "
 
-#: realtime/templates/realtime/earthquake/index.html:334
+#: realtime/templates/realtime/earthquake/index.html:332
 msgid "Grid XML"
 msgstr "Grid XML"
 
-#: realtime/templates/realtime/earthquake/index.html:339
+#: realtime/templates/realtime/earthquake/index.html:337
 msgid "MMI output"
 msgstr "Keluaran MMI"
 
-#: realtime/templates/realtime/earthquake/index.html:403
+#: realtime/templates/realtime/earthquake/index.html:401
 #, python-format
 msgid "Earthquake events %%(magnitude)s %%(date)s"
 msgstr "Kejadian gempabumi %%(magnitude)s %%(date)s"
 
-#: realtime/templates/realtime/earthquake/index.html:404
+#: realtime/templates/realtime/earthquake/index.html:402
 #, python-format
 msgid "with magnitudes between %%(min_magnitude)s and %%(max_magnitude)s"
 msgstr ""
 "dengan magnitude antara %%(min_magnitude)s sampai dengan %%(max_magnitude)s"
 
-#: realtime/templates/realtime/earthquake/index.html:405
+#: realtime/templates/realtime/earthquake/index.html:403
 #, python-format
 msgid "with magnitudes greater than or equal %%(min_magnitude)s"
 msgstr "dengan magnitude lebih besar dari atau sama dengan %%(min_magnitude)s"
 
-#: realtime/templates/realtime/earthquake/index.html:406
+#: realtime/templates/realtime/earthquake/index.html:404
 #, python-format
 msgid "with magnitudes less than or equal %%(max_magnitude)s"
 msgstr "dengan magnitude kurang dari atau sama dengan %%(max_magnitude)s"
 
-#: realtime/templates/realtime/earthquake/index.html:407
+#: realtime/templates/realtime/earthquake/index.html:405
 #, python-format
 msgid "over the period %%(start_moment) and %%(end_moment)s"
 msgstr "mulai dari %%(start_moment) sampai dengan %%(end_moment)s"
 
-#: realtime/templates/realtime/earthquake/index.html:408
+#: realtime/templates/realtime/earthquake/index.html:406
 #, python-format
 msgid "since %%(start_moment)s"
 msgstr "sejak %%(start_moment)s"
 
-#: realtime/templates/realtime/earthquake/index.html:409
+#: realtime/templates/realtime/earthquake/index.html:407
 #, python-format
 msgid "before %%(end_moment)"
 msgstr "sebelum %%(end_moment)"
 
-#: realtime/templates/realtime/earthquake/index.html:431
+#: realtime/templates/realtime/earthquake/index.html:429
 msgid "Action"
 msgstr "Aksi"
 
-#: realtime/templates/realtime/flood/index.html:30
+#: realtime/templates/realtime/flood/index.html:28
+msgid "InaSAFE Flood Realtime"
+msgstr "InaSAFE Flood Realtime"
+
+#: realtime/templates/realtime/flood/index.html:32
 msgid ""
 "\n"
-"                        This page contains near realtime flood impact assessments following recent floods in the Jakarta, Indonesia.\n"
-"                        Flood data used here is sourced from <a href=\"http://petajakarta.org\">PetaJakarta.org</a> who use crowd sourcing data from <a href=\"http://twitter.com\">twitter</a>,\n"
-"                        <a href=\"http://qluein.com/\">qlue</a>, <a href=\"http://pasangmata.detik.com/\">detik.com</a> and expert data review by BPBD-DKI.\n"
+"                        This page contains near realtime flood impact assessments following recent floods in Jakarta, Indonesia.\n"
+"                        Flood data used here is sourced from <a href=\"https://petabencana.id/\">PetaBencana.id</a> who use crowdsourced data from <a href=\"http://twitter.com\">Twitter</a>,\n"
+"                        Telegram, <a href=\"http://qlue.co.id/\">Qlue</a>, <a href=\"http://pasangmata.detik.com/\">PasangMata</a>, Z-Alert, and expert data review by BPBD-DKI Jakarta.\n"
+"                        A report is then generated every 6 hours for floods from the last 6 hour interval (if there was any flooding in that period).\n"
+"                        This report includes all RW flooded during the last 6 hours and shows the deepest water depth recorded in the last 6 hours.\n"
 "                        This information is used by disaster managers to help them understand the potential scale of a disaster and to\n"
-"                        respond faster to the hardest hit communities. This is particularly important in the first few hours after a\n"
+"                        respond more quickly to the hardest hit communities. This is particularly important in the first few hours after a\n"
 "                        flood when it may be difficult to get accurate on-the-ground information. Although this service is currently specific to Jakarta, the platform is extensible so that we can add more cities and regions easily.\n"
 "                    "
 msgstr ""
 "\n"
-"                        Halaman web ini memuat data kajian dampak banjir secara <i>near-realtime</i> di DKI Jakarta.\n"
-"                        Data kajian banjir ini bersumber dari <a href=\"http://petajakarta.org\">PetaJakarta.org</a>   yang dikumpulkan dari <a href=\"http://twitter.com\">twitter</a>,\n"
-"                        <a href=\"http://qluein.com/\">qlue</a>, <a href=\"http://pasangmata.detik.com/\">detik.com</a> dan review data lanjut oleh BPBD DKI Jakarta.\n"
-"                        Informasi kajian banjir ini digunakan oleh para pemangku kepentingan terkait bencana untuk membantu memahami potensial skala bencana dan untuk merespon lebih cepat pada \n"
-"                        area maupun masyarakat yg terdampak oleh bencana paling parah. Hal ini penting khususnya pada waktu-waktu awal semenjak banjir terjadi dimana data-data lapangan yang akurat \n"
-"                        masih sulit diperoleh. Walaupun layanan ini untuk sementara hanya spesifik untuk DKI Jakarta, perangkat ini dapat dikembangkan sehingga wilayah lain dapat ditambahkan dengan mudah.\n"
+"                        Halaman web ini memuat kajian dampak banjir mendekati realtime pada kejadian banjir terkini di Jakarta, Indonesia.\n"
+"                        Data banjir di sini bersumber dari <a href=\"https://petabencana.id/\">PetaBencana.id</a> yang dikumpulkan dari <a href=\"http://twitter.com\">Twitter</a>,\n"
+"                        Telegram, <a href=\"http://qlue.co.id/\">Qlue</a>, <a href=\"http://pasangmata.detik.com/\">PasangMata</a>, Z-Alert, dan review data lanjutan oleh BPBD-DKI Jakarta.\n"
+"                        Sebuah laporan kemudian dihasilkan setiap 6 jam untuk banjir pada interval 6 jam terakhir (jika terdapat banyak genangan pada periode tersebut).\n"
+"                        Laporan ini mencakup semua RW yang banjir selama 6 jam terakhir dan menunjukkan kedalaman air terdalam yang tercatat dalam 6 jam terakhir.\n"
+"                        Informasi kajian banjir ini digunakan oleh manajer bencana untuk membantu memahami potensial skala bencana dan untuk \n"
+"                        merespon lebih cepat pada masyarakat yg terdampak bencana paling parah. Hal ini penting khususnya pada waktu-waktu awal \n"
+"                        semenjak banjir terjadi dimana data-data lapangan yang akurat masih sulit diperoleh. Walaupun layanan ini untuk sementara hanya spesifik untuk DKI Jakarta, perangkat ini dapat dikembangkan sehingga wilayah lain dapat ditambahkan dengan mudah.\n"
 "                    "
 
-#: realtime/templates/realtime/flood/index.html:68
+#: realtime/templates/realtime/flood/index.html:72
 msgid "Event Time"
 msgstr "Waktu Kejadian"
 
-#: realtime/templates/realtime/flood/index.html:81
+#: realtime/templates/realtime/flood/index.html:85
 msgid "Number of People Affected"
 msgstr "Banyak Penduduk Terdampak"
 
-#: realtime/templates/realtime/flood/index.html:94
+#: realtime/templates/realtime/flood/index.html:98
 msgid "Number of RW Flooded"
 msgstr "Jumlah RW Kebanjiran"
 
-#: realtime/templates/realtime/flood/index.html:142
+#: realtime/templates/realtime/flood/index.html:146
+#: realtime/templates/realtime/nav_second.html:9
 msgid "Flood"
 msgstr "Banjir"
 
-#: realtime/templates/realtime/flood/index.html:149
-#: realtime/templates/realtime/flood/index.html:150
+#: realtime/templates/realtime/flood/index.html:153
+#: realtime/templates/realtime/flood/index.html:154
 msgid "Event ID"
 msgstr "ID Kejadian"
 
-#: realtime/templates/realtime/flood/index.html:152
-msgid "Population Affected"
-msgstr "Penduduk Terdampak"
-
-#: realtime/templates/realtime/flood/index.html:153
+#: realtime/templates/realtime/flood/index.html:157
 msgid "RW Flooded"
 msgstr "RW Kebanjiran"
 
 #: realtime/templates/realtime/flood/index.html:245
 msgid "Show"
 msgstr "Tampilkan"
-
-#: realtime/templates/realtime/flood/index.html:262
-msgid "Hazard Layer"
-msgstr "Lapisan Ancaman"
-
-#: realtime/templates/realtime/flood/index.html:268
-msgid "Impact Layer"
-msgstr "Lapisan Dampak"
-
-#: realtime/templates/realtime/flood/index.html:273
-msgid "Impact Map"
-msgstr "Peta Dampak"
 
 #: realtime/templates/realtime/indicator.html:36
 msgid "Username"
@@ -482,6 +910,7 @@ msgid "Email"
 msgstr "Email"
 
 #: realtime/templates/realtime/indicator.html:58
+#: realtime/templates/realtime/nav_second.html:20
 msgid "Indicator"
 msgstr "Indikator"
 
@@ -496,6 +925,18 @@ msgstr "Status"
 #: realtime/templates/realtime/indicator.html:61
 msgid "Notes"
 msgstr "Catatan"
+
+#: realtime/templates/realtime/nav_second.html:6
+msgid "Earthquake"
+msgstr "Gempa Bumi"
+
+#: realtime/templates/realtime/nav_second.html:13
+msgid "Ash"
+msgstr "Abu"
+
+#: realtime/templates/realtime/nav_second.html:17
+msgid "API Browser"
+msgstr "Peramban API"
 
 #: realtime/templatetags/realtime_extras.py:45
 #, python-format
@@ -522,14 +963,14 @@ msgstr "%d detik"
 msgid "%d microseconds"
 msgstr "%d mikrodetik"
 
-#: realtime/views/earthquake.py:71 realtime/views/flood.py:68
+#: realtime/views/earthquake.py:66 realtime/views/flood.py:63
 msgid "Select Area"
 msgstr "Pilih Area"
 
-#: realtime/views/earthquake.py:72 realtime/views/flood.py:69
+#: realtime/views/earthquake.py:67 realtime/views/flood.py:64
 msgid "Remove Selection"
 msgstr "Hapus Pilihan"
 
-#: realtime/views/earthquake.py:73 realtime/views/flood.py:70
+#: realtime/views/earthquake.py:68 realtime/views/flood.py:65
 msgid "Select area within current zoom"
 msgstr "Pilih area dalam level perbesaran saat ini"
