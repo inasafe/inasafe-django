@@ -303,7 +303,7 @@ def flood_event_features(request, event_id):
         }
 
         return JsonResponse(feature_collection)
-    except:
+    except BaseException:
         return HttpResponseServerError()
 
 

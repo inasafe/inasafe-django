@@ -35,7 +35,7 @@ class InAWARERest(object):
             ret = get_hazard_url.POST(data=data)
             hazards = ret.json()
             return hazards[0].get('hazard_ID')
-        except:
+        except BaseException:
             return None
 
     def post_file_product(self, hazard_id, input_file, input_filename,
@@ -76,7 +76,7 @@ class InAWARERest(object):
             ret = create_product_url.POST(data=data, files=files)
             retval = ret.json()
             return retval.get('description') == 'Product Created.'
-        except:
+        except BaseException:
             return False
 
     def post_url_product(self, hazard_id, url_product,
@@ -115,5 +115,5 @@ class InAWARERest(object):
             ret = create_product_url.POST(data=data, files=dummy_files)
             retval = ret.json()
             return retval.get('description') == 'Product Created.'
-        except:
+        except BaseException:
             return False
