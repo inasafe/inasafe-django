@@ -25,3 +25,11 @@ def process_shake(event_id=None):
 def check_event_exists(event_id=None):
     LOGGER.info('proxy tasks')
     pass
+
+
+@app.task(
+    name='realtime.tasks.earthquake.shake_folder_list',
+    queue='inasafe-realtime')
+def shake_folder_list():
+    LOGGER.info('proxy tasks')
+    pass
