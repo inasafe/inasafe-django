@@ -38,7 +38,7 @@ services:
       - smtp_user=noreply:docker
 
   db:
-    image: kartoza/inasafe-django_db:v3.4
+    image: kartoza/postgis:9.6-2.4
     restart: on-failure
     volumes:
       - django-postgis-data:/var/lib/postgresql
@@ -59,7 +59,7 @@ services:
       - db:db
 
   dbbackup: &dbbackup
-    image: kartoza/inasafe-django_dbbackup:v3.4
+    image: kartoza/inasafe-django_dbbackup:v3.4.1
     volumes:
       - django-postgis-dbbackup-data:/backups
       # this folder is used as target folder for sftppgbackup as the
