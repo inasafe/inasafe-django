@@ -7,7 +7,7 @@ from dateutil.parser import parse
 from dateutil.tz import tzoffset
 from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.utils import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render_to_response, redirect
@@ -40,15 +40,6 @@ __copyright__ = 'lana.pcfre@gmail.com'
 LOGGER = logging.getLogger(__name__)
 
 
-@permission_required(
-    perm=[
-        'realtime.change_ashreport',
-        'realtime.delete_ashreport',
-        'realtime.add_ashreport',
-        'realtime.change_ash',
-        'realtime.delete_ash',
-        'realtime.add_ash'],
-    login_url='/realtime/admin/login')
 def index(request):
     if request.method == 'POST':
         pass
@@ -62,7 +53,7 @@ def index(request):
 
 @permission_required(
     perm=['realtime.add_ash'],
-    login_url='/realtime/admin/login')
+    login_url=reverse_lazy('realtime_admin:login'))
 def upload_form(request):
     """Upload ash event."""
     context = RequestContext(request)

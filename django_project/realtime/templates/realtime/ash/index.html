@@ -25,7 +25,7 @@
     <div class="row center-block">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h2 class="panel-title">{% trans "InaSAFE Ash" %}</h2>
+                <h2 class="panel-title">{% trans "InaSAFE Volcanic Ash" %}</h2>
             </div>
             <div class="panel-body">
                 <p class="text-justify">
@@ -60,9 +60,15 @@
                 <!-- All the templates from view-->
             </div>
 
+            {% if perms.realtime.add_ash %}
             <div class="panel-body">
-                <a href="{% url "realtime:ash_upload_form" %}" class="btn btn-primary">{% trans "Upload Ash" %}</a>
+                <a href="{% url "realtime:ash_upload_form" %}" class="btn btn-primary">{% trans "Upload Volcanic Ash" %}</a>
             </div>
+            {% else %}
+            <div class="panel-body">
+                <a href="{% url "realtime_admin:login" %}?next={% url 'realtime:ash_upload_form' %}" class="btn btn-primary">{% trans "Log in to Upload Volcanic Ash" %}</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 {% endblock main_content %}
