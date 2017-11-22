@@ -39,14 +39,18 @@ def realtime_settings(request):
             'title': g[0],
             'pages': []
         }
-        pages = CoreFlatPage.objects.filter(group__iexact=g).order_by('order')
+        pages = CoreFlatPage.objects.filter(
+            group__iexact=g,
+            language=request.LANGUAGE_CODE
+        ).order_by('order')
         for p in pages:
             page = {
                 'title': p.title,
                 'url': p.url
             }
             group['pages'].append(page)
-        flatpages['groups'].append(group)
+        if pages:
+            flatpages['groups'].append(group)
 
     return {
         'REALTIME_PROJECT_NAME': app_settings.PROJECT_NAME,

@@ -1,5 +1,6 @@
 # coding=utf-8
 
+from django.conf import settings
 from django.contrib.flatpages.models import FlatPage
 from django.contrib.gis.db import models
 
@@ -20,3 +21,11 @@ class CoreFlatPage(FlatPage):
                   'menu. Smaller means on top. Pages shown in navbar sorted '
                   'by decreasing order value.',
         default=0)
+    language = models.CharField(
+        verbose_name='Language code of the page',
+        help_text='Help tag the language of the code',
+        max_length=10,
+        null=True,
+        blank=True,
+        choices=settings.LANGUAGES,
+        default='en')
