@@ -24,6 +24,7 @@ class CoreFlatPageAdmin(FlatPageAdmin):
         (None, {
             'fields': (
                 'url',
+                'language',
                 'title',
                 'content',
                 'group',
@@ -32,7 +33,7 @@ class CoreFlatPageAdmin(FlatPageAdmin):
             )
         }),
     )
-    list_display = ('title', 'url', 'group', 'order')
+    list_display = ('title', 'url', 'language', 'group', 'order')
     form = CoreFlatPageForm
 
 
