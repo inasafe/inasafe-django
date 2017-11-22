@@ -125,12 +125,12 @@
                             {% if not user.is_authenticated %}
                                 <li class="dropdown">
                                     <a href="#" class="dropdown-toggle"
-                                       data-toggle="dropdown"><b>Account</b>
+                                       data-toggle="dropdown"><b>{% trans "Account" %}</b>
                                         <b class="caret"></b></a>
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <a href="{% url 'realtime_admin:login' %}">
-                                                Log In
+                                            <a href="{% url 'realtime_admin:login' %}?next=/">
+                                                {% trans "Log in" %}
                                             </a>
                                         </li>
                                     </ul>
@@ -138,14 +138,19 @@
                             {% endif %}
                             {% if user.is_authenticated %}
                                 <li class="dropdown">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Hi, {{ user.name }}</b>
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{% trans "Hi, " %}{{ user.name }}</b>
                                         <b class="caret"></b></a>
                                     <ul class="dropdown-menu">
+                                        {% if user.is_superuser %}
                                         <li>
-                                            <a href="{% url 'realtime_admin:index' %}">Admin Page</a>
+                                            <a href="{% url 'admin:index' %}">{% trans "Super Admin Page" %}</a>
+                                        </li>
+                                        {% endif %}
+                                        <li>
+                                            <a href="{% url 'realtime_admin:index' %}">{% trans "Model Admin Page" %}</a>
                                         </li>
                                         <li>
-                                            <a href="{% url 'realtime_admin:logout' %}">Log Out</a>
+                                            <a href="{% url 'realtime_admin:logout' %}?next=/">{% trans "Log Out" %}</a>
                                         </li>
                                     </ul>
                                 </li>
