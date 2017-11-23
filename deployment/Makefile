@@ -91,16 +91,16 @@ compilemessages:
 transifex-pull:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Download translation from Transifex "
+	@echo "Download translation from Transifex ${LANG}"
 	@echo "------------------------------------------------------------------"
-	@cd ../; tx pull
+	@cd ../; tx pull -l ${LANG}
 
 transifex-push-language:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Push translation to Transifex for language $(LANG)"
 	@echo "------------------------------------------------------------------"
-	@cd ../; tx push -t -l id
+	@cd ../; tx push -t -l $(LANG)
 
 transifex-push-source:
 	@echo
