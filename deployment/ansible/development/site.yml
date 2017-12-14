@@ -15,6 +15,7 @@
         2016.3
         2017.1
         2017.2
+        2017.3
         If not using Pycharm, just skip.
-      default: '2017.2'
+      default: '2017.3'
       private: no
