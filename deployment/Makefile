@@ -308,9 +308,8 @@ dbsync:
 	@echo "------------------------------------------------------------------"
 	@echo "Syncing database files from live server $(TARGET_SERVER)"
 	@echo "------------------------------------------------------------------"
-	-@ssh $(TARGET_SERVER) "cd /home/data/inasafe-django/deployment; make dbbackup"
-	rsync -av --progress $(TARGET_SERVER):/home/data/inasafe-django/deployment/sftp_backup/target/pg/latest.dmp backups
-	rsync -av --progress $(TARGET_SERVER):/home/data/inasafe-django/deployment/sftp_backup/backups/pg backups
+	rsync -av --progress $(TARGET_SERVER):/home/data/inasafe-django/deployment/sftp_backup/target/pg/latest.dmp pg/dbbackup/backups
+	rsync -av --progress $(TARGET_SERVER):/home/data/inasafe-django/deployment/sftp_backup/backups/pg pg/dbbackup/backups
 
 reload:
 	@echo
