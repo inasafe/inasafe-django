@@ -67,6 +67,9 @@ class FloodReportSerializer(serializers.ModelSerializer):
             'language',
             'impact_report',
             'impact_map',
+            'impact_report_url',
+            'impact_map_filename',
+            'impact_map_url',
         )
 
 

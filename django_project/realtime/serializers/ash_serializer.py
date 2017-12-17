@@ -78,6 +78,8 @@ class AshReportSerializer(serializers.ModelSerializer):
             'ash',
             'language',
             'report_map',
+            'report_map_filename',
+            'report_map_url'
         )
 
 
@@ -133,22 +135,6 @@ class AshGeoJsonSerializer(GeoFeatureModelSerializer):
 
     def get_location(self, obj):
         return obj.volcano.location
-
-    def get_event_id_formatted(self, serializer_field, obj):
-        """
-        :param serializer_field:
-        :type serializer_field: CustomSerializerMethodField
-        :param obj:
-        :type obj: Ash
-        :return:
-        """
-        dateformat = '%Y%m%d%H%M%S%z'
-        return '%s-%s' % (
-            obj.event_time.strftime(dateformat),
-            obj.volcano.volcano_name)
-
-    # auto bind to get_url method
-    event_id_formatted = CustomSerializerMethodField()
 
     class Meta:
         model = Ash
