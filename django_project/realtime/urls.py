@@ -6,7 +6,7 @@ from realtime.views import user_push, root
 from realtime.views.ash import (
     index as ash_index,
     upload_form as ash_upload_form, AshList, AshReportList, AshReportDetail,
-    AshDetail, AshFeatureList)
+    AshDetail, AshFeatureList, ash_report_map)
 from realtime.views.earthquake import (
     index as shake_index,
     EarthquakeList,
@@ -20,7 +20,8 @@ from realtime.views.flood import (
     FloodDetail,
     FloodReportList,
     FloodReportDetail, FloodEventList, flood_event_features,
-    impact_event_features, rw_flood_frequency, rw_histogram)
+    impact_event_features, rw_flood_frequency, rw_histogram,
+    flood_impact_report, flood_impact_map)
 from realtime.views.reports import latest_report
 from realtime.views.volcano import VolcanoFeatureList, VolcanoList
 
@@ -133,10 +134,26 @@ urlpatterns += [
 
     # Flood
     url(r'^flood/$', flood_index, name='flood_index'),
+    url(r'^flood/impact-report/'
+        r'(?P<event_id>\d{10}-(1|3|6)-(rw|village|subdistrict))/'
+        r'(?P<language>[-\w]+)/$',
+        flood_impact_report,
+        name='flood_impact_report'),
+    url(r'^flood/impact-map/'
+        r'(?P<event_id>\d{10}-(1|3|6)-(rw|village|subdistrict))/'
+        r'(?P<language>[-\w]+)/$',
+        flood_impact_map,
+        name='flood_impact_map'),
 
     # Ash
     url(r'^ash/$', ash_index, name='ash_index'),
     url(r'^ash/upload$', ash_upload_form, name='ash_upload_form'),
+    url(r'^ash/report-map/'
+        r'(?P<volcano_name>[\w -]+)/'
+        r'(?P<event_time>[\d+-]{19})/'
+        r'(?P<language>[-\w]+)/$',
+        ash_report_map,
+        name='ash_report_map'),
 
     # IFrame
     url(r'^iframe$', iframe_index, name='iframe'),

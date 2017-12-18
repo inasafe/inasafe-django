@@ -3,55 +3,62 @@
 
 # Exactly the same as production but for dev env, we expose the port and uses
 # different port for the web.
-db:
-  # custom built from docker-postgis, so we can access it on local
-  build: docker-postgis
-  ports:
-    - "{{ docker_port_forward.inasafe_django.db }}:5432"
+version: '2'
+services:
+  db:
+    # custom built from docker-postgis, so we can access it on local
+    environment:
+      - ALLOW_IP_RANGE=0.0.0.0/0
+    ports:
+      - "{{ docker_port_forward.inasafe_django.db }}:5432"
+    network_mode: "bridge"
 
-uwsgi:
-  build: docker-dev
-  ports:
-    # expose ssh port so we can access it via pycharm remote interpreter
-    - "61103:22"
-    # expose django runserver port directly to localhost, because we're not
-    # using nginx forwarder for debugging
-    - "{{ docker_port_forward.inasafe_django.django }}:8080"
-  volumes:
-    - ../django_project:/home/web/django_project
-    - ./static:/home/web/static
-    - ./media:/home/web/media
-    - ./reports:/home/web/reports
-    - ./logs:/var/log/
-    - ./tmp:/tmp
-  environment:
-    - DATABASE_NAME=gis
-    - DATABASE_USERNAME=docker
-    - DATABASE_PASSWORD=docker
-    - DATABASE_HOST=db
-    # Use development settings file
-    - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
-    - VIRTUAL_HOST=users.inasafe.org
-    - VIRTUAL_PORT=8080
-    - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
-    - INASAFE_REALTIME_BROKER_URL=amqp://guest:guest@{{ interpreters.inasafe_realtime.ipaddress }}:{{ docker_port_forward.inasafe_realtime.rabbitmq }}/
-    # Secrets
-    - MAPQUEST_MAP_KEY={{ inasafe_django.mapquest_map_key }}
-    - SITE_DOMAIN_NAME={{ inasafe_django.site_domain_name }}
-  links:
-    - smtp:smtp
-    - db:db
-    - dbbackup:dbbackup
-    - sftppgbackup:sftppgbackup
-    - sftpmediabackup:sftpmediabackup
-    - rabbitmq:rabbitmq
+  uwsgi:
+    build: docker-dev
+    ports:
+      # expose ssh port so we can access it via pycharm remote interpreter
+      - "61103:22"
+      # expose django runserver port directly to localhost, because we're not
+      # using nginx forwarder for debugging
+      - "{{ docker_port_forward.inasafe_django.django }}:8080"
+    volumes:
+      - ../django_project:/home/web/django_project
+      - ./static:/home/web/static
+      - ./media:/home/web/media
+      - ./reports:/home/web/reports
+      - ./logs:/var/log/
+      - ./tmp:/tmp
+    environment:
+      - DATABASE_NAME=gis
+      - DATABASE_USERNAME=docker
+      - DATABASE_PASSWORD=docker
+      - DATABASE_HOST=db
+      # Use development settings file
+      - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+      - VIRTUAL_HOST=users.inasafe.org
+      - VIRTUAL_PORT=8080
+      - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+      - INASAFE_REALTIME_BROKER_URL=amqp://guest:guest@{{ interpreters.inasafe_realtime.ipaddress }}:{{ docker_port_forward.inasafe_realtime.rabbitmq }}/
+      # Secrets
+      - MAPQUEST_MAP_KEY={{ inasafe_django.mapquest_map_key }}
+      - SITE_DOMAIN_NAME={{ inasafe_django.site_domain_name }}
+    links:
+      - smtp:smtp
+      - db:db
+      - dbbackup:dbbackup
+      - sftppgbackup:sftppgbackup
+      - sftpmediabackup:sftpmediabackup
+      - rabbitmq:rabbitmq
+    network_mode: "bridge"
 
-inasafe-worker:
-  environment:
-    # Use development settings file
-    - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+  inasafe-worker:
+    environment:
+      # Use development settings file
+      - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+    network_mode: "bridge"
 
-indicator-worker:
-  environment:
-    # Use development settings file
-    - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+  indicator-worker:
+    environment:
+      # Use development settings file
+      - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+    network_mode: "bridge"

@@ -7,7 +7,8 @@ from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError
-from django.http.response import JsonResponse, HttpResponseServerError
+from django.http.response import JsonResponse, HttpResponseServerError, \
+    HttpResponse, Http404
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
@@ -274,6 +275,36 @@ class FloodEventList(FloodList):
             Q(time__hour=23) | Q(time__hour=5) |
             Q(time__hour=11) | Q(time__hour=17))
         return Flood.objects.filter(query)
+
+
+def flood_impact_report(request, event_id, language='en'):
+    """View to serve pdf report."""
+    try:
+        instance = FloodReport.objects.get(
+            flood__event_id=event_id,
+            language=language)
+        response = HttpResponse(
+            instance.impact_report.read(),
+            content_type='application/pdf')
+        return response
+    except FloodReport.DoesNotExist:
+        raise Http404()
+
+
+def flood_impact_map(request, event_id, language='en'):
+    """View to serve pdf report."""
+    try:
+        instance = FloodReport.objects.get(
+            flood__event_id=event_id,
+            language=language)
+        response = HttpResponse(
+            instance.impact_map.read(),
+            content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename={0};'.format(
+            instance.impact_map_filename)
+        return response
+    except FloodReport.DoesNotExist:
+        raise Http404()
 
 
 def flood_event_features(request, event_id):

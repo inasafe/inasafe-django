@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.utils import IntegrityError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
 from rest_framework import mixins, status
@@ -323,6 +323,23 @@ class AshReportDetail(mixins.ListModelMixin,
 
         report.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def ash_report_map(request, volcano_name, event_time, language='en'):
+    """View to serve pdf report."""
+    try:
+        instance = AshReport.objects.get(
+            ash__volcano__volcano_name__iexact=volcano_name,
+            ash__event_time=parse(event_time),
+            language=language)
+        response = HttpResponse(
+            instance.report_map.read(),
+            content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="{0}";'.format(
+            instance.report_map_filename)
+        return response
+    except AshReport.DoesNotExist:
+        raise Http404()
 
 
 class AshFeatureList(AshList):

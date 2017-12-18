@@ -2,6 +2,7 @@
 """Model class for flood realtime."""
 
 from django.contrib.gis.db import models
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -167,6 +168,32 @@ class FloodReport(models.Model):
         verbose_name=_('Impact Map'),
         help_text=_('Impact Map file in PDF'),
         upload_to='reports/flood/pdf')
+
+    @property
+    def impact_report_url(self):
+        """Return url friendly address for impact report pdf"""
+        parameters = {
+            'event_id': self.flood.event_id,
+            'language': self.language
+        }
+        return reverse('realtime:flood_impact_report', kwargs=parameters)
+
+    @property
+    def impact_map_filename(self):
+        """Return standardized filename for report map."""
+        filename_format = '{event_id}_{language}.pdf'
+        return filename_format.format(
+            event_id=self.flood.event_id,
+            language=self.language)
+
+    @property
+    def impact_map_url(self):
+        """Return url friendly address for impact map pdf"""
+        parameters = {
+            'event_id': self.flood.event_id,
+            'language': self.language
+        }
+        return reverse('realtime:flood_impact_map', kwargs=parameters)
 
     def delete(self, using=None):
         self.impact_report.delete()

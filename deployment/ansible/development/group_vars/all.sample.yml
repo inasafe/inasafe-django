@@ -14,7 +14,8 @@ project_path: "/Users/lucernae/Documents/WorkingDir/Projects/InaSAFE/inasafe-dja
 inasafe_django:
   # Site domain name for this web app.
   # It can be pointing to domain name or ipaddress:port
-  site_domain_name: 'http://somedomain.org'
+  # for local development, use 'http://docker-inasafe-django:61102'
+  site_domain_name: 'http://docker-inasafe-django:61102'
   # We are using mapquest to show basemap. Put your mapquest key here
   mapquest_map_key: 'secretkey'
   # We are using sentry to send error messages. Put your sentry key here

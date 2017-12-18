@@ -56,6 +56,35 @@ function browser_identity(){
 }
 
 /**
+ * Cross browser way to programmatically open report pdf in new tab/popup
+ * @param url
+ * @constructor
+ */
+function OpenReportPDF(url){
+    var $a = $("<a></a>");
+    $a.attr('href', url);
+    if(!browser_identity().is_safari){
+        // it doesn't work in safari
+        $a.attr('target', '_blank');
+    }
+    $a.attr('rel', 'nofollow');
+    if(browser_identity().is_firefox){
+        // preferred way to click a link programatically in
+        // firefox
+        // http://stackoverflow.com/questions/809057/how-do-i-programmatically-click-on-an-element-in-firefox
+        var clickEvent = new MouseEvent("click", {
+            "view": window,
+            "bubbles": true,
+            "cancelable": false
+        });
+        $a[0].dispatchEvent(clickEvent);
+    }
+    else{
+        $a[0].click();
+    }
+}
+
+/**
  * A script to download link to disk.
  * Source: http://stackoverflow.com/questions/3077242/force-download-a-pdf-link-using-javascript-ajax-jquery/29266135#29266135
  * @param fileURL {string} the file url

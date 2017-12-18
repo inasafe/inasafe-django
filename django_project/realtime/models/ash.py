@@ -2,6 +2,7 @@
 """Model class for ash realtime."""
 
 from django.contrib.gis.db import models
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from realtime.models.volcano import Volcano
@@ -71,6 +72,13 @@ class Ash(models.Model):
             self.volcano, self.event_time)
         return ash_event
 
+    @property
+    def event_id_formatted(self):
+        dateformat = '%Y-%m-%d_%H%M_%z'
+        return '%s_%s' % (
+            self.event_time.strftime(dateformat),
+            self.volcano.volcano_name)
+
     def delete(self, using=None):
         # delete all report
         if self.hazard_file:
@@ -101,6 +109,25 @@ class AshReport(models.Model):
         help_text=_('The map impact report stored as PDF'),
         upload_to='reports/ash/pdf'
     )
+
+    @property
+    def report_map_filename(self):
+        """Return standardized filename for report map."""
+        filename_format = '{event_id_formatted}_{language}.pdf'
+        return filename_format.format(
+            event_id_formatted=self.ash.event_id_formatted,
+            language=self.language)
+
+    @property
+    def report_map_url(self):
+        """Return url friendly address for report map"""
+        event_time_format = '%Y%m%d%H%M%S%z'
+        parameters = {
+            'volcano_name': self.ash.volcano.volcano_name,
+            'event_time': self.ash.event_time.strftime(event_time_format),
+            'language': self.language
+        }
+        return reverse('realtime:ash_report_map', kwargs=parameters)
 
     def delete(self, using=None):
         self.report_map.delete()
