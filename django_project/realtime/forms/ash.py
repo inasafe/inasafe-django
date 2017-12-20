@@ -21,7 +21,8 @@ class AshUploadForm(forms.ModelForm):
             'alert_level',
             'eruption_height',
             'event_time',
-            'timezone_string',
+            'event_time_zone_offset',
+            'event_time_zone_string',
             # 'region',
             'hazard_file'
         ]
@@ -41,11 +42,11 @@ class AshUploadForm(forms.ModelForm):
             ('siaga', 'Siaga'),
             ('awas', 'Awas')
         ])
-    utc_offset = forms.CharField(
+    event_time_zone_offset = forms.IntegerField(
         widget=forms.HiddenInput())
-    timezone_string = forms.CharField(
+    event_time_zone_string = forms.CharField(
         label=_('Timezone'),
-        widget=forms.TextInput(attrs={'readonly': 'true'}))
+        widget=forms.TextInput(attrs={'autocomplete': 'off'}))
     volcano_name = forms.CharField(
         max_length=50,
         widget=forms.TextInput(attrs={'autocomplete': 'off'}))

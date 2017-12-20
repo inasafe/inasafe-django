@@ -31,6 +31,8 @@ def ash_post_save(sender, **kwargs):
             if instance.task_status and not instance.task_status == 'None':
                 return
 
+            instance.use_timezone()
+
             if instance.event_time.tzinfo:
                 event_time = instance.event_time
             else:
