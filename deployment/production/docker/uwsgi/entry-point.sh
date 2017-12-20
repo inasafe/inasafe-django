@@ -10,7 +10,14 @@ echo "Run collectstatic"
 
 # Run compile messages
 
+echo "Compile messages"
 ./manage.py compilemessages -l id
 
-# Run uwsgi
-uwsgi --ini /uwsgi.conf
+if [ "$DEBUG" == "True" ]; then
+	echo "Running in debug mode"
+    python manage.py runserver 0.0.0.0:8000
+else
+	# Run uwsgi
+	echo "Running in prod mode"
+	uwsgi --ini /uwsgi.conf
+fi
