@@ -207,10 +207,10 @@ function createActionRowWriter(button_templates, date_format) {
         var tr = '';
         // reformat 'time' column
         var time = record.event_time;
-        var moment_time = moment(time);
+        var moment_time = moment(time).tz(record.event_time_zone_string);
         record = $.extend(true, {}, record);
         if(date_format === undefined){
-            date_format = 'YYYY-MM-DD [at] HH:mm:ss';
+            date_format = 'YYYY-MM-DD [at] HH:mm:ss ZZ';
         }
         record.event_time = moment_time.format(date_format);
         // record.event_time = moment_time.fromNow();

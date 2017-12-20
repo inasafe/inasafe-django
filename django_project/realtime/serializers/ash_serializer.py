@@ -147,6 +147,8 @@ class AshGeoJsonSerializer(GeoFeatureModelSerializer):
             'hazard_file',
             'impact_files',
             'event_time',
+            'event_time_zone_offset',
+            'event_time_zone_string',
             'alert_level',
             'task_status',
             'eruption_height',

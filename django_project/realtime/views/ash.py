@@ -4,7 +4,6 @@ import logging
 
 import pytz
 from dateutil.parser import parse
-from dateutil.tz import tzoffset
 from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -60,17 +59,16 @@ def upload_form(request):
     if request.method == 'POST':
         form = AshUploadForm(request.POST, request.FILES)
         if form.is_valid():
+            instance = form.instance
+
             # convert timezone from browser and add it to time information
-            tz_offset_string = form.data['utc_offset']
+            tz_name = instance.event_time_zone_string
             try:
-                offset_second = int(tz_offset_string) * 60
-                tz = tzoffset('', offset=offset_second)
+                tz = pytz.timezone(tz_name)
             except BaseException:
                 tz = pytz.utc
 
-            instance = form.instance
             instance.event_time = instance.event_time.replace(tzinfo=tz)
-            instance.event_time = instance.event_time.astimezone(pytz.utc)
             form.save()
 
             # Redirect to the document list after POST

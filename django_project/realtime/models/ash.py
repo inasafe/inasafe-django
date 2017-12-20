@@ -1,6 +1,6 @@
 # coding=utf-8
 """Model class for ash realtime."""
-
+import pytz
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -48,6 +48,16 @@ class Ash(models.Model):
         verbose_name=_('Event Date and Time'),
         help_text=_('The time the ash happened.'),
         blank=False)
+    event_time_zone_offset = models.IntegerField(
+        verbose_name=_('Time Zone Offset'),
+        help_text=_('The time zone offset of event time.'),
+        default=0)
+    event_time_zone_string = models.CharField(
+        verbose_name=_('Time Zone String'),
+        help_text=_('The time zone string of event time.'),
+        max_length=255,
+        blank=False,
+        default='UTC')
     eruption_height = models.IntegerField(
         verbose_name=_('Eruption height in metres'),
         blank=False,
@@ -71,6 +81,19 @@ class Ash(models.Model):
         ash_event = u'Ash event of [%s] [%s]' % (
             self.volcano, self.event_time)
         return ash_event
+
+    def __init__(self, *args, **kwargs):
+        super(Ash, self).__init__(*args, **kwargs)
+        self.use_timezone()
+
+    def use_timezone(self):
+        """Use saved timezone information for event_time"""
+        # Reformat event_time with timezone
+        try:
+            tz = pytz.timezone(self.event_time_zone_string)
+            self.event_time = self.event_time.astimezone(tz)
+        except BaseException:
+            pass
 
     @property
     def event_id_formatted(self):
