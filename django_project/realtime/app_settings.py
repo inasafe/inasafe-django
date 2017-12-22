@@ -110,3 +110,13 @@ MAPQUEST_MAP_KEY = getattr(settings, 'MAPQUEST_MAP_KEY', '')
 OSM_LEVEL_7_NAME = 'Kelurahan'
 
 OSM_LEVEL_8_NAME = 'RW'
+
+# ASH Report Event ID Format
+ASH_EVENT_ID_FORMAT = getattr(
+    settings,
+    'ASH_EVENT_ID_FORMAT',
+    '{event_time:%Y%m%d%H%M%z}_{volcano_name}')
+ASH_EVENT_REPORT_FORMAT = getattr(
+    settings,
+    'ASH_EVENT_REPORT_FORMAT',
+    '{event_time:%Y%m%d%H%M%z}_{volcano_name}-{language}.pdf')

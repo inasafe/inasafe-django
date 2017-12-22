@@ -5,6 +5,7 @@ from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from realtime.app_settings import ASH_EVENT_ID_FORMAT, ASH_EVENT_REPORT_FORMAT
 from realtime.models.volcano import Volcano
 
 __author__ = 'ismailsunni'
@@ -97,10 +98,9 @@ class Ash(models.Model):
 
     @property
     def event_id_formatted(self):
-        dateformat = '%Y-%m-%d_%H%M_%z'
-        return '%s_%s' % (
-            self.event_time.strftime(dateformat),
-            self.volcano.volcano_name)
+        return ASH_EVENT_ID_FORMAT.format(
+            event_time=self.event_time,
+            volcano_name=self.volcano.volcano_name)
 
     def delete(self, using=None):
         # delete all report
@@ -136,9 +136,9 @@ class AshReport(models.Model):
     @property
     def report_map_filename(self):
         """Return standardized filename for report map."""
-        filename_format = '{event_id_formatted}_{language}.pdf'
-        return filename_format.format(
-            event_id_formatted=self.ash.event_id_formatted,
+        return ASH_EVENT_REPORT_FORMAT.format(
+            event_time=self.ash.event_time,
+            volcano_name=self.ash.volcano.volcano_name,
             language=self.language)
 
     @property
