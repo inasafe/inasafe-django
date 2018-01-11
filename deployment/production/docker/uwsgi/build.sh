@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
 
-if [ -z $REPO_NAME ]; then
+if [ -z "$REPO_NAME" ]; then
 	REPO_NAME=kartoza
 fi
 
-if [ -z $IMAGE_NAME ]; then
+if [ -z "$IMAGE_NAME" ]; then
 	IMAGE_NAME=inasafe-django_uwsgi
 fi
 
-if [ -z $TAG_NAME ]; then
+if [ -z "$TAG_NAME" ]; then
 	TAG_NAME=latest
 fi
 
-if [ -z $BUILD_ARGS ]; then
+if [ -z "$BUILD_ARGS" ]; then
 	BUILD_ARGS="--pull --no-cache"
 fi
 
 # Build Args Environment
 
-if [ -z $INASAFE_DJANGO_TAG ]; then
+if [ -z "$INASAFE_DJANGO_TAG" ]; then
 	INASAFE_DJANGO_TAG=develop
 fi
 
