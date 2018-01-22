@@ -60,7 +60,8 @@ class Ash(models.Model):
         blank=False,
         default='UTC')
     eruption_height = models.IntegerField(
-        verbose_name=_('Eruption height in metres'),
+        verbose_name=_(
+            'Eruption height in metres. Calculated from the vent height'),
         blank=False,
         default=0)
     task_id = models.CharField(
