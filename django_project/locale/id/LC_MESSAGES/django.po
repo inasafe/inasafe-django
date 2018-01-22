@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-11-22 09:08+0000\n"
+"POT-Creation-Date: 2018-01-22 19:52+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Muhammad Yarjuna Rohmat <myarjunar@gmail.com>, 2017\n"
 "Language-Team: Indonesian (https://www.transifex.com/inasafe/teams/57794/id/)\n"
@@ -26,7 +26,7 @@ msgstr "Inggris"
 msgid "Indonesian"
 msgstr "Indonesia"
 
-#: realtime/forms/ash.py:47
+#: realtime/forms/ash.py:48
 msgid "Timezone"
 msgstr "Zona Waktu"
 
@@ -123,73 +123,89 @@ msgstr ""
 msgid "Last Shakemap Push"
 msgstr "Kiriman Shakemap Terakhir"
 
-#: realtime/models/ash.py:28 realtime/templates/realtime/ash/index.html:89
+#: realtime/models/ash.py:30 realtime/templates/realtime/ash/index.html:89
 msgid "Alert Level"
 msgstr "Tingkat Peringatan"
 
-#: realtime/models/ash.py:29
+#: realtime/models/ash.py:31
 msgid "The alert level of the volcano ash event."
 msgstr "Tingkat peringatan kejadian abu vulkanik."
 
-#: realtime/models/ash.py:34 realtime/templates/realtime/ash/index.html:196
+#: realtime/models/ash.py:36 realtime/templates/realtime/ash/index.html:196
 msgid "Hazard File"
 msgstr "File Ancaman"
 
-#: realtime/models/ash.py:35
+#: realtime/models/ash.py:37
 msgid "Hazard file formatted as GeoTIFF (*.tif) in EPSG:4326."
 msgstr "Berkas ancaman dengan format GeoTIFF (*.tif) dalam EPSG:4326."
 
-#: realtime/models/ash.py:40 realtime/templates/realtime/ash/index.html:202
+#: realtime/models/ash.py:42 realtime/templates/realtime/ash/index.html:202
 msgid "Impact Files"
 msgstr "File Dampak"
 
-#: realtime/models/ash.py:41
+#: realtime/models/ash.py:43
 msgid "Impact files processed zipped"
 msgstr "Berkas dampak terproses terkompresi"
 
-#: realtime/models/ash.py:47
+#: realtime/models/ash.py:49
 msgid "Event Date and Time"
 msgstr "Waktu dan Tanggal Kejadian"
 
-#: realtime/models/ash.py:48
+#: realtime/models/ash.py:50
 msgid "The time the ash happened."
 msgstr "Waktu erupsi abu terjadi"
 
-#: realtime/models/ash.py:51
-msgid "Eruption height in metres"
-msgstr "Tinggi erupsi dalam meter"
+#: realtime/models/ash.py:53
+msgid "Time Zone Offset"
+msgstr "Koreksi Zona Waktu"
 
-#: realtime/models/ash.py:55
+#: realtime/models/ash.py:54
+msgid "The time zone offset of event time."
+msgstr "Koreksi zona waktu dari waktu kejadian"
+
+#: realtime/models/ash.py:57
+msgid "Time Zone String"
+msgstr "Teks Zona Waktu"
+
+#: realtime/models/ash.py:58
+msgid "The time zone string of event time."
+msgstr "Teks zona waktu dari waktu kejadian"
+
+#: realtime/models/ash.py:64
+msgid "Eruption height in metres. Calculated from the vent height"
+msgstr "Tinggi erupsi dalam meter. Dihitung dari ketinggian kawah"
+
+#: realtime/models/ash.py:68
 msgid "Celery task id"
 msgstr "ID tugas Celery"
 
-#: realtime/models/ash.py:56
+#: realtime/models/ash.py:69
 msgid "Task id for processing"
 msgstr "ID tugas untuk pemrosesan"
 
-#: realtime/models/ash.py:61
+#: realtime/models/ash.py:74
 msgid "Celery task status"
 msgstr "Status tugas Celery"
 
-#: realtime/models/ash.py:62
+#: realtime/models/ash.py:75
 msgid "Task status for processing"
 msgstr "Status tugas untuk pemrosesan"
 
-#: realtime/models/ash.py:94 realtime/models/earthquake.py:91
-#: realtime/models/flood.py:155
+#: realtime/models/ash.py:126 realtime/models/earthquake.py:91
+#: realtime/models/flood.py:156
 msgid "Language ID"
 msgstr "ID Bahasa"
 
-#: realtime/models/ash.py:95 realtime/models/earthquake.py:92
-#: realtime/models/flood.py:156
+#: realtime/models/ash.py:127 realtime/models/earthquake.py:92
+#: realtime/models/flood.py:157
 msgid "The language ID of the report"
 msgstr "ID bahasa laporan"
 
-#: realtime/models/ash.py:100
+#: realtime/models/ash.py:132
 msgid "Map PDF Report"
 msgstr "Laporan PDF Peta"
 
-#: realtime/models/ash.py:101
+#: realtime/models/ash.py:133
 msgid "The map impact report stored as PDF"
 msgstr "Laporan dampak peta tersimpan sebagai PDF"
 
@@ -225,7 +241,7 @@ msgstr "Magnitudo"
 msgid "The magnitude of the event."
 msgstr "Magnitudo kejadian"
 
-#: realtime/models/earthquake.py:36 realtime/models/flood.py:93
+#: realtime/models/earthquake.py:36 realtime/models/flood.py:94
 msgid "Date and Time"
 msgstr "Tanggal dan Waktu"
 
@@ -294,212 +310,212 @@ msgstr "Thumbnail Laporan Gambar"
 msgid "The thumbnail of the report stored as PNG File"
 msgstr "Thumbnail laporan yang tersimpan sebagai berkas PNG"
 
-#: realtime/models/flood.py:15
+#: realtime/models/flood.py:16
 msgid "Alias of Boundary Level"
 msgstr "Alias Tingkat Batas"
 
-#: realtime/models/flood.py:16
+#: realtime/models/flood.py:17
 msgid "Alternate or human readable name for boundary level"
 msgstr "Nama alternative atau lazim untuk tingkat batas"
 
-#: realtime/models/flood.py:19
+#: realtime/models/flood.py:20
 msgid "OSM Boundary Level"
 msgstr "Tingkat Batas OSM"
 
-#: realtime/models/flood.py:20
+#: realtime/models/flood.py:21
 msgid "OSM Equivalent of boundary level"
 msgstr "Tingkat batas setara OSM"
 
-#: realtime/models/flood.py:23
+#: realtime/models/flood.py:24
 msgid "Parent boundary alias"
 msgstr "Alias batas induk"
 
-#: realtime/models/flood.py:24
+#: realtime/models/flood.py:25
 msgid "The parent of this boundary alias, it should also be a boundary alias"
 msgstr "Induk dari alias batas ini, harus juga merupakan alias batas wilayah"
 
-#: realtime/models/flood.py:41
+#: realtime/models/flood.py:42
 msgid "Upstream ID"
 msgstr "ID Hulu"
 
-#: realtime/models/flood.py:42
+#: realtime/models/flood.py:43
 msgid "ID used by upstream data source to identify boundaries"
 msgstr "ID yang digunakan oleh sumber data hulu untuk mengidentifikasi batas"
 
-#: realtime/models/flood.py:46
+#: realtime/models/flood.py:47
 msgid "Boundary name"
 msgstr "Nama batas"
 
-#: realtime/models/flood.py:47
+#: realtime/models/flood.py:48
 msgid "Name entitled to this particular boundary"
 msgstr "Nama yang diberikan untuk batas ini"
 
-#: realtime/models/flood.py:53
+#: realtime/models/flood.py:54
 msgid "Parent boundary"
 msgstr "Batas induk"
 
-#: realtime/models/flood.py:54
+#: realtime/models/flood.py:55
 msgid ""
 "The boundary parent of this particular boundary, if any. This should also be"
 " a boundary."
 msgstr ""
 "Induk batas dari batas ini, jika tersedia. Harus juga merupakan suatu batas."
 
-#: realtime/models/flood.py:59 realtime/models/flood.py:60
+#: realtime/models/flood.py:60 realtime/models/flood.py:61
 msgid "Geometry of the boundary"
 msgstr "Geometri batas"
 
-#: realtime/models/flood.py:64
+#: realtime/models/flood.py:65
 msgid "Boundary level alias"
 msgstr "Alias tingkat batas"
 
-#: realtime/models/flood.py:65
+#: realtime/models/flood.py:66
 msgid "The alias of boundary level of this boundary"
 msgstr "Alias dari tingkat batas untuk batas ini"
 
-#: realtime/models/flood.py:80
+#: realtime/models/flood.py:81
 msgid "The id of the event"
 msgstr "ID kejadian"
 
-#: realtime/models/flood.py:81
+#: realtime/models/flood.py:82
 msgid "The id of the event, which represents time and interval"
 msgstr "ID kejadian, yang merepresentasikan waktu dan jeda waktu"
 
-#: realtime/models/flood.py:86 realtime/models/flood.py:102
+#: realtime/models/flood.py:87 realtime/models/flood.py:103
 msgid "The source of hazard data"
 msgstr "Sumber data ancaman"
 
-#: realtime/models/flood.py:87
+#: realtime/models/flood.py:88
 msgid "The source of the hazard data used for analysis"
 msgstr "Sumber data ancaman yang digunakan untuk analisis"
 
-#: realtime/models/flood.py:94
+#: realtime/models/flood.py:95
 msgid "The time the flood reported."
 msgstr "Waktu saat banjir dilaporkan."
 
-#: realtime/models/flood.py:97
+#: realtime/models/flood.py:98
 msgid "Report interval"
 msgstr "Jeda waktu laporan"
 
-#: realtime/models/flood.py:98
+#: realtime/models/flood.py:99
 msgid "The interval of aggregated report in hours"
 msgstr "Jeda waktu laporan teragregasi dalam jam"
 
-#: realtime/models/flood.py:101
+#: realtime/models/flood.py:102
 msgid "Flood Data Source"
 msgstr "Sumber Data Banjir"
 
-#: realtime/models/flood.py:105
+#: realtime/models/flood.py:106
 msgid "The Region id for source"
 msgstr "ID wilayah sebagai sumber"
 
-#: realtime/models/flood.py:106
+#: realtime/models/flood.py:107
 msgid "The region of hazard data"
 msgstr "Wilayah data ancaman"
 
-#: realtime/models/flood.py:110
+#: realtime/models/flood.py:111
 #: realtime/templates/realtime/flood/index.html:262
 msgid "Hazard Layer"
 msgstr "Lapisan Ancaman"
 
-#: realtime/models/flood.py:111
+#: realtime/models/flood.py:112
 msgid "Zipped file of Hazard Layer related files"
 msgstr ""
 "Berkas terkompresi untuk berkas-berkas yang berkaitan dengan lapisan ancaman"
 
-#: realtime/models/flood.py:115
+#: realtime/models/flood.py:116
 #: realtime/templates/realtime/flood/index.html:268
 msgid "Impact Layer"
 msgstr "Lapisan Dampak"
 
-#: realtime/models/flood.py:116
+#: realtime/models/flood.py:117
 msgid "Zipped file of Impact Layer related files"
 msgstr ""
 "Berkas terkompresi untuk berkas-berkas yang berkaitan dengan lapisan dampak"
 
-#: realtime/models/flood.py:121
+#: realtime/models/flood.py:122
 msgid "Flooded Boundaries"
 msgstr "Batas kebanjiran"
 
-#: realtime/models/flood.py:122
+#: realtime/models/flood.py:123
 msgid "The linked boundaries flooded by this event"
 msgstr "Batas terhubung yang kebanjiran oleh kejadian ini"
 
-#: realtime/models/flood.py:124 realtime/models/flood.py:125
+#: realtime/models/flood.py:125 realtime/models/flood.py:126
 msgid "Total affected people by flood"
 msgstr "Total penduduk terdampak banjir"
 
-#: realtime/models/flood.py:128
+#: realtime/models/flood.py:129
 msgid "Total boundary flooded"
 msgstr "total batas kebanjiran"
 
-#: realtime/models/flood.py:129
+#: realtime/models/flood.py:130
 msgid "Total boundary affected by flood"
 msgstr "Total batas terdampak oleh banjir"
 
-#: realtime/models/flood.py:162
+#: realtime/models/flood.py:163
 msgid "Impact Report"
 msgstr "Laporan Dampak"
 
-#: realtime/models/flood.py:163
+#: realtime/models/flood.py:164
 msgid "Impact Report file in PDF"
 msgstr "Berkas laporan dampak dalam PDF"
 
-#: realtime/models/flood.py:167
+#: realtime/models/flood.py:168
 #: realtime/templates/realtime/flood/index.html:273
 msgid "Impact Map"
 msgstr "Peta Dampak"
 
-#: realtime/models/flood.py:168
+#: realtime/models/flood.py:169
 msgid "Impact Map file in PDF"
 msgstr "Berkas Peta Dampak dalam PDF"
 
-#: realtime/models/flood.py:187 realtime/models/flood.py:210
+#: realtime/models/flood.py:214 realtime/models/flood.py:237
 msgid "Flood Event"
 msgstr "Kejadian Banjir"
 
-#: realtime/models/flood.py:188 realtime/models/flood.py:211
+#: realtime/models/flood.py:215 realtime/models/flood.py:238
 msgid "The flood event of the linked boundary"
 msgstr "Kejadian banjir untuk batas yang terhubung"
 
-#: realtime/models/flood.py:192 realtime/models/flood.py:215
+#: realtime/models/flood.py:219 realtime/models/flood.py:242
 msgid "Boundary"
 msgstr "Batas"
 
-#: realtime/models/flood.py:193
+#: realtime/models/flood.py:220
 msgid "The linked boundary of the flood events"
 msgstr "Batas yang terhubung untuk kejadian banjir"
 
-#: realtime/models/flood.py:196
+#: realtime/models/flood.py:223
 msgid "Impact Data"
 msgstr "Data Dampak"
 
-#: realtime/models/flood.py:197
+#: realtime/models/flood.py:224
 msgid "Impact data in the given boundary"
 msgstr "Data dampak untuk batas yang diberikan"
 
-#: realtime/models/flood.py:216
+#: realtime/models/flood.py:243
 msgid "The linked parent boundary of the impact"
 msgstr "Batas induk terhubung dari dampak"
 
-#: realtime/models/flood.py:219 realtime/models/flood.py:220
+#: realtime/models/flood.py:246 realtime/models/flood.py:247
 msgid "Geometry of the boundary of impact"
 msgstr "Geometri dari batas dampak"
 
-#: realtime/models/flood.py:223
+#: realtime/models/flood.py:250
 msgid "Hazard Class"
 msgstr "Kelas Ancaman"
 
-#: realtime/models/flood.py:224
+#: realtime/models/flood.py:251
 msgid "Hazard class in the given boundary"
 msgstr "Kelas ancaman pada batas yang diberikan"
 
-#: realtime/models/flood.py:228
+#: realtime/models/flood.py:255
 #: realtime/templates/realtime/flood/index.html:156
 msgid "Population Affected"
 msgstr "Penduduk Terdampak"
 
-#: realtime/models/flood.py:229
+#: realtime/models/flood.py:256
 msgid "The affected population in a given flood boundary"
 msgstr "Populasi terdampak pada batas banjir yang diberikan"
 
@@ -673,10 +689,8 @@ msgid "Download"
 msgstr "Unduh"
 
 #: realtime/templates/realtime/ash/index.html:265
-#: realtime/templates/realtime/earthquake/index.html:418
-#: realtime/templates/realtime/flood/index.html:289
-msgid "YYYY-MM-DD [at] HH:mm:ss"
-msgstr "YYYY-MM-DD [pukul] HH:mm:ss"
+msgid "YYYY-MM-DD [at] HH:mm:ss ZZ"
+msgstr "YYYY-MM-DD [pukul] HH:mm:ss ZZ"
 
 #: realtime/templates/realtime/ash/upload_modal.html:25
 msgid "Upload Ash Event"
@@ -884,6 +898,11 @@ msgstr "sejak %%(start_moment)s"
 msgid "before %%(end_moment)s"
 msgstr "Sebelum%%(end_moment)"
 
+#: realtime/templates/realtime/earthquake/index.html:418
+#: realtime/templates/realtime/flood/index.html:289
+msgid "YYYY-MM-DD [at] HH:mm:ss"
+msgstr "YYYY-MM-DD [pukul] HH:mm:ss"
+
 #: realtime/templates/realtime/earthquake/index.html:427
 msgid "Action"
 msgstr "Aksi"
@@ -1008,14 +1027,14 @@ msgstr "%d detik"
 msgid "%d microseconds"
 msgstr "%d mikrodetik"
 
-#: realtime/views/earthquake.py:66 realtime/views/flood.py:63
+#: realtime/views/earthquake.py:66 realtime/views/flood.py:64
 msgid "Select Area"
 msgstr "Pilih Area"
 
-#: realtime/views/earthquake.py:67 realtime/views/flood.py:64
+#: realtime/views/earthquake.py:67 realtime/views/flood.py:65
 msgid "Remove Selection"
 msgstr "Hapus Pilihan"
 
-#: realtime/views/earthquake.py:68 realtime/views/flood.py:65
+#: realtime/views/earthquake.py:68 realtime/views/flood.py:66
 msgid "Select area within current zoom"
 msgstr "Pilih area dalam level perbesaran saat ini"
