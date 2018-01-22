@@ -68,7 +68,10 @@ def upload_form(request):
             except BaseException:
                 tz = pytz.utc
 
-            instance.event_time = instance.event_time.replace(tzinfo=tz)
+            instance.event_time = instance.event_time.replace(
+                tzinfo=pytz.utc)
+            # use astimezone to switch timezone to avoid using wrong offset
+            instance.event_time = instance.event_time.astimezone(tz)
             form.save()
 
             # Redirect to the document list after POST
