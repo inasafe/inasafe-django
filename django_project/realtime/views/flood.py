@@ -321,6 +321,7 @@ def flood_event_features(request, event_id):
                     'geometry': json.loads(b.geometry.geojson),
                     'properties': {
                         'event_id': flood.event_id,
+                        'time': flood.time,
                         'name': b.name,
                         'parent_name': b.parent.name,
                         'hazard_data': event_data.hazard_data
