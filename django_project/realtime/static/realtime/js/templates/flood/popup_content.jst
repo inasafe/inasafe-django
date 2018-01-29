@@ -6,6 +6,10 @@
             <table class="table-striped table-hover">
                 <tbody>
                 <tr>
+                    <th>Date Time</th>
+                    <td class="date-time"><%= moment(new Date(Date.parse(time))).fromNow() %></td>
+                </tr>
+                <tr>
                     <th>RW Name</th>
                     <td class="shake-id"><%= name %></td>
                 </tr>
