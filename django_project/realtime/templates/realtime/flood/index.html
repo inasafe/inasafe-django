@@ -34,7 +34,7 @@
                         Flood data used here is sourced from <a href="https://petabencana.id/">PetaBencana.id</a> who use crowdsourced data from <a href="http://twitter.com">Twitter</a>,
                         Telegram, <a href="http://qlue.co.id/">Qlue</a>, <a href="http://pasangmata.detik.com/">PasangMata</a>, Z-Alert, and expert data review by BPBD-DKI Jakarta.
                         A report is then generated every 6 hours for floods from the last 6 hour interval (if there was any flooding in that period).
-                        This report includes all RW flooded during the last 6 hours and shows the deepest water depth recorded in the last 6 hours.
+                        This report includes all flooded RWs during the last 6 hours and shows the deepest water depth recorded in the last 6 hours.
                         This information is used by disaster managers to help them understand the potential scale of a disaster and to
                         respond more quickly to the hardest hit communities. This is particularly important in the first few hours after a
                         flood when it may be difficult to get accurate on-the-ground information. Although this service is currently specific to Jakarta, the platform is extensible so that we can add more cities and regions easily.
@@ -95,7 +95,7 @@
                         </span>
                         <span class="boundary-flooded-filter col-xs-12 col-sm-3">
                             <span class="row">
-                                <label class="control-label col-xs-12 col-sm-12">{% trans "Number of RW Flooded" %}</label>
+                                <label class="control-label col-xs-12 col-sm-12">{% trans "Number of Flooded RWs" %}</label>
                                 <span class="col-xs-6 col-sm-6">
                                     {{ form.min_boundary_flooded|bootstrap }}
                                     <div class="help-block with-errors"></div>
@@ -154,7 +154,7 @@
                             <th data-dynatable-column="event_id_formatted">{% trans "Event ID" %}</th>
                             <th data-dynatable-column="time_description">{% trans "Time" %}</th>
                             <th data-dynatable-column="total_affected" style="display: none">{% trans "Population Affected" %}</th>
-                            <th data-dynatable-column="boundary_flooded">{% trans "RW Flooded" %}</th>
+                            <th data-dynatable-column="boundary_flooded">{% trans "Flooded RWs" %}</th>
                         </tr>
                         </thead>
                         <tbody>
