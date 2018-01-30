@@ -93,7 +93,7 @@ class Ash(models.Model):
         # Reformat event_time with timezone
         try:
             tz = pytz.timezone(self.event_time_zone_string)
-            self.event_time = tz.localize(self.event_time)
+            self.event_time = self.event_time.astimezone(tz)
         except BaseException:
             pass
 
