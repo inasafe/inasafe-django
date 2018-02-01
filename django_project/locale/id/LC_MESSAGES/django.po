@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 08:47+0000\n"
+"POT-Creation-Date: 2018-02-01 14:15+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Muhammad Yarjuna Rohmat <myarjunar@gmail.com>, 2017\n"
 "Language-Team: Indonesian (https://www.transifex.com/inasafe/teams/57794/id/)\n"
@@ -26,9 +26,34 @@ msgstr "Inggris"
 msgid "Indonesian"
 msgstr "Indonesia"
 
-#: realtime/forms/ash.py:48
+#: realtime/forms/ash.py:41
+msgid "Normal"
+msgstr "Normal"
+
+#: realtime/forms/ash.py:42
+msgid "Waspada"
+msgstr "Waspada"
+
+#: realtime/forms/ash.py:43
+msgid "Siaga"
+msgstr "Siaga"
+
+#: realtime/forms/ash.py:44
+msgid "Awas"
+msgstr "Awas"
+
+#: realtime/forms/ash.py:49
 msgid "Timezone"
 msgstr "Zona Waktu"
+
+#: realtime/forms/ash.py:56
+#, python-brace-format
+msgid "{0} day(s)"
+msgstr "{0} hari"
+
+#: realtime/forms/ash.py:62
+msgid "Forecast duration (in days)"
+msgstr "Durasi prakira (dalam hari)"
 
 #: realtime/forms/earthquake.py:34 realtime/forms/flood.py:18
 msgid "Start Date"
@@ -176,36 +201,40 @@ msgid "Eruption height in metres. Calculated from the vent height"
 msgstr "Tinggi erupsi dalam meter. Dihitung dari ketinggian kawah"
 
 #: realtime/models/ash.py:68
+msgid "Duration of forecast for Ash Hazard in days"
+msgstr "Durasi prakira Ancaman Abu dalam hari"
+
+#: realtime/models/ash.py:71
 msgid "Celery task id"
 msgstr "ID tugas Celery"
 
-#: realtime/models/ash.py:69
+#: realtime/models/ash.py:72
 msgid "Task id for processing"
 msgstr "ID tugas untuk pemrosesan"
 
-#: realtime/models/ash.py:74
+#: realtime/models/ash.py:77
 msgid "Celery task status"
 msgstr "Status tugas Celery"
 
-#: realtime/models/ash.py:75
+#: realtime/models/ash.py:78
 msgid "Task status for processing"
 msgstr "Status tugas untuk pemrosesan"
 
-#: realtime/models/ash.py:126 realtime/models/earthquake.py:91
+#: realtime/models/ash.py:129 realtime/models/earthquake.py:91
 #: realtime/models/flood.py:156
 msgid "Language ID"
 msgstr "ID Bahasa"
 
-#: realtime/models/ash.py:127 realtime/models/earthquake.py:92
+#: realtime/models/ash.py:130 realtime/models/earthquake.py:92
 #: realtime/models/flood.py:157
 msgid "The language ID of the report"
 msgstr "ID bahasa laporan"
 
-#: realtime/models/ash.py:132
+#: realtime/models/ash.py:135
 msgid "Map PDF Report"
 msgstr "Laporan PDF Peta"
 
-#: realtime/models/ash.py:133
+#: realtime/models/ash.py:136
 msgid "The map impact report stored as PDF"
 msgstr "Laporan dampak peta tersimpan sebagai PDF"
 

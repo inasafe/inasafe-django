@@ -52,6 +52,7 @@ def ash_post_save(sender, **kwargs):
                 volcano_location=location,
                 eruption_height=instance.eruption_height,
                 vent_height=instance.volcano.elevation,
+                forecast_duration=instance.forecast_duration,
                 region=instance.volcano.province,
                 alert_level=instance.alert_level,
                 hazard_url=hazard_url)
