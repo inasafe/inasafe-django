@@ -7,31 +7,31 @@ __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '2/16/16'
 
 
-BROKER_URL = os.environ.get('BROKER_URL')
-CELERY_RESULT_BACKEND = BROKER_URL
+broker_url = os.environ.get('broker_url')
+result_backend = broker_url
 
-CELERY_ALWAYS_EAGER = False
-CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
-CELERY_IGNORE_RESULT = False
-CELERY_SEND_EVENTS = True
-CELERY_TASK_RESULT_EXPIRES = 24 * 3600
-CELERY_DISABLE_RATE_LIMITS = True
-CELERY_DEFAULT_QUEUE = "default"
-CELERY_DEFAULT_EXCHANGE = "default"
-CELERY_DEFAULT_EXCHANGE_TYPE = "direct"
-CELERY_DEFAULT_ROUTING_KEY = "default"
-CELERY_CREATE_MISSING_QUEUES = True
-CELERYD_CONCURRENCY = 1
-CELERYD_PREFETCH_MULTIPLIER = 1
+task_always_eager = False
+task_eager_propagates = True
+task_ignore_result = False
+worker_send_task_events = True
+result_expires = 24 * 3600
+worker_disable_rate_limits = True
+task_default_queue = "default"
+task_default_exchange = "default"
+task_default_exchange_type = "direct"
+task_default_routing_key = "default"
+task_create_missing_queues = True
+worker_concurrency = 1
+worker_prefetch_multiplier = 1
 
-CELERY_QUEUES = [
+task_queues = [
     Queue('default', routing_key='default'),
     Queue('inasafe-realtime', routing_key='inasafe-realtime'),
     Queue('inasafe-django', routing_key='inasafe-django'),
     Queue('inasafe-django-indicator', routing_key='inasafe-django-indicator'),
 ]
 
-CELERYBEAT_SCHEDULE = {
+beat_schedule = {
     # executes every hour
     'process-hourly-flood-report': {
         'task': 'realtime.tasks.flood.create_flood_report',
@@ -75,4 +75,4 @@ CELERYBEAT_SCHEDULE = {
     }
 }
 
-CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
+beat_scheduler = 'celery.beat.PersistentScheduler'
