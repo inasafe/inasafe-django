@@ -75,4 +75,4 @@ beat_schedule = {
     }
 }
 
-beat_scheduler = 'djcelery.schedulers.DatabaseScheduler'
+beat_scheduler = 'celery.beat.PersistentScheduler'
