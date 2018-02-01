@@ -64,6 +64,9 @@ class Ash(models.Model):
             'Eruption height in metres. Calculated from the vent height'),
         blank=False,
         default=0)
+    forecast_duration = models.IntegerField(
+        verbose_name=_('Duration of forecast for Ash Hazard in days'),
+        default=1)
     task_id = models.CharField(
         verbose_name=_('Celery task id'),
         help_text=_('Task id for processing'),
