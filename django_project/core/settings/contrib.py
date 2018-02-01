@@ -11,8 +11,6 @@ INSTALLED_APPS += (
     'bootstrapform',
     'bootstrap3_datetime',
     'rest_framework',
-    'djcelery',
-    'kombu.transport.django',
     'tinymce',
     'filebrowser',
     'mce_filebrowser',
