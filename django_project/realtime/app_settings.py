@@ -8,7 +8,10 @@
     For mailing. as the default, it wil use 'DEFAULT_FROM_MAIL' setting from
     the project.
 """
+import ast
 from datetime import timedelta
+
+import os
 from django.conf import settings
 
 LOGGER_NAME = 'InaSAFE Realtime REST Server'
@@ -120,3 +123,13 @@ ASH_EVENT_REPORT_FORMAT = getattr(
     settings,
     'ASH_EVENT_REPORT_FORMAT',
     '{event_time:%Y%m%d%H%M%z}_{volcano_name}-{language}.pdf')
+
+# ASH landing page toggle
+ASH_SHOW_PAGE = os.environ.get(
+    'ASH_SHOW_PAGE',
+    'True')
+
+if ASH_SHOW_PAGE:
+    ASH_SHOW_PAGE = ast.literal_eval(ASH_SHOW_PAGE)
+else:
+    ASH_SHOW_PAGE = True

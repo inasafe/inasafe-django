@@ -3,7 +3,7 @@
 from realtime import app_settings
 from realtime.app_settings import (
     LEAFLET_TILES,
-    MAPQUEST_MAP_KEY)
+    MAPQUEST_MAP_KEY, ASH_SHOW_PAGE)
 from realtime.models.coreflatpage import CoreFlatPage
 
 
@@ -59,4 +59,5 @@ def realtime_settings(request):
         'flatpages': flatpages,
         'leaflet_tiles': leaflet_tiles,
         'mapquest_key': MAPQUEST_MAP_KEY,
+        'ASH_SHOW_PAGE': ASH_SHOW_PAGE
     }

@@ -23,6 +23,7 @@ class AshUploadForm(forms.ModelForm):
             'event_time',
             'event_time_zone_offset',
             'event_time_zone_string',
+            'forecast_duration',
             # 'region',
             'hazard_file'
         ]
@@ -37,10 +38,10 @@ class AshUploadForm(forms.ModelForm):
             }))
     alert_level = forms.ChoiceField(
         choices=[
-            ('normal', 'Normal'),
-            ('waspada', 'Waspada'),
-            ('siaga', 'Siaga'),
-            ('awas', 'Awas')
+            ('normal', _('Normal')),
+            ('waspada', _('Waspada')),
+            ('siaga', _('Siaga')),
+            ('awas', _('Awas'))
         ])
     event_time_zone_offset = forms.IntegerField(
         widget=forms.HiddenInput())
@@ -50,3 +51,14 @@ class AshUploadForm(forms.ModelForm):
     volcano_name = forms.CharField(
         max_length=50,
         widget=forms.TextInput(attrs={'autocomplete': 'off'}))
+
+    days_choices = [1, 3]
+    days_text_format = _('{0} day(s)')
+    days_choices_field = []
+    for i in days_choices:
+        days_choices_field.append((i, days_text_format.format(i)))
+
+    forecast_duration = forms.ChoiceField(
+        label=_('Forecast duration (in days)'),
+        choices=days_choices_field,
+        initial=1)

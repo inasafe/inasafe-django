@@ -20,6 +20,7 @@ def process_ash(
         volcano_location=None,
         eruption_height=None,
         vent_height=None,
+        forecast_duration=None,
         region=None,
         alert_level=None,
         hazard_url=None):
