@@ -18,25 +18,25 @@ broker_url = os.environ.get('INASAFE_HEADLESS_BROKER_URL')
 result_backend = broker_url
 
 task_routes = {
-    'inasafe.headless.get_keywords': {
+    'inasafe.headless.tasks.get_keywords': {
         'queue': 'inasafe-headless'
     },
-    'inasafe.headless.run_analysis': {
+    'inasafe.headless.tasks.run_analysis': {
         'queue': 'inasafe-headless-analysis'
     },
-    'inasafe.headless.run_multi_exposure_analysis': {
+    'inasafe.headless.tasks.run_multi_exposure_analysis': {
         'queue': 'inasafe-headless-analysis'
     },
-    'inasafe.headless.generate_report': {
+    'inasafe.headless.tasks.generate_report': {
         'queue': 'inasafe-headless-reporting'
     },
-    'inasafe.headless.get_generated_report': {
+    'inasafe.headless.tasks.get_generated_report': {
         'queue': 'inasafe-headless'
     },
-    'inasafe.headless.generate_contour': {
+    'inasafe.headless.tasks.generate_contour': {
         'queue': 'inasafe-headless-contour'
     },
-    'inasafe.headless.check_broker_connection': {
+    'inasafe.headless.tasks.check_broker_connection': {
         'queue': 'inasafe-headless'
     },
 }
@@ -63,5 +63,3 @@ worker_prefetch_multiplier = 1
 task_serializer = 'pickle'
 accept_content = {'pickle'}
 result_serializer = 'pickle'
-
-task_always_eager = False
