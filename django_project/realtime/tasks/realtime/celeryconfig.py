@@ -11,7 +11,7 @@ __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '1/28/16'
 
 
-broker_url = os.environ.get('INASAFE_REALTIME_broker_url')
+broker_url = os.environ.get('INASAFE_REALTIME_BROKER_URL')
 
 result_backend = broker_url
 
