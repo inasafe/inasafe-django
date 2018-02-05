@@ -39,6 +39,7 @@ services:
       - VIRTUAL_PORT=8080
       - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
       - INASAFE_REALTIME_BROKER_URL=amqp://guest:guest@{{ interpreters.inasafe_realtime.ipaddress }}:{{ docker_port_forward.inasafe_realtime.rabbitmq }}/
+      - INASAFE_HEADLESS_BROKER_URL=amqp://guest:guest@{{ interpreters.inasafe_headless.ipaddress }}:{{ docker_port_forward.inasafe_headless.rabbitmq }}/
       # Secrets
       - MAPQUEST_MAP_KEY={{ inasafe_django.mapquest_map_key }}
       - SITE_DOMAIN_NAME={{ inasafe_django.site_domain_name }}
