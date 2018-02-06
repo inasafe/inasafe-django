@@ -28,7 +28,7 @@ services:
       - ./reports:/home/web/reports
       - ./logs:/var/log/
       - ./tmp:/tmp
-      - {{ integration_test.common_test_data_path }}:/home/common_test_data
+      - {{ integration_test.inasafe_headless.test_data_path }}:{{ integration_test.inasafe_headless.mapped_test_data_path }}
     environment:
       - DATABASE_NAME=gis
       - DATABASE_USERNAME=docker
@@ -45,7 +45,8 @@ services:
       - MAPQUEST_MAP_KEY={{ inasafe_django.mapquest_map_key }}
       - SITE_DOMAIN_NAME={{ inasafe_django.site_domain_name }}
       # Integration test
-      - COMMON_TEST_DATA=/home/common_test_data
+      - COMMON_TEST_DATA={{ integration_test.inasafe_headless.mapped_test_data_path }}
+      - INASAFE_OUTPUT_DIR={{ integration_test.inasafe_headless.mapped_output_data_path }}
     links:
       - smtp:smtp
       - db:db

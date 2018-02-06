@@ -156,7 +156,7 @@
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
+        {% include 'run-manager-environment.xml.j2' %}
       </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="" />
@@ -251,9 +251,11 @@
     <configuration default="true" type="tests" factoryName="Nosetests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
+      <envs>
+        {% include 'run-manager-environment.xml.j2' %}
+      </envs>
+      <option name="SDK_HOME" value="ssh://root@{{ interpreters.inasafe_django.domain_alias }}:{{ interpreters.inasafe_django.ssh_port }}/usr/local/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/django_project/" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
@@ -273,9 +275,11 @@
     <configuration default="true" type="tests" factoryName="Unittests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
+      <envs>
+        {% include 'run-manager-environment.xml.j2' %}
+      </envs>
+      <option name="SDK_HOME" value="ssh://root@{{ interpreters.inasafe_django.domain_alias }}:{{ interpreters.inasafe_django.ssh_port }}/usr/local/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/django_project/" />
       <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
