@@ -111,4 +111,12 @@ realtime_rest_api:
 apt_cacher_ng_line: '#Acquire::http { Proxy "http://192.168.1.7:3142"; };'
 
 integration_test:
-  common_test_data_path: "/Users/ismailsunni/dev/python/common_test_data"
+  inasafe_headless:
+    # Path to inasafe-headless project
+    project_path: "/Users/ismailsunni/dev/python/inasafe-headless"
+    # Path to inasafe-headless's test data directory
+    test_data_path: "/Users/ismailsunni/dev/python/inasafe-headless/src/headless/tasks/test/data/"
+    # Path to inasafe-headless's test data directory in the docker container
+    mapped_test_data_path: "/home/headless_test/data/"
+    # Path to inasafe-headless's output test data directory in the docker container
+    mapped_output_data_path: "/home/headless_test/data/result/"
