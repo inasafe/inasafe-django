@@ -44,6 +44,10 @@ interpreters:
     name: 'InaSAFE Realtime Container'
     # Point to the ipaddress/domain name of InaSAFE Realtime processor
     ipaddress: *inasafe_django_host_ip
+  inasafe_headless:
+    name: 'InaSAFE Headless Container'
+    # Point to the ipaddress/domain name of InaSAFE Realtime processor
+    ipaddress: *inasafe_django_host_ip
 
 # Facts needed for SFTP Backup
 # This is setup to use kartoza hanoi backup scheme
@@ -89,6 +93,9 @@ docker_port_forward:
   inasafe_realtime:
     # We also need to connect to rabbitmq of InaSAFE Realtime
     rabbitmq: 8100
+  inasafe_headless:
+    # We also need to connect to rabbitmq of InaSAFE Headless
+    rabbitmq: 8101
 
 # This declaration is used to connect InaSAFE Django and InaSAFE Realtime
 # processor
