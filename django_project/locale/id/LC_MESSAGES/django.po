@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-02-01 14:15+0000\n"
+"POT-Creation-Date: 2018-02-07 09:20+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Muhammad Yarjuna Rohmat <myarjunar@gmail.com>, 2017\n"
 "Language-Team: Indonesian (https://www.transifex.com/inasafe/teams/57794/id/)\n"
@@ -148,7 +148,7 @@ msgstr ""
 msgid "Last Shakemap Push"
 msgstr "Kiriman Shakemap Terakhir"
 
-#: realtime/models/ash.py:30 realtime/templates/realtime/ash/index.html:89
+#: realtime/models/ash.py:30 realtime/templates/realtime/ash/index.html:92
 msgid "Alert Level"
 msgstr "Tingkat Peringatan"
 
@@ -156,7 +156,7 @@ msgstr "Tingkat Peringatan"
 msgid "The alert level of the volcano ash event."
 msgstr "Tingkat peringatan kejadian abu vulkanik."
 
-#: realtime/models/ash.py:36 realtime/templates/realtime/ash/index.html:196
+#: realtime/models/ash.py:36 realtime/templates/realtime/ash/index.html:199
 msgid "Hazard File"
 msgstr "File Ancaman"
 
@@ -164,7 +164,7 @@ msgstr "File Ancaman"
 msgid "Hazard file formatted as GeoTIFF (*.tif) in EPSG:4326."
 msgstr "Berkas ancaman dengan format GeoTIFF (*.tif) dalam EPSG:4326."
 
-#: realtime/models/ash.py:42 realtime/templates/realtime/ash/index.html:202
+#: realtime/models/ash.py:42 realtime/templates/realtime/ash/index.html:205
 msgid "Impact Files"
 msgstr "File Dampak"
 
@@ -637,87 +637,81 @@ msgid ""
 "\n"
 "                        This page contains <b>near realtime</b> volcanic ash\n"
 "                        impact assessments generated prior to or during recent\n"
-"                        volcanic eruptions in the Indonesia region.\n"
-"                        Ashmaps of volcanic ash thickness are produced by Indonesia’s\n"
-"                        Geological Agency, Badan Geologi\n"
-"                        (<a href=\"http://www.bgl.esdm.go.id\">http://www.bgl.esdm.go.id</a>)\n"
+"                        volcanic ash eruptions in the Indonesia region.\n"
+"                        Hazard maps of volcanic ash thickness on the ground\n"
+"                        are produced by Indonesia’s Geological Agency,\n"
+"                        Badan Geologi (<a href=\"http://www.bgl.esdm.go.id\">http://www.bgl.esdm.go.id</a>)\n"
 "                        and used by the Indonesian National Disaster Management Agency (BNPB)\n"
 "                        to produce InaSAFE impact assessments\n"
 "                        (<a href=\"http://www.bnpb.go.id\">http://www.bnpb.go.id</a>\n"
-"                        or <a href=\"http://realtime.inasafe.org\">http://realtime.inasafe.org</a>).\n"
-"                        This information is used by disaster managers to help\n"
-"                        them understand the potential scale of a volcanic\n"
-"                        disaster and to respond faster to the hardest hit communities.\n"
+"                        or <a href=\"http://realtime.inasafe.org\">http://realtime.inasafe.org)</a>.\n"
+"                        InaSAFE Realtime Volcanic Ash assessments estimate the potential impact of volcanic\n"
+"                        ash on the ground. This information is used by disaster\n"
+"                        managers to help them understand the potential scale of the volcanic ash impact\n"
+"                        and to recommend mitigation activities for the most vulnerable communities.\n"
+"                        This is particularly important in the lead up to an eruption when communities\n"
+"                        have an opportunity to prepare for a possible hazard event.\n"
 "                    "
 msgstr ""
 "\n"
-"                        Halaman ini memuat data kajian dampak abu vulkanik erupsi gunung berapi di Indonesia \n"
-"                        secara <b><i>near-realtime</i></b> yg dibuat sebelum maupun selama erupsi terjadi. \n"
-"                        Peta ketebalan abu vulkanik dibuat oleh Badan Geologi Kementerian Energi dan Sumber Daya Mineral Indonesia  \n"
-"                       (<a href=\"http://www.bgl.esdm.go.id\">http://www.bgl.esdm.go.id</a>), dan digunakan oleh \n"
-"                       Badan Nasional Penanggulangan Bencana (BNPB) dalam perhitungan kajian dampak bencana abu vulkanik \n"
-"                       menggunakan InaSAFE (<a href=\"http://www.bnpb.go.id\">http://www.bnpb.go.id</a> atau\n"
-"                       <a href=\"http://realtime.inasafe.org\">http://realtime.inasafe.org</a>). \n"
-"                       Informasi ini digunakan oleh pemangku kepentingan terkait bencana untuk membantu memahami \n"
-"                       skala potensial bencana gunungapi dan agar dapat merespon lebih cepat kepada daerah/masyarakat \n"
-"                       yang terkena dampak paling besar."
+"Halaman ini memuat data kajian dampak abu vulkanik erupsi gunungapi di Indonesia secara <b>near realtime</b> dibuat sebelum maupun selama erupsi terjadi. Peta ketebalan abu vulkanik di permukaan tanah dibuat oleh Badan Geologi (<a href=\"http://www.bgl.esdm.go.id\">http://www.bgl.esdm.go.id</a>) dan digunakan oleh Badan Nasional Penanggulanan Bencana (BNPB) dalam perhitungan kajian dampak abu vulkanik menggunakan InaSAFE (<a href=\"http://www.bnpb.go.id\">http://www.bnpb.go.id</a>atau <a href=\"http://realtime.inasafe.org\">http://realtime.inasafe.org)</a>. Kajian InaSAFE Realtime Abu Vulkanik memperkirakan dampak potensial abu vulkanik di atas permukaan tanah. Informasi ini digunakan oleh pemangku kepentingan terkait bencana untuk membantu memahami skala potensial dampak bencana abu vulkanik dan agar dapat membantu aktivitas mitigasi bagi daerah yang terkena dampak paling besar. Hal ini penting khususnya pada waktu-waktu awal semenjak erupsi abu vulkanik terjadi saat masyarakat memiliki kesempatan untuk bersiap menghadapi potensi ancaman yang mungkin terjadi."
 
-#: realtime/templates/realtime/ash/index.html:54
+#: realtime/templates/realtime/ash/index.html:57
 #: realtime/templates/realtime/earthquake/index.html:56
 #: realtime/templates/realtime/flood/index.html:49
 msgid "Map"
 msgstr "Peta"
 
-#: realtime/templates/realtime/ash/index.html:65
+#: realtime/templates/realtime/ash/index.html:68
 msgid "Upload Volcanic Ash"
 msgstr "Unggah Abu Vulkanik"
 
-#: realtime/templates/realtime/ash/index.html:69
+#: realtime/templates/realtime/ash/index.html:72
 msgid "Log in to Upload Volcanic Ash"
 msgstr "Silakan Masuk Untuk Mengunggah Abu Vulkanik"
 
-#: realtime/templates/realtime/ash/index.html:80
+#: realtime/templates/realtime/ash/index.html:83
 msgid "Ash Fall"
 msgstr "Abu Vulkanik"
 
-#: realtime/templates/realtime/ash/index.html:87
+#: realtime/templates/realtime/ash/index.html:90
 #: realtime/templates/realtime/earthquake/index.html:164
 #: realtime/templates/realtime/flood/index.html:155
 msgid "Time"
 msgstr "Waktu"
 
-#: realtime/templates/realtime/ash/index.html:88
+#: realtime/templates/realtime/ash/index.html:91
 msgid "Volcano Name"
 msgstr "Nama Gunungapi"
 
-#: realtime/templates/realtime/ash/index.html:90
+#: realtime/templates/realtime/ash/index.html:93
 msgid "District"
 msgstr "Kabupaten"
 
-#: realtime/templates/realtime/ash/index.html:91
+#: realtime/templates/realtime/ash/index.html:94
 msgid "Eruption Height"
 msgstr "Tinggi Erupsi"
 
-#: realtime/templates/realtime/ash/index.html:179
+#: realtime/templates/realtime/ash/index.html:182
 #: realtime/templates/realtime/earthquake/index.html:311
 msgid "Zoom"
 msgstr "Perbesar"
 
-#: realtime/templates/realtime/ash/index.html:185
-#: realtime/templates/realtime/ash/index.html:207
+#: realtime/templates/realtime/ash/index.html:188
+#: realtime/templates/realtime/ash/index.html:210
 #: realtime/templates/realtime/earthquake/index.html:317
 #: realtime/templates/realtime/earthquake/index.html:327
 #: realtime/templates/realtime/flood/index.html:251
 msgid "Report"
 msgstr "Laporan"
 
-#: realtime/templates/realtime/ash/index.html:191
+#: realtime/templates/realtime/ash/index.html:194
 #: realtime/templates/realtime/earthquake/index.html:323
 #: realtime/templates/realtime/flood/index.html:257
 msgid "Download"
 msgstr "Unduh"
 
-#: realtime/templates/realtime/ash/index.html:265
+#: realtime/templates/realtime/ash/index.html:268
 msgid "YYYY-MM-DD [at] HH:mm:ss ZZ"
 msgstr "YYYY-MM-DD [pukul] HH:mm:ss ZZ"
 
@@ -1003,7 +997,7 @@ msgid "Email"
 msgstr "Email"
 
 #: realtime/templates/realtime/indicator.html:58
-#: realtime/templates/realtime/nav_second.html:18
+#: realtime/templates/realtime/nav_second.html:20
 msgid "Indicator"
 msgstr "Indikator"
 
@@ -1023,11 +1017,11 @@ msgstr "Catatan"
 msgid "Earthquake"
 msgstr "Gempa Bumi"
 
-#: realtime/templates/realtime/nav_second.html:12
+#: realtime/templates/realtime/nav_second.html:13
 msgid "Volcanic Ash"
 msgstr "Abu Vulkanik"
 
-#: realtime/templates/realtime/nav_second.html:15
+#: realtime/templates/realtime/nav_second.html:17
 msgid "API Browser"
 msgstr "Peramban API"
 
