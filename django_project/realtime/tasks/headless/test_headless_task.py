@@ -14,7 +14,8 @@ from realtime.tasks.headless.inasafe_wrapper import (
 )
 
 
-common_test_data_path = os.environ.get('COMMON_TEST_DATA')
+common_test_data_path = os.environ.get(
+    'COMMON_TEST_DATA', '/home/headless_test/data/')
 
 dir_path = common_test_data_path
 
@@ -38,9 +39,12 @@ custom_map_template = os.path.join(
     dir_path, custom_map_template_basename + '.qpt'
 )
 
-OUTPUT_DIRECTORY = os.environ.get('INASAFE_OUTPUT_DIR')
+OUTPUT_DIRECTORY = os.environ.get(
+    'INASAFE_OUTPUT_DIR', '/home/headless_test/data/result/')
 
 
+@unittest.skipIf(
+    os.environ.get('TRAVIS', False), 'Test is not ready for Travis')
 class TestHeadlessCeleryTask(unittest.TestCase):
     """Unit test for Headless Celery tasks."""
 
