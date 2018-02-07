@@ -44,7 +44,7 @@ OUTPUT_DIRECTORY = os.environ.get(
 
 
 @unittest.skipIf(
-    os.environ.get('TRAVIS', False), 'Test is not ready for Travis')
+    os.environ.get('ON_TRAVIS', False), 'Test is not ready for Travis')
 class TestHeadlessCeleryTask(unittest.TestCase):
     """Unit test for Headless Celery tasks."""
 
