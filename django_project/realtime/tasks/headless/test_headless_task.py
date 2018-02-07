@@ -252,4 +252,3 @@ class TestHeadlessCeleryTask(unittest.TestCase):
         async_result = check_broker_connection.delay()
         result = async_result.get()
         self.assertTrue(result)
-
