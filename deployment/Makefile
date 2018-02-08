@@ -50,8 +50,14 @@ check-flake8:
 	@echo "Check flake 8"
 	@flake8 ../django_project
 
+pull-external-services:
+	@echo "Pull InaSAFE Realtime"
+	@docker-compose -p $(PROJECT_ID) pull realtime-worker
+	@echo "Pull InaSAFE Headless"
+	@docker-compose -p $(PROJECT_ID) pull headless-worker
+
 coverage-tests:
-	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run --branch --source=realtime -m unittest discover -s realtime -v
+	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run --branch --source='.' manage.py test realtime --noinput -v 2
 
 build:
 	@echo

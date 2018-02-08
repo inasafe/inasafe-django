@@ -62,6 +62,8 @@ services:
       # Secrets
       - MAPQUEST_MAP_KEY={{ inasafe_django.mapquest_map_key }}
       - SITE_DOMAIN_NAME={{ inasafe_django.site_domain_name }}
+      # Celery
+      - TASK_ALWAYS_EAGER={{ inasafe_django.task_always_eager }}
       # Integration test
       - COMMON_TEST_DATA={{ integration_test.inasafe_headless.mapped_test_data_path }}
       - INASAFE_OUTPUT_DIR={{ integration_test.inasafe_headless.mapped_output_data_path }}
@@ -78,12 +80,16 @@ services:
     environment:
       # Use development settings file
       - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+      # Celery
+      - TASK_ALWAYS_EAGER={{ inasafe_django.task_always_eager }}
     network_mode: "bridge"
 
   indicator-worker:
     environment:
       # Use development settings file
       - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+      # Celery
+      - TASK_ALWAYS_EAGER={{ inasafe_django.task_always_eager }}
     network_mode: "bridge"
 
   {% if inasafe_realtime.use_prebuilt_docker %}

@@ -33,5 +33,5 @@ def ash_post_save(sender, **kwargs):
             instance.task_id = result.id
             instance.task_status = 'PENDING'
             instance.save()
-    except BaseException:
-        pass
+    except BaseException as e:
+        LOGGER.exception(e)

@@ -1,4 +1,5 @@
 # coding=utf-8
+import ast
 import os
 from celery.schedules import crontab
 from kombu import Queue
@@ -10,7 +11,8 @@ __date__ = '2/16/16'
 broker_url = os.environ.get('BROKER_URL')
 result_backend = broker_url
 
-task_always_eager = False
+task_always_eager = ast.literal_eval(
+    os.environ.get('TASK_ALWAYS_EAGER', 'False'))
 task_eager_propagates = True
 task_ignore_result = False
 worker_send_task_events = True
@@ -21,6 +23,9 @@ task_default_exchange = "default"
 task_default_exchange_type = "direct"
 task_default_routing_key = "default"
 task_create_missing_queues = True
+task_serializer = 'pickle'
+accept_content = {'pickle'}
+result_serializer = 'pickle'
 worker_concurrency = 1
 worker_prefetch_multiplier = 1
 

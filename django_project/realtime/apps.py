@@ -106,5 +106,6 @@ class RealtimeConfig(AppConfig):
             self.load_boundary_alias()
             self.load_volcano_fixtures()
             self.load_test_users()
-        except BaseException:
+        except BaseException as e:
+            LOGGER.exception(e)
             pass

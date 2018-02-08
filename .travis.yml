@@ -21,7 +21,9 @@ install:
   - cp ansible/development/group_vars/all.travis.yml ansible/development/group_vars/all.yml
   - make setup-ansible ANSIBLE_ARGS="--extra-vars='ansible_sudo_pass=\"\"' --extra-vars='pycharm_version=\"\"' --skip-tags=development"
   - make build
+  - make pull-external-services
   - make up
+  - make realtime-worker
   - make status
   - cat docker-compose.override.yml
   - until make migrate; do echo "Retrying"; sleep 5; done
