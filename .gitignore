@@ -108,6 +108,7 @@ deployment/docker-compose.override.yml
 !deployment/sftp_backup/backups/pg/README.md
 django_project/realtime/local_settings.py
 django_project/celerybeat.pid
+django_project/celerybeat-schedule
 django_project/temp
 
 sftp_media_credential.env
