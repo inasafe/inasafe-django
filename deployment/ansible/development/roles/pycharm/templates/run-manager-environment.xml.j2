@@ -5,7 +5,7 @@
         <env name="DATABASE_USERNAME" value="docker" />
         <env name="DATABASE_PASSWORD" value="docker" />
         <env name="DATABASE_HOST" value="db" />
-        <env name="INASAFE_REALTIME_BROKER_URL" value="amqp://guest:guest@{{ interpreters.inasafe_realtime.ipaddress }}:{{ docker_port_forward.inasafe_realtime.rabbitmq }}/" />
+        <env name="INASAFE_REALTIME_BROKER_URL" value="amqp://guest:guest@{{ inasafe_realtime.broker }}:{{ inasafe_realtime.broker_port }}/" />
 
         {% if inasafe_headless.use_prebuilt_docker %}
 

@@ -2,12 +2,15 @@
 from __future__ import absolute_import
 
 import logging
+import shutil
+from tempfile import mkdtemp
 
+import os
 import pytz
 from celery.result import AsyncResult
 
 from core.celery_app import app
-from realtime.app_settings import LOGGER_NAME
+from realtime.app_settings import LOGGER_NAME, REALTIME_HAZARD_DROP
 from realtime.models.ash import Ash
 from realtime.tasks.realtime.ash import process_ash
 from realtime.tasks.realtime.celery_app import app as realtime_app
@@ -50,9 +53,16 @@ def generate_event_report(ash_event):
 
         # For ash realtime we need to make sure hazard file is processed.
         # Because the hazard raw data comes from user upload
+
+        # copy hazard data realtime location
+        hazard_drop_path = mkdtemp(dir=REALTIME_HAZARD_DROP)
+        hazard_drop_path = os.path.join(
+            hazard_drop_path, os.path.basename(ash_event.hazard_file.path))
+        shutil.copy(ash_event.hazard_file.path, hazard_drop_path)
+
         LOGGER.info('Sending task ash hazard processing.')
         result = process_ash.delay(
-            ash_file_path=ash_event.hazard_file.path,
+            ash_file_path=hazard_drop_path,
             volcano_name=ash_event.volcano.volcano_name,
             region=ash_event.volcano.province,
             latitude=ash_event.volcano.location[1],
