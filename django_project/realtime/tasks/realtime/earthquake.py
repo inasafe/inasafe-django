@@ -12,24 +12,22 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 
 
 @app.task(
-    name='realtime.tasks.earthquake.process_shake',
-    queue='inasafe-realtime')
-def process_shake(event_id=None):
-    LOGGER.info('proxy tasks')
-    pass
+    name='realtime.tasks.earthquake.process_shake', queue='inasafe-realtime')
+def process_shake(event_id=None, grid_file=None, source_type='initial'):
+    """Celery task for shake hazard.
 
+    :param event_id: Event id of shake
+    :type event_id: str
 
-@app.task(
-    name='realtime.tasks.earthquake.check_event_exists',
-    queue='inasafe-realtime')
-def check_event_exists(event_id=None):
-    LOGGER.info('proxy tasks')
-    pass
+    :param grid_file: Grid file location relative to shakemap working
+        directory
+    :type grid_file: str
 
+    :param source_type: The type of grid source. Available value:
+        initial, post-processed
+    :type source_type: str
 
-@app.task(
-    name='realtime.tasks.earthquake.shake_folder_list',
-    queue='inasafe-realtime')
-def shake_folder_list():
+    :return:
+    """
     LOGGER.info('proxy tasks')
     pass

@@ -94,3 +94,18 @@ def retrieve_felt_earthquake_list():
                 pass
     except urllib2.URLError:
         LOGGER.debug('Failed to connect to {url}'.format(url=target_url))
+
+
+@app.task(queue='inasafe-django')
+def generate_event_report(earthquake_event):
+    """Generate Earthquake report
+
+    :param earthquake_event: Earthquake event instance
+    :type earthquake_event: Earthquake
+    :return:
+    """
+    if earthquake_event.hazard_layer_exists:
+        pass
+        # TODO: Generate Earthquake report
+
+        # TODO: Save Earthquake products to databases

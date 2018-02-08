@@ -22,9 +22,9 @@ install:
   - make setup-ansible ANSIBLE_ARGS="--extra-vars='ansible_sudo_pass=\"\"' --extra-vars='pycharm_version=\"\"' --skip-tags=development"
   - make build
   - make up
-  - until make migrate; do echo "Retrying"; sleep 5; done
   - make status
   - cat docker-compose.override.yml
+  - until make migrate; do echo "Retrying"; sleep 5; done
   - popd
 
 script:

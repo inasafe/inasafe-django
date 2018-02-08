@@ -7,7 +7,7 @@ __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '2/16/16'
 
 
-broker_url = os.environ.get('broker_url')
+broker_url = os.environ.get('BROKER_URL')
 result_backend = broker_url
 
 task_always_eager = False
