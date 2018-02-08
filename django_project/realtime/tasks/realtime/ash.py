@@ -12,7 +12,7 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 
 
 @app.task(
-    name='realtime.tasks.flood.process_ash', queue='inasafe-realtime')
+    name='realtime.tasks.ash.process_ash', queue='inasafe-realtime')
 def process_ash(
         ash_file_path, volcano_name, region,
         latitude, longitude, alert_level,

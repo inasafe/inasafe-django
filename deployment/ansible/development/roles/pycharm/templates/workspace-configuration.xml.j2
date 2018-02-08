@@ -22,6 +22,8 @@
       <option name="PARENT_ENVS" value="true" />
       <envs>
         {% include 'run-manager-environment.xml.j2' %}
+
+        <env name="TASK_ALWAYS_EAGER" value="True" />
       </envs>
       <option name="SDK_HOME" value="ssh://root@{{ interpreters.inasafe_django.domain_alias }}:{{ interpreters.inasafe_django.ssh_port }}/usr/local/bin/python" />
       <option name="WORKING_DIRECTORY" value="" />
@@ -253,6 +255,8 @@
       <option name="PARENT_ENVS" value="true" />
       <envs>
         {% include 'run-manager-environment.xml.j2' %}
+
+        <env name="TASK_ALWAYS_EAGER" value="True" />
       </envs>
       <option name="SDK_HOME" value="ssh://root@{{ interpreters.inasafe_django.domain_alias }}:{{ interpreters.inasafe_django.ssh_port }}/usr/local/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/django_project/" />
@@ -277,6 +281,8 @@
       <option name="PARENT_ENVS" value="true" />
       <envs>
         {% include 'run-manager-environment.xml.j2' %}
+
+        <env name="TASK_ALWAYS_EAGER" value="True" />
       </envs>
       <option name="SDK_HOME" value="ssh://root@{{ interpreters.inasafe_django.domain_alias }}:{{ interpreters.inasafe_django.ssh_port }}/usr/local/bin/python" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/django_project/" />
