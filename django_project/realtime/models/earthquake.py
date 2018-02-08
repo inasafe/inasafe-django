@@ -39,7 +39,9 @@ class Earthquake(models.Model):
     generated_time = models.DateTimeField(
         verbose_name=_('Report Generated Date and Time'),
         help_text=_('The time the shake report generated.'),
-        blank=False)
+        blank=False,
+        null=True,
+        default=None)
     depth = models.FloatField(
         verbose_name=_('The depth'),
         help_text=_('The depth of the event in km unit.'))
@@ -63,18 +65,21 @@ class Earthquake(models.Model):
     source_type = models.CharField(
         verbose_name=_('Source Type'),
         help_text=_('Source type of shake grid'),
-        max_length=30)
+        max_length=30,
+        default='initial')
     hazard_path = models.CharField(
         verbose_name=_('Hazard Layer path'),
         help_text=_('Location of hazard layer'),
         max_length=255,
         default=None,
+        null=True,
         blank=True)
     inasafe_version = models.CharField(
         verbose_name=_('InaSAFE version'),
         help_text=_('InaSAFE version being used'),
         max_length=10,
         default=None,
+        null=True,
         blank=True)
 
     objects = models.GeoManager()

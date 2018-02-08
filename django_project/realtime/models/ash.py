@@ -86,12 +86,14 @@ class Ash(models.Model):
         help_text=_('Location of hazard layer'),
         max_length=255,
         default=None,
+        null=True,
         blank=True)
     inasafe_version = models.CharField(
         verbose_name=_('InaSAFE version'),
         help_text=_('InaSAFE version being used'),
         max_length=10,
         default=None,
+        null=True,
         blank=True)
 
     objects = models.GeoManager()
