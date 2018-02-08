@@ -122,7 +122,10 @@ def run_multi_exposure_analysis(
 
 @app.task(
     name='inasafe.headless.tasks.generate_report', queue='inasafe-headless')
-def generate_report(impact_layer_uri, custom_report_template_uri=None):
+def generate_report(
+        impact_layer_uri,
+        custom_report_template_uri=None,
+        custom_layer_order=None):
     """Generate report based on impact layer uri.
 
     :param impact_layer_uri: The uri to impact layer (one of them).
@@ -130,6 +133,9 @@ def generate_report(impact_layer_uri, custom_report_template_uri=None):
 
     :param custom_report_template_uri: The uri to report template.
     :type custom_report_template_uri: basestring
+
+    :param custom_layer_order: List of layers uri for map report layers order.
+    :type custom_layer_order: list
 
     :returns: A dictionary of output's report key and Uri with status and
         message.
