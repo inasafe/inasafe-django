@@ -12,6 +12,8 @@ import ast
 from datetime import timedelta
 
 import os
+
+import errno
 from django.conf import settings
 
 LOGGER_NAME = 'InaSAFE Realtime REST Server'
@@ -113,6 +115,17 @@ MAPQUEST_MAP_KEY = getattr(settings, 'MAPQUEST_MAP_KEY', '')
 OSM_LEVEL_7_NAME = 'Kelurahan'
 
 OSM_LEVEL_8_NAME = 'RW'
+
+# Hazard Drop location
+REALTIME_HAZARD_DROP = os.environ.get(
+    'REALTIME_HAZARD_DROP',
+    '/home/realtime/hazard-drop/')
+
+try:
+    os.makedirs(REALTIME_HAZARD_DROP)
+except OSError as e:
+    if not e.errno == errno.EEXIST:
+        raise
 
 # ASH Report Event ID Format
 ASH_EVENT_ID_FORMAT = getattr(
