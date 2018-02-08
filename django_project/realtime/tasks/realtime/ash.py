@@ -12,17 +12,44 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 
 
 @app.task(
-    name='realtime.tasks.ash.process_ash',
-    queue='inasafe-realtime')
+    name='realtime.tasks.flood.process_ash', queue='inasafe-realtime')
 def process_ash(
-        event_time=None,
-        volcano_name=None,
-        volcano_location=None,
-        eruption_height=None,
-        vent_height=None,
-        forecast_duration=None,
-        region=None,
-        alert_level=None,
-        hazard_url=None):
+        ash_file_path, volcano_name, region,
+        latitude, longitude, alert_level,
+        event_time, eruption_height, vent_height, forecast_duration):
+    """Celery tasks to process ash hazard.
+
+    :param ash_file_path: File path to ash layer
+    :type ash_file_path: str
+
+    :param volcano_name: The volcano name
+    :type volcano_name: str
+
+    :param region: The region where the volcano located
+    :type region: str
+
+    :param latitude: Latitude number in EPSG:4326
+    :type latitude: float
+
+    :param longitude: Longitude number in EPSG:4326
+    :type longitude: float
+
+    :param alert_level: Alert level string. Alailable value:
+        Normal, Warning, Advisory, Watch
+    :type alert_level: str
+
+    :param event_time: Event time of Ash with timezone
+    :type event_time: datetime.datetime
+
+    :param eruption_height: Eruption height calculated from volcano height
+        / vent height
+    :type eruption_height: float
+
+    :param vent_height: Height of volcano / Height of vent
+    :type vent_height: float
+
+    :param forecast_duration: Forecast duration of model in days
+    :type forecast_duration: float
+    """
     LOGGER.info('proxy tasks')
     pass

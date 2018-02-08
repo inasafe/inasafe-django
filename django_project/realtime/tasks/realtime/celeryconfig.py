@@ -14,9 +14,3 @@ __date__ = '1/28/16'
 broker_url = os.environ.get('INASAFE_REALTIME_BROKER_URL')
 
 result_backend = broker_url
-
-task_routes = {
-    'realtime.tasks.flood': {
-        'queue': 'inasafe-realtime'
-    }
-}

@@ -253,3 +253,18 @@ def recalculate_impact_info(flood):
 def create_flood_report():
     process_flood.delay()
     LOGGER.info('Processing flood...')
+
+
+@app.task(queue='inasafe-django')
+def generate_event_report(flood_event):
+    """Generate Earthquake report
+
+    :param flood_event: Earthquake event instance
+    :type flood_event: Earthquake
+    :return:
+    """
+    if flood_event.hazard_layer_exists:
+        pass
+        # TODO: Generate Flood report
+
+        # TODO: Save Flood products to databases
