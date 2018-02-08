@@ -1,5 +1,7 @@
 # coding=utf-8
 """Model class for ash realtime."""
+import os
+
 import pytz
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
@@ -79,6 +81,18 @@ class Ash(models.Model):
         max_length=30,
         default='None',
         blank=True)
+    hazard_path = models.CharField(
+        verbose_name=_('Hazard Layer path'),
+        help_text=_('Location of hazard layer'),
+        max_length=255,
+        default=None,
+        blank=True)
+    inasafe_version = models.CharField(
+        verbose_name=_('InaSAFE version'),
+        help_text=_('InaSAFE version being used'),
+        max_length=10,
+        default=None,
+        blank=True)
 
     objects = models.GeoManager()
 
@@ -113,6 +127,13 @@ class Ash(models.Model):
         if self.impact_files:
             self.impact_files.delete()
         return super(Ash, self).delete(using=using)
+
+    @property
+    def hazard_layer_exists(self):
+        """Return bool to indicate existances of hazard layer"""
+        if self.hazard_path:
+            return os.path.exists(self.hazard_path)
+        return False
 
 
 class AshReport(models.Model):

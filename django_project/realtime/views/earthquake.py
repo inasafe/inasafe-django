@@ -347,9 +347,9 @@ def get_grid_xml(request, shake_id):
     try:
         shake = Earthquake.objects.get(shake_id=shake_id)
         if not shake.shake_grid:
-            # fetch shake grid from Realtime Processor
-            process_shake.delay(shake_id)
-            return JsonResponse({'success': True})
+            # Legacy shake grid not exists
+            # TODO: Update using current workflow
+            return JsonResponse({'success': False})
         response = HttpResponse(
             shake.shake_grid.read(), content_type='application/octet-stream')
         response['Content-Disposition'] = \
@@ -365,6 +365,8 @@ def trigger_process_shake(request, shake_id):
         return HttpResponseBadRequest()
 
     try:
+        # Legacy shake grid not exists
+        # TODO: Update using current workflow
         process_shake.delay(shake_id)
         return JsonResponse({'success': True})
     except BaseException:
