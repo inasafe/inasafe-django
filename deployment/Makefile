@@ -212,6 +212,37 @@ realtime-worker-logs:
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 realtime-worker
 
+headless-worker:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) up -d headless-worker
+
+headless-worker-shell:
+	@docker-compose -p $(PROJECT_ID) exec headless-worker /bin/bash
+
+headless-worker-restart:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) restart headless-worker
+
+headless-worker-stop:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) stop headless-worker
+
+headless-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker logs"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 headless-worker
+
 status:
 	@docker-compose -p $(PROJECT_ID) ps
 

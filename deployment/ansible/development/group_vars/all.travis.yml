@@ -69,6 +69,24 @@ inasafe_realtime:
   # Port to inasafe_realtime broker
   broker_port: 5672
 
+# Facts needed for InaSAFE Headless
+# This is to setup Headless Hazard services
+inasafe_headless:
+  # Use prebuilt docker will generate docker-compose services using prebuilt
+  # docker image, if set to yes. If set to no, then it will assume the service
+  # available locally on another docker-compose service, for example when
+  # debugging in another repo
+  use_prebuilt_docker: yes
+  # set host working dir to the location that will contains inasafe headless
+  # hazards
+  host_working_dir: ./headless-data
+  # the working dir location seen from inside inasafe_realtime docker service
+  working_dir: /home/headless
+  # Address to inasafe_headless broker
+  broker: rabbitmq
+  # Port to inasafe_headless broker
+  broker_port: 5672
+
 # Facts needed for SFTP Backup
 # This is setup to use kartoza hanoi backup scheme
 # The container will push backups to SFTP server if configured.
@@ -127,6 +145,7 @@ realtime_rest_api:
   user: test@realtime.inasafe.org
   password: t3st4ccount
 
+# TODO(IS): remove this
 integration_test:
   inasafe_headless:
     # Path to inasafe-headless project
