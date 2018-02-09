@@ -17,7 +17,7 @@
 
         {% endif %}
         <env name="COMMON_TEST_DATA" value="{{ integration_test.inasafe_headless.mapped_test_data_path }}" />
-        <env name="INASAFE_OUTPUT_DIR" value="{{ integration_test.inasafe_headless.mapped_output_data_path }}" />
+        <env name="INASAFE_OUTPUT_DIR" value="{{ inasafe_headless.working_dir }}/outputs" />
         <env name="MAPQUEST_MAP_KEY" value="{{ inasafe_django.mapquest_map_key }}" />
         <env name="SITE_DOMAIN_NAME" value="{{ inasafe_django.site_domain_name }}" />
         <env name="PYTHONUNBUFFERED" value="1" />
