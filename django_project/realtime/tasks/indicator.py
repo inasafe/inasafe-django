@@ -6,7 +6,6 @@ from datetime import datetime
 
 import os
 import pytz
-from celery import chain
 from celery.result import allow_join_result
 
 from core.celery_app import app
