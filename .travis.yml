@@ -24,6 +24,7 @@ install:
   - make pull-external-services
   - make up
   - make realtime-worker
+  - make headless-worker
   - make status
   - cat docker-compose.override.yml
   - until make migrate; do echo "Retrying"; sleep 5; done
@@ -32,7 +33,7 @@ install:
 script:
   - pushd deployment
   - make check-flake8
-#  - make coverage-tests
+  - make coverage-tests
   - popd
 
 after_script:
