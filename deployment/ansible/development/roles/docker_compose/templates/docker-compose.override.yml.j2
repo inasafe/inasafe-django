@@ -58,24 +58,12 @@ services:
       - VIRTUAL_PORT=8080
       - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
       - INASAFE_REALTIME_BROKER_URL=amqp://guest:guest@{{ inasafe_realtime.broker }}:{{ inasafe_realtime.broker_port }}/
-
-      {% if inasafe_headless.use_prebuilt_docker %}
-
-      - INASAFE_HEADLESS_BROKER_URL=amqp://guest:guest@rabbitmq:5672/
-
-      {% else %}
-
       - INASAFE_HEADLESS_BROKER_URL=amqp://guest:guest@{{ inasafe_headless.broker }}:{{ inasafe_headless.broker_port }}/
-
-      {% endif %}
-
       # Secrets
       - MAPQUEST_MAP_KEY={{ inasafe_django.mapquest_map_key }}
       - SITE_DOMAIN_NAME={{ inasafe_django.site_domain_name }}
       # Celery
       - TASK_ALWAYS_EAGER={{ inasafe_django.task_always_eager }}
-      # Integration test
-      - COMMON_TEST_DATA={{ integration_test.inasafe_headless.mapped_test_data_path }}
       - INASAFE_OUTPUT_DIR={{ inasafe_headless.working_dir }}/outputs
     links:
       - smtp:smtp
