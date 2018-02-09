@@ -11,5 +11,6 @@ app = Celery('inasafe-django')
 
 # Using a string here means the worker will not have to
 # pickle the object when using Windows.
-app.config_from_object('django.conf:settings')
+# app.config_from_object('django.conf:settings')
+app.config_from_object('core.settings.celery_config')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)

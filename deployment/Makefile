@@ -46,6 +46,13 @@ setup-ansible:
 	@echo "Setup configurations using ansible"
 	@ansible-playbook -i ansible/development/hosts ansible/development/site.yml -v $(ANSIBLE_ARGS)
 
+check-flake8:
+	@echo "Check flake 8"
+	@flake8 ../django_project
+
+coverage-tests:
+	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run --branch --source=realtime -m unittest discover -s realtime -v
+
 build:
 	@echo
 	@echo "------------------------------------------------------------------"
@@ -142,7 +149,7 @@ inasafe-worker-stop:
 inasafe-worker-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker "
+	@echo "Running celery worker logs"
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 inasafe-worker
 
@@ -170,9 +177,71 @@ indicator-worker-stop:
 indicator-worker-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker "
+	@echo "Running celery worker logs"
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 indicator-worker
+
+realtime-worker:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) up -d realtime-worker
+
+realtime-worker-shell:
+	@docker-compose -p $(PROJECT_ID) exec realtime-worker /bin/bash
+
+realtime-worker-restart:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) restart realtime-worker
+
+realtime-worker-stop:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) stop realtime-worker
+
+realtime-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker logs"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 realtime-worker
+
+headless-worker:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) up -d headless-worker
+
+headless-worker-shell:
+	@docker-compose -p $(PROJECT_ID) exec headless-worker /bin/bash
+
+headless-worker-restart:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) restart headless-worker
+
+headless-worker-stop:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) stop headless-worker
+
+headless-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running celery worker logs"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 headless-worker
 
 status:
 	@docker-compose -p $(PROJECT_ID) ps

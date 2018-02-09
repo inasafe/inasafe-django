@@ -2,22 +2,22 @@
 
 # Set to yes, if you're using pycharm for development
 # Otherwise, set no
-use_pycharm: yes
+use_pycharm: no
 # Your linux/mac user that will run ansible
-remote_user: lucernae
+remote_user: travis
 # Your linux/mac group that will run ansible
-remote_group: staff
+remote_group: travis
 # Your project location (this repo)
-project_path: "/Users/lucernae/Documents/WorkingDir/Projects/InaSAFE/inasafe-django"
+project_path: "/home/travis/build/inasafe/inasafe-django"
 # True if it will be running on Travis
-on_travis: False
+on_travis: True
 
 # Facts for this web app
 inasafe_django:
   # Site domain name for this web app.
   # It can be pointing to domain name or ipaddress:port
   # for local development, use 'http://docker-inasafe-django:61102'
-  site_domain_name: 'http://docker-inasafe-django:61102'
+  site_domain_name: 'http://uwsgi:8080/'
   # We are using mapquest to show basemap. Put your mapquest key here
   mapquest_map_key: 'secretkey'
   # We are using sentry to send error messages. Put your sentry key here
@@ -78,9 +78,9 @@ inasafe_headless:
   # debugging in another repo
   use_prebuilt_docker: yes
   # set host working dir to the location that will contains inasafe headless
-  # data
+  # hazards
   host_working_dir: ./headless-data
-  # the working dir location seen from inside inasafe_headless docker service
+  # the working dir location seen from inside inasafe_realtime docker service
   working_dir: /home/headless
   # Address to inasafe_headless broker
   broker: rabbitmq
@@ -112,9 +112,9 @@ sftp_backups:
 # Set this fact to your appropriate credentials. If not used,
 # leave as blank
 inaware:
-  host: http://inawaretest.pdc.org/
-  user: inawareuser
-  password: thepassword
+  host:
+  user:
+  password:
 
 # This declaration is used to describe port forwarding that is being used
 # by docker-compose. Leave it as default.
@@ -138,12 +138,12 @@ docker_port_forward:
 # This declaration is used to connect InaSAFE Django and InaSAFE Realtime
 # processor
 realtime_rest_api:
-  host: *inasafe_django_host_ip
-  port: 61102
+  host: uwsgi
+  port: 8080
   # Set your own user & password you set up
   # This credentials will be used by InaSAFE Realtime
   user: test@realtime.inasafe.org
-  password: thepassword
+  password: t3st4ccount
 
 # TODO(IS): remove this
 integration_test:

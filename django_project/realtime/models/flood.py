@@ -1,5 +1,6 @@
 # coding=utf-8
 """Model class for flood realtime."""
+import os
 
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
@@ -129,6 +130,25 @@ class Flood(models.Model):
         verbose_name=_('Total boundary flooded'),
         help_text=_('Total boundary affected by flood'),
         default=0)
+    source_type = models.CharField(
+        verbose_name=_('Source Type'),
+        help_text=_('Source type of shake grid'),
+        max_length=30,
+        default='petabencana')
+    hazard_path = models.CharField(
+        verbose_name=_('Hazard Layer path'),
+        help_text=_('Location of hazard layer'),
+        max_length=255,
+        default=None,
+        null=True,
+        blank=True)
+    inasafe_version = models.CharField(
+        verbose_name=_('InaSAFE version'),
+        help_text=_('InaSAFE version being used'),
+        max_length=10,
+        default=None,
+        null=True,
+        blank=True)
 
     objects = models.GeoManager()
 
@@ -139,6 +159,13 @@ class Flood(models.Model):
 
     def __unicode__(self):
         return 'Flood event & interval: %s - %s' % (self.time, self.interval)
+
+    @property
+    def hazard_layer_exists(self):
+        """Return bool to indicate existances of hazard layer"""
+        if self.hazard_path:
+            return os.path.exists(self.hazard_path)
+        return False
 
 
 class FloodReport(models.Model):

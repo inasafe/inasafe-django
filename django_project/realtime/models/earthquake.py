@@ -1,5 +1,6 @@
 # coding=utf-8
 """Model class for earthquake realtime."""
+import os
 
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -15,8 +16,7 @@ class Earthquake(models.Model):
         verbose_name=_('The Shake ID'),
         help_text=_('The Shake ID, which represents the time of the event.'),
         max_length='14',
-        blank=False,
-        unique=True)
+        blank=False)
     shake_grid = models.FileField(
         verbose_name=_('Shake Grid XML File'),
         help_text=_('The Shake Grid to process'),
@@ -36,6 +36,12 @@ class Earthquake(models.Model):
         verbose_name=_('Date and Time'),
         help_text=_('The time the shake happened.'),
         blank=False)
+    generated_time = models.DateTimeField(
+        verbose_name=_('Report Generated Date and Time'),
+        help_text=_('The time the shake report generated.'),
+        blank=False,
+        null=True,
+        default=None)
     depth = models.FloatField(
         verbose_name=_('The depth'),
         help_text=_('The depth of the event in km unit.'))
@@ -56,6 +62,25 @@ class Earthquake(models.Model):
         help_text=_("Set to True if this particular event showed up as felt "
                     "Earthquake in BMKG's List"),
         default=False)
+    source_type = models.CharField(
+        verbose_name=_('Source Type'),
+        help_text=_('Source type of shake grid'),
+        max_length=30,
+        default='initial')
+    hazard_path = models.CharField(
+        verbose_name=_('Hazard Layer path'),
+        help_text=_('Location of hazard layer'),
+        max_length=255,
+        default=None,
+        null=True,
+        blank=True)
+    inasafe_version = models.CharField(
+        verbose_name=_('InaSAFE version'),
+        help_text=_('InaSAFE version being used'),
+        max_length=10,
+        default=None,
+        null=True,
+        blank=True)
 
     objects = models.GeoManager()
 
@@ -74,6 +99,13 @@ class Earthquake(models.Model):
         for report in self.reports.all():
             report.delete(using=using)
         super(Earthquake, self).delete(using=using)
+
+    @property
+    def hazard_layer_exists(self):
+        """Return bool to indicate existances of hazard layer"""
+        if self.hazard_path:
+            return os.path.exists(self.hazard_path)
+        return False
 
 
 class EarthquakeReport(models.Model):
