@@ -110,6 +110,7 @@ django_project/realtime/local_settings.py
 django_project/celerybeat.pid
 django_project/celerybeat-schedule
 django_project/temp
+deployment/realtime-hazard
 
 sftp_media_credential.env
 sftp_pg_credential.env

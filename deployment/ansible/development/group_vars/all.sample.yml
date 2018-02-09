@@ -22,6 +22,8 @@ inasafe_django:
   mapquest_map_key: 'secretkey'
   # We are using sentry to send error messages. Put your sentry key here
   sentry_secret_key: 'secretkey'
+  # Toggle for celery always eager settings
+  task_always_eager: False
 
 # Facts for PyCharm integrations
 # Not needed for productions
