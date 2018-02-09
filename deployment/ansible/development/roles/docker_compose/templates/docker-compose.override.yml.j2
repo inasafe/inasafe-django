@@ -45,7 +45,7 @@ services:
       - ./reports:/home/web/reports
       - ./logs:/var/log/
       - ./tmp:/tmp
-      - {{ integration_test.inasafe_headless.test_data_path }}:{{ integration_test.inasafe_headless.mapped_test_data_path }}
+      - {{ inasafe_headless.host_working_dir }}:{{ inasafe_headless.working_dir }}
       - {{ inasafe_realtime.host_working_dir }}:{{ inasafe_realtime.working_dir }}
     environment:
       - DATABASE_NAME=gis
@@ -58,13 +58,13 @@ services:
       - VIRTUAL_PORT=8080
       - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
       - INASAFE_REALTIME_BROKER_URL=amqp://guest:guest@{{ inasafe_realtime.broker }}:{{ inasafe_realtime.broker_port }}/
-      - INASAFE_HEADLESS_BROKER_URL=amqp://guest:guest@{{ interpreters.inasafe_headless.ipaddress }}:{{ docker_port_forward.inasafe_headless.rabbitmq }}/
+      - INASAFE_HEADLESS_BROKER_URL=amqp://guest:guest@{{ inasafe_headless.broker }}:{{ inasafe_headless.broker_port }}/
       # Secrets
       - MAPQUEST_MAP_KEY={{ inasafe_django.mapquest_map_key }}
       - SITE_DOMAIN_NAME={{ inasafe_django.site_domain_name }}
       # Integration test
       - COMMON_TEST_DATA={{ integration_test.inasafe_headless.mapped_test_data_path }}
-      - INASAFE_OUTPUT_DIR={{ integration_test.inasafe_headless.mapped_output_data_path }}
+      - INASAFE_OUTPUT_DIR={{ inasafe_headless.working_dir }}/outputs
     links:
       - smtp:smtp
       - db:db
@@ -111,6 +111,30 @@ services:
       - INASAFE_REALTIME_REST_URL=http://{{ realtime_rest_api.host }}:{{ realtime_rest_api.port }}/realtime/api/v1
       - INASAFE_REALTIME_REST_USER={{ realtime_rest_api.user }}
       - INASAFE_REALTIME_REST_PASSWORD={{ realtime_rest_api.password }}
+    network_mode: "bridge"
+
+  {% endif %}
+
+  {% if inasafe_headless.use_prebuilt_docker %}
+
+  headless-worker:
+    image: inasafe/headless_processor
+    command: /docker-entrypoint.sh prod inasafe-headless-worker
+    links:
+      - rabbitmq:rabbitmq
+      - uwsgi:uwsgi
+    volumes:
+      - {{ inasafe_headless.host_working_dir }}:{{ inasafe_headless.working_dir }}
+    environment:
+      - PYTHONPATH=/usr/share/qgis/python:/usr/share/qgis/python/plugins:/usr/share/qgis/python/plugins/inasafe:/home/app
+      - DISPLAY=:99
+      - C_FORCE_ROOT=True
+      - TASK_ALWAYS_EAGER=False
+      - ON_TRAVIS={{ on_travis }}
+      - INASAFE_LOCALE=id
+      - INASAFE_HEADLESS_BROKER_HOST=amqp://guest:guest@rabbitmq:5672/
+      - INASAFE_WORK_DIR={{ inasafe_headless.working_dir }}
+      - INASAFE_OUTPUT_DIR={{ inasafe_headless.working_dir }}/outputs
     network_mode: "bridge"
 
   {% endif %}
