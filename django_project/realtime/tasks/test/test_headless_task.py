@@ -15,38 +15,32 @@ from realtime.tasks.headless.inasafe_wrapper import (
     check_broker_connection,
 )
 
-
-common_test_data_path = os.environ.get(
-    'COMMON_TEST_DATA', '/home/headless_test/data/')
-
-dir_path = common_test_data_path
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # Layers
 earthquake_layer_uri = os.path.join(
-    dir_path, 'input_layers', 'earthquake.asc')
+    dir_path, 'data', 'input_layers', 'earthquake.asc')
 shakemap_layer_uri = os.path.join(
-    dir_path, 'input_layers', 'grid-use_ascii.tif')
+    dir_path, 'data', 'input_layers', 'grid-use_ascii.tif')
 place_layer_uri = os.path.join(
-    dir_path, 'input_layers', 'places.geojson')
+    dir_path, 'data', 'input_layers', 'places.geojson')
 aggregation_layer_uri = os.path.join(
-    dir_path, 'input_layers', 'small_grid.geojson')
+    dir_path, 'data', 'input_layers', 'small_grid.geojson')
 population_multi_fields_layer_uri = os.path.join(
-    dir_path, 'input_layers', 'population_multi_fields.geojson')
+    dir_path, 'data', 'input_layers', 'population_multi_fields.geojson')
 buildings_layer_uri = os.path.join(
-    dir_path, 'input_layers', 'buildings.geojson')
+    dir_path, 'data', 'input_layers', 'buildings.geojson')
 
 # Map template
 custom_map_template_basename = 'custom-inasafe-map-report-landscape'
 custom_map_template = os.path.join(
-    dir_path, custom_map_template_basename + '.qpt'
+    dir_path, 'data', custom_map_template_basename + '.qpt'
 )
 
 OUTPUT_DIRECTORY = os.environ.get(
-    'INASAFE_OUTPUT_DIR', '/home/headless_test/data/result/')
+    'INASAFE_OUTPUT_DIR', '/home/headless/outputs')
 
 
-# @test.skipIf(
-#     os.environ.get('ON_TRAVIS', False), 'Test is not ready for Travis')
 class TestHeadlessCeleryTask(test.SimpleTestCase):
     """Unit test for Headless Celery tasks."""
 
