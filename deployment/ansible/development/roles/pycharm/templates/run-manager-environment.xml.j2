@@ -6,7 +6,16 @@
         <env name="DATABASE_PASSWORD" value="docker" />
         <env name="DATABASE_HOST" value="db" />
         <env name="INASAFE_REALTIME_BROKER_URL" value="amqp://guest:guest@{{ interpreters.inasafe_realtime.ipaddress }}:{{ docker_port_forward.inasafe_realtime.rabbitmq }}/" />
+
+        {% if inasafe_headless.use_prebuilt_docker %}
+
+        <env name="INASAFE_HEADLESS_BROKER_URL" value="amqp://guest:guest@rabbitmq:5672/" />
+
+        {% else %}
+
         <env name="INASAFE_HEADLESS_BROKER_URL" value="amqp://guest:guest@{{ interpreters.inasafe_headless.ipaddress }}:{{ docker_port_forward.inasafe_headless.rabbitmq }}/" />
+
+        {% endif %}
         <env name="COMMON_TEST_DATA" value="{{ integration_test.inasafe_headless.mapped_test_data_path }}" />
         <env name="INASAFE_OUTPUT_DIR" value="{{ integration_test.inasafe_headless.mapped_output_data_path }}" />
         <env name="MAPQUEST_MAP_KEY" value="{{ inasafe_django.mapquest_map_key }}" />
