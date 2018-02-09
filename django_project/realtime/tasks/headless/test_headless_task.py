@@ -2,7 +2,9 @@
 """Docstring here."""
 
 import os
-import unittest
+
+from django import test
+
 from realtime.tasks.headless.inasafe_wrapper import (
     get_keywords,
     run_analysis,
@@ -43,9 +45,9 @@ OUTPUT_DIRECTORY = os.environ.get(
     'INASAFE_OUTPUT_DIR', '/home/headless_test/data/result/')
 
 
-@unittest.skipIf(
-    os.environ.get('ON_TRAVIS', False), 'Test is not ready for Travis')
-class TestHeadlessCeleryTask(unittest.TestCase):
+# @test.skipIf(
+#     os.environ.get('ON_TRAVIS', False), 'Test is not ready for Travis')
+class TestHeadlessCeleryTask(test.TestCase):
     """Unit test for Headless Celery tasks."""
 
     def test_get_keywords(self):
