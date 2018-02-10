@@ -44,6 +44,17 @@ OUTPUT_DIRECTORY = os.environ.get(
 class TestHeadlessCeleryTask(test.SimpleTestCase):
     """Unit test for Headless Celery tasks."""
 
+    def check_path(self, path):
+        """Helper method to check a path."""
+        message = 'Path %s is not exist' % path
+        self.assertTrue(os.path.exists(path), message)
+
+    def test_check_layer_exist(self):
+        """Test if the layer exist."""
+        self.check_path(dir_path)
+        self.check_path(os.path.join(dir_path, 'data'))
+        self.check_path(os.path.join(dir_path, 'data', 'input_layers'))
+
     def test_get_keywords(self):
         """Test get_keywords task."""
         self.assertTrue(os.path.exists(place_layer_uri))
