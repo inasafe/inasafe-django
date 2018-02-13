@@ -43,7 +43,7 @@ after_script:
   - popd
 
 after_success:
-  - pushd src
+  - pushd django_project
   # Fix path (codecov.yml doesn't work)
   # Replace parent directory to travis directory, because we are running
   # coverage using docker mount
