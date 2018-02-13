@@ -10,16 +10,36 @@ import pytz
 from celery.result import AsyncResult
 
 from core.celery_app import app
+
 from realtime.app_settings import LOGGER_NAME, REALTIME_HAZARD_DROP
 from realtime.models.ash import Ash
 from realtime.tasks.realtime.ash import process_ash
 from realtime.tasks.realtime.celery_app import app as realtime_app
+
+from realtime.tasks.headless.inasafe_wrapper import (
+    run_multi_exposure_analysis, generate_report)
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '20/7/17'
 
 
 LOGGER = logging.getLogger(LOGGER_NAME)
+
+ASH_EXPOSURES = [
+    '/home/headless/contexts/ash/exposure/IDN_Airport_OpenFlights_WGS84.shp',
+    '/home/headless/contexts/contexts/ash/exposure/IDN_Landcover_250K_WGS84'
+    '.shp',
+
+    '/home/headless/contexts/common/exposure/'
+    'IDN_Capital_Population_Point_WGS84.shp'
+]
+ASH_AGGREGATION = ''
+ASH_REPORT_TEMPLATE = '/home/headless/qgis-templates/realtime-ash-en.qpt'
+ASH_LAYER_ORDER = [
+    '/home/headless/contexts/ash/exposure/IDN_Airport_OpenFlights_WGS84.shp',
+    # the ash layer
+    '/home/headless/contexts/common/context/hillshade.tif'
+]
 
 
 @app.task(queue='inasafe-django')
@@ -91,3 +111,36 @@ def generate_event_report(ash_event):
     # TODO: Generate Ash report
 
     # TODO: Save Ash products to databases
+
+
+def run_ash_analysis(ash_id):
+    """Run ash analysis and get report from it.
+
+    :param ash_id: The id of the ash object.
+    :type ash_id: int
+    """
+    ash = Ash.objects.get(pk=ash_id)
+    ash_layer_uri = ash.hazard_path
+    async_result = run_multi_exposure_analysis.delay(
+        ash_layer_uri,
+        ASH_EXPOSURES,
+        ASH_AGGREGATION,
+    )
+    return async_result
+
+def generate_ash_report(ash_id):
+    """Generate ash report for ash_id.
+
+    :param ash_id: The id of the ash object.
+    :type ash_id: int
+    """
+    ash = Ash.objects.get(pk=ash_id)
+    ash_impact_layer_uri = ash.impact_file_path
+    layer_order = [
+        ASH_LAYER_ORDER[0],
+        ash.hazard_path,
+        ASH_LAYER_ORDER[1]
+    ]
+    async_result = generate_report.delay(
+        ash_impact_layer_uri, ASH_REPORT_TEMPLATE, layer_order)
+    return async_result
