@@ -147,3 +147,6 @@ realtime_rest_api:
   user: test@realtime.inasafe.org
   password: thepassword
 
+# Secret key for sync data
+secret_key:
+  contexts_data: secretkey  # Exposure, Aggregation, Contexts layer
