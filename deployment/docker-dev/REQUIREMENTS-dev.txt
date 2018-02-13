@@ -4,8 +4,6 @@ pylint
 flake8
 factory_boy==2.8.1
 
-django-devserver==0.8.0
-
 # documentation
 Sphinx
 

@@ -2,10 +2,10 @@
 from __future__ import absolute_import
 
 import logging
+import os
 import shutil
 from tempfile import mkdtemp
 
-import os
 import pytz
 from celery.result import AsyncResult
 
@@ -73,16 +73,20 @@ def generate_event_report(ash_event):
             vent_height=ash_event.volcano.elevation,
             forecast_duration=ash_event.forecast_duration)
 
-        task_result = result.get()
-
-        success = task_result.get('success')
-        hazard_path = task_result.get('hazard_path')
-
-        if not success:
-            raise Exception('Error Generating Hazard file.')
-
-        ash_event.hazard_path = hazard_path
-        Ash.objects.filter(id=ash_event.id).update(hazard_path=hazard_path)
+        # with allow_join_result():
+        #     task_result = result.get()
+        #
+        #     success = task_result.get('success')
+        #     hazard_path = task_result.get('hazard_path')
+        #
+        # if not success:
+        #     raise Exception('Error Generating Hazard file.')
+        #
+        # ash_event.hazard_path = hazard_path
+        # Ash.objects.filter(id=ash_event.id).update(hazard_path=hazard_path)
+        Ash.objects.filter(id=ash_event.id).update(
+            task_id=result.task_id,
+            task_status=result.state)
 
     # TODO: Generate Ash report
 
