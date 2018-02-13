@@ -132,3 +132,11 @@ django_project/media_test
 # pickled indicator
 django_project/.run/
 .realtime_broker_indicator.pickle
+deployment/backups/
+deployment/headless-data/contexts/
+deployment/headless-data/inasafe/
+deployment/headless-data/outputs/
+deployment/headless-data/qgis-templates/
+deployment/headless-data/test-hazards/
+deployment/reports/
+
