@@ -176,6 +176,7 @@ services:
       - ./headless-data/contexts:/web
     environment:
       - DEVICE=InaSAFE-Headless-Contexts
+    network_mode: "bridge"
 
   qgis-templates-btsync:
     image: kartoza/btsync
@@ -183,3 +184,4 @@ services:
       - ./headless-data/qgis-templates:/web
     environment:
       - DEVICE=InaSAFE-Headless-QGIS-Templates
+    network_mode: "bridge"
