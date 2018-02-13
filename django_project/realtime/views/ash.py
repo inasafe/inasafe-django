@@ -154,9 +154,10 @@ class AshDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
             *args, **kwargs):
         try:
             if volcano_name and event_time:
+                event_time = parse(event_time)
                 instance = Ash.objects.get(
                     volcano__volcano_name__iexact=volcano_name,
-                    event_time=parse(event_time))
+                    event_time=event_time)
                 self.kwargs.update(id=instance.id)
                 if 'hazard_file' in request.FILES and instance.hazard_file:
                     instance.hazard_file.delete()
