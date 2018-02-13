@@ -146,3 +146,8 @@ realtime_rest_api:
   # This credentials will be used by InaSAFE Realtime
   user: test@realtime.inasafe.org
   password: t3st4ccount
+
+# Secret key for sync data
+secret_key:
+  contexts_data: secretkey  # Exposure, Aggregation, Contexts layer
+  qgis_templates: anothersecretkey  # QGIS template and its resources
