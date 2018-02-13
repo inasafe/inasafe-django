@@ -73,6 +73,13 @@ web:
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) up -d web
 
+contexts-sync:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running contexts btsync"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) up -d contexts-btsync
+
 migrate:
 	@echo
 	@echo "------------------------------------------------------------------"

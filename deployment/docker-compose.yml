@@ -169,3 +169,10 @@ services:
     ports:
       - "61100:8080"
     network_mode: "bridge"
+
+  contexts-btsync:
+    image: kartoza/btsync
+    volumes:
+      - ./headless-data/contexts:/web
+    environment:
+      - DEVICE=InaSAFE-Headless-Contexts
