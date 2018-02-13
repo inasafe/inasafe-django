@@ -96,6 +96,15 @@ class Ash(models.Model):
         null=True,
         blank=True)
 
+    impact_file_path = models.CharField(
+        verbose_name=_('Impact File path'),
+        help_text=_('Location of impact file.'),
+        max_length=255,
+        default=None,
+        blank=True,
+        null=True
+    )
+
     objects = models.GeoManager()
 
     def __unicode__(self):
@@ -136,6 +145,14 @@ class Ash(models.Model):
         if self.hazard_path:
             return os.path.exists(self.hazard_path)
         return False
+
+    @property
+    def has_reports(self):
+        """Check if the ash object has report or not."""
+        if AshReport.objects.filter(ash=self):
+            return True
+        else:
+            return False
 
 
 class AshReport(models.Model):
