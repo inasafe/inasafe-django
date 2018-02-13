@@ -176,3 +176,10 @@ services:
       - ./headless-data/contexts:/web
     environment:
       - DEVICE=InaSAFE-Headless-Contexts
+
+  qgis-templates-btsync:
+    image: kartoza/btsync
+    volumes:
+      - ./headless-data/qgis-templates:/web
+    environment:
+      - DEVICE=InaSAFE-Headless-QGIS-Templates

@@ -73,13 +73,6 @@ web:
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) up -d web
 
-contexts-sync:
-	@echo
-	@echo "------------------------------------------------------------------"
-	@echo "Running contexts btsync"
-	@echo "------------------------------------------------------------------"
-	@docker-compose -p $(PROJECT_ID) up -d contexts-btsync
-
 migrate:
 	@echo
 	@echo "------------------------------------------------------------------"
@@ -399,3 +392,17 @@ reload:
 	@echo "Reload django project "
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) exec uwsgi uwsgi --reload /tmp/django.pid
+
+contexts-sync:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running contexts btsync"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) up -d contexts-btsync
+
+qgis-templates-sync:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running QGIS templates btsync"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) up -d qgis-templates-btsync
