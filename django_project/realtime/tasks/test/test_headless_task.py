@@ -107,16 +107,20 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
             self.assertTrue(os.path.exists(layer_uri))
             self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
 
-    @unittest.skipIf(os.environ.get('ON_TRAVIS', False))
+    @unittest.skipIf(
+        not all([os.path.exists(path) for path in ASH_EXPOSURES]),
+        'Skip the unit test since there is no exposure data.')
     def test_exposure_data(self):
-        """test_exposure_data."""
-        exposure_keywords = []
+        """test_exposure_data for running real analysis.."""
+        exposures = []
         for ash_exposure in ASH_EXPOSURES:
-            exposure_keywords.append(get_keywords.delay(ash_exposure).get())
-
-        layer_purposes = []
-        for exposure_keyword in exposure_keywords:
-            layer_purposes.append(exposure_keyword['exposure'])
+            exposure_keyword = get_keywords.delay(ash_exposure).get()
+            self.assertEqual('exposure', exposure_keyword['layer_purpose'])
+            message = (
+                'There is duplicate exposure type in the ash exposures list: '
+                '[%s]' % exposure_keyword['exposure'])
+            self.assertNotIn(exposure_keyword['exposure'], exposures, message)
+            exposures.append(exposure_keyword['exposure'])
 
     def test_run_multi_exposure_analysis(self):
         """Test run multi_exposure analysis."""

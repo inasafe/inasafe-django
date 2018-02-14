@@ -32,7 +32,7 @@ ASH_EXPOSURES = [
 
     # Disable this one first, to avoid duplicate exposures
     # '/home/headless/contexts/common/exposure/'
-    # 'IDN_Capital_Population_Point_WGS84.shp'
+    # 'IDN_Capital_Population_Point_WGS84.shp',
 ]
 ASH_AGGREGATION = ''
 ASH_REPORT_TEMPLATE = '/home/headless/qgis-templates/realtime-ash-en.qpt'
