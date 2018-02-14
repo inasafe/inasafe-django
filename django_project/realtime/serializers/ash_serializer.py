@@ -125,7 +125,7 @@ class AshSerializer(serializers.ModelSerializer):
             'event_time',
             'task_status',
             'eruption_height',
-            'hazard_path'
+            'hazard_path',
         )
 
 

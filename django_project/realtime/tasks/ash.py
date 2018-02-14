@@ -65,7 +65,7 @@ def check_processing_task():
         ash.analysis_task_status = result.state
         # Set the impact file path if success
         if ash.analysis_task_status == 'SUCCESS':
-            ash.impact_file_path = result['output']['analysis_summary']
+            ash.impact_file_path = result.result['output']['analysis_summary']
         ash.save()
 
 
