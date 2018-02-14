@@ -7,12 +7,15 @@ import shutil
 from tempfile import mkdtemp
 
 import pytz
+
+from django.core.files import File
+
 from celery.result import AsyncResult
 
 from core.celery_app import app
 
 from realtime.app_settings import LOGGER_NAME, REALTIME_HAZARD_DROP
-from realtime.models.ash import Ash
+from realtime.models.ash import Ash, AshReport
 from realtime.tasks.realtime.ash import process_ash
 from realtime.tasks.realtime.celery_app import app as realtime_app
 from realtime.tasks.headless.celery_app import app as headless_app
@@ -45,6 +48,7 @@ ASH_LAYER_ORDER = [
 
 @app.task(queue='inasafe-django')
 def check_processing_task():
+    # Checking ash processing task
     for ash in Ash.objects.exclude(
             task_id__isnull=True).exclude(
             task_id__exact='').exclude(
@@ -52,10 +56,8 @@ def check_processing_task():
         task_id = ash.task_id
         result = AsyncResult(id=task_id, app=realtime_app)
         ash.task_status = result.state
-        # Set the hazard path if success
-        # if ash.task_status == 'SUCCESS':
-        #     ash.hazard_path = ash.hazard_file.path
         ash.save()
+    # Checking analysis task
     for ash in Ash.objects.exclude(
             analysis_task_id__isnull=True).exclude(
             analysis_task_id__exact='').exclude(
@@ -66,6 +68,28 @@ def check_processing_task():
         # Set the impact file path if success
         if ash.analysis_task_status == 'SUCCESS':
             ash.impact_file_path = result.result['output']['analysis_summary']
+        ash.save()
+    # Checking report generation task
+    for ash in Ash.objects.exclude(
+            report_task_id__isnull=True).exclude(
+            report_task_id__exact='').exclude(
+            report_task_status__iexact='SUCCESS'):
+        report_task_id = ash.report_task_id
+        result = AsyncResult(id=report_task_id, app=headless_app)
+        ash.report_task_status = result.state
+        # Set the report path if success
+        if ash.report_task_status == 'SUCCESS':
+            report_path = result.result[
+                'output']['pdf_product_tag']['realtime-ash-en']
+            # Create ash report object
+            # Set the language manually first
+            ash_report = AshReport(ash=ash, language='en')
+            with open(report_path, 'rb') as report_file:
+                ash_report.report_map.save(
+                    ash_report.report_map_filename,
+                    File(report_file),
+                    save=True)
+            ash_report.save()
         ash.save()
 
 
@@ -108,44 +132,14 @@ def generate_event_report(ash_event):
             vent_height=ash_event.volcano.elevation,
             forecast_duration=ash_event.forecast_duration)
 
-        # with allow_join_result():
-        #     task_result = result.get()
-        #
-        #     success = task_result.get('success')
-        #     hazard_path = task_result.get('hazard_path')
-        #
-        # if not success:
-        #     raise Exception('Error Generating Hazard file.')
-        #
-        # ash_event.hazard_path = hazard_path
-        # Ash.objects.filter(id=ash_event.id).update(hazard_path=hazard_path)
         Ash.objects.filter(id=ash_event.id).update(
             task_id=result.task_id,
             task_status=result.state)
 
-    # TODO: Generate Ash report
-    # elif not ash_event.impact_file_path:
-    #     with allow_join_result():
-    #         async_analysis_result = run_ash_analysis(ash_event.id)
-    #         analysis_result = async_analysis_result.get()
-    #         if analysis_result['status'] == 0:
-    #             impact_layer_path = analysis_result.get('output', {}).get(
-    #                 'analysis_summary')
-    #             Ash.objects.filter(id=ash_event.id).update(
-    #                 impact_file_path=impact_layer_path)
-    #             async_report_result = generate_ash_report(ash_event.id)
-    #             report_result = async_report_result.get()
-    #             if report_result['status'] == 0:
-    #                 pass
-    #             else:
-    #                 LOGGER.debug('Generate ash report failed.')
-
-    # TODO: Save Ash products to databases
-
 
 @app.task(queue='inasafe-django')
 def run_ash_analysis(ash_event):
-    """Run ash analysis and get report from it.
+    """Run ash analysis.
 
     :param ash_event: Ash event instance
     :type ash_event: Ash
@@ -161,19 +155,21 @@ def run_ash_analysis(ash_event):
         analysis_task_status=async_result.state)
 
 
-def generate_ash_report(ash_id):
-    """Generate ash report for ash_id.
+@app.task(queue='inasafe-django')
+def generate_ash_report(ash_event):
+    """Generate ash report for ash event.
 
-    :param ash_id: The id of the ash object.
-    :type ash_id: int
+    :param ash_event: Ash event instance
+    :type ash_event: Ash
     """
-    ash = Ash.objects.get(pk=ash_id)
-    ash_impact_layer_uri = ash.impact_file_path
+    ash_impact_layer_uri = ash_event.impact_file_path
     layer_order = [
         ASH_LAYER_ORDER[0],
-        ash.hazard_path,
+        ash_event.hazard_path,
         ASH_LAYER_ORDER[1]
     ]
     async_result = generate_report.delay(
         ash_impact_layer_uri, ASH_REPORT_TEMPLATE, layer_order)
-    return async_result
+    Ash.objects.filter(id=ash_event.id).update(
+        report_task_id=async_result.task_id,
+        report_task_status=async_result.state)
