@@ -2,9 +2,11 @@
 """Docstring here."""
 
 import os
+import unittest
 
 from django import test
 
+from realtime.tasks.ash import ASH_EXPOSURES
 from realtime.tasks.headless.inasafe_wrapper import (
     get_keywords,
     run_analysis,
@@ -36,6 +38,7 @@ custom_map_template_basename = 'custom-inasafe-map-report-landscape'
 custom_map_template = os.path.join(
     dir_path, 'data', custom_map_template_basename + '.qpt'
 )
+
 
 OUTPUT_DIRECTORY = os.environ.get(
     'INASAFE_OUTPUT_DIR', '/home/headless/outputs')
@@ -103,6 +106,17 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         for key, layer_uri in result['output'].items():
             self.assertTrue(os.path.exists(layer_uri))
             self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
+
+    @unittest.skipIf(os.environ.get('ON_TRAVIS', False))
+    def test_exposure_data(self):
+        """test_exposure_data."""
+        exposure_keywords = []
+        for ash_exposure in ASH_EXPOSURES:
+            exposure_keywords.append(get_keywords.delay(ash_exposure).get())
+
+        layer_purposes = []
+        for exposure_keyword in exposure_keywords:
+            layer_purposes.append(exposure_keyword['exposure'])
 
     def test_run_multi_exposure_analysis(self):
         """Test run multi_exposure analysis."""
