@@ -7,7 +7,7 @@ import shutil
 from tempfile import mkdtemp
 
 import pytz
-from celery.result import AsyncResult, allow_join_result
+from celery.result import AsyncResult
 
 from core.celery_app import app
 
@@ -28,11 +28,11 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 
 ASH_EXPOSURES = [
     '/home/headless/contexts/ash/exposure/IDN_Airport_OpenFlights_WGS84.shp',
-    '/home/headless/contexts/contexts/ash/exposure/IDN_Landcover_250K_WGS84'
-    '.shp',
+    '/home/headless/contexts/ash/exposure/IDN_Landcover_250K_WGS84.shp',
 
-    '/home/headless/contexts/common/exposure/'
-    'IDN_Capital_Population_Point_WGS84.shp'
+    # Disable this one first, to avoid duplicate exposures
+    # '/home/headless/contexts/common/exposure/'
+    # 'IDN_Capital_Population_Point_WGS84.shp'
 ]
 ASH_AGGREGATION = ''
 ASH_REPORT_TEMPLATE = '/home/headless/qgis-templates/realtime-ash-en.qpt'
@@ -51,21 +51,21 @@ def check_processing_task():
             task_status__iexact='SUCCESS'):
         task_id = ash.task_id
         result = AsyncResult(id=task_id, app=realtime_app)
-        if ash.task_status != result.state:
-            status_changed = True
-        else:
-            status_changed = False
         ash.task_status = result.state
-        if status_changed:
+        # Set the hazard path if success
+        if ash.task_status == 'SUCCESS':
             ash.hazard_path = ash.hazard_file.path
         ash.save()
     for ash in Ash.objects.exclude(
             analysis_task_id__isnull=True).exclude(
             analysis_task_id__exact='').exclude(
             analysis_task_status__iexact='SUCCESS'):
-        task_id = ash.task_id
-        result = AsyncResult(id=task_id, app=headless_app)
-        ash.task_status = result.state
+        analysis_task_id = ash.analysis_task_id
+        result = AsyncResult(id=analysis_task_id, app=headless_app)
+        ash.analysis_task_status = result.state
+        # Set the impact file path if success
+        if ash.analysis_task_status == 'SUCCESS':
+            ash.impact_file_path = result['output']['analysis_summary']
         ash.save()
 
 
@@ -141,6 +141,7 @@ def generate_event_report(ash_event):
     #                 LOGGER.debug('Generate ash report failed.')
 
     # TODO: Save Ash products to databases
+
 
 @app.task(queue='inasafe-django')
 def run_ash_analysis(ash_event):
