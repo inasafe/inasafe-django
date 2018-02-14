@@ -53,8 +53,8 @@ def check_processing_task():
         result = AsyncResult(id=task_id, app=realtime_app)
         ash.task_status = result.state
         # Set the hazard path if success
-        if ash.task_status == 'SUCCESS':
-            ash.hazard_path = ash.hazard_file.path
+        # if ash.task_status == 'SUCCESS':
+        #     ash.hazard_path = ash.hazard_file.path
         ash.save()
     for ash in Ash.objects.exclude(
             analysis_task_id__isnull=True).exclude(
