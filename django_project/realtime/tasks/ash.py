@@ -7,7 +7,7 @@ import shutil
 from tempfile import mkdtemp
 
 import pytz
-from celery.result import AsyncResult
+from celery.result import AsyncResult, allow_join_result
 
 from core.celery_app import app
 
@@ -15,6 +15,7 @@ from realtime.app_settings import LOGGER_NAME, REALTIME_HAZARD_DROP
 from realtime.models.ash import Ash
 from realtime.tasks.realtime.ash import process_ash
 from realtime.tasks.realtime.celery_app import app as realtime_app
+from realtime.tasks.headless.celery_app import app as headless_app
 
 from realtime.tasks.headless.inasafe_wrapper import (
     run_multi_exposure_analysis, generate_report)
@@ -50,6 +51,20 @@ def check_processing_task():
             task_status__iexact='SUCCESS'):
         task_id = ash.task_id
         result = AsyncResult(id=task_id, app=realtime_app)
+        if ash.task_status != result.state:
+            status_changed = True
+        else:
+            status_changed = False
+        ash.task_status = result.state
+        if status_changed:
+            ash.hazard_path = ash.hazard_file.path
+        ash.save()
+    for ash in Ash.objects.exclude(
+            analysis_task_id__isnull=True).exclude(
+            analysis_task_id__exact='').exclude(
+            analysis_task_status__iexact='SUCCESS'):
+        task_id = ash.task_id
+        result = AsyncResult(id=task_id, app=headless_app)
         ash.task_status = result.state
         ash.save()
 
@@ -109,24 +124,41 @@ def generate_event_report(ash_event):
             task_status=result.state)
 
     # TODO: Generate Ash report
+    # elif not ash_event.impact_file_path:
+    #     with allow_join_result():
+    #         async_analysis_result = run_ash_analysis(ash_event.id)
+    #         analysis_result = async_analysis_result.get()
+    #         if analysis_result['status'] == 0:
+    #             impact_layer_path = analysis_result.get('output', {}).get(
+    #                 'analysis_summary')
+    #             Ash.objects.filter(id=ash_event.id).update(
+    #                 impact_file_path=impact_layer_path)
+    #             async_report_result = generate_ash_report(ash_event.id)
+    #             report_result = async_report_result.get()
+    #             if report_result['status'] == 0:
+    #                 pass
+    #             else:
+    #                 LOGGER.debug('Generate ash report failed.')
 
     # TODO: Save Ash products to databases
 
-
-def run_ash_analysis(ash_id):
+@app.task(queue='inasafe-django')
+def run_ash_analysis(ash_event):
     """Run ash analysis and get report from it.
 
-    :param ash_id: The id of the ash object.
-    :type ash_id: int
+    :param ash_event: Ash event instance
+    :type ash_event: Ash
     """
-    ash = Ash.objects.get(pk=ash_id)
-    ash_layer_uri = ash.hazard_path
+    ash_layer_uri = ash_event.hazard_path
     async_result = run_multi_exposure_analysis.delay(
         ash_layer_uri,
         ASH_EXPOSURES,
         ASH_AGGREGATION,
     )
-    return async_result
+    Ash.objects.filter(id=ash_event.id).update(
+        analysis_task_id=async_result.task_id,
+        analysis_task_status=async_result.state)
+
 
 def generate_ash_report(ash_id):
     """Generate ash report for ash_id.
