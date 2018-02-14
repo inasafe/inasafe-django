@@ -130,6 +130,7 @@ services:
     volumes:
       - {{ inasafe_headless.host_working_dir }}:{{ inasafe_headless.working_dir }}
       - ../django_project:/home/web/django_project
+      - {{ inasafe_realtime.host_working_dir }}:{{ inasafe_realtime.working_dir }}
     environment:
       - PYTHONPATH=/usr/share/qgis/python:/usr/share/qgis/python/plugins:/usr/share/qgis/python/plugins/inasafe:/home/app
       - DISPLAY=:99
