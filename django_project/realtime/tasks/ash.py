@@ -7,43 +7,24 @@ import shutil
 from tempfile import mkdtemp
 
 import pytz
-
+from celery.result import AsyncResult
 from django.core.files import File
 
-from celery.result import AsyncResult
-
 from core.celery_app import app
-
-from realtime.app_settings import LOGGER_NAME, REALTIME_HAZARD_DROP
+from realtime.app_settings import LOGGER_NAME, REALTIME_HAZARD_DROP, \
+    ASH_LAYER_ORDER, ASH_REPORT_TEMPLATE, ASH_EXPOSURES, ASH_AGGREGATION
 from realtime.models.ash import Ash, AshReport
-from realtime.tasks.realtime.ash import process_ash
-from realtime.tasks.realtime.celery_app import app as realtime_app
 from realtime.tasks.headless.celery_app import app as headless_app
-
 from realtime.tasks.headless.inasafe_wrapper import (
     run_multi_exposure_analysis, generate_report)
+from realtime.tasks.realtime.ash import process_ash
+from realtime.tasks.realtime.celery_app import app as realtime_app
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '20/7/17'
 
 
 LOGGER = logging.getLogger(LOGGER_NAME)
-
-ASH_EXPOSURES = [
-    '/home/headless/contexts/ash/exposure/IDN_Airport_OpenFlights_WGS84.shp',
-    '/home/headless/contexts/ash/exposure/IDN_Landcover_250K_WGS84.shp',
-
-    # Disable this one first, to avoid duplicate exposures
-    # '/home/headless/contexts/common/exposure/'
-    # 'IDN_Capital_Population_Point_WGS84.shp',
-]
-ASH_AGGREGATION = ''
-ASH_REPORT_TEMPLATE = '/home/headless/qgis-templates/realtime-ash-en.qpt'
-ASH_LAYER_ORDER = [
-    '/home/headless/contexts/ash/exposure/IDN_Airport_OpenFlights_WGS84.shp',
-    # the ash layer
-    '/home/headless/contexts/common/context/hillshade.tif'
-]
 
 
 @app.task(queue='inasafe-django')
@@ -108,7 +89,8 @@ def generate_event_report(ash_event):
     else:
         event_time = ash_event.event_time.replace(tzinfo=pytz.utc)
 
-    if not ash_event.hazard_layer_exists:
+    # Check hazard layer
+    if not ash_event.hazard_layer_exists and ash_event.need_generate_hazard:
 
         # For ash realtime we need to make sure hazard file is processed.
         # Because the hazard raw data comes from user upload
@@ -136,8 +118,21 @@ def generate_event_report(ash_event):
             task_id=result.task_id,
             task_status=result.state)
 
+    # Check impact layer
+    elif not ash_event.impact_layer_exists and ash_event.need_run_analysis:
 
-@app.task(queue='inasafe-django')
+        # If hazard exists but impact layer is not, then create a new analysis
+        # job.
+        run_ash_analysis(ash_event)
+
+    # Check report
+    elif not ash_event.has_reports and ash_event.need_generate_reports:
+
+        # If analysis is done but report doesn't exists, then create the
+        # reports.
+        generate_ash_report(ash_event)
+
+
 def run_ash_analysis(ash_event):
     """Run ash analysis.
 
@@ -155,7 +150,6 @@ def run_ash_analysis(ash_event):
         analysis_task_status=async_result.state)
 
 
-@app.task(queue='inasafe-django')
 def generate_ash_report(ash_event):
     """Generate ash report for ash event.
 
