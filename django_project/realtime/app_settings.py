@@ -146,3 +146,19 @@ if ASH_SHOW_PAGE:
     ASH_SHOW_PAGE = ast.literal_eval(ASH_SHOW_PAGE)
 else:
     ASH_SHOW_PAGE = True
+
+ASH_EXPOSURES = [
+    '/home/headless/contexts/ash/exposure/IDN_Airport_OpenFlights_WGS84.shp',
+    '/home/headless/contexts/ash/exposure/IDN_Landcover_250K_WGS84.shp',
+
+    # Disable this one first, to avoid duplicate exposures
+    # '/home/headless/contexts/common/exposure/'
+    # 'IDN_Capital_Population_Point_WGS84.shp',
+]
+ASH_AGGREGATION = ''
+ASH_REPORT_TEMPLATE = '/home/headless/qgis-templates/realtime-ash-en.qpt'
+ASH_LAYER_ORDER = [
+    '/home/headless/contexts/ash/exposure/IDN_Airport_OpenFlights_WGS84.shp',
+    # the ash layer
+    '/home/headless/contexts/common/context/hillshade.tif'
+]

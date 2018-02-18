@@ -178,6 +178,33 @@ class Ash(models.Model):
         else:
             return False
 
+    @property
+    def impact_layer_exists(self):
+        """Return bool to indicate existances of impact layers"""
+        if self.impact_file_path:
+            return os.path.exists(self.impact_file_path)
+        return False
+
+    @property
+    def need_generate_hazard(self):
+        if self.task_status and not self.task_status == 'None':
+            return False
+        return True
+
+    @property
+    def need_run_analysis(self):
+        if (self.analysis_task_status and
+                not self.analysis_task_status == 'None'):
+            return False
+        return True
+
+    @property
+    def need_generate_reports(self):
+        if (self.report_task_status and
+                not self.report_task_status == 'None'):
+            return False
+        return True
+
 
 class AshReport(models.Model):
     """Ash Report Model."""
