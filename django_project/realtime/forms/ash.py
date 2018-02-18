@@ -30,6 +30,7 @@ class AshUploadForm(forms.ModelForm):
 
     event_time = forms.DateTimeField(
         # initial=datetime.datetime.now(),
+        label=_('Event time'),
         widget=DateTimePicker(
             format=datetime_format,
             options={
@@ -37,6 +38,7 @@ class AshUploadForm(forms.ModelForm):
                 'pickSeconds': True,
             }))
     alert_level = forms.ChoiceField(
+        label=_('Alert level'),
         choices=[
             ('normal', _('Normal')),
             ('waspada', _('Waspada')),
@@ -46,10 +48,11 @@ class AshUploadForm(forms.ModelForm):
     event_time_zone_offset = forms.IntegerField(
         widget=forms.HiddenInput())
     event_time_zone_string = forms.CharField(
-        label=_('Timezone'),
+        label=_('Event timezone'),
         widget=forms.TextInput(attrs={'autocomplete': 'off'}))
     volcano_name = forms.CharField(
         max_length=50,
+        label=_('Volcano name'),
         widget=forms.TextInput(attrs={'autocomplete': 'off'}))
 
     days_choices = [1, 3]
