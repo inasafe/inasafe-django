@@ -5,7 +5,6 @@ import logging
 import os
 import shutil
 from tempfile import mkdtemp
-from copy import deepcopy
 
 import pytz
 from celery.result import AsyncResult
@@ -163,7 +162,7 @@ def generate_ash_report(ash_event):
     :type ash_event: Ash
     """
     ash_impact_layer_uri = ash_event.impact_file_path
-    layer_order = deepcopy(ASH_LAYER_ORDER)
+    layer_order = list(ASH_LAYER_ORDER)
     if 'ash_layer_path' in layer_order:
         hazard_index = layer_order.index('ash_layer_path')
         layer_order[hazard_index] = ash_event.hazard_path
