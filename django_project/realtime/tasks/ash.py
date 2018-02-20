@@ -175,9 +175,8 @@ def run_ash_analysis(ash_event):
     :param ash_event: Ash event instance
     :type ash_event: Ash
     """
-    ash_layer_uri = ash_event.hazard_path
     async_result = run_multi_exposure_analysis.delay(
-        ash_layer_uri,
+        ash_event.hazard_path,
         ASH_EXPOSURES,
         ASH_AGGREGATION,
     )
@@ -192,13 +191,12 @@ def generate_ash_report(ash_event):
     :param ash_event: Ash event instance
     :type ash_event: Ash
     """
-    ash_impact_layer_uri = ash_event.impact_file_path
     layer_order = list(ASH_LAYER_ORDER)
     if 'ash_layer_path' in layer_order:
         hazard_index = layer_order.index('ash_layer_path')
         layer_order[hazard_index] = ash_event.hazard_path
     async_result = generate_report.delay(
-        ash_impact_layer_uri, ASH_REPORT_TEMPLATE, layer_order)
+        ash_event.impact_file_path, ASH_REPORT_TEMPLATE, layer_order)
     Ash.objects.filter(id=ash_event.id).update(
         report_task_id=async_result.task_id,
         report_task_status=async_result.state)
