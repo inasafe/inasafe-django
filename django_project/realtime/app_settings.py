@@ -173,6 +173,7 @@ ASH_LAYER_ORDER = [
     # 'IDN_Capital_Population_Point_WGS84.shp',
 
     # the ash layer will be inserted in the method
+    'ash_layer_path',
 
     # terrain data
     '/home/headless/contexts/common/context/hillshade.tif',
