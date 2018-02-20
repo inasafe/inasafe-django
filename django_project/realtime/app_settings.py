@@ -148,17 +148,32 @@ else:
     ASH_SHOW_PAGE = True
 
 ASH_EXPOSURES = [
+    # Airport data
     '/home/headless/contexts/ash/exposure/IDN_Airport_OpenFlights_WGS84.shp',
-    '/home/headless/contexts/ash/exposure/IDN_Landcover_250K_WGS84.shp',
 
     # Disable this one first, to avoid duplicate exposures
+    # Place data
     # '/home/headless/contexts/common/exposure/'
     # 'IDN_Capital_Population_Point_WGS84.shp',
+
+    # Raster population data
+    '/home/headless/contexts/common/exposure/WorldPop_200m.tif',
+
+    # Landcover data
+    '/home/headless/contexts/ash/exposure/IDN_Landcover_250K_WGS84.shp',
 ]
 ASH_AGGREGATION = ''
 ASH_REPORT_TEMPLATE = '/home/headless/qgis-templates/realtime-ash-en.qpt'
 ASH_LAYER_ORDER = [
+    # Airport data
     '/home/headless/contexts/ash/exposure/IDN_Airport_OpenFlights_WGS84.shp',
-    # the ash layer
-    '/home/headless/contexts/common/context/hillshade.tif'
+
+    # Place data
+    # '/home/headless/contexts/common/exposure/'
+    # 'IDN_Capital_Population_Point_WGS84.shp',
+
+    # the ash layer will be inserted in the method
+
+    # terrain data
+    '/home/headless/contexts/common/context/hillshade.tif',
 ]
