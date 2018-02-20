@@ -157,7 +157,7 @@ ASH_EXPOSURES = [
     # 'IDN_Capital_Population_Point_WGS84.shp',
 
     # Raster population data
-    '/home/headless/contexts/common/exposure/WorldPop_200m.tif',
+    # '/home/headless/contexts/common/exposure/WorldPop_200m.tif',
 
     # Landcover data
     '/home/headless/contexts/ash/exposure/IDN_Landcover_250K_WGS84.shp',
