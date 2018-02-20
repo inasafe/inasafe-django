@@ -21,6 +21,12 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
         slug_field='shake_id',
         source='earthquake'
     )
+    source_type = serializers.SlugRelatedField(
+        queryset=Earthquake.objects.all(),
+        read_only=False,
+        slug_field='source_type',
+        source='earthquake'
+    )
 
     def get_url(self, serializer_field, obj):
         """
@@ -34,6 +40,7 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
             'realtime:earthquake_report_detail',
             kwargs={
                 'shake_id': obj.earthquake.shake_id,
+                'source_type': obj.earthquake.source_type,
                 'language': obj.language})
         if self.context and 'request' in self.context:
             return self.context['request'].build_absolute_uri(relative_uri)
@@ -53,7 +60,10 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
         """
         relative_uri = reverse(
             'realtime:earthquake_detail',
-            kwargs={'shake_id': obj.earthquake.shake_id})
+            kwargs={
+                'shake_id': obj.earthquake.shake_id,
+                'source_type': obj.earthquake.source_type
+            })
         if self.context and 'request' in self.context:
             return self.context['request'].build_absolute_uri(relative_uri)
         else:
@@ -67,6 +77,7 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
         fields = (
             'url',
             'shake_id',
+            'source_type',
             'shake_url',
             'language',
             'report_pdf',
@@ -91,7 +102,8 @@ class EarthquakeSerializer(GeoModelSerializer):
         relative_uri = reverse(
             'realtime:earthquake_detail',
             kwargs={
-                'shake_id': obj.shake_id})
+                'shake_id': obj.shake_id,
+                'source_type': obj.source_type})
         if self.context and 'request' in self.context:
             return self.context['request'].build_absolute_uri(relative_uri)
         else:
@@ -114,6 +126,8 @@ class EarthquakeSerializer(GeoModelSerializer):
             'location_description',
             'felt',
             'reports',
+            'hazard_path',
+            'source_type'
         )
 
 
@@ -122,7 +136,7 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = Earthquake
         geo_field = "location"
-        id = 'shake_id'
+        id = 'id'
         fields = (
             'shake_id',
             'shake_grid',
@@ -133,4 +147,5 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
             'location',
             'location_description',
             'felt',
+            'source_type'
         )

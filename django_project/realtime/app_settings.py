@@ -147,6 +147,8 @@ if ASH_SHOW_PAGE:
 else:
     ASH_SHOW_PAGE = True
 
+# Ash analysis contexts
+
 ASH_EXPOSURES = [
     # Airport data
     '/home/headless/contexts/ash/exposure/IDN_Airport_OpenFlights_WGS84.shp',
@@ -178,3 +180,33 @@ ASH_LAYER_ORDER = [
     # terrain data
     '/home/headless/contexts/common/context/hillshade.tif',
 ]
+
+# Earthquake analysis contexts
+
+GRID_FILE_DEFAULT_NAME = 'grid.xml'
+
+EARTHQUAKE_EXPOSURES = [
+
+    '/home/headless/contexts/common/exposure/WorldPop_200m.tif',
+    '/home/headless/contexts/common/exposure/'
+    'IDN_Capital_Population_Point_WGS84.shp',
+
+]
+EARTHQUAKE_AGGREGATION = ''
+EARTHQUAKE_REPORT_TEMPLATE = '/home/headless/qgis-templates/' \
+                             'realtime-earthquake-en.qpt'
+EARTHQUAKE_LAYER_ORDER = [
+    '/home/headless/contexts/common/exposure/WorldPop_200m.tif',
+    '@population.earthquake_contour',
+    '/home/headless/contexts/common/exposure/'
+    'IDN_Capital_Population_Point_WGS84.shp',
+]
+
+EARTHQUAKE_EVENT_REPORT_FORMAT = getattr(
+    settings,
+    'EARTHQUAKE_EVENT_REPORT_FORMAT',
+    '{shake_id}-{source_type}-{language}{suffix}.{extension}')
+
+EARTHQUAKE_MONITORED_DIRECTORY = os.environ.get(
+    'EARTHQUAKE_MONITORED_DIRECTORY',
+    '/home/realtime/shakemaps')

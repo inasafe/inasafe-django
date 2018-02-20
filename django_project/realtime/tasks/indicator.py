@@ -2,14 +2,13 @@
 from __future__ import absolute_import
 
 import logging
+import os
 from datetime import datetime
 
-import os
 import pytz
 from celery.result import allow_join_result
 
 from core.celery_app import app
-
 from realtime.app_settings import LOGGER_NAME
 from realtime.helpers.realtime_broker_indicator import RealtimeBrokerIndicator
 from realtime.scripts.check_indicators import check_indicator_status
