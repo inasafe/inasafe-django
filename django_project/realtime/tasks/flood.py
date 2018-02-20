@@ -9,7 +9,14 @@ from zipfile import ZipFile
 
 from django.contrib.gis.gdal.error import OGRIndexError
 
-from realtime.app_settings import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME
+from realtime.app_settings import (
+    OSM_LEVEL_7_NAME,
+    OSM_LEVEL_8_NAME,
+    FLOOD_EXPOSURE,
+    FLOOD_AGGREGATION,
+    FLOOD_LAYER_ORDER,
+    FLOOD_REPORT_TEMPLATE,
+)
 from core.celery_app import app
 from django.conf import settings
 from django.contrib.gis.gdal.datasource import DataSource
@@ -20,11 +27,14 @@ from django.db.models import Sum
 
 from realtime.app_settings import LOGGER_NAME
 from realtime.models.flood import (
+    Flood,
     FloodEventBoundary,
     Boundary,
     BoundaryAlias,
     ImpactEventBoundary)
 from realtime.tasks.realtime.flood import process_flood
+from realtime.tasks.headless.inasafe_wrapper import (
+    run_analysis, generate_report)
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '12/3/15'
@@ -257,14 +267,54 @@ def create_flood_report():
 
 @app.task(queue='inasafe-django')
 def generate_event_report(flood_event):
-    """Generate Earthquake report
+    """Generate Flood report
 
-    :param flood_event: Earthquake event instance
-    :type flood_event: Earthquake
+    :param flood_event: Flood event instance
+    :type flood_event: Flood
     :return:
     """
-    if flood_event.hazard_layer_exists:
-        pass
-        # TODO: Generate Flood report
+    if (flood_event.hazard_layer_exists and
+            not flood_event.impact_layer_exists and
+            flood_event.need_run_analysis):
 
-        # TODO: Save Flood products to databases
+        run_flood_analysis(flood_event)
+
+    elif (flood_event.hazard_layer_exists and
+            flood_event.impact_layer_exists and
+            not flood_event.has_reports and
+            flood_event.need_generate_reports):
+
+        generate_flood_report(flood_event)
+
+
+def run_flood_analysis(flood_event):
+    """Run flood analysis.
+
+    :param flood_event: Flood event instance
+    :type flood_event: Flood
+    """
+    async_result = run_analysis.delay(
+        flood_event.hazard_path,
+        FLOOD_EXPOSURE,
+        FLOOD_AGGREGATION
+    )
+    Flood.objects.filter(id=flood_event.id).update(
+        analysis_task_id=async_result.task_id,
+        analysis_task_status=async_result.state)
+
+
+def generate_flood_report(flood_event):
+    """Generate ash report for flood event.
+
+    :param flood_event: Flood event instance
+    :type flood_event: Flood
+    """
+    layer_order = list(FLOOD_LAYER_ORDER)
+    if 'flood_layer_path' in layer_order:
+        hazard_index = layer_order.index('flood_layer_path')
+        layer_order[hazard_index] = flood_event.hazard_path
+    async_result = generate_report.delay(
+        flood_event.impact_file_path, FLOOD_REPORT_TEMPLATE, layer_order)
+    Flood.objects.filter(id=flood_event.id).update(
+        report_task_id=async_result.task_id,
+        report_task_status=async_result.state)
