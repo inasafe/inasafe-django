@@ -3,7 +3,6 @@
 
 import os
 import unittest
-from copy import deepcopy
 
 from django import test
 
@@ -310,7 +309,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         impact_analysis_uri = result['output']['analysis_summary']
 
         # Generate reports
-        layer_order = deepcopy(ASH_LAYER_ORDER)
+        layer_order = list(ASH_LAYER_ORDER)
         if 'ash_layer_path' in layer_order:
             hazard_index = layer_order.index('ash_layer_path')
             layer_order[hazard_index] = ash_layer_uri
