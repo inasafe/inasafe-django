@@ -164,8 +164,9 @@ ASH_EXPOSURES = [
     # Landcover data
     '/home/headless/contexts/ash/exposure/IDN_Landcover_250K_WGS84.shp',
 ]
-ASH_AGGREGATION = ''
-ASH_REPORT_TEMPLATE = '/home/headless/qgis-templates/realtime-ash-en.qpt'
+ASH_AGGREGATION = None
+ASH_REPORT_TEMPLATE = (
+    '/home/headless/qgis-templates/volcanic-ash/realtime-ash-en.qpt')
 ASH_LAYER_ORDER = [
     # Airport data
     '/home/headless/contexts/ash/exposure/IDN_Airport_OpenFlights_WGS84.shp',
@@ -210,3 +211,23 @@ EARTHQUAKE_EVENT_REPORT_FORMAT = getattr(
 EARTHQUAKE_MONITORED_DIRECTORY = os.environ.get(
     'EARTHQUAKE_MONITORED_DIRECTORY',
     '/home/realtime/shakemaps')
+
+# Flood analysis contexts
+
+FLOOD_EXPOSURE = (
+    '/home/headless/contexts/flood/exposure/'
+    'DKI_Jakarta_Population_Dukcapil_2013_WGS84.shp')
+FLOOD_AGGREGATION = None
+FLOOD_REPORT_TEMPLATE = (
+    '/home/headless/qgis-templates/flood/realtime-flood-en.qpt')
+FLOOD_LAYER_ORDER = [
+    # the flood layer will be inserted in the method
+    'flood_layer_path',
+
+    # Administration boundary
+    '/home/headless/contexts/flood/context/'
+    'DKI_Jakarta_Admin_Boundaries_WGS84.shp',
+
+    # Raster population
+    '/home/headless/contexts/common/exposure/WorldPop_200m.tif'
+]
