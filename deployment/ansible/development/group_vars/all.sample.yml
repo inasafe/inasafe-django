@@ -145,7 +145,7 @@ realtime_rest_api:
   # Set your own user & password you set up
   # This credentials will be used by InaSAFE Realtime
   user: test@realtime.inasafe.org
-  password: thepassword
+  password: t3st4ccount
 
 # Secret key for sync data
 secret_key:

@@ -6,7 +6,7 @@ import unittest
 
 from django import test
 
-from realtime.tasks.ash import ASH_EXPOSURES
+from realtime.tasks.ash import ASH_EXPOSURES, ASH_REPORT_TEMPLATE
 from realtime.tasks.headless.inasafe_wrapper import (
     get_keywords,
     run_analysis,
@@ -24,6 +24,8 @@ earthquake_layer_uri = os.path.join(
     dir_path, 'data', 'input_layers', 'earthquake.asc')
 shakemap_layer_uri = os.path.join(
     dir_path, 'data', 'input_layers', 'grid-use_ascii.tif')
+ash_layer_uri = os.path.join(
+    dir_path, 'data', 'input_layers', 'ash_fall.tif')
 place_layer_uri = os.path.join(
     dir_path, 'data', 'input_layers', 'places.geojson')
 aggregation_layer_uri = os.path.join(
@@ -280,3 +282,50 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         async_result = check_broker_connection.delay()
         result = async_result.get()
         self.assertTrue(result)
+
+    @unittest.skipIf(
+        not all([os.path.exists(path) for path in ASH_EXPOSURES]),
+        'Skip the unit test since there is no exposure data.')
+    def test_analysis_real_exposures(self):
+        """Test run analysis with real exposures."""
+        result_delay = run_multi_exposure_analysis.delay(
+            ash_layer_uri, ASH_EXPOSURES)
+        result = result_delay.get()
+        self.assertEqual(0, result['status'], result['message'])
+        self.assertLess(0, len(result['output']))
+        num_exposure_output = 0
+        for key, layer_uri in result['output'].items():
+            if isinstance(layer_uri, basestring):
+                self.assertTrue(os.path.exists(layer_uri))
+                self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
+            elif isinstance(layer_uri, dict):
+                num_exposure_output += 1
+                for the_key, the_layer_uri in layer_uri.items():
+                    self.assertTrue(os.path.exists(the_layer_uri))
+                    self.assertTrue(the_layer_uri.startswith(OUTPUT_DIRECTORY))
+
+        # Retrieve impact analysis uri
+        impact_analysis_uri = result['output']['analysis_summary']
+
+        # Generate reports
+        ash_report_template_basename = os.path.splitext(os.path.basename(
+            ASH_REPORT_TEMPLATE))[0]
+        async_result = generate_report.delay(
+            impact_analysis_uri, ASH_REPORT_TEMPLATE)
+        result = async_result.get()
+        self.assertEqual(0, result['status'], result['message'])
+        product_keys = []
+        for key, products in result['output'].items():
+            for product_key, product_uri in products.items():
+                product_keys.append(product_key)
+                message = 'Product %s is not found in %s' % (
+                    product_key, product_uri)
+                self.assertTrue(os.path.exists(product_uri), message)
+                if ash_report_template_basename == product_key:
+                    print product_uri
+
+        # Check if custom map template found.
+        self.assertIn(ash_report_template_basename, product_keys)
+        # Check if the default map reports are not found
+        self.assertNotIn('inasafe-map-report-portrait', product_keys)
+        self.assertNotIn('inasafe-map-report-landscape', product_keys)
