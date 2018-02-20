@@ -149,6 +149,50 @@ class Flood(models.Model):
         default=None,
         null=True,
         blank=True)
+    task_id = models.CharField(
+        verbose_name=_('Celery task id'),
+        help_text=_('Task id for processing'),
+        max_length=255,
+        default='',
+        blank=True)
+    task_status = models.CharField(
+        verbose_name=_('Celery task status'),
+        help_text=_('Task status for processing'),
+        max_length=30,
+        default='None',
+        blank=True)
+    analysis_task_id = models.CharField(
+        verbose_name=_('Analysis celery task id'),
+        help_text=_('Task id for running analysis'),
+        max_length=255,
+        default='',
+        blank=True)
+    analysis_task_status = models.CharField(
+        verbose_name=_('Analysis celery task status'),
+        help_text=_('Task status for running analysis'),
+        max_length=30,
+        default='None',
+        blank=True)
+    report_task_id = models.CharField(
+        verbose_name=_('Report celery task id'),
+        help_text=_('Task id for creating analysis report.'),
+        max_length=255,
+        default='',
+        blank=True)
+    report_task_status = models.CharField(
+        verbose_name=_('Report celery task status'),
+        help_text=_('Task status for creating analysis report.'),
+        max_length=30,
+        default='None',
+        blank=True)
+    impact_file_path = models.CharField(
+        verbose_name=_('Impact File path'),
+        help_text=_('Location of impact file.'),
+        max_length=255,
+        default=None,
+        blank=True,
+        null=True
+    )
 
     objects = models.GeoManager()
 
@@ -166,6 +210,41 @@ class Flood(models.Model):
         if self.hazard_path:
             return os.path.exists(self.hazard_path)
         return False
+
+    @property
+    def has_reports(self):
+        """Check if the ash object has report or not."""
+        if FloodReport.objects.filter(flood=self):
+            return True
+        else:
+            return False
+
+    @property
+    def impact_layer_exists(self):
+        """Return bool to indicate existances of impact layers"""
+        if self.impact_file_path:
+            return os.path.exists(self.impact_file_path)
+        return False
+
+    @property
+    def need_generate_hazard(self):
+        if self.task_status and not self.task_status == 'None':
+            return False
+        return True
+
+    @property
+    def need_run_analysis(self):
+        if (self.analysis_task_status and
+                not self.analysis_task_status == 'None'):
+            return False
+        return True
+
+    @property
+    def need_generate_reports(self):
+        if (self.report_task_status and
+                not self.report_task_status == 'None'):
+            return False
+        return True
 
 
 class FloodReport(models.Model):
