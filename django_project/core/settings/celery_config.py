@@ -77,6 +77,14 @@ beat_schedule = {
         'options': {
             'queue': 'inasafe-django'
         }
+    },
+    # executes every minute
+    'check-realtime-earthquake-processing': {
+        'task': 'realtime.tasks.earthquake.check_processing_task',
+        'schedule': crontab(minute='*'),
+        'options': {
+            'queue': 'inasafe-django'
+        }
     }
 }
 

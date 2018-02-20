@@ -29,13 +29,17 @@ urlpatterns = [
     url(r'^api/v1/$', root.api_root, name='api_root'),
 
     # Earthquake
+    url(r'^api/v1/earthquake/(?P<shake_id>[-\w]+)/$',
+        EarthquakeList.as_view(),
+        name='earthquake_list'),
     url(r'^api/v1/earthquake/$',
         EarthquakeList.as_view(),
         name='earthquake_list'),
     url(r'^api/v1/earthquake-feature/$',
         EarthquakeFeatureList.as_view(),
         name='earthquake_feature_list'),
-    url(r'^api/v1/earthquake/(?P<shake_id>[-\w]+)/$',
+    url(r'^api/v1/earthquake/(?P<shake_id>[-\w]+)/'
+        r'(?P<source_type>\w*)/$',
         EarthquakeDetail.as_view(),
         name='earthquake_detail'),
     url(r'^api/v1/earthquake-report/$',
@@ -47,6 +51,12 @@ urlpatterns = [
         name='earthquake_report_list'),
     url(r'^api/v1/earthquake-report/'
         r'(?P<shake_id>[-\d]+)/'
+        r'(?P<source_type>\w*)/$',
+        EarthquakeReportList.as_view(),
+        name='earthquake_report_list'),
+    url(r'^api/v1/earthquake-report/'
+        r'(?P<shake_id>[-\d]+)/'
+        r'(?P<source_type>\w*)/'
         r'(?P<language>[-\w]+)/$',
         EarthquakeReportDetail.as_view(),
         name='earthquake_report_detail'),

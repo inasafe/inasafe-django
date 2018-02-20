@@ -5,12 +5,15 @@ import os
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from realtime.app_settings import EARTHQUAKE_EVENT_REPORT_FORMAT
+
 
 class Earthquake(models.Model):
     """Earthquake model."""
     class Meta:
         """Meta class."""
         app_label = 'realtime'
+        unique_together = (('shake_id', 'source_type'), )
 
     shake_id = models.CharField(
         verbose_name=_('The Shake ID'),
@@ -21,6 +24,11 @@ class Earthquake(models.Model):
         verbose_name=_('Shake Grid XML File'),
         help_text=_('The Shake Grid to process'),
         upload_to='earthquake/grid',
+        blank=True,
+        null=True)
+    shake_grid_xml = models.TextField(
+        verbose_name=_('Shake Grid XML File Contents'),
+        help_text=_('The content of shake grid file'),
         blank=True,
         null=True)
     mmi_output = models.FileField(
@@ -39,7 +47,7 @@ class Earthquake(models.Model):
     generated_time = models.DateTimeField(
         verbose_name=_('Report Generated Date and Time'),
         help_text=_('The time the shake report generated.'),
-        blank=False,
+        blank=True,
         null=True,
         default=None)
     depth = models.FloatField(
@@ -67,6 +75,30 @@ class Earthquake(models.Model):
         help_text=_('Source type of shake grid'),
         max_length=30,
         default='initial')
+    analysis_task_id = models.CharField(
+        verbose_name=_('Analysis celery task id'),
+        help_text=_('Task id for running analysis'),
+        max_length=255,
+        default='',
+        blank=True)
+    analysis_task_status = models.CharField(
+        verbose_name=_('Analysis celery task status'),
+        help_text=_('Task status for running analysis'),
+        max_length=30,
+        default='None',
+        blank=True)
+    report_task_id = models.CharField(
+        verbose_name=_('Report celery task id'),
+        help_text=_('Task id for creating analysis report.'),
+        max_length=255,
+        default='',
+        blank=True)
+    report_task_status = models.CharField(
+        verbose_name=_('Report celery task status'),
+        help_text=_('Task status for creating analysis report.'),
+        max_length=30,
+        default='None',
+        blank=True)
     hazard_path = models.CharField(
         verbose_name=_('Hazard Layer path'),
         help_text=_('Location of hazard layer'),
@@ -74,6 +106,13 @@ class Earthquake(models.Model):
         default=None,
         null=True,
         blank=True)
+    impact_file_path = models.CharField(
+        verbose_name=_('Impact File path'),
+        help_text=_('Location of impact file.'),
+        max_length=255,
+        default=None,
+        blank=True,
+        null=True)
     inasafe_version = models.CharField(
         verbose_name=_('InaSAFE version'),
         help_text=_('InaSAFE version being used'),
@@ -102,10 +141,36 @@ class Earthquake(models.Model):
 
     @property
     def hazard_layer_exists(self):
-        """Return bool to indicate existances of hazard layer"""
+        """Return bool to indicate existences of hazard layer"""
         if self.hazard_path:
             return os.path.exists(self.hazard_path)
         return False
+
+    @property
+    def has_reports(self):
+        """Check if event has report or not."""
+        return self.reports.count()
+
+    @property
+    def impact_layer_exists(self):
+        """Return bool to indicate existences of impact layers"""
+        if self.impact_file_path:
+            return os.path.exists(self.impact_file_path)
+        return False
+
+    @property
+    def need_run_analysis(self):
+        if (self.analysis_task_status and
+                not self.analysis_task_status == 'None'):
+            return False
+        return True
+
+    @property
+    def need_generate_reports(self):
+        if (self.report_task_status and
+                not self.report_task_status == 'None'):
+            return False
+        return True
 
 
 class EarthquakeReport(models.Model):
@@ -147,3 +212,33 @@ class EarthquakeReport(models.Model):
         self.report_image.delete()
         self.report_thumbnail.delete()
         super(EarthquakeReport, self).delete(using=using)
+
+    @property
+    def report_map_filename(self):
+        """Return standardized filename for report map."""
+        return EARTHQUAKE_EVENT_REPORT_FORMAT.format(
+            shake_id=self.earthquake.shake_id,
+            source_type=self.earthquake.source_type,
+            language=self.language,
+            suffix='',
+            extension='pdf')
+
+    @property
+    def report_image_filename(self):
+        """Return standardized filename for report map."""
+        return EARTHQUAKE_EVENT_REPORT_FORMAT.format(
+            shake_id=self.earthquake.shake_id,
+            source_type=self.earthquake.source_type,
+            language=self.language,
+            suffix='',
+            extension='png')
+
+    @property
+    def report_thumbnail_filename(self):
+        """Return standardized filename for report map."""
+        return EARTHQUAKE_EVENT_REPORT_FORMAT.format(
+            shake_id=self.earthquake.shake_id,
+            source_type=self.earthquake.source_type,
+            language=self.language,
+            suffix='thumbnail',
+            extension='png')
