@@ -9,7 +9,7 @@ from django.http.response import (
     HttpResponseBadRequest,
     JsonResponse,
     HttpResponse)
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from rest_framework import status, mixins
@@ -63,16 +63,15 @@ def index(request, iframe=False, server_side_filter=False):
             server_side_filter = request.GET.get('server_side_filter')
 
     context = RequestContext(request)
-    context['select_area_text'] = _('Select Area')
-    context['remove_area_text'] = _('Remove Selection')
-    context['select_current_zoom_text'] = _('Select area within current zoom')
-    context['iframe'] = iframe
     return render_to_response(
         'realtime/earthquake/index.html',
         {
             'form': form,
             'iframe': iframe,
-            'server_side_filter': server_side_filter
+            'server_side_filter': server_side_filter,
+            'select_area_text': _('Select Area'),
+            'remove_area_text': _('Remove Selection'),
+            'select_current_zoom_text': _('Select area within current zoom'),
         },
         context_instance=context)
 
@@ -144,8 +143,41 @@ class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     """
     queryset = Earthquake.objects.all()
     serializer_class = EarthquakeSerializer
-    lookup_field = 'shake_id'
+    lookup_field = ['shake_id', 'source_type']
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
+
+    def get_object(self):
+        """
+        Returns the object the view is displaying.
+
+        You may want to override this if you need to provide non-standard
+        queryset lookups.  Eg if objects are referenced using multiple
+        keyword arguments in the url conf.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        for lookup_url in lookup_url_kwarg:
+            assert lookup_url in self.kwargs, (
+                'Expected view %s to be called with a URL keyword argument '
+                'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                'attribute on the view correctly.' %
+                (self.__class__.__name__, lookup_url_kwarg)
+            )
+
+        filter_kwargs = {
+            key: self.kwargs[key]
+            for key in lookup_url_kwarg
+            if self.kwargs[key]
+        }
+        obj = get_object_or_404(queryset, **filter_kwargs)
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        return obj
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -154,7 +186,9 @@ class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
         try:
             data = request.data
             shake_id = kwargs.get('shake_id') or data.get('shake_id')
-            instance = Earthquake.objects.get(shake_id=shake_id)
+            source_type = kwargs.get('source_type') or data.get('source_type')
+            instance = Earthquake.objects.get(
+                shake_id=shake_id, source_type=source_type)
             if 'shake_grid' in request.FILES and instance.shake_grid:
                 instance.shake_grid.delete()
             if 'mmi_output' in request.FILES and instance.mmi_output:
@@ -214,8 +248,12 @@ class EarthquakeReportList(mixins.ListModelMixin,
         data = request.data
         try:
             shake_id = kwargs.get('shake_id') or data.get('shake_id')
+            source_type = kwargs.get('source_type') or data.get('source_type')
             data['shake_id'] = shake_id
-            earthquake = Earthquake.objects.get(shake_id=shake_id)
+            data['source_type'] = source_type
+            earthquake = Earthquake.objects.get(
+                shake_id=shake_id,
+                source_type=source_type)
             report = EarthquakeReport.objects.filter(
                 earthquake=earthquake, language=data['language'])
         except Earthquake.DoesNotExist:
@@ -259,11 +297,13 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
     parser_classes = (JSONParser, FormParser, MultiPartParser, )
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
-    def get(self, request, shake_id=None, language=None, *args, **kwargs):
+    def get(self, request, shake_id=None, source_type=None, language=None,
+            *args, **kwargs):
         try:
-            if shake_id and language:
+            if shake_id and source_type and language:
                 instance = EarthquakeReport.objects.get(
                     earthquake__shake_id=shake_id,
+                    earthquake__source_type=source_type,
                     language=language)
                 serializer = self.get_serializer(instance)
                 return Response(serializer.data)
@@ -278,17 +318,21 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
             LOGGER.warning(e.message)
             instance = EarthquakeReport.objects.filter(
                 earthquake__shake_id=shake_id,
+                earthquake__source_type=source_type,
                 language=language).last()
             serializer = self.get_serializer(instance)
             return Response(serializer.data)
 
-    def put(self, request, shake_id=None, language=None):
+    def put(self, request, shake_id=None, source_type=None, language=None):
         data = request.data
         try:
-            if shake_id:
+            if shake_id and source_type and language:
                 data['shake_id'] = shake_id
+                data['source_type'] = source_type
                 report = EarthquakeReport.objects.get(
-                    earthquake__shake_id=shake_id, language=language)
+                    earthquake__shake_id=shake_id,
+                    earthquake__source_type=source_type,
+                    language=language)
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         except EarthquakeReport.DoesNotExist:
@@ -303,10 +347,12 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, shake_id, language):
+    def delete(self, request, shake_id, source_type, language):
         try:
             report = EarthquakeReport.objects.get(
-                earthquake__shake_id=shake_id, language=language)
+                earthquake__shake_id=shake_id,
+                earthquake__source_type=source_type,
+                language=language)
         except EarthquakeReport.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 

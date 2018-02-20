@@ -299,7 +299,7 @@
         var jsonTableContents = [];
         var showEventHandler = createShowEventHandler(map, markers, map_events);
         {#    Use magic number 000 for placeholder#}
-        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' language=language.code %}';
+        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' source_type='initial' language=language.code %}';
         var report_download_url = '{% url "realtime_report:report_pdf" shake_id='000' language=language.code language2=language.code %}';
         var grid_url = '{% url "realtime:shake_grid" shake_id='000' %}';
         var showReportHandler = createShowReportHandler(report_url);
