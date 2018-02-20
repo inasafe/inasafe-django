@@ -119,14 +119,19 @@ def generate_event_report(ash_event):
             task_status=result.state)
 
     # Check impact layer
-    elif not ash_event.impact_layer_exists and ash_event.need_run_analysis:
+    elif (ash_event.hazard_layer_exists and
+          not ash_event.impact_layer_exists and
+          ash_event.need_run_analysis):
 
         # If hazard exists but impact layer is not, then create a new analysis
         # job.
         run_ash_analysis(ash_event)
 
     # Check report
-    elif not ash_event.has_reports and ash_event.need_generate_reports:
+    elif (ash_event.hazard_layer_exists and
+          ash_event.impact_layer_exists and
+          not ash_event.has_reports and
+          ash_event.need_generate_reports):
 
         # If analysis is done but report doesn't exists, then create the
         # reports.
