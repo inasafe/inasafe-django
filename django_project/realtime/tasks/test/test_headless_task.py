@@ -3,10 +3,12 @@
 
 import os
 import unittest
+from copy import deepcopy
 
 from django import test
 
-from realtime.tasks.ash import ASH_EXPOSURES, ASH_REPORT_TEMPLATE
+from realtime.tasks.ash import (
+    ASH_EXPOSURES, ASH_REPORT_TEMPLATE, ASH_LAYER_ORDER)
 from realtime.tasks.headless.inasafe_wrapper import (
     get_keywords,
     run_analysis,
@@ -308,10 +310,15 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         impact_analysis_uri = result['output']['analysis_summary']
 
         # Generate reports
+        layer_order = deepcopy(ASH_LAYER_ORDER)
+        if 'ash_layer_path' in layer_order:
+            hazard_index = layer_order.index('ash_layer_path')
+            layer_order[hazard_index] = ash_layer_uri
+
         ash_report_template_basename = os.path.splitext(os.path.basename(
             ASH_REPORT_TEMPLATE))[0]
         async_result = generate_report.delay(
-            impact_analysis_uri, ASH_REPORT_TEMPLATE)
+            impact_analysis_uri, ASH_REPORT_TEMPLATE, layer_order)
         result = async_result.get()
         self.assertEqual(0, result['status'], result['message'])
         product_keys = []
