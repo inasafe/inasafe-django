@@ -6,8 +6,14 @@ import unittest
 
 from django import test
 
-from realtime.tasks.ash import (
-    ASH_EXPOSURES, ASH_REPORT_TEMPLATE, ASH_LAYER_ORDER)
+from realtime.app_settings import (
+    ASH_EXPOSURES,
+    ASH_REPORT_TEMPLATE,
+    ASH_LAYER_ORDER,
+    FLOOD_EXPOSURE,
+    FLOOD_REPORT_TEMPLATE,
+    FLOOD_LAYER_ORDER
+)
 from realtime.tasks.headless.inasafe_wrapper import (
     get_keywords,
     run_analysis,
@@ -115,6 +121,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         'Skip the unit test since there is no exposure data.')
     def test_exposure_data(self):
         """test_exposure_data for running real analysis.."""
+        # Checking exposures for ash
         exposures = []
         for ash_exposure in ASH_EXPOSURES:
             exposure_keyword = get_keywords.delay(ash_exposure).get()
@@ -124,6 +131,22 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
                 '[%s]' % exposure_keyword['exposure'])
             self.assertNotIn(exposure_keyword['exposure'], exposures, message)
             exposures.append(exposure_keyword['exposure'])
+
+        # Checking template and layer order for ash
+        self.assertTrue(os.path.exists(ASH_REPORT_TEMPLATE))
+        for layer in ASH_LAYER_ORDER:
+            if layer != 'ash_layer_path':
+                self.assertTrue(
+                    os.path.exists(layer), '%s is not exist' % layer)
+
+        # Checking exposure for flood
+        self.assertTrue(os.path.exists(FLOOD_EXPOSURE))
+        # Checking template and layer order for flood
+        self.assertTrue(os.path.exists(FLOOD_REPORT_TEMPLATE))
+        for layer in FLOOD_LAYER_ORDER:
+            if layer != 'flood_layer_path':
+                self.assertTrue(
+                    os.path.exists(layer), '%s is not exist' % layer)
 
     def test_run_multi_exposure_analysis(self):
         """Test run multi_exposure analysis."""
@@ -287,8 +310,8 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
     @unittest.skipIf(
         not all([os.path.exists(path) for path in ASH_EXPOSURES]),
         'Skip the unit test since there is no exposure data.')
-    def test_analysis_real_exposures(self):
-        """Test run analysis with real exposures."""
+    def test_ash_analysis_real_exposures(self):
+        """Test run ash analysis with real exposures."""
         result_delay = run_multi_exposure_analysis.delay(
             ash_layer_uri, ASH_EXPOSURES)
         result = result_delay.get()
