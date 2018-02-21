@@ -85,6 +85,14 @@ beat_schedule = {
         'options': {
             'queue': 'inasafe-django'
         }
+    },
+    # executes every minute
+    'check-realtime-flood-processing': {
+        'task': 'realtime.tasks.flood.check_processing_task',
+        'schedule': crontab(minute='*'),
+        'options': {
+            'queue': 'inasafe-django'
+        }
     }
 }
 
