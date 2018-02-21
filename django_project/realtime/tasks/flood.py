@@ -7,7 +7,10 @@ import shutil
 import tempfile
 from zipfile import ZipFile
 
+from celery.result import AsyncResult
+
 from django.contrib.gis.gdal.error import OGRIndexError
+from django.core.files import File
 
 from realtime.app_settings import (
     OSM_LEVEL_7_NAME,
@@ -29,12 +32,15 @@ from realtime.app_settings import LOGGER_NAME
 from realtime.models.flood import (
     Flood,
     FloodEventBoundary,
+    FloodReport,
     Boundary,
     BoundaryAlias,
     ImpactEventBoundary)
 from realtime.tasks.realtime.flood import process_flood
 from realtime.tasks.headless.inasafe_wrapper import (
     run_analysis, generate_report)
+from realtime.tasks.realtime.celery_app import app as realtime_app
+from realtime.tasks.headless.celery_app import app as headless_app
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '12/3/15'
@@ -44,8 +50,72 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 
 
 @app.task(queue='inasafe-django')
+def check_processing_task():
+    """Checking flood processing task."""
+    for flood in Flood.objects.exclude(
+            task_id__isnull=True).exclude(
+            task_id__exact='').exclude(
+            task_status__iexact='SUCCESS'):
+        task_id = flood.task_id
+        result = AsyncResult(id=task_id, app=realtime_app)
+        flood.task_status = result.state
+        flood.save()
+    # Checking analysis task
+    for flood in Flood.objects.exclude(
+            analysis_task_id__isnull=True).exclude(
+            analysis_task_id__exact='').exclude(
+            analysis_task_status__iexact='SUCCESS'):
+        analysis_task_id = flood.analysis_task_id
+        result = AsyncResult(id=analysis_task_id, app=headless_app)
+        if result.state == 'SUCCESS':
+            task_state = 'FAILURE'
+            if result.result['status'] != 0:
+                LOGGER.error(result.result['message'])
+            else:
+                try:
+                    flood.impact_file_path = result.result['output'][
+                        'analysis_summary']
+                    task_state = 'SUCCESS'
+                except BaseException as e:
+                    LOGGER.exception(e)
+                flood.analysis_task_status = task_state
+                flood.save()
+    # Checking report generation task
+    for flood in Flood.objects.exclude(
+            report_task_id__isnull=True).exclude(
+            report_task_id__exact='').exclude(
+            report_task_status__iexact='SUCCESS'):
+        report_task_id = flood.report_task_id
+        result = AsyncResult(id=report_task_id, app=headless_app)
+        if result.state == 'SUCCESS':
+            task_state = 'FAILURE'
+            try:
+                if result.result['status'] != 0:
+                    LOGGER.error(result.result['message'])
+                else:
+                    report_path = result.result[
+                        'output']['pdf_product_tag']['realtime-ash-en']
+                    # Create flood report object
+                    # Set the language manually first
+                    flood_report = FloodReport(flood=flood, language='en')
+                    flood.impact_file_path = result.result['output'][
+                        'analysis_summary']
+                    with open(report_path, 'rb') as report_file:
+                        flood_report.impact_map.save(
+                            flood_report.impact_map_filename,
+                            File(report_file),
+                            save=True)
+                    flood_report.save()
+                    task_state = 'SUCCESS'
+            except BaseException as e:
+                LOGGER.exception(e)
+            flood.report_task_status = task_state
+            flood.save()
+
+
+@app.task(queue='inasafe-django')
 def process_hazard_layer(flood):
-    """Process zipped impact layer and import it to databse
+    """Process zipped impact layer and import it to database
 
     :param flood: Event id of flood
     :type flood: realtime.models.flood.Flood
