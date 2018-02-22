@@ -92,6 +92,7 @@ def check_processing_task():
                         File(report_file),
                         save=True)
                     ash.refresh_from_db()
+                task_state = 'SUCCESS'
             except BaseException as e:
                 LOGGER.exception(e)
 
