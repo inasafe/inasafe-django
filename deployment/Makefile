@@ -57,7 +57,7 @@ pull-external-services:
 	@docker-compose -p $(PROJECT_ID) pull headless-worker
 
 coverage-tests:
-	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run --branch --source='.' manage.py test realtime --noinput -v 2
+	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run --branch --source='.' manage.py test realtime --noinput --liveserver=0.0.0.0:8080 -v 2
 
 build:
 	@echo
@@ -217,6 +217,9 @@ realtime-worker-logs:
 	@echo "Running celery worker logs"
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 realtime-worker
+
+realtime-shakemap-monitor-logs:
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 shakemap-monitor
 
 headless-worker:
 	@echo

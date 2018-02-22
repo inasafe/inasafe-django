@@ -32,46 +32,76 @@ def check_processing_task():
     # Checking ash processing task
     for ash in Ash.objects.exclude(
             task_id__isnull=True).exclude(
-            task_id__exact='').exclude(
-            task_status__iexact='SUCCESS'):
+            task_id__exact='').filter(
+            task_status__iexact='PENDING'):
         task_id = ash.task_id
         result = AsyncResult(id=task_id, app=realtime_app)
-        ash.task_status = result.state
-        ash.save()
+        # Update task status if it is changing
+        if not result.state == ash.task_status:
+            Ash.objects.filter(id=ash.id).update(
+                task_status=result.state)
+            ash.refresh_from_db()
+            ash.save()
     # Checking analysis task
     for ash in Ash.objects.exclude(
             analysis_task_id__isnull=True).exclude(
-            analysis_task_id__exact='').exclude(
-            analysis_task_status__iexact='SUCCESS'):
+            analysis_task_id__exact='').filter(
+            analysis_task_status__iexact='PENDING'):
         analysis_task_id = ash.analysis_task_id
         result = AsyncResult(id=analysis_task_id, app=headless_app)
-        ash.analysis_task_status = result.state
-        # Set the impact file path if success
-        if ash.analysis_task_status == 'SUCCESS':
-            ash.impact_file_path = result.result['output']['analysis_summary']
-        ash.save()
+
+        # Set impact file path if success
+        if result.state == 'SUCCESS':
+            task_state = 'FAILURE'
+            try:
+                ash.impact_file_path = result.result[
+                    'output']['analysis_summary']
+                task_state = 'SUCCESS'
+            except BaseException as e:
+                LOGGER.exception(e)
+
+            Ash.objects.filter(id=ash.id).update(
+                impact_file_path=ash.impact_file_path,
+                analysis_task_status=task_state)
+            ash.refresh_from_db()
+            ash.save()
+        elif result.state == 'FAILURE':
+            Ash.objects.filter(id=ash.id).update(
+                analysis_task_id=result.state)
+
     # Checking report generation task
     for ash in Ash.objects.exclude(
             report_task_id__isnull=True).exclude(
-            report_task_id__exact='').exclude(
-            report_task_status__iexact='SUCCESS'):
+            report_task_id__exact='').filter(
+            report_task_status__iexact='PENDING'):
         report_task_id = ash.report_task_id
         result = AsyncResult(id=report_task_id, app=headless_app)
-        ash.report_task_status = result.state
+
         # Set the report path if success
-        if ash.report_task_status == 'SUCCESS':
-            report_path = result.result[
-                'output']['pdf_product_tag']['realtime-ash-en']
-            # Create ash report object
-            # Set the language manually first
-            ash_report = AshReport(ash=ash, language='en')
-            with open(report_path, 'rb') as report_file:
-                ash_report.report_map.save(
-                    ash_report.report_map_filename,
-                    File(report_file),
-                    save=True)
-            ash_report.save()
-        ash.save()
+        if result.state == 'SUCCESS':
+            task_state = 'FAILURE'
+            try:
+                report_path = result.result[
+                    'output']['pdf_product_tag']['realtime-ash-en']
+                # Create ash report object
+                # Set the language manually first
+                ash_report = AshReport(ash=ash, language='en')
+                with open(report_path, 'rb') as report_file:
+                    ash_report.report_map.save(
+                        ash_report.report_map_filename,
+                        File(report_file),
+                        save=True)
+                    ash.refresh_from_db()
+            except BaseException as e:
+                LOGGER.exception(e)
+
+            Ash.objects.filter(id=ash.id).update(
+                report_task_status=task_state)
+            ash.refresh_from_db()
+            ash.save()
+        elif result.state == 'FAILURE':
+            Ash.objects.filter(id=ash.id).update(
+                analysis_task_id=result.state)
 
 
 @app.task(queue='inasafe-django')
