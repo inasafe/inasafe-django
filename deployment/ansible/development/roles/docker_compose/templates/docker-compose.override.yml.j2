@@ -175,7 +175,9 @@ services:
   contexts-btsync:
     environment:
       - SECRET={{ secret_key.contexts_data }}
+      - DEVICE=InaSAFE-Headless-Contexts-{{ remote_user }}
 
   qgis-templates-btsync:
     environment:
       - SECRET={{ secret_key.qgis_templates }}
+      - DEVICE=InaSAFE-Headless-QGIS-Templates-{{ remote_user }}
