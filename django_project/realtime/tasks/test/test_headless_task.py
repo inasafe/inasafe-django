@@ -41,6 +41,8 @@ population_multi_fields_layer_uri = os.path.join(
     dir_path, 'data', 'input_layers', 'population_multi_fields.geojson')
 buildings_layer_uri = os.path.join(
     dir_path, 'data', 'input_layers', 'buildings.geojson')
+flood_layer_uri = os.path.join(
+    dir_path, 'data', 'input_layers', 'flood_data.json')
 
 # Map template
 custom_map_template_basename = 'custom-inasafe-map-report-landscape'
@@ -355,6 +357,51 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
 
         # Check if custom map template found.
         self.assertIn(ash_report_template_basename, product_keys)
+        # Check if the default map reports are not found
+        self.assertNotIn('inasafe-map-report-portrait', product_keys)
+        self.assertNotIn('inasafe-map-report-landscape', product_keys)
+
+    @unittest.skipIf(
+        not os.path.exists(FLOOD_EXPOSURE),
+        'Skip the unit test since there is no exposure data.')
+    def test_flood_analysis_real_exposure(self):
+        """Test run flood analysis with real exposures."""
+        result_delay = run_analysis.delay(
+            flood_layer_uri, FLOOD_EXPOSURE)
+        result = result_delay.get()
+        self.assertEqual(0, result['status'], result['message'])
+        self.assertLess(0, len(result['output']))
+        for key, layer_uri in result['output'].items():
+            self.assertTrue(os.path.exists(layer_uri))
+            self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
+
+        # Retrieve impact analysis uri
+        impact_analysis_uri = result['output']['analysis_summary']
+
+        # Generate reports
+        layer_order = list(FLOOD_LAYER_ORDER)
+        if 'flood_layer_path' in layer_order:
+            hazard_index = layer_order.index('flood_layer_path')
+            layer_order[hazard_index] = flood_layer_uri
+
+        flood_report_template_basename = os.path.splitext(os.path.basename(
+            FLOOD_REPORT_TEMPLATE))[0]
+        async_result = generate_report.delay(
+            impact_analysis_uri, FLOOD_REPORT_TEMPLATE, layer_order)
+        result = async_result.get()
+        self.assertEqual(0, result['status'], result['message'])
+        product_keys = []
+        for key, products in result['output'].items():
+            for product_key, product_uri in products.items():
+                product_keys.append(product_key)
+                message = 'Product %s is not found in %s' % (
+                    product_key, product_uri)
+                self.assertTrue(os.path.exists(product_uri), message)
+                if flood_report_template_basename == product_key:
+                    print product_uri
+
+        # Check if custom map template found.
+        self.assertIn(flood_report_template_basename, product_keys)
         # Check if the default map reports are not found
         self.assertNotIn('inasafe-map-report-portrait', product_keys)
         self.assertNotIn('inasafe-map-report-landscape', product_keys)

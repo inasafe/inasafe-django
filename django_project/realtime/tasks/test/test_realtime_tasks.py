@@ -27,8 +27,7 @@ class TestRealtimeCeleryTask(test.SimpleTestCase):
     def test_process_flood_manually(self):
         """Test process flood with existing flood json."""
         process_flood.delay(
-            # flood_id='2018022205-6-rw',
-            flood_id='',
+            flood_id='2018022411-6-rw',
             data_source='hazard_file',
             data_source_args={
                 'filename': flood_data_path
