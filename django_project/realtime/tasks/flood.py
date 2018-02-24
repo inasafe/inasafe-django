@@ -39,7 +39,6 @@ from realtime.models.flood import (
 from realtime.tasks.realtime.flood import process_flood
 from realtime.tasks.headless.inasafe_wrapper import (
     run_analysis, generate_report)
-from realtime.tasks.realtime.celery_app import app as realtime_app
 from realtime.tasks.headless.celery_app import app as headless_app
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
@@ -52,19 +51,11 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 @app.task(queue='inasafe-django')
 def check_processing_task():
     """Checking flood processing task."""
-    for flood in Flood.objects.exclude(
-            task_id__isnull=True).exclude(
-            task_id__exact='').exclude(
-            task_status__iexact='SUCCESS'):
-        task_id = flood.task_id
-        result = AsyncResult(id=task_id, app=realtime_app)
-        flood.task_status = result.state
-        flood.save()
     # Checking analysis task
     for flood in Flood.objects.exclude(
             analysis_task_id__isnull=True).exclude(
-            analysis_task_id__exact='').exclude(
-            analysis_task_status__iexact='SUCCESS'):
+            analysis_task_id__exact='').filter(
+            analysis_task_status__iexact='PENDING'):
         analysis_task_id = flood.analysis_task_id
         result = AsyncResult(id=analysis_task_id, app=headless_app)
         if result.state == 'SUCCESS':
@@ -83,8 +74,8 @@ def check_processing_task():
     # Checking report generation task
     for flood in Flood.objects.exclude(
             report_task_id__isnull=True).exclude(
-            report_task_id__exact='').exclude(
-            report_task_status__iexact='SUCCESS'):
+            report_task_id__exact='').filter(
+            report_task_status__iexact='PENDING'):
         report_task_id = flood.report_task_id
         result = AsyncResult(id=report_task_id, app=headless_app)
         if result.state == 'SUCCESS':
@@ -94,12 +85,10 @@ def check_processing_task():
                     LOGGER.error(result.result['message'])
                 else:
                     report_path = result.result[
-                        'output']['pdf_product_tag']['realtime-ash-en']
+                        'output']['pdf_product_tag']['realtime-flood-en']
                     # Create flood report object
                     # Set the language manually first
                     flood_report = FloodReport(flood=flood, language='en')
-                    flood.impact_file_path = result.result['output'][
-                        'analysis_summary']
                     with open(report_path, 'rb') as report_file:
                         flood_report.impact_map.save(
                             flood_report.impact_map_filename,
