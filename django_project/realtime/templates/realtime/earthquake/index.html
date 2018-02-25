@@ -301,10 +301,10 @@
         {#    Use magic number 000 for placeholder#}
         var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' source_type='initial' language=language.code %}';
         var report_download_url = '{% url "realtime_report:report_pdf" shake_id='000' language=language.code language2=language.code %}';
-        var grid_url = '{% url "realtime:shake_grid" shake_id='000' %}';
+        {#var grid_url = '{% url "realtime:shake_grid" shake_id='000' %}';#}
         var showReportHandler = createShowReportHandler(report_url);
         var downloadReportHandler = createDownloadReportHandler(report_download_url, '{{ language.code }}');
-        var downloadGridHandler = createDownloadGridHandler(grid_url);
+        {#var downloadGridHandler = createDownloadGridHandler(grid_url);#}
         var button_templates = [
             {
                 type: 'simple-button',
@@ -328,12 +328,13 @@
                         handler: 'downloadReportHandler'
                     },
                     {
-                        active: function(event){return event.shake_grid != undefined;},
+                        active: function(event){return event.shake_grid_download_url},
                         text: '{% trans "Grid XML" %}',
-                        handler: 'downloadGridHandler'
+                        {#handler: 'downloadGridHandler'#}
+                        href: function(event){return event.shake_grid_download_url;}
                     },
                     {
-                        active: function(event){return event.mmi_output != undefined;},
+                        active: function(event){return event.mmi_layer_exists != undefined;},
                         text: '{% trans "MMI output" %}',
                         href: function(event){return event.mmi_output;},
                         download: function(event){return event.shake_id+'-mmi.zip'}

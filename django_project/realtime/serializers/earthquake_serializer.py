@@ -140,12 +140,13 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
         fields = (
             'shake_id',
             'shake_grid',
+            'shake_grid_download_url',
             'mmi_output',
+            'analysis_zip_download_url',
             'magnitude',
             'time',
             'depth',
             'location',
             'location_description',
             'felt',
-            'source_type'
-        )
+            'source_type')

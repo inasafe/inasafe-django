@@ -22,8 +22,6 @@
       <option name="PARENT_ENVS" value="true" />
       <envs>
         {% include 'run-manager-environment.xml.j2' %}
-
-        <env name="TASK_ALWAYS_EAGER" value="True" />
       </envs>
       <option name="SDK_HOME" value="ssh://root@{{ interpreters.inasafe_django.domain_alias }}:{{ interpreters.inasafe_django.ssh_port }}/usr/local/bin/python" />
       <option name="WORKING_DIRECTORY" value="" />
@@ -386,6 +384,27 @@
       <option name="PARAMETERS" value="-A core.celery_app worker --loglevel=info -Q inasafe-django-indicator -B -n indicator.%h" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <method />
+    </configuration>
+    <configuration name="Run Realtime Tests" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        {% include 'run-manager-environment.xml.j2' %}
+
+        <env name="TASK_ALWAYS_EAGER" value="True" />
+      </envs>
+      <option name="SDK_HOME" value="ssh://root@{{ interpreters.inasafe_django.domain_alias }}:{{ interpreters.inasafe_django.ssh_port }}/usr/local/bin/python" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="inasafe-django" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" enabled="false" sample_coverage="true" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="./manage.py" />
+      <option name="PARAMETERS" value="test --liveserver=0.0.0.0:8080 --noinput realtime.tasks.realtime.test.test_realtime_tasks" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
     </configuration>
     <configuration default="false" name="Import Boundary (Kelurahan)" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />

@@ -176,14 +176,14 @@ function createDownloadGridHandler(grid_url) {
         // replace magic number 000 with shake_id
         url = url.replace('000', shake_id);
         var shake_list = dynaTable.settings.dataset.originalRecords;
-        var shake_grid;
+        var shake_grid_exists;
         for(var i=0;i < shake_list.length;i++){
             if(shake_id == shake_list[i].shake_id){
-                shake_grid = shake_list[i].shake_grid;
+                shake_grid_exists = shake_list[i].shake_grid_exists;
                 break;
             }
         }
-        if(shake_grid){
+        if(shake_grid_exists){
             SaveToDisk(url, shake_id + '-grid.xml');
         }
         else{

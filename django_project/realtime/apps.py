@@ -2,9 +2,11 @@
 import logging
 
 import os
-from django.apps import AppConfig
+from django.apps import AppConfig, apps
 from django.conf import settings
+from django.contrib.auth.management import create_permissions
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.management import update_contenttypes
 from django.contrib.gis.geos.point import Point
 
 from realtime.models.volcano import load_volcano_data
@@ -100,6 +102,51 @@ class RealtimeConfig(AppConfig):
                 test_user.is_admin = True
                 test_user.is_confirmed = True
                 test_user.save()
+
+    def create_rest_group(self):
+        """Helper file for unittests to generate REST Group."""
+        # update content types
+        update_contenttypes(self, interactive=False)
+        # update permissions
+        create_permissions(self, interactive=False)
+        Group = apps.get_model('auth', 'Group')
+        group_list = [
+            (REST_GROUP, [
+                'ash',
+                'floodreport',
+                'earthquakereport',
+                'impacteventboundary',
+                'flood',
+                'userpush',
+                'boundary',
+                'boundaryalias',
+                'floodeventboundary',
+                'earthquake',
+                'volcano',
+                'ashreport'
+            ]),
+            (VOLCANO_GROUP, [
+                'volcano',
+            ]),
+            (ASH_GROUP, [
+                'ash',
+                'ashreport',
+            ]),
+        ]
+        for g in group_list:
+            try:
+                realtime_group = Group.objects.get(name=g[0])
+            except Group.DoesNotExist:
+                realtime_group = Group.objects.create(name=g[0])
+
+            Permission = apps.get_model('auth', 'Permission')
+            for m in g[1]:
+                realtime_permissions = Permission.objects.filter(
+                    content_type__app_label='realtime',
+                    content_type__model=m)
+
+                realtime_group.permissions.add(*realtime_permissions)
+                realtime_group.save()
 
     def ready(self):
         try:
