@@ -33,10 +33,12 @@ LOGGER = logging.getLogger(LOGGER_NAME)
     'Realtime Worker needs to be run')
 class TestAshTasks(test.LiveServerTestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        super(TestAshTasks, cls).setUpClass()
         app_config = apps.get_app_config('realtime')
-        app_config.load_volcano_fixtures()
-        app_config.load_test_users()
+        app_config.create_rest_group()
+        app_config.ready()
 
     @staticmethod
     def fixtures_path(*path):
@@ -100,14 +102,17 @@ class TestAshTasks(test.LiveServerTestCase):
         ash.delete()
 
 
-@unittest.skipIf(
-    ast.literal_eval(os.environ.get('ON_TRAVIS', 'False')),
-    'Skip on Travis for now')
+@unittest.skipUnless(
+    realtime_app.control.ping(),
+    'Realtime Worker needs to be run')
 class TestEarthquakeTasks(test.LiveServerTestCase):
 
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
+        super(TestEarthquakeTasks, cls).setUpClass()
         app_config = apps.get_app_config('realtime')
-        app_config.load_test_users()
+        app_config.create_rest_group()
+        app_config.ready()
 
     @staticmethod
     def fixtures_path(*path):
@@ -141,22 +146,5 @@ class TestEarthquakeTasks(test.LiveServerTestCase):
 
         self.assertTrue(target_eq.hazard_layer_exists)
         self.assertTrue(target_eq.shake_grid_xml)
-
-        # wait until task state success
-        from realtime.tasks.earthquake import check_processing_task
-        while True:
-            try:
-                check_processing_task()
-                target_eq.refresh_from_db()
-
-                if target_eq.analysis_task_status == 'SUCCESS':
-                    break
-            except BaseException:
-                pass
-
-            LOGGER.info('Waiting for Headless Analysis')
-            time.sleep(5)
-
-        self.assertTrue(target_eq.impact_layer_exists)
 
         target_eq.delete()

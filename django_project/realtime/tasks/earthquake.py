@@ -1,26 +1,28 @@
 # coding=utf-8
 from __future__ import absolute_import
 
+import json
 import logging
+import os
 import urllib2
 from urlparse import urljoin
 
-import os
 from bs4 import BeautifulSoup
-from celery.result import AsyncResult
+from celery import chain
 from django.conf import settings
 from django.core.files import File
 from django.core.urlresolvers import reverse
 
 from core.celery_app import app
 from realtime.app_settings import LOGGER_NAME, FELT_EARTHQUAKE_URL, \
-    EARTHQUAKE_EXPOSURES, EARTHQUAKE_AGGREGATION, EARTHQUAKE_REPORT_TEMPLATE, \
+    EARTHQUAKE_EXPOSURES, EARTHQUAKE_AGGREGATION, \
+    EARTHQUAKE_REPORT_TEMPLATE, \
     EARTHQUAKE_LAYER_ORDER, GRID_FILE_DEFAULT_NAME
 from realtime.helpers.inaware import InAWARERest
 from realtime.models.earthquake import Earthquake, EarthquakeReport
-from realtime.tasks.headless.celery_app import app as headless_app
 from realtime.tasks.headless.inasafe_wrapper import \
-    run_multi_exposure_analysis, generate_report
+    run_multi_exposure_analysis, generate_report, RESULT_SUCCESS
+from realtime.utils import zip_inasafe_analysis_result, substitute_layer_order
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '3/15/16'
@@ -105,67 +107,6 @@ def retrieve_felt_earthquake_list():
 
 
 @app.task(queue='inasafe-django')
-def check_processing_task():
-    # Checking analysis task
-    for earthquake in Earthquake.objects.exclude(
-            analysis_task_id__isnull=True).exclude(
-            analysis_task_id__exact='').filter(
-            analysis_task_status__iexact='PENDING'):
-        analysis_task_id = earthquake.analysis_task_id
-        result = AsyncResult(id=analysis_task_id, app=headless_app)
-        # Set the impact file path if success
-        # Set impact file path if success
-        if result.state == 'SUCCESS':
-            task_state = 'FAILURE'
-            try:
-                earthquake.impact_file_path = result.result[
-                    'output']['analysis_summary']
-                task_state = 'SUCCESS'
-            except BaseException as e:
-                LOGGER.exception(e)
-
-            earthquake.analysis_task_status = task_state
-            earthquake.save()
-        elif result.state == 'FAILURE':
-            Earthquake.objects.filter(id=earthquake.id).update(
-                analysis_task_id=result.state)
-
-    # Checking report generation task
-    for earthquake in Earthquake.objects.exclude(
-            report_task_id__isnull=True).exclude(
-            report_task_id__exact='').filter(
-            report_task_status__iexact='PENDING'):
-        report_task_id = earthquake.report_task_id
-        result = AsyncResult(id=report_task_id, app=headless_app)
-
-        # Set the report path if success
-        if result.state == 'SUCCESS':
-            task_state = 'FAILURE'
-            try:
-                # Create earthquake report object
-                # Set the language manually first
-                earthquake_report = EarthquakeReport(
-                    earthquake=earthquake, language='en')
-
-                report_path = result.result[
-                    'output']['pdf_product_tag']['realtime-earthquake-en']
-                with open(report_path, 'rb') as report_file:
-                    earthquake_report.report_pdf.save(
-                        earthquake_report.report_map_filename,
-                        File(report_file),
-                        save=True)
-                    earthquake.refresh_from_db()
-            except BaseException as e:
-                LOGGER.exception(e)
-
-            earthquake.report_task_status = task_state
-            earthquake.save()
-        elif result.state == 'FAILURE':
-            Earthquake.objects.filter(id=earthquake.id).update(
-                analysis_task_id=result.state)
-
-
-@app.task(queue='inasafe-django')
 def generate_event_report(earthquake_event):
     """Generate Earthquake report
 
@@ -232,14 +173,57 @@ def run_earthquake_analysis(event):
     """
     event.refresh_from_db()
     hazard_layer_uri = event.hazard_path
-    async_result = run_multi_exposure_analysis.delay(
-        hazard_layer_uri,
-        EARTHQUAKE_EXPOSURES,
-        EARTHQUAKE_AGGREGATION,
+
+    tasks_chain = chain(
+        # Run multi exposure analysis
+        run_multi_exposure_analysis.s(
+            hazard_layer_uri,
+            EARTHQUAKE_EXPOSURES,
+            EARTHQUAKE_AGGREGATION,
+        ).set(queue=run_multi_exposure_analysis.queue),
+
+        # Handle analysis products
+        handle_analysis.s(
+            event.id
+        ).set(queue=handle_analysis.queue),
     )
+
+    @app.task
+    def _handle_error(req, exc, traceback):
+        """Update task status as Failure."""
+        Earthquake.objects.filter(id=event.id).update(
+            analysis_task_status='FAILURE')
+
+    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
     Earthquake.objects.filter(id=event.id).update(
         analysis_task_id=async_result.task_id,
         analysis_task_status=async_result.state)
+
+
+@app.task(queue='inasafe-django')
+def handle_analysis(analysis_result, event_id):
+    """Handle analysis products"""
+    earthquake = Earthquake.objects.get(id=event_id)
+
+    task_state = 'FAILURE'
+    if analysis_result['status'] == RESULT_SUCCESS:
+        try:
+            earthquake.impact_file_path = analysis_result[
+                'output']['analysis_summary']
+            earthquake.mmi_output_path = analysis_result[
+                'output']['population']['earthquake_contour']
+
+            # Zip result
+            zip_inasafe_analysis_result(earthquake.impact_file_path)
+            task_state = 'SUCCESS'
+        except BaseException as e:
+            LOGGER.exception(e)
+    else:
+        LOGGER.error(analysis_result['message'])
+
+    earthquake.analysis_task_status = task_state
+    earthquake.analysis_task_result = json.dumps(analysis_result)
+    earthquake.save()
 
 
 def generate_earthquake_report(event):
@@ -251,30 +235,69 @@ def generate_earthquake_report(event):
     event.refresh_from_db()
     impact_layer_uri = event.impact_file_path
 
-    result = AsyncResult(id=event.analysis_task_id, app=headless_app)
+    analysis_result = json.loads(event.analysis_task_result)
 
-    layer_order = []
+    source_dict = dict(analysis_result['output'])
+    source_dict.update({
+        'hazard': event.hazard_path
+    })
 
-    for layer in EARTHQUAKE_LAYER_ORDER:
-        if layer.startswith('@'):
-            # substitute layer
-            keys = layer[1:].split('.')
-            try:
-                # Recursively find indexed keys' value
-                value = result.result['output']
-                for k in keys:
-                    value = value[k]
-                # substitute if we find replacement
-                layer = value
-            except BaseException as e:
-                LOGGER.exception(e)
-                # Let layer order contains @ sign so it can be parsed
-                # by InaSAFE Headless instead (and decide if it will fail).
+    layer_order = substitute_layer_order(
+        EARTHQUAKE_LAYER_ORDER, source_dict)
 
-        layer_order.append(layer)
+    tasks_chain = chain(
+        # Generate report
+        generate_report.s(
+            impact_layer_uri, EARTHQUAKE_REPORT_TEMPLATE, layer_order
+        ).set(queue=generate_report.queue),
 
-    async_result = generate_report.delay(
-        impact_layer_uri, EARTHQUAKE_REPORT_TEMPLATE, layer_order)
+        # Handle report
+        handle_report.s(
+            event.id
+        ).set(queue=handle_report.queue)
+    )
+
+    @app.task
+    def _handle_error(req, exc, traceback):
+        """Update task status as Failure."""
+        Earthquake.objects.filter(id=event.id).update(
+            report_task_status='FAILURE')
+
+    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
+
     Earthquake.objects.filter(id=event.id).update(
         report_task_id=async_result.task_id,
         report_task_status=async_result.state)
+
+
+@app.task(queue='inasafe-django')
+def handle_report(report_result, event_id):
+    """Handle report product"""
+    earthquake = Earthquake.objects.get(id=event_id)
+
+    # Set the report path if success
+    task_state = 'FAILURE'
+    if report_result['status'] == RESULT_SUCCESS:
+        try:
+            # Create earthquake report object
+            # Set the language manually first
+            earthquake_report = EarthquakeReport(
+                earthquake=earthquake, language='en')
+
+            report_path = report_result[
+                'output']['pdf_product_tag']['realtime-earthquake-en']
+            with open(report_path, 'rb') as report_file:
+                earthquake_report.report_pdf.save(
+                    earthquake_report.report_map_filename,
+                    File(report_file),
+                    save=True)
+                earthquake.refresh_from_db()
+            task_state = 'SUCCESS'
+        except BaseException as e:
+            LOGGER.exception(e)
+    else:
+        LOGGER.error(report_result['message'])
+
+    Earthquake.objects.filter(id=earthquake.id).update(
+        report_task_status=task_state,
+        report_task_result=json.dumps(report_result))

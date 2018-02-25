@@ -1,11 +1,14 @@
 # coding=utf-8
 """Model class for earthquake realtime."""
+import json
 import os
 
 from django.contrib.gis.db import models
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from realtime.app_settings import EARTHQUAKE_EVENT_REPORT_FORMAT
+from realtime.utils import split_layer_ext
 
 
 class Earthquake(models.Model):
@@ -37,6 +40,13 @@ class Earthquake(models.Model):
         upload_to='earthquake/mmi_output',
         blank=True,
         null=True)
+    mmi_output_path = models.CharField(
+        verbose_name=_('MMI related file path'),
+        help_text=_('MMI related file path location'),
+        max_length=255,
+        blank=True,
+        null=True,
+        default=None)
     magnitude = models.FloatField(
         verbose_name=_('The magnitude'),
         help_text=_('The magnitude of the event.'))
@@ -87,6 +97,12 @@ class Earthquake(models.Model):
         max_length=30,
         default='None',
         blank=True)
+    analysis_task_result = models.TextField(
+        verbose_name=_('Analysis celery task result'),
+        help_text=_('Task result of analysis run'),
+        default='',
+        blank=True,
+        null=True)
     report_task_id = models.CharField(
         verbose_name=_('Report celery task id'),
         help_text=_('Task id for creating analysis report.'),
@@ -99,6 +115,12 @@ class Earthquake(models.Model):
         max_length=30,
         default='None',
         blank=True)
+    report_task_result = models.TextField(
+        verbose_name=_('Report celery task result'),
+        help_text=_('Task result of report generation'),
+        default='',
+        blank=True,
+        null=True)
     hazard_path = models.CharField(
         verbose_name=_('Hazard Layer path'),
         help_text=_('Location of hazard layer'),
@@ -159,6 +181,46 @@ class Earthquake(models.Model):
         return False
 
     @property
+    def shake_grid_exists(self):
+        return bool(self.shake_grid or self.shake_grid_xml)
+
+    @property
+    def mmi_layer_exists(self):
+        """Return bool to indicate existences of impact layers"""
+        if self.impact_file_path:
+            return os.path.exists(self.mmi_output_path)
+        return False
+
+    @property
+    def analysis_zip_path(self):
+        """Return analysis zip path for download."""
+        dirname = os.path.dirname(self.impact_file_path)
+        basename = os.path.basename(self.impact_file_path)
+        basename_without_ext = split_layer_ext(basename)[0]
+        zip_path = os.path.join(dirname, basename_without_ext + '.zip')
+        if os.path.exists(zip_path):
+            return zip_path
+        return None
+
+    @property
+    def shake_grid_download_url(self):
+        if self.shake_grid_exists:
+            return reverse('realtime:shake_grid', kwargs={
+                'shake_id': self.shake_id,
+                'source_type': self.source_type
+            })
+        return None
+
+    @property
+    def analysis_zip_download_url(self):
+        if self.mmi_layer_exists:
+            return reverse('realtime:analysis_zip', kwargs={
+                'shake_id': self.shake_id,
+                'source_type': self.source_type
+            })
+        return None
+
+    @property
     def need_run_analysis(self):
         if (self.analysis_task_status and
                 not self.analysis_task_status == 'None'):
@@ -171,6 +233,22 @@ class Earthquake(models.Model):
                 not self.report_task_status == 'None'):
             return False
         return True
+
+    @property
+    def analysis_result(self):
+        """Return dict of analysis result."""
+        try:
+            return json.loads(self.analysis_task_result)
+        except (TypeError, ValueError):
+            return {}
+
+    @property
+    def report_result(self):
+        """Return dict of report result."""
+        try:
+            return json.loads(self.report_task_result)
+        except (TypeError, ValueError):
+            return {}
 
 
 class EarthquakeReport(models.Model):
