@@ -2,6 +2,7 @@
 import logging
 from copy import deepcopy
 
+import os
 from django.conf import settings
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.utils import IntegrityError
@@ -382,20 +383,59 @@ class EarthquakeFeatureList(EarthquakeList):
     pagination_class = None
 
 
-def get_grid_xml(request, shake_id):
+def get_grid_xml(request, shake_id, source_type):
     if request.method != 'GET':
         return HttpResponseBadRequest()
 
     try:
-        shake = Earthquake.objects.get(shake_id=shake_id)
-        if not shake.shake_grid:
+        shake = Earthquake.objects.get(
+            shake_id=shake_id,
+            source_type=source_type)
+        if shake.shake_grid:
+            response = HttpResponse(
+                shake.shake_grid.read(),
+                content_type='application/octet-stream')
+            response['Content-Disposition'] = \
+                'inline; filename="%s-grid.xml"' % shake_id
+        elif shake.shake_grid_xml:
+            response = HttpResponse(
+                shake.shake_grid_xml,
+                content_type='application/octet-stream')
+            response['Content-Disposition'] = \
+                'inline; filename="%s-grid.xml"' % shake_id
+        else:
             # Legacy shake grid not exists
             # TODO: Update using current workflow
-            return JsonResponse({'success': False})
-        response = HttpResponse(
-            shake.shake_grid.read(), content_type='application/octet-stream')
-        response['Content-Disposition'] = \
-            'inline; filename="%s-grid.xml"' % shake_id
+            response = JsonResponse({'success': False})
+
+        return response
+    except BaseException:
+        return HttpResponseBadRequest()
+
+
+def get_analysis_zip(request, shake_id, source_type):
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+
+    try:
+        shake = Earthquake.objects.get(
+            shake_id=shake_id,
+            source_type=source_type)
+
+        if shake.analysis_zip_path:
+            with open(shake.analysis_zip_path) as f:
+                response = HttpResponse(
+                    f.read(),
+                    content_type='application/octet-stream')
+                response['Content-Disposition'] = \
+                    'inline; filename=' \
+                    '"{shake_id}-{source_type}-analysis.zip"'.format(
+                        shake_id=shake_id,
+                        source_type=source_type)
+        else:
+            # Legacy shake grid not exists
+            # TODO: Update using current workflow
+            response = JsonResponse({'success': False})
 
         return response
     except BaseException:

@@ -195,12 +195,12 @@ EARTHQUAKE_EXPOSURES = [
 ]
 EARTHQUAKE_AGGREGATION = ''
 EARTHQUAKE_REPORT_TEMPLATE = '/home/headless/qgis-templates/' \
-                             'realtime-earthquake-en.qpt'
+                             'earthquake/realtime-earthquake-en.qpt'
 EARTHQUAKE_LAYER_ORDER = [
-    '/home/headless/contexts/common/exposure/WorldPop_200m.tif',
-    '@population.earthquake_contour',
     '/home/headless/contexts/common/exposure/'
     'IDN_Capital_Population_Point_WGS84.shp',
+    '@population.earthquake_contour',
+    '/home/headless/contexts/common/exposure/WorldPop_200m.tif',
 ]
 
 EARTHQUAKE_EVENT_REPORT_FORMAT = getattr(

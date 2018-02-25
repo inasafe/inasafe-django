@@ -13,7 +13,7 @@ from realtime.views.earthquake import (
     EarthquakeDetail,
     EarthquakeReportList,
     EarthquakeReportDetail,
-    EarthquakeFeatureList, iframe_index, get_grid_xml)
+    EarthquakeFeatureList, iframe_index, get_grid_xml, get_analysis_zip)
 from realtime.views.flood import (
     index as flood_index,
     FloodList,
@@ -138,9 +138,16 @@ urlpatterns = format_suffix_patterns(urlpatterns)
 urlpatterns += [
     url(r'^$', shake_index, name='index'),
 
-    # SHake
+    # Shake
     url(r'^shake/$', shake_index, name='shake_index'),
-    url(r'^shake/grid/(?P<shake_id>[-\d]+)', get_grid_xml, name='shake_grid'),
+    url(r'^shake/grid/(?P<shake_id>[-\d]+)/'
+        r'(?P<source_type>\w*)/$',
+        get_grid_xml,
+        name='shake_grid'),
+    url(r'^shake/analysis/(?P<shake_id>[-\d]+)/'
+        r'(?P<source_type>\w*)/$',
+        get_analysis_zip,
+        name='analysis_zip'),
 
     # Flood
     url(r'^flood/$', flood_index, name='flood_index'),

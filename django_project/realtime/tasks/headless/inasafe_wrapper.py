@@ -12,6 +12,9 @@ __revision__ = '$Format:%H$'
 LOGGER = logging.getLogger('InaSAFE Headless')
 
 
+RESULT_SUCCESS = 0
+
+
 @app.task(name='inasafe.headless.tasks.get_keywords', queue='inasafe-headless')
 def get_keywords(layer_uri, keyword=None):
     """Get keywords from a layer.
