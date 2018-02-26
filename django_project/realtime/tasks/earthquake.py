@@ -32,7 +32,7 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 
 
 @app.task(queue='inasafe-django', default_retry_delay=10 * 60, bind=True)
-def push_shake_to_inaware(self, shake_id):
+def push_shake_to_inaware(self, shake_id, source_type):
     """
 
     :param self: Required parameter if bind=True is used
@@ -50,6 +50,7 @@ def push_shake_to_inaware(self, shake_id):
             raise Exception('Hazard id is none: %s' % shake_id)
         pdf_url = reverse('realtime_report:report_pdf', kwargs={
             'shake_id': shake_id,
+            'source_type': source_type,
             'language': 'en',
             'language2': 'en',
         })
@@ -60,6 +61,7 @@ def push_shake_to_inaware(self, shake_id):
             hazard_id, pdf_url, 'InaSAFE Estimated Earthquake Impact - EN')
         pdf_url = reverse('realtime_report:report_pdf', kwargs={
             'shake_id': shake_id,
+            'source_type': source_type,
             'language': 'id',
             'language2': 'id',
         })

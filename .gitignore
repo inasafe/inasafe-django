@@ -111,6 +111,7 @@ django_project/celerybeat.pid
 django_project/celerybeat-schedule
 django_project/temp
 deployment/realtime-hazard
+!deployment/realtime-hazard/shakemaps/.gitkeep
 
 sftp_media_credential.env
 sftp_pg_credential.env
@@ -139,4 +140,3 @@ deployment/headless-data/outputs/
 deployment/headless-data/qgis-templates/
 deployment/headless-data/test-hazards/
 deployment/reports/
-

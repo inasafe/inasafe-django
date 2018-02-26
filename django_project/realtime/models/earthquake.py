@@ -292,6 +292,14 @@ class EarthquakeReport(models.Model):
         super(EarthquakeReport, self).delete(using=using)
 
     @property
+    def shake_id(self):
+        return self.earthquake.shake_id
+
+    @property
+    def source_type(self):
+        return self.earthquake.source_type
+
+    @property
     def report_map_filename(self):
         """Return standardized filename for report map."""
         return EARTHQUAKE_EVENT_REPORT_FORMAT.format(

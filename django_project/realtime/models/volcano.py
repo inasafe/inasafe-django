@@ -1,4 +1,5 @@
 # coding=utf-8
+import logging
 
 from django.contrib.gis.db import models
 from django.contrib.gis.gdal.datasource import DataSource
@@ -6,8 +7,13 @@ from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.contrib.gis.geos.point import Point
 from django.utils.translation import ugettext_lazy as _
 
+from realtime.app_settings import LOGGER_NAME
+
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '7/18/16'
+
+
+LOGGER = logging.getLogger(LOGGER_NAME)
 
 
 class Volcano(models.Model):
@@ -105,7 +111,8 @@ def load_volcano_data(Volcano, volcano_shapefile):
                 province__iexact=province,
                 district__iexact=district,
                 morphology__iexact=morphology,)
-            print 'Volcano %s already exists' % volcano.volcano_name
+            LOGGER.info(
+                'Volcano {0} already exists'.format(volcano.volcano_name))
         except Volcano.DoesNotExist:
             volcano = Volcano.objects.create(
                 volcano_name=volcano_name,
@@ -116,4 +123,5 @@ def load_volcano_data(Volcano, volcano_shapefile):
                 morphology=morphology,
                 province=province,
                 district=district)
-            print 'Volcano %s created' % volcano.volcano_name
+            LOGGER.debug(
+                'Volcano {0} created'.format(volcano.volcano_name))
