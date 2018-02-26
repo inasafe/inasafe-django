@@ -194,7 +194,7 @@ class Flood(models.Model):
 
     @property
     def hazard_layer_exists(self):
-        """Return bool to indicate existances of hazard layer"""
+        """Return bool to indicate existences of hazard layer"""
         if self.hazard_path:
             return os.path.exists(self.hazard_path)
         return False
@@ -209,16 +209,10 @@ class Flood(models.Model):
 
     @property
     def impact_layer_exists(self):
-        """Return bool to indicate existances of impact layers"""
+        """Return bool to indicate existences of impact layers"""
         if self.impact_file_path:
             return os.path.exists(self.impact_file_path)
         return False
-
-    @property
-    def need_generate_hazard(self):
-        if self.task_status and not self.task_status == 'None':
-            return False
-        return True
 
     @property
     def need_run_analysis(self):
