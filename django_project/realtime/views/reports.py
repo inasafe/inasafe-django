@@ -8,7 +8,8 @@ __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '19/06/15'
 
 
-def report_pdf(request, shake_id, language=u'id', language2=u'id'):
+def report_pdf(request, shake_id, source_type='initial',
+               language=u'id', language2=u'id'):
     """Return PDF file of desired shake id and language
 
     :param request: Django request object
@@ -21,6 +22,7 @@ def report_pdf(request, shake_id, language=u'id', language2=u'id'):
     try:
         report = EarthquakeReport.objects.get(
             earthquake__shake_id=shake_id,
+            earthquake__source_type=source_type,
             language=language)
         if not language == language2:
             raise Http404()
@@ -49,7 +51,8 @@ def report_pdf(request, shake_id, language=u'id', language2=u'id'):
             raise Http404()
 
 
-def report_image(request, shake_id, language=u'id', language2=u'id'):
+def report_image(request, shake_id, source_type='initial',
+                 language=u'id', language2=u'id'):
     """Return PNG file of desired shake id and language
 
     :param request: Django request object
@@ -62,6 +65,7 @@ def report_image(request, shake_id, language=u'id', language2=u'id'):
     try:
         report = EarthquakeReport.objects.get(
             earthquake__shake_id=shake_id,
+            earthquake__source_type=source_type,
             language=language)
         if not language == language2:
             raise Http404()
@@ -91,7 +95,8 @@ def report_image(request, shake_id, language=u'id', language2=u'id'):
             raise Http404()
 
 
-def report_thumbnail(request, shake_id, language=u'id', language2=u'id'):
+def report_thumbnail(request, shake_id, source_type='initial',
+                     language=u'id', language2=u'id'):
     """Return Thumbnail file of desired shake id and language
 
     Thumbnail file is a smaller-downsized version of Image report
@@ -106,6 +111,7 @@ def report_thumbnail(request, shake_id, language=u'id', language2=u'id'):
     try:
         report = EarthquakeReport.objects.get(
             earthquake__shake_id=shake_id,
+            earthquake__source_type=source_type,
             language=language)
         if not language == language2:
             raise Http404()
@@ -144,20 +150,24 @@ def latest_report(request, report_type=u'pdf', language=u'id'):
     """
     try:
         report = EarthquakeReport.objects.filter(
-            language=language).order_by('earthquake__shake_id').last()
+            language=language).order_by(
+            'earthquake__shake_id', 'earthquake__source_type').last()
 
         if not report:
             raise Http404()
 
+        shake_id = report.earthquake.shake_id
+        source_type = report.earthquake.source_type
+
         if report_type == 'pdf':
             report_pdf(
-                request, report.earthquake.shake_id, language, language)
+                request, shake_id, source_type, language, language)
         elif report_type == 'png':
             report_image(
-                request, report.earthquake.shake_id, language, language)
+                request, shake_id, source_type, language, language)
         elif report_type == 'thumbnail':
             report_thumbnail(
-                request, report.earthquake.shake_id, language, language)
+                request, shake_id, source_type, language, language)
 
         raise Http404()
     except (EarthquakeReport.DoesNotExist, IOError, AttributeError):

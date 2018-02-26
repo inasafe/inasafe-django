@@ -1,5 +1,5 @@
 # coding=utf-8
-import ast
+import errno
 import logging
 import os
 import shutil
@@ -123,10 +123,17 @@ class TestEarthquakeTasks(test.LiveServerTestCase):
         """Test generating earthquake hazard."""
         # Drop a grid file to monitored directory
         grid_file = self.fixtures_path('20180220163351-grid.xml')
+
         drop_location = os.path.join(
             EARTHQUAKE_MONITORED_DIRECTORY,
             '20180220163351',
             'grid.xml')
+
+        try:
+            os.makedirs(os.path.dirname(drop_location))
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+                pass
 
         shutil.copy(grid_file, drop_location)
 
