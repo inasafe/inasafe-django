@@ -69,8 +69,8 @@ def check_processing_task():
                     task_state = 'SUCCESS'
                 except BaseException as e:
                     LOGGER.exception(e)
-                flood.analysis_task_status = task_state
-                flood.save()
+            flood.analysis_task_status = task_state
+            flood.save()
     # Checking report generation task
     for flood in Flood.objects.exclude(
             report_task_id__isnull=True).exclude(
@@ -94,7 +94,6 @@ def check_processing_task():
                             flood_report.impact_map_filename,
                             File(report_file),
                             save=True)
-                    flood_report.save()
                     task_state = 'SUCCESS'
             except BaseException as e:
                 LOGGER.exception(e)
