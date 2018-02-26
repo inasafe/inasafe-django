@@ -15,18 +15,25 @@ __date__ = '19/06/15'
 
 class EarthquakeReportSerializer(serializers.ModelSerializer):
 
-    shake_id = serializers.SlugRelatedField(
-        queryset=Earthquake.objects.all(),
-        read_only=False,
-        slug_field='shake_id',
-        source='earthquake'
-    )
-    source_type = serializers.SlugRelatedField(
-        queryset=Earthquake.objects.all(),
-        read_only=False,
-        slug_field='source_type',
-        source='earthquake'
-    )
+    # def get_shake_id(self, serializer_field, obj):
+    #     """
+    #     :param serializer_field:
+    #     :type serializer_field: CustomSerializerMethodField
+    #     :param obj:
+    #     :type obj: EarthquakeReport
+    #     :return:
+    #     """
+    #     return obj.earthquake.shake_id
+    #
+    # def get_source_type(self, serializer_field, obj):
+    #     """
+    #     :param serializer_field:
+    #     :type serializer_field: CustomSerializerMethodField
+    #     :param obj:
+    #     :type obj: EarthquakeReport
+    #     :return:
+    #     """
+    #     return obj.earthquake.source_type
 
     def get_url(self, serializer_field, obj):
         """

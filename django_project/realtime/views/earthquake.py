@@ -2,7 +2,6 @@
 import logging
 from copy import deepcopy
 
-import os
 from django.conf import settings
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.utils import IntegrityError
@@ -118,21 +117,40 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
                        InBBoxFilter)
     bbox_filter_field = 'location'
     bbox_filter_include_overlapping = True
-    filter_fields = ('depth', 'magnitude', 'shake_id')
+    filter_fields = ('depth', 'magnitude', 'shake_id', 'source_type')
     filter_class = EarthquakeFilter
     search_fields = ('location_description', )
-    ordering = ('shake_id', )
+    ordering = ('shake_id', 'source_type')
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+    def get(self, request, shake_id=None, source_type=None, *args, **kwargs):
+        try:
+            queryset = Earthquake.objects.all()
+            if shake_id or source_type:
+                if shake_id:
+                    queryset = queryset.filter(shake_id=shake_id)
+                if source_type:
+                    queryset = queryset.filter(source_type=source_type)
+                page = self.paginate_queryset(queryset)
+                if page is not None:
+                    serializer = self.get_serializer(page, many=True)
+                    return self.get_paginated_response(serializer.data)
+
+                serializer = self.get_serializer(queryset, many=True)
+                return Response(serializer.data)
+            else:
+                return self.list(request, *args, **kwargs)
+        except EarthquakeReport.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request, *args, **kwargs):
         retval = self.create(request, *args, **kwargs)
         track_rest_push(request)
         if not settings.DEV_MODE:
             # carefuly DO NOT push it to InaWARE when in dev_mode
-            push_shake_to_inaware.delay(request.data.get('shake_id'))
+            push_shake_to_inaware.delay(
+                request.data.get('shake_id'),
+                request.data.get('source_type'))
         return retval
 
 

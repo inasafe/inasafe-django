@@ -49,6 +49,7 @@ class TestEarthquake(APITestCase):
         with open(self.data_path('grid.xml')) as grid_file:
             Earthquake.objects.create(
                 shake_id='20150619200628',
+                source_type='initial',
                 shake_grid=File(grid_file),
                 magnitude=4.6,
                 time=datetime.datetime(
@@ -221,8 +222,10 @@ class TestEarthquake(APITestCase):
             self, actual_earthquake, expected_earthquake)
 
     def test_earthquake_list_post(self):
+        # Test pushing corrected shakemaps
         shake_json = {
-            'shake_id': u'20150619200629',
+            'shake_id': u'20150619200628',
+            'source_type': u'corrected',
             'magnitude': 4.6,
             'time': u'2015-06-19T12:59:28Z',
             'depth': 10.0,
@@ -239,12 +242,47 @@ class TestEarthquake(APITestCase):
             format='json'
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Earthquake lists without filter
+
         response = self.client.get(reverse('realtime:earthquake_list'))
         serializer = PageNumberPaginationSerializer(
             serializer_class=EarthquakeSerializer,
             data=response.data)
         self.assertEqual(serializer.count, 2)
-        earthquake = Earthquake.objects.get(shake_id=u'20150619200629')
+
+        # Earthquake lists with shake_id filter
+        response = self.client.get(
+            reverse('realtime:earthquake_list', kwargs={
+                'shake_id': u'20150619200628'
+            }))
+        serializer = PageNumberPaginationSerializer(
+            serializer_class=EarthquakeSerializer,
+            data=response.data)
+        self.assertEqual(serializer.count, 2)
+
+        # Earthquake lists with shake_id and source_type filters
+        response = self.client.get(
+            reverse('realtime:earthquake_detail', kwargs={
+                'shake_id': u'20150619200628',
+                'source_type': u'corrected'
+            }))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Using models filter
+        self.assertEqual(
+            Earthquake.objects.filter(
+                shake_id=u'20150619200628').count(), 2)
+
+        self.assertEqual(
+            Earthquake.objects.filter(
+                shake_id=u'20150619200628',
+                source_type=u'corrected').count(), 1)
+
+        earthquake = Earthquake.objects.get(
+            shake_id=u'20150619200628',
+            source_type=u'corrected')
+
         serializer = EarthquakeSerializer(earthquake)
         for key, value in shake_json.iteritems():
             if isinstance(serializer.data[key], GeoJsonDict):
@@ -273,8 +311,8 @@ class TestEarthquake(APITestCase):
 
     def test_earthquake_detail_put(self):
         shake_json = {
-            'shake_id': u'20150619200629',
-            'source_type': u'initial',
+            'shake_id': u'20150619200628',
+            'source_type': u'corrected',
             'magnitude': 4.6,
             'time': u'2015-06-19T12:59:28Z',
             'depth': 10.0,
@@ -333,8 +371,8 @@ class TestEarthquake(APITestCase):
 
     def test_earthquake_detail_delete(self):
         shake_json = {
-            'shake_id': u'20150619200629',
-            'source_type': u'initial',
+            'shake_id': u'20150619200628',
+            'source_type': u'corrected',
             'magnitude': 4.6,
             'time': u'2015-06-19T12:59:28Z',
             'depth': 10.0,
@@ -412,6 +450,7 @@ class TestEarthquake(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+        # Check get REST API
         response = self.client.get(
             reverse(
                 'realtime:earthquake_report_list',
@@ -425,12 +464,88 @@ class TestEarthquake(APITestCase):
             serializer_class=EarthquakeReportSerializer,
             data=response.data)
         self.assertEqual(serializer.count, 2)
+
+        # Push another product which is corrected shakemap with the same shake
+        # id
+
+        shake_json = {
+            'shake_id': u'20150619200628',
+            'source_type': u'corrected',
+            'magnitude': 4.6,
+            'time': u'2015-06-19T12:59:28Z',
+            'depth': 10.0,
+            'location': {
+                u'type': u'Point',
+                u'coordinates': [126.52, 4.16]
+            },
+            'location_description': u'Manado'
+        }
+
+        response = self.client.post(
+            reverse('realtime:earthquake_list'),
+            shake_json,
+            format='json'
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Push another report for corrected shakemaps
+        report_multipart = {
+            'language': u'en',
+            'report_pdf': File(
+                open(
+                    self.data_path(u'20150619200628-en.pdf'))),
+            'report_image': File(
+                open(
+                    self.data_path(u'20150619200628-en.png'))),
+            'report_thumbnail': File(
+                open(
+                    self.data_path(
+                        u'20150619200628-thumb-en.png'))),
+        }
+
+        response = self.client.post(
+            reverse(
+                'realtime:earthquake_report_list',
+                kwargs={
+                    'shake_id': u'20150619200628',
+                    'source_type': u'corrected'
+                }
+            ),
+            report_multipart,
+            format='multipart'
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Check get REST API with only shake_id filter
+        response = self.client.get(
+            reverse(
+                'realtime:earthquake_report_list',
+                kwargs={
+                    'shake_id': u'20150619200628'
+                }
+            ))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        serializer = PageNumberPaginationSerializer(
+            serializer_class=EarthquakeReportSerializer,
+            data=response.data)
+        self.assertEqual(serializer.count, 3)
+
         # delete data
         report = EarthquakeReport.objects.get(
             earthquake__shake_id=u'20150619200628',
             earthquake__source_type=u'initial',
             language='en')
         report.delete()
+        report = EarthquakeReport.objects.get(
+            earthquake__shake_id=u'20150619200628',
+            earthquake__source_type=u'corrected',
+            language='en')
+        report.delete()
+        earthquake = Earthquake.objects.get(
+            shake_id=u'20150619200628',
+            source_type=u'initial')
+        earthquake.delete()
 
     def test_earthquake_report_detail(self):
         kwargs = {
