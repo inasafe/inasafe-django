@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import absolute_import
 
+import json
 import logging
 import os
 import shutil
@@ -58,18 +59,18 @@ def check_processing_task():
             analysis_task_status__iexact='PENDING'):
         analysis_task_id = flood.analysis_task_id
         result = AsyncResult(id=analysis_task_id, app=headless_app)
+        analysis_result = result.result
+
         if result.state == 'SUCCESS':
             task_state = 'FAILURE'
-            if result.result['status'] != 0:
-                LOGGER.error(result.result['message'])
-            else:
-                try:
-                    flood.impact_file_path = result.result['output'][
-                        'analysis_summary']
-                    task_state = 'SUCCESS'
-                except BaseException as e:
-                    LOGGER.exception(e)
+            try:
+                flood.impact_file_path = result.result['output'][
+                    'analysis_summary']
+                task_state = 'SUCCESS'
+            except BaseException as e:
+                LOGGER.exception(e)
             flood.analysis_task_status = task_state
+            flood.analysis_task_result = json.dumps(analysis_result)
             flood.save()
     # Checking report generation task
     for flood in Flood.objects.exclude(
@@ -78,26 +79,26 @@ def check_processing_task():
             report_task_status__iexact='PENDING'):
         report_task_id = flood.report_task_id
         result = AsyncResult(id=report_task_id, app=headless_app)
+        analysis_result = result.result
         if result.state == 'SUCCESS':
             task_state = 'FAILURE'
             try:
-                if result.result['status'] != 0:
-                    LOGGER.error(result.result['message'])
-                else:
-                    report_path = result.result[
-                        'output']['pdf_product_tag']['realtime-flood-en']
-                    # Create flood report object
-                    # Set the language manually first
-                    flood_report = FloodReport(flood=flood, language='en')
-                    with open(report_path, 'rb') as report_file:
-                        flood_report.impact_map.save(
-                            flood_report.impact_map_filename,
-                            File(report_file),
-                            save=True)
-                    task_state = 'SUCCESS'
+                report_path = result.result[
+                    'output']['pdf_product_tag']['realtime-flood-en']
+                # Create flood report object
+                # Set the language manually first
+                flood_report = FloodReport(flood=flood, language='en')
+                with open(report_path, 'rb') as report_file:
+                    flood_report.impact_map.save(
+                        flood_report.impact_map_filename,
+                        File(report_file),
+                        save=True)
+                task_state = 'SUCCESS'
             except BaseException as e:
                 LOGGER.exception(e)
+
             flood.report_task_status = task_state
+            flood.report_task_result = json.dumps(analysis_result)
             flood.save()
 
 
