@@ -263,6 +263,15 @@ class Flood(models.Model):
         except (TypeError, ValueError):
             return {}
 
+    @property
+    def flood_data_download_url(self):
+        # return self.hazard_path
+        if self.flood_data:
+            return reverse('realtime:flood_data', kwargs={
+                'event_id': self.event_id,
+            })
+        return 'Flood data is empty: %s' % self.flood_data
+
 
 class FloodReport(models.Model):
     """Flood Report models"""

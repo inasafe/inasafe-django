@@ -7,8 +7,13 @@ from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError
-from django.http.response import JsonResponse, HttpResponseServerError, \
-    HttpResponse, Http404
+from django.http.response import (
+    JsonResponse,
+    HttpResponseServerError,
+    HttpResponse,
+    Http404,
+    HttpResponseBadRequest,
+)
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
@@ -452,3 +457,22 @@ def rw_histogram(
     except Exception as e:
         LOGGER.info(e)
         return HttpResponseServerError()
+
+
+def get_flood_data_json(request, event_id):
+    """Return url to download flood data from an event_id."""
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+    try:
+        flood = Flood.objects.get(
+            event_id=event_id
+        )
+        response = HttpResponse(
+            flood.flood_data,
+            content_type='application/octet-stream'
+        )
+        response['Content-Disposition'] = \
+            'inline; filename="%s.json"' % event_id
+        return response
+    except BaseException:
+        return HttpResponseBadRequest()

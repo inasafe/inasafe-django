@@ -21,7 +21,7 @@ from realtime.views.flood import (
     FloodReportList,
     FloodReportDetail, FloodEventList, flood_event_features,
     impact_event_features, rw_flood_frequency, rw_histogram,
-    flood_impact_report, flood_impact_map)
+    flood_impact_report, flood_impact_map, get_flood_data_json)
 from realtime.views.reports import latest_report
 from realtime.views.volcano import VolcanoFeatureList, VolcanoList
 
@@ -161,6 +161,10 @@ urlpatterns += [
         r'(?P<language>[-\w]+)/$',
         flood_impact_map,
         name='flood_impact_map'),
+    url(r'^flood/flood-data/'
+        r'(?P<event_id>\d{10}-(1|3|6)-(rw|village|subdistrict))/$',
+        get_flood_data_json,
+        name='flood_data'),
 
     # Ash
     url(r'^ash/$', ash_index, name='ash_index'),
