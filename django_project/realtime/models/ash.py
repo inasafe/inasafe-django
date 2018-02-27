@@ -1,5 +1,6 @@
 # coding=utf-8
 """Model class for ash realtime."""
+import json
 import os
 
 import pytz
@@ -93,6 +94,12 @@ class Ash(models.Model):
         max_length=30,
         default='None',
         blank=True)
+    analysis_task_result = models.TextField(
+        verbose_name=_('Analysis celery task result'),
+        help_text=_('Task result of analysis run'),
+        default='',
+        blank=True,
+        null=True)
     report_task_id = models.CharField(
         verbose_name=_('Report celery task id'),
         help_text=_('Task id for creating analysis report.'),
@@ -105,6 +112,12 @@ class Ash(models.Model):
         max_length=30,
         default='None',
         blank=True)
+    report_task_result = models.TextField(
+        verbose_name=_('Report celery task result'),
+        help_text=_('Task result of report generation'),
+        default='',
+        blank=True,
+        null=True)
     hazard_path = models.CharField(
         verbose_name=_('Hazard Layer path'),
         help_text=_('Location of hazard layer'),
@@ -204,6 +217,22 @@ class Ash(models.Model):
                 not self.report_task_status == 'None'):
             return False
         return True
+
+    @property
+    def analysis_result(self):
+        """Return dict of analysis result."""
+        try:
+            return json.loads(self.analysis_task_result)
+        except (TypeError, ValueError):
+            return {}
+
+    @property
+    def report_result(self):
+        """Return dict of report result."""
+        try:
+            return json.loads(self.report_task_result)
+        except (TypeError, ValueError):
+            return {}
 
 
 class AshReport(models.Model):

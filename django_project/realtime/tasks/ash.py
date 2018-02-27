@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import absolute_import
 
+import json
 import logging
 import os
 import shutil
@@ -49,6 +50,7 @@ def check_processing_task():
             analysis_task_status__iexact='PENDING'):
         analysis_task_id = ash.analysis_task_id
         result = AsyncResult(id=analysis_task_id, app=headless_app)
+        analysis_result = result.result
 
         # Set impact file path if success
         if result.state == 'SUCCESS':
@@ -62,12 +64,16 @@ def check_processing_task():
 
             Ash.objects.filter(id=ash.id).update(
                 impact_file_path=ash.impact_file_path,
-                analysis_task_status=task_state)
+                analysis_task_status=task_state,
+                analysis_task_result=json.dumps(analysis_result)
+            )
             ash.refresh_from_db()
             ash.save()
         elif result.state == 'FAILURE':
             Ash.objects.filter(id=ash.id).update(
-                analysis_task_id=result.state)
+                analysis_task_id=result.state,
+                analysis_task_result=json.dumps(analysis_result)
+            )
 
     # Checking report generation task
     for ash in Ash.objects.exclude(
@@ -76,6 +82,7 @@ def check_processing_task():
             report_task_status__iexact='PENDING'):
         report_task_id = ash.report_task_id
         result = AsyncResult(id=report_task_id, app=headless_app)
+        analysis_result = result.result
 
         # Set the report path if success
         if result.state == 'SUCCESS':
@@ -97,12 +104,16 @@ def check_processing_task():
                 LOGGER.exception(e)
 
             Ash.objects.filter(id=ash.id).update(
-                report_task_status=task_state)
+                report_task_status=task_state,
+                report_task_result=json.dumps(analysis_result)
+            )
             ash.refresh_from_db()
             ash.save()
         elif result.state == 'FAILURE':
             Ash.objects.filter(id=ash.id).update(
-                analysis_task_id=result.state)
+                analysis_task_id=result.state,
+                report_task_result=json.dumps(analysis_result)
+            )
 
 
 @app.task(queue='inasafe-django')
