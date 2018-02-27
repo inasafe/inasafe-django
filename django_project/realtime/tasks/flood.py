@@ -332,6 +332,15 @@ def generate_event_report(flood_event):
     :type flood_event: Flood
     :return:
     """
+    if not flood_event.flood_data:
+        with open(flood_event.hazard_path) as f:
+            flood_data = f.read()
+
+        Flood.objects.filter(
+            id=flood_event.id).update(
+            flood_data=flood_data
+        )
+
     if (flood_event.hazard_layer_exists and
             not flood_event.impact_layer_exists and
             flood_event.need_run_analysis):

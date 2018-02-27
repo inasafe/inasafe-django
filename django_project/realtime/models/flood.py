@@ -86,6 +86,11 @@ class Flood(models.Model):
         max_length=20,
         unique=True,
         blank=False)
+    flood_data = models.TextField(
+        verbose_name=_('Flood Data Contents'),
+        help_text=_('The content of flood data in json format.'),
+        blank=True,
+        null=True)
     data_source = models.CharField(
         verbose_name=_('The source of hazard data'),
         help_text=_('The source of the hazard data used for analysis'),
