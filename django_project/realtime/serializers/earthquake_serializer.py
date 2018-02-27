@@ -2,7 +2,6 @@
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
-    GeoModelSerializer,
     GeoFeatureModelSerializer
 )
 
@@ -93,7 +92,7 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
         )
 
 
-class EarthquakeSerializer(GeoModelSerializer):
+class EarthquakeSerializer(serializers.ModelSerializer):
     reports = EarthquakeReportSerializer(
         many=True, required=False, write_only=False,
         read_only=True)
