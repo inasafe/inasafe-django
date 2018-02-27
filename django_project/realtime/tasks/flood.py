@@ -192,6 +192,10 @@ def process_hazard_layer(flood):
             boundary=boundary_rw,
             hazard_data=int(state))
 
+    num_flooded_boundary = len(FloodEventBoundary.objects.filter(flood=flood))
+    Flood.objects.filter(id=flood.id).update(
+        boundary_flooded=num_flooded_boundary)
+
     LOGGER.info('Hazard layer processed...')
     return True
 
