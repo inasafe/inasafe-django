@@ -2,8 +2,21 @@
 [run]
 branch = True
 source = .
-omit = */tests/*,*migrations/*
-include = localities/*,frontend/*
+omit =
+	# Of course we omit test files coverage, some of it skipped in travis for local test
+	*/test/*
+	*/tests/*
+
+	# No need to check coverage on migrations
+	*/migrations/*
+
+	# No need to check django manage.py
+	manage.py
+
+	# No need to check used package that served as extras
+	core/*
+	frontend/*
+	user_map/*
 
 [report]
 precision = 2
