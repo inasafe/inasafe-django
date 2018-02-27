@@ -155,4 +155,5 @@ class FloodSerializer(serializers.ModelSerializer):
             'impact_layer',
             'reports',
             'hazard_path',
+            'flood_data_download_url',
         )
