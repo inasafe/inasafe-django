@@ -264,12 +264,6 @@
                     download: function(event){return event.event_id+'-hazard.zip';}
                 },
                 {
-                    active: function(event){return event.impact_layer !== undefined;},
-                    text: '{% trans "Impact Layer" %}',
-                    href:  function(event){return event.impact_layer;},
-                    download: function(event){return event.event_id+'-impact.zip';}
-                },
-                {
                     text: '{% trans "Impact Map" %}',
                     handler: 'downloadImpactMapHandler'
                 }

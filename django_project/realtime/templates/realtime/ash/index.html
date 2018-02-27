@@ -201,12 +201,6 @@
                         download: function(event){return event.event_id_formatted+'-hazard.tif';}
                     },
                     {
-                        active: function(event){return event.impact_files != undefined;},
-                        text: '{% trans "Impact Files" %}',
-                        href:  function(event){return event.impact_files;},
-                        download: function(event){return event.event_id_formatted+'-impact.zip';}
-                    },
-                    {
                         text: '{% trans "Report" %}',
                         handler: 'downloadReportHandler'
                     }
