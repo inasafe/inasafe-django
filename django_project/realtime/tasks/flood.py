@@ -114,90 +114,83 @@ def process_hazard_layer(flood):
         flood.hazard_layer.name
     ))
     # extract hazard layer zip file
-    if not flood.hazard_layer or not flood.hazard_layer.name:
-        LOGGER.info('No hazard layer')
-        return
-    zip_file_path = os.path.join(settings.MEDIA_ROOT, flood.hazard_layer.name)
-
-    if not os.path.exists(zip_file_path):
-        LOGGER.info('Hazard layer doesn\'t exists')
+    if not os.path.exists(flood.hazard_path):
+        LOGGER.info('No hazard layer at %s' % flood.hazard_path)
         return
 
-    with ZipFile(zip_file_path) as zf:
-        tmpdir = tempfile.mkdtemp()
+    # process hazard layer
+    layer_filename = flood.hazard_path
 
-        zf.extractall(path=tmpdir)
+    source = DataSource(layer_filename)
 
-        # process hazard layer
-        layer_filename = os.path.join(tmpdir, 'flood_data.shp')
+    layer = source[0]
 
-        source = DataSource(layer_filename)
+    FloodEventBoundary.objects.filter(flood=flood).delete()
 
-        layer = source[0]
+    kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
+    rw = BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
 
-        FloodEventBoundary.objects.filter(flood=flood).delete()
+    for feat in layer:
+        if not flood.data_source or flood.data_source == 'petajakarta':
+            upstream_id = feat.get('pkey')
+            level_name = feat.get('level_name')
+            parent_name = feat.get('parent_nam')
+            state = feat.get('state')
+        elif flood.data_source == 'petabencana':
+            upstream_id = feat.get('area_id')
+            level_name = feat.get('area_name')
+            parent_name = feat.get('parent_nam')
+            state = feat.get('state')
+        elif flood.data_source == 'Hazard File':
+            upstream_id = feat.get('area_id')
+            level_name = feat.get('area_name')
+            parent_name = feat.get('parent_name')
+            state = feat.get('state')
 
-        kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
-        rw = BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
+        geometry = feat.geom
 
-        for feat in layer:
-            if not flood.data_source or flood.data_source == 'petajakarta':
-                upstream_id = feat.get('pkey')
-                level_name = feat.get('level_name')
-                parent_name = feat.get('parent_nam')
-                state = feat.get('state')
-            elif flood.data_source == 'petabencana':
-                upstream_id = feat.get('area_id')
-                level_name = feat.get('area_name')
-                parent_name = feat.get('parent_nam')
-                state = feat.get('state')
+        geos_geometry = GEOSGeometry(geometry.geojson)
 
-            geometry = feat.geom
+        if isinstance(geos_geometry, Polygon):
+            # convert to multi polygon
+            geos_geometry = MultiPolygon(geos_geometry)
 
-            geos_geometry = GEOSGeometry(geometry.geojson)
+        # check parent exists
+        try:
+            boundary_kelurahan = Boundary.objects.get(
+                name__iexact=parent_name.strip(),
+                boundary_alias=kelurahan)
+        except Boundary.DoesNotExist:
+            boundary_kelurahan = Boundary.objects.create(
+                upstream_id=upstream_id,
+                geometry=geos_geometry,
+                name=parent_name,
+                boundary_alias=kelurahan)
+            boundary_kelurahan.save()
 
-            if isinstance(geos_geometry, Polygon):
-                # convert to multi polygon
-                geos_geometry = MultiPolygon(geos_geometry)
+        try:
+            boundary_rw = Boundary.objects.get(
+                upstream_id=upstream_id, boundary_alias=rw)
+            boundary_rw.geometry = geos_geometry
+            boundary_rw.name = level_name
+            boundary_rw.parent = boundary_kelurahan
+        except Boundary.DoesNotExist:
+            boundary_rw = Boundary.objects.create(
+                upstream_id=upstream_id,
+                geometry=geos_geometry,
+                name=level_name,
+                parent=boundary_kelurahan,
+                boundary_alias=rw)
 
-            # check parent exists
-            try:
-                boundary_kelurahan = Boundary.objects.get(
-                    name__iexact=parent_name.strip(),
-                    boundary_alias=kelurahan)
-            except Boundary.DoesNotExist:
-                boundary_kelurahan = Boundary.objects.create(
-                    upstream_id=upstream_id,
-                    geometry=geos_geometry,
-                    name=parent_name,
-                    boundary_alias=kelurahan)
-                boundary_kelurahan.save()
+        boundary_rw.save()
 
-            try:
-                boundary_rw = Boundary.objects.get(
-                    upstream_id=upstream_id, boundary_alias=rw)
-                boundary_rw.geometry = geos_geometry
-                boundary_rw.name = level_name
-                boundary_rw.parent = boundary_kelurahan
-            except Boundary.DoesNotExist:
-                boundary_rw = Boundary.objects.create(
-                    upstream_id=upstream_id,
-                    geometry=geos_geometry,
-                    name=level_name,
-                    parent=boundary_kelurahan,
-                    boundary_alias=rw)
+        if not state or int(state) == 0:
+            continue
 
-            boundary_rw.save()
-
-            if not state or int(state) == 0:
-                continue
-
-            FloodEventBoundary.objects.create(
-                flood=flood,
-                boundary=boundary_rw,
-                hazard_data=int(state))
-
-        shutil.rmtree(tmpdir)
+        FloodEventBoundary.objects.create(
+            flood=flood,
+            boundary=boundary_rw,
+            hazard_data=int(state))
 
     LOGGER.info('Hazard layer processed...')
     return True
