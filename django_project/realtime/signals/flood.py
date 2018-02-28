@@ -5,7 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 
 from realtime.app_settings import LOGGER_NAME
-from realtime.models.flood import Flood, FloodEventBoundary
+from realtime.models.flood import Flood, FloodEventBoundary, BoundaryAlias
 from realtime.tasks.flood import generate_event_report, process_hazard_layer
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
@@ -35,6 +35,10 @@ def flood_post_save(
     except Exception as e:
         LOGGER.exception(e)
 
-    # Create FloodEventBoundary (to be shown in the map)
-    if not FloodEventBoundary.objects.filter(flood=instance):
-        process_hazard_layer.delay(instance)
+    # FIXME(IS): I use it to skip it in travis.
+    if BoundaryAlias.objects.all():
+        # Create FloodEventBoundary (to be shown in the map)
+        if not FloodEventBoundary.objects.filter(flood=instance):
+            process_hazard_layer.delay(instance)
+    else:
+        LOGGER.warning('No Boundary alias, not running process_hazard_layer.')
