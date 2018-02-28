@@ -409,3 +409,18 @@ qgis-templates-sync:
 	@echo "Running QGIS templates btsync"
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) up -d qgis-templates-btsync
+
+import-kelurahan-boundary:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Import kelurahan boundary"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) exec uwsgi python manage.py \
+	importfloodboundary /home/headless/contexts/flood/exposure/DKI_Jakarta_Population_Dukcapil_2013_WGS84.shp '' NAMA_KELUR 7 Kelurahan
+
+load-flood-test-data:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Load flood test data"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) exec uwsgi python manage.py loadfloodtestdata
