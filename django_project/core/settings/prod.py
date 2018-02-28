@@ -8,18 +8,6 @@ from .project import *  # noqa
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ['*']
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'inasafe_dev',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': 'localhost',
-        # Set to empty string for default.
-        'PORT': '',
-    }
-}
-
 # enable cached storage - requires uglify.js (node.js)
 STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
 MIDDLEWARE_CLASSES += (
@@ -47,6 +35,10 @@ LOGGING_SENTRY = ast.literal_eval(
     os.environ.get('LOGGING_SENTRY', 'False'))
 
 LOGGING_DEFAULT_HANDLER = os.environ.get('LOGGING_DEFAULT_HANDLER', 'console')
+LOGGING_DEFAULT_LOG_LEVEL = os.environ.get(
+    'LOGGING_DEFAULT_LOG_LEVEL', 'ERROR')
+
+default_handlers = [LOGGING_DEFAULT_HANDLER]
 
 if LOGGING_MAIL_ADMINS:
     mail_admins_handler = 'mail_admins'
@@ -55,6 +47,7 @@ else:
 
 if LOGGING_SENTRY:
     sentry_handler = 'sentry'
+    default_handlers.append('sentry')
 else:
     sentry_handler = LOGGING_DEFAULT_HANDLER
 
@@ -75,11 +68,11 @@ if 'raven.contrib.django.raven_compat' in INSTALLED_APPS:
     LOGGING = {
         # internal dictConfig version - DON'T CHANGE
         'version': 1,
-        'disable_existing_loggers': True,
-        # default root logger - handle with sentry
+        'disable_existing_loggers': False,
+        # default root logger
         'root': {
-            'level': 'ERROR',
-            'handlers': [sentry_handler],
+            'level': LOGGING_DEFAULT_LOG_LEVEL,
+            'handlers': default_handlers,
         },
         'handlers': {
             # send email to mail_admins, if DEBUG=False
@@ -110,7 +103,7 @@ if 'raven.contrib.django.raven_compat' in INSTALLED_APPS:
             'django.db.backends': {
                 'level': 'ERROR',
                 'handlers': [sentry_handler],
-                'propagate': False
+                'propagate': True
             },
             'raven': {
                 'level': 'ERROR',
