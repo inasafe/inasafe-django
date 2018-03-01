@@ -105,10 +105,7 @@ def process_hazard_layer(flood):
     :param flood: Event id of flood
     :type flood: realtime.models.flood.Flood
     """
-    LOGGER.info('Processing hazard layer %s - %s' % (
-        flood.event_id,
-        flood.hazard_layer.name
-    ))
+    LOGGER.info('Processing hazard layer %s' % flood.event_id)
     # extract hazard layer zip file
     if not os.path.exists(flood.hazard_path):
         LOGGER.info('No hazard layer at %s' % flood.hazard_path)
@@ -188,9 +185,10 @@ def process_hazard_layer(flood):
             boundary=boundary_rw,
             hazard_data=int(state))
 
-    num_flooded_boundary = len(FloodEventBoundary.objects.filter(flood=flood))
-    Flood.objects.filter(id=flood.id).update(
-        boundary_flooded=num_flooded_boundary)
+    # Store boundary flooded in flood
+    flood.boundary_flooded = calculate_boundary_flooded(flood)
+    # prevent infinite recursive save
+    flood.save(update_fields=['boundary_flooded'])
 
     LOGGER.info('Hazard layer processed...')
     return True
@@ -260,9 +258,53 @@ def process_impact_layer(flood):
             population_affected=population_affected,
             hazard_class=hazard_class
         )
+    # Store affected population in flood
+    flood.total_affected = calculate_affected_population(flood)
+    # prevent infinite recursive save
+    flood.save(update_fields=['total_affected'])
 
     LOGGER.info('Impact layer processed...')
     return True
+
+
+def calculate_boundary_flooded(flood):
+    """Calculate the number of boundary flooded for a flood in RW level.
+
+    :param flood: The flood.
+    :type flood: Flood
+
+    :returns: The number of flooded boundary.
+    :rtype: int
+    """
+    rw = BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
+    boundary_flooded = FloodEventBoundary.objects.filter(
+        flood=flood,
+        boundary__boundary_alias=rw).count()
+    return boundary_flooded or 0
+
+
+def calculate_affected_population(flood):
+    """Calculate the number of affected population for in kelurahan level.
+
+    :param flood: The flood.
+    :type flood: Flood
+
+    :returns: The number of affected population.
+    :rtype: int
+    """
+    kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
+    total_population_affected = ImpactEventBoundary.objects.filter(
+        flood=flood,
+        parent_boundary__boundary_alias=kelurahan
+    ).aggregate(
+        total_population_affected=Sum('population_affected'))
+    try:
+        total_affected = total_population_affected[
+            'total_population_affected'] or 0
+    except KeyError:
+        total_affected = 0
+
+    return total_affected
 
 
 @app.task(queue='inasafe-django')
@@ -273,25 +315,10 @@ def recalculate_impact_info(flood):
     :type flood: realtime.models.flood.Flood
     """
     # calculate total boundary flooded in RW level
-    rw = BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
-    boundary_flooded = FloodEventBoundary.objects.filter(
-        flood=flood,
-        boundary__boundary_alias=rw).count()
-    flood.boundary_flooded = boundary_flooded or 0
+    flood.boundary_flooded = calculate_boundary_flooded(flood)
 
     # calculate total population affected in kelurahan level
-    kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
-    total_population_affected = ImpactEventBoundary.objects.filter(
-        flood=flood,
-        parent_boundary__boundary_alias=kelurahan
-    ).aggregate(
-        total_population_affected=Sum('population_affected'))
-    try:
-        flood.total_affected = total_population_affected[
-            'total_population_affected'] or 0
-    except KeyError:
-        flood.total_affected = 0
-        pass
+    flood.total_affected = calculate_affected_population(flood)
 
     # prevent infinite recursive save
     flood.save(update_fields=['total_affected', 'boundary_flooded'])
