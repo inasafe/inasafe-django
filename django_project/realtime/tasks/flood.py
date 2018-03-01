@@ -4,13 +4,9 @@ from __future__ import absolute_import
 import json
 import logging
 import os
-import shutil
-import tempfile
-from zipfile import ZipFile
 
 from celery.result import AsyncResult
 
-from django.contrib.gis.gdal.error import OGRIndexError
 from django.core.files import File
 
 from realtime.app_settings import (
@@ -22,7 +18,6 @@ from realtime.app_settings import (
     FLOOD_REPORT_TEMPLATE,
 )
 from core.celery_app import app
-from django.conf import settings
 from django.contrib.gis.gdal.datasource import DataSource
 from django.contrib.gis.geos.collections import MultiPolygon
 from django.contrib.gis.geos.geometry import GEOSGeometry
@@ -72,6 +67,7 @@ def check_processing_task():
             flood.analysis_task_status = task_state
             flood.analysis_task_result = json.dumps(analysis_result)
             flood.save()
+            process_impact_layer.delay(flood)
     # Checking report generation task
     for flood in Flood.objects.exclude(
             report_task_id__isnull=True).exclude(
@@ -207,78 +203,64 @@ def process_impact_layer(flood):
     :param flood: Event id of flood
     :type flood: realtime.models.flood.Flood
     """
-    LOGGER.info('Processing impact layer %s - %s' % (
-        flood.event_id,
-        flood.impact_layer.name
-    ))
-    # extract hazard layer zip file
-    if not flood.impact_layer or not flood.impact_layer.name:
-        LOGGER.info('No impact layer')
+    LOGGER.info('Processing impact layer %s ' % flood.event_id)
+
+    # Get impact analysis file path
+    analysis_directory = os.path.dirname(flood.impact_file_path)
+    impact_analysis_path = os.path.join(
+        analysis_directory, 'impact_analysis.geojson')
+
+    if not os.path.exists(impact_analysis_path):
+        LOGGER.info('No impact analysis layer')
         return
 
-    zip_file_path = os.path.join(settings.MEDIA_ROOT,
-                                 flood.impact_layer.name)
+    source = DataSource(impact_analysis_path)
 
-    if not os.path.exists(zip_file_path):
-        LOGGER.info('Impact layer doesn\'t exists')
-        return
+    layer = source[0]
 
-    with ZipFile(zip_file_path) as zf:
-        # Now process population impacted layer
-        tmpdir = tempfile.mkdtemp()
+    ImpactEventBoundary.objects.filter(flood=flood).delete()
 
-        zf.extractall(path=tmpdir)
+    kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
 
-        layer_filename = os.path.join(tmpdir, 'impact.shp')
+    for feat in layer:
+        affected = feat.get('affected')
+        if affected != 'True':
+            continue
 
-        source = DataSource(layer_filename)
+        hazard_class = feat.get('hazard_class')
+        level_7_name = feat.get('exposure_name').strip()
+        population_affected = feat.get('population')
+        geometry = feat.geom
+        geos_geometry = GEOSGeometry(geometry.geojson)
 
-        layer = source[0]
+        if isinstance(geos_geometry, Polygon):
+            # convert to multi polygon
+            geos_geometry = MultiPolygon(geos_geometry)
 
-        ImpactEventBoundary.objects.filter(flood=flood).delete()
-
-        kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
-
-        for feat in layer:
-            level_7_name = feat.get('NAMA_KELUR').strip()
-            try:
-                hazard_class = feat.get('affected')
-            except OGRIndexError:
-                hazard_class = feat.get('safe_ag')
-            population_affected = feat.get('Pop_Total')
-            geometry = feat.geom
-            geos_geometry = GEOSGeometry(geometry.geojson)
-
-            if isinstance(geos_geometry, Polygon):
-                # convert to multi polygon
-                geos_geometry = MultiPolygon(geos_geometry)
-
-            if hazard_class <= 1:
-                continue
-
-            try:
-                boundary_kelurahan = Boundary.objects.get(
-                    name__iexact=level_7_name,
-                    boundary_alias=kelurahan)
-            except Boundary.DoesNotExist:
-                LOGGER.debug('Boundary does not exists: %s' % level_7_name)
-                LOGGER.debug('Kelurahan Boundary should have been filled '
-                             'already')
-                # Will try to create new one
-                boundary_kelurahan = Boundary.objects.create(
-                    geometry=geos_geometry,
-                    name=level_7_name,
-                    boundary_alias=kelurahan)
-                boundary_kelurahan.save()
-
-            ImpactEventBoundary.objects.create(
-                flood=flood,
-                parent_boundary=boundary_kelurahan,
+        try:
+            boundary_kelurahan = Boundary.objects.get(
+                name__iexact=level_7_name,
+                boundary_alias=kelurahan)
+        except Boundary.DoesNotExist:
+            LOGGER.debug('Boundary does not exists: %s' % level_7_name)
+            LOGGER.debug('Kelurahan Boundary should have been filled '
+                         'already')
+            # Will try to create new one
+            boundary_kelurahan = Boundary.objects.create(
                 geometry=geos_geometry,
-                hazard_class=hazard_class,
-                population_affected=population_affected)
+                name=level_7_name,
+                boundary_alias=kelurahan)
+            boundary_kelurahan.save()
 
-        shutil.rmtree(tmpdir)
+        ImpactEventBoundary.objects.create(
+            flood=flood,
+            parent_boundary=boundary_kelurahan,
+            geometry=geos_geometry,
+            affected=affected,
+            population_affected=population_affected,
+            hazard_class=hazard_class
+        )
+
     LOGGER.info('Impact layer processed...')
     return True
 
