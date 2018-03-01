@@ -378,9 +378,16 @@ class ImpactEventBoundary(models.Model):
         verbose_name=_('Geometry of the boundary of impact'),
         help_text=_('Geometry of the boundary of impact'),
         blank=False)
-    hazard_class = models.IntegerField(
+    affected = models.BooleanField(
+        verbose_name=_('Affected status of the boundary impact'),
+        help_text=_('Affected status of the boundary impact'),
+        blank=False,
+        null=False,
+        default=False)
+    hazard_class = models.CharField(
         verbose_name=_('Hazard Class'),
         help_text=_('Hazard class in the given boundary'),
+        max_length=50,
         blank=True,
         null=True)
     population_affected = models.IntegerField(
