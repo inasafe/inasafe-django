@@ -32,6 +32,6 @@ class Command(BaseCommand):
             flood_id=flood_id,
             data_source='hazard_file',
             data_source_args={
-                'filename': flood_layer_uri
+                'filename': hazard_drop_path
             }
         )
