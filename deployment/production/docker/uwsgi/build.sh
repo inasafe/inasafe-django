@@ -28,6 +28,6 @@ echo "Build: $REPO_NAME/$IMAGE_NAME:$TAG_NAME"
 
 docker build -t ${REPO_NAME}/${IMAGE_NAME} \
 	--build-arg INASAFE_DJANGO_TAG=${INASAFE_DJANGO_TAG} \
-	${BUILD_ARGS} .
-docker tag ${REPO_NAME}/${IMAGE_NAME}:latest ${REPO_NAME}/${IMAGE_NAME}:${TAG_NAME}
+	${BUILD_ARGS} . && \
+docker tag ${REPO_NAME}/${IMAGE_NAME}:latest ${REPO_NAME}/${IMAGE_NAME}:${TAG_NAME} && \
 docker push ${REPO_NAME}/${IMAGE_NAME}:${TAG_NAME}
