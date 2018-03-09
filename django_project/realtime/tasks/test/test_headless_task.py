@@ -8,10 +8,10 @@ from django import test
 
 from realtime.app_settings import (
     ASH_EXPOSURES,
-    ASH_REPORT_TEMPLATE,
+    ASH_REPORT_TEMPLATE_EN,
     ASH_LAYER_ORDER,
     FLOOD_EXPOSURE,
-    FLOOD_REPORT_TEMPLATE,
+    FLOOD_REPORT_TEMPLATE_EN,
     FLOOD_LAYER_ORDER
 )
 from realtime.tasks.headless.inasafe_wrapper import (
@@ -135,7 +135,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
             exposures.append(exposure_keyword['exposure'])
 
         # Checking template and layer order for ash
-        self.assertTrue(os.path.exists(ASH_REPORT_TEMPLATE))
+        self.assertTrue(os.path.exists(ASH_REPORT_TEMPLATE_EN))
         for layer in ASH_LAYER_ORDER:
             if layer != 'ash_layer_path':
                 self.assertTrue(
@@ -144,7 +144,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         # Checking exposure for flood
         self.assertTrue(os.path.exists(FLOOD_EXPOSURE))
         # Checking template and layer order for flood
-        self.assertTrue(os.path.exists(FLOOD_REPORT_TEMPLATE))
+        self.assertTrue(os.path.exists(FLOOD_REPORT_TEMPLATE_EN))
         for layer in FLOOD_LAYER_ORDER:
             if layer != 'flood_layer_path':
                 self.assertTrue(
@@ -340,9 +340,9 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
             layer_order[hazard_index] = ash_layer_uri
 
         ash_report_template_basename = os.path.splitext(os.path.basename(
-            ASH_REPORT_TEMPLATE))[0]
+            ASH_REPORT_TEMPLATE_EN))[0]
         async_result = generate_report.delay(
-            impact_analysis_uri, ASH_REPORT_TEMPLATE, layer_order)
+            impact_analysis_uri, ASH_REPORT_TEMPLATE_EN, layer_order)
         result = async_result.get()
         self.assertEqual(0, result['status'], result['message'])
         product_keys = []
@@ -385,9 +385,9 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
             layer_order[hazard_index] = flood_layer_uri
 
         flood_report_template_basename = os.path.splitext(os.path.basename(
-            FLOOD_REPORT_TEMPLATE))[0]
+            FLOOD_REPORT_TEMPLATE_EN))[0]
         async_result = generate_report.delay(
-            impact_analysis_uri, FLOOD_REPORT_TEMPLATE, layer_order)
+            impact_analysis_uri, FLOOD_REPORT_TEMPLATE_EN, layer_order)
         result = async_result.get()
         self.assertEqual(0, result['status'], result['message'])
         product_keys = []
