@@ -199,10 +199,10 @@ EARTHQUAKE_EXPOSURES = [
 
 ]
 EARTHQUAKE_AGGREGATION = ''
-EARTHQUAKE_REPORT_TEMPLATE_EN = '/home/headless/qgis-templates/' \
-                             'earthquake/realtime-earthquake-en.qpt'
-EARTHQUAKE_REPORT_TEMPLATE_ID = '/home/headless/qgis-templates/' \
-                             'earthquake/realtime-earthquake-id.qpt'
+EARTHQUAKE_REPORT_TEMPLATE_EN = (
+    '/home/headless/qgis-templates/earthquake/realtime-earthquake-en.qpt')
+EARTHQUAKE_REPORT_TEMPLATE_ID = (
+    '/home/headless/qgis-templates/earthquake/realtime-earthquake-id.qpt')
 EARTHQUAKE_LAYER_ORDER = [
     # Cities
     '/home/headless/contexts/common/exposure/idn_places_wgs84.shp',
