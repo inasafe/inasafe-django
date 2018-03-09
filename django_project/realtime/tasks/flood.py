@@ -28,6 +28,7 @@ from realtime.tasks.headless.inasafe_wrapper import (
     run_analysis, generate_report, RESULT_SUCCESS)
 from realtime.tasks.realtime.flood import process_flood
 from realtime.utils import substitute_layer_order
+from realtime.views.reports import latest_template
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '12/3/15'
@@ -393,12 +394,13 @@ def generate_flood_report(flood_event):
 
     layer_order = substitute_layer_order(
         FLOOD_LAYER_ORDER, source_dict)
+    template_file_path = latest_template('flood', 'en')
 
     tasks_chain = chain(
         # Generate report
         generate_report.s(
             impact_layer_uri,
-            FLOOD_REPORT_TEMPLATE,
+            template_file_path,
             layer_order,
             use_template_extent=True
         ).set(queue=generate_report.queue),

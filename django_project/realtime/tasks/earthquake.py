@@ -18,7 +18,6 @@ from django.core.urlresolvers import reverse
 from core.celery_app import app
 from realtime.app_settings import LOGGER_NAME, FELT_EARTHQUAKE_URL, \
     EARTHQUAKE_EXPOSURES, EARTHQUAKE_AGGREGATION, \
-    EARTHQUAKE_REPORT_TEMPLATE, \
     EARTHQUAKE_LAYER_ORDER, GRID_FILE_DEFAULT_NAME
 from realtime.helpers.inaware import InAWARERest
 from realtime.models.earthquake import Earthquake, EarthquakeReport, \
@@ -26,6 +25,7 @@ from realtime.models.earthquake import Earthquake, EarthquakeReport, \
 from realtime.tasks.headless.inasafe_wrapper import \
     run_multi_exposure_analysis, generate_report, RESULT_SUCCESS
 from realtime.utils import substitute_layer_order
+from realtime.views.reports import latest_template
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '3/15/16'
@@ -313,10 +313,12 @@ def generate_earthquake_report(event):
     layer_order = substitute_layer_order(
         EARTHQUAKE_LAYER_ORDER, source_dict)
 
+    template_file_path = latest_template('earthquake', 'en')
+
     tasks_chain = chain(
         # Generate report
         generate_report.s(
-            impact_layer_uri, EARTHQUAKE_REPORT_TEMPLATE, layer_order
+            impact_layer_uri, template_file_path, layer_order
         ).set(queue=generate_report.queue),
 
         # Handle report

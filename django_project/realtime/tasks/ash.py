@@ -13,12 +13,13 @@ from django.core.files import File
 
 from core.celery_app import app
 from realtime.app_settings import LOGGER_NAME, REALTIME_HAZARD_DROP, \
-    ASH_LAYER_ORDER, ASH_REPORT_TEMPLATE, ASH_EXPOSURES, ASH_AGGREGATION
+    ASH_LAYER_ORDER, ASH_EXPOSURES, ASH_AGGREGATION
 from realtime.models.ash import Ash, AshReport
 from realtime.tasks.headless.inasafe_wrapper import (
     run_multi_exposure_analysis, generate_report, RESULT_SUCCESS)
 from realtime.tasks.realtime.ash import process_ash
-from realtime.utils import substitute_layer_order
+from realtime.tasks.realtime.celery_app import app as realtime_app
+from realtime.views.reports import latest_template
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '20/7/17'
@@ -201,11 +202,12 @@ def generate_ash_report(ash_event):
 
     layer_order = substitute_layer_order(
         ASH_LAYER_ORDER, source_dict)
+    template_file_path = latest_template('ash', 'en')
 
     tasks_chain = chain(
         # Generate report
         generate_report.s(
-            impact_layer_uri, ASH_REPORT_TEMPLATE, layer_order
+            impact_layer_uri, template_file_path, layer_order
         ).set(queue=generate_report.queue),
 
         # Handle report
