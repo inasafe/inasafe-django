@@ -32,7 +32,7 @@ class ReportTemplateUploadForm(forms.ModelForm):
             ('earthquake', _('Earthquake')),
             ('flood', _('Flood')),
             ('ash', _('Volcanic Ash')),
-    ])
+        ])
 
     language = forms.ChoiceField(
         label=_('Language'),
