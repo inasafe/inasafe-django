@@ -5,9 +5,11 @@ import json
 import logging
 import os
 
+from celery import chain
 from celery.result import AsyncResult
 
 from django.core.files import File
+from realtime.utils import substitute_layer_order
 
 from realtime.app_settings import (
     OSM_LEVEL_7_NAME,
@@ -34,7 +36,7 @@ from realtime.models.flood import (
     ImpactEventBoundary)
 from realtime.tasks.realtime.flood import process_flood
 from realtime.tasks.headless.inasafe_wrapper import (
-    run_analysis, generate_report)
+    run_analysis, generate_report, RESULT_SUCCESS)
 from realtime.tasks.headless.celery_app import app as headless_app
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
@@ -48,59 +50,59 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 def check_processing_task():
     """Checking flood processing task."""
     # Checking analysis task
-    for flood in Flood.objects.exclude(
-            analysis_task_id__isnull=True).exclude(
-            analysis_task_id__exact='').filter(
-            analysis_task_status__iexact='PENDING'):
-        analysis_task_id = flood.analysis_task_id
-        result = AsyncResult(id=analysis_task_id, app=headless_app)
-        analysis_result = result.result
-
-        if result.state == 'SUCCESS':
-            task_state = 'FAILURE'
-            try:
-                flood.impact_file_path = result.result['output'][
-                    'analysis_summary']
-                task_state = 'SUCCESS'
-            except BaseException as e:
-                LOGGER.exception(e)
-            flood.analysis_task_status = task_state
-            flood.analysis_task_result = json.dumps(analysis_result)
-            flood.save()
-            process_impact_layer.delay(flood)
+    # for flood in Flood.objects.exclude(
+    #         analysis_task_id__isnull=True).exclude(
+    #         analysis_task_id__exact='').filter(
+    #         analysis_task_status__iexact='PENDING'):
+    #     analysis_task_id = flood.analysis_task_id
+    #     result = AsyncResult(id=analysis_task_id, app=headless_app)
+    #     analysis_result = result.result
+    #
+    #     if result.state == 'SUCCESS':
+    #         task_state = 'FAILURE'
+    #         try:
+    #             flood.impact_file_path = result.result['output'][
+    #                 'analysis_summary']
+    #             task_state = 'SUCCESS'
+    #         except BaseException as e:
+    #             LOGGER.exception(e)
+    #         flood.analysis_task_status = task_state
+    #         flood.analysis_task_result = json.dumps(analysis_result)
+    #         flood.save()
+    #         process_impact_layer.delay(flood)
     # Checking report generation task
-    for flood in Flood.objects.exclude(
-            report_task_id__isnull=True).exclude(
-            report_task_id__exact='').filter(
-            report_task_status__iexact='PENDING'):
-        report_task_id = flood.report_task_id
-        result = AsyncResult(id=report_task_id, app=headless_app)
-        analysis_result = result.result
-        if result.state == 'SUCCESS':
-            task_state = 'FAILURE'
-            try:
-                report_path = result.result[
-                    'output']['pdf_product_tag']['realtime-flood-en']
-                # Create flood report object
-                # Set the language manually first
-                flood_report = FloodReport(flood=flood, language='en')
-                with open(report_path, 'rb') as report_file:
-                    flood_report.impact_map.save(
-                        flood_report.impact_map_filename,
-                        File(report_file),
-                        save=True)
-                task_state = 'SUCCESS'
-            except BaseException as e:
-                LOGGER.exception(e)
-
-            flood.report_task_status = task_state
-            flood.report_task_result = json.dumps(analysis_result)
-            flood.save()
+    # for flood in Flood.objects.exclude(
+    #         report_task_id__isnull=True).exclude(
+    #         report_task_id__exact='').filter(
+    #         report_task_status__iexact='PENDING'):
+    #     report_task_id = flood.report_task_id
+    #     result = AsyncResult(id=report_task_id, app=headless_app)
+    #     analysis_result = result.result
+    #     if result.state == 'SUCCESS':
+    #         task_state = 'FAILURE'
+    #         try:
+    #             report_path = result.result[
+    #                 'output']['pdf_product_tag']['realtime-flood-en']
+    #             # Create flood report object
+    #             # Set the language manually first
+    #             flood_report = FloodReport(flood=flood, language='en')
+    #             with open(report_path, 'rb') as report_file:
+    #                 flood_report.impact_map.save(
+    #                     flood_report.impact_map_filename,
+    #                     File(report_file),
+    #                     save=True)
+    #             task_state = 'SUCCESS'
+    #         except BaseException as e:
+    #             LOGGER.exception(e)
+    #
+    #         flood.report_task_status = task_state
+    #         flood.report_task_result = json.dumps(analysis_result)
+    #         flood.save()
 
 
 @app.task(queue='inasafe-django')
 def process_hazard_layer(flood):
-    """Process zipped impact layer and import it to database
+    """Process hazard layer and import it to database
 
     :param flood: Event id of flood
     :type flood: realtime.models.flood.Flood
@@ -132,7 +134,7 @@ def process_hazard_layer(flood):
         elif flood.data_source == 'petabencana':
             upstream_id = feat.get('area_id')
             level_name = feat.get('area_name')
-            parent_name = feat.get('parent_nam')
+            parent_name = feat.get('parent_name')
             state = feat.get('state')
         elif flood.data_source == 'Hazard File':
             upstream_id = feat.get('area_id')
@@ -367,14 +369,61 @@ def run_flood_analysis(flood_event):
     :param flood_event: Flood event instance
     :type flood_event: Flood
     """
-    async_result = run_analysis.delay(
-        flood_event.hazard_path,
-        FLOOD_EXPOSURE,
-        FLOOD_AGGREGATION
+    flood_event.refresh_from_db()
+
+    hazard_layer_uri = flood_event.hazard_path
+
+    tasks_chain = chain(
+        # Run analysis
+        run_analysis.s(
+            hazard_layer_uri,
+            FLOOD_EXPOSURE,
+            FLOOD_AGGREGATION,
+        ).set(queue=run_analysis.queue),
+
+        # Handle analysis product
+        handle_analysis.s(
+            flood_event.id
+        ).set(queue=handle_analysis.queue)
     )
+
+    @app.task
+    def _handle_error(req, exc, traceback):
+        """Update task status as Failure."""
+        Flood.objects.filter(id=flood_event.id).update(
+            analysis_task_status='FAILURE')
+
+    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
     Flood.objects.filter(id=flood_event.id).update(
         analysis_task_id=async_result.task_id,
         analysis_task_status=async_result.state)
+
+
+@app.task(queue='inasafe-django')
+def handle_analysis(analysis_result, event_id):
+    """Handle analysis products"""
+    flood = Flood.objects.get(id=event_id)
+
+    task_state = 'FAILURE'
+    if analysis_result['status'] == RESULT_SUCCESS:
+        try:
+            flood.impact_file_path = analysis_result['output'][
+                'analysis_summary']
+
+            flood.save(update_fields=['impact_file_path'])
+
+            # Flood.objects.get(id=flood.id).update(
+            #     impact_file_path=impact_file_path)
+
+            task_state = 'SUCCESS'
+            process_impact_layer(flood)
+        except BaseException as e:
+            LOGGER.exception(e)
+    else:
+        LOGGER.error(analysis_result['message'])
+
+    flood.analysis_task_status = task_state
+    flood.analysis_task_result = json.dumps(analysis_result)
 
 
 def generate_flood_report(flood_event):
@@ -383,12 +432,73 @@ def generate_flood_report(flood_event):
     :param flood_event: Flood event instance
     :type flood_event: Flood
     """
-    layer_order = list(FLOOD_LAYER_ORDER)
-    if 'flood_layer_path' in layer_order:
-        hazard_index = layer_order.index('flood_layer_path')
-        layer_order[hazard_index] = flood_event.hazard_path
-    async_result = generate_report.delay(
-        flood_event.impact_file_path, FLOOD_REPORT_TEMPLATE, layer_order)
+    flood_event.refresh_from_db()
+
+    impact_layer_uri = flood_event.impact_file_path
+
+    analysis_result = json.loads(flood_event.analysis_task_result)
+
+    source_dict = dict(analysis_result['output'])
+    source_dict.update({
+        'hazard': flood_event.hazard_path
+    })
+
+    layer_order = substitute_layer_order(
+        FLOOD_LAYER_ORDER, source_dict)
+
+    tasks_chain = chain(
+        # Generate report
+        generate_report.s(
+            impact_layer_uri, FLOOD_REPORT_TEMPLATE, layer_order
+        ).set(queue=generate_report.queue),
+
+        # Handle report
+        handle_report.s(
+            flood_event.id
+        ).set(queue=handle_report.queue)
+    )
+
+    @app.task
+    def _handle_error(req, exc, traceback):
+        """Update task status as Failure."""
+        Flood.objects.filter(id=flood_event.id).update(
+            report_task_status='FAILURE')
+
+    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
+
     Flood.objects.filter(id=flood_event.id).update(
         report_task_id=async_result.task_id,
         report_task_status=async_result.state)
+
+
+@app.task(queue='inasafe-django')
+def handle_report(report_result, event_id):
+    """Handle report product"""
+    flood = Flood.objects.get(id=event_id)
+
+    # Set the report path if success
+    task_state = 'FAILURE'
+    if report_result['status'] == RESULT_SUCCESS:
+        try:
+            # Create report object
+            # Set the language manually first
+            report = FloodReport(
+                flood=flood, language='en')
+
+            report_path = report_result[
+                'output']['pdf_product_tag']['realtime-flood-en']
+            with open(report_path, 'rb') as report_file:
+                report.impact_map.save(
+                    report.impact_map_filename,
+                    File(report_file),
+                    save=True)
+                flood.refresh_from_db()
+            task_state = 'SUCCESS'
+        except BaseException as e:
+            LOGGER.exception(e)
+    else:
+        LOGGER.error(report_result['message'])
+
+    Flood.objects.filter(id=flood.id).update(
+        report_task_status=task_state,
+        report_task_result=json.dumps(report_result))

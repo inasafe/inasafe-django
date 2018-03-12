@@ -13,11 +13,14 @@ from django import test
 from django.apps import apps
 from django.core.files.base import File
 
-from realtime.app_settings import EARTHQUAKE_MONITORED_DIRECTORY, LOGGER_NAME
+from realtime.app_settings import EARTHQUAKE_MONITORED_DIRECTORY, LOGGER_NAME, \
+    REALTIME_HAZARD_DROP
 from realtime.models.ash import Ash
 from realtime.models.earthquake import Earthquake
 from realtime.models.volcano import Volcano
+from realtime.tasks.flood import create_flood_report
 from realtime.tasks.realtime.celery_app import app as realtime_app
+from realtime.tasks.realtime.flood import process_flood
 
 __copyright__ = "Copyright 2016, The InaSAFE Project"
 __license__ = "GPL version 3"
@@ -155,3 +158,43 @@ class TestEarthquakeTasks(test.LiveServerTestCase):
         self.assertTrue(target_eq.shake_grid_xml)
 
         target_eq.delete()
+
+
+@unittest.skipUnless(
+    realtime_app.control.ping(), 'Realtime Worker needs to be run')
+class TestRealtimeCeleryTask(test.SimpleTestCase):
+    """Unit test for Realtime Celery tasks."""
+
+    @staticmethod
+    def fixtures_path(*path):
+        return os.path.abspath(
+            os.path.join(os.path.dirname(__file__), 'fixtures', *path))
+
+    def test_create_flood_report(self):
+        """Test Create Flood report task"""
+        create_flood_report()
+
+    def test_process_flood_manually(self):
+        """Test process flood with existing flood json."""
+
+        flood_json = self.fixtures_path('flood_data.json')
+
+        drop_location = os.path.join(
+            REALTIME_HAZARD_DROP,
+            'flood_data.json')
+
+        try:
+            os.makedirs(os.path.dirname(drop_location))
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+                pass
+
+        shutil.copy(flood_json, drop_location)
+
+        process_flood.delay(
+            flood_id='2018022511-6-rw',
+            data_source='hazard_file',
+            data_source_args={
+                'filename': drop_location
+            }
+        )
