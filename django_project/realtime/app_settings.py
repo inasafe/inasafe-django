@@ -151,7 +151,7 @@ else:
 
 ASH_EXPOSURES = [
     # Airport data
-    '/home/headless/common/exposure/idn_places_wgs84.shp',
+    '/home/headless/contexts/common/exposure/idn_places_wgs84.shp',
 
     # Disable this one first, to avoid duplicate exposures
     # Place data
@@ -159,10 +159,10 @@ ASH_EXPOSURES = [
     # 'IDN_Capital_Population_Point_WGS84.shp',
 
     # Raster population data
-    '/home/headless/common/exposure/idn_population_200m_wgs84.tif',
+    '/home/headless/contexts/common/exposure/idn_population_200m_wgs84.tif',
 
     # Landcover data
-    '/home/headless/ash/exposure/idn_landcover_250k_wgs84.shp',
+    '/home/headless/contexts/ash/exposure/idn_landcover_250k_wgs84.shp',
 ]
 ASH_AGGREGATION = None
 ASH_REPORT_TEMPLATE = (
@@ -170,16 +170,16 @@ ASH_REPORT_TEMPLATE = (
 ASH_LAYER_ORDER = [
 
     # Volcano Crater
-    '/home/headless/ash/context/idn_volcano_wgs84.shp',
+    '/home/headless/contexts/ash/context/idn_volcano_wgs84.shp',
 
     # Airport data and cities
-    '/home/headless/common/exposure/idn_places_wgs84.shp',
+    '/home/headless/contexts/common/exposure/idn_places_wgs84.shp',
 
     # the ash layer will be inserted in the method
     'ash_layer_path',
 
     # terrain data
-    '/ash/context/idn_hillshade_wgs84.tif',
+    '/home/headless/contexts/ash/context/idn_hillshade_wgs84.tif',
 ]
 
 # Earthquake analysis contexts
@@ -188,10 +188,10 @@ GRID_FILE_DEFAULT_NAME = 'grid.xml'
 
 EARTHQUAKE_EXPOSURES = [
     # Population raster
-    '/home/headless/common/exposure/idn_population_200m_wgs84.tif',
+    '/home/headless/contexts/common/exposure/idn_population_200m_wgs84.tif',
 
     # Cities
-    '/home/headless/common/exposure/idn_places_wgs84.shp',
+    '/home/headless/contexts/common/exposure/idn_places_wgs84.shp',
 
 ]
 EARTHQUAKE_AGGREGATION = ''
@@ -199,13 +199,16 @@ EARTHQUAKE_REPORT_TEMPLATE = '/home/headless/qgis-templates/' \
                              'earthquake/realtime-earthquake-en.qpt'
 EARTHQUAKE_LAYER_ORDER = [
     # Cities
-    '/home/headless/common/exposure/idn_places_wgs84.shp',
+    '/home/headless/contexts/common/exposure/idn_places_wgs84.shp',
 
     # MMI Contour
     '@population.earthquake_contour',
 
+    # Administration boundary
+    '/home/headless/contexts/common/context/idn_admin_boundaries_wgs84.shp',
+
     # Population layer
-    '/home/headless/common/exposure/idn_population_200m_wgs84.tif',
+    '/home/headless/contexts/common/exposure/idn_population_200m_wgs84.tif',
 ]
 
 EARTHQUAKE_EVENT_REPORT_FORMAT = getattr(
@@ -221,26 +224,28 @@ EARTHQUAKE_MONITORED_DIRECTORY = os.environ.get(
 
 FLOOD_EXPOSURE = (
     # Jakarta population
-    '/home/headless/flood/exposure/dki_jakarta_population_wgs84.shp')
+    '/home/headless/contexts/flood/exposure/dki_jakarta_population_wgs84.shp')
 FLOOD_AGGREGATION = (
-    '/home/headless/flood/aggregation/dki_jakarta_village_boundary.shp')
+    '/home/headless/contexts/'
+    'flood/aggregation/dki_jakarta_village_boundary.shp')
 FLOOD_REPORT_TEMPLATE = (
     '/home/headless/qgis-templates/flood/realtime-flood-en.qpt')
 FLOOD_LAYER_ORDER = [
 
     # Displaced population with circle symbology
-    '/home/headless/flood/aggregation/dki_jakarta_village_boundary.shp',
+    '/home/headless/contexts/'
+    'flood/aggregation/dki_jakarta_village_boundary.shp',
 
     # Mask vector layer
-    '/home/headless/flood/context/'
+    '/home/headless/contexts/flood/context/'
     'dki_jakarta_around_district_boundaries_wgs84.shp',
 
     # the flood layer will be inserted in the method
     'flood_layer_path',
 
     # Administration boundary
-    '/home/headless/common/context/idn_admin_boundaries_wgs84.shp',
+    '/home/headless/contexts/common/context/idn_admin_boundaries_wgs84.shp',
 
     # OSM Basemap
-    '/home/headless/flood/context/jakarta.jpg'
+    '/home/headless/contexts/flood/context/jakarta.jpg'
 ]
