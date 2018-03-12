@@ -70,22 +70,6 @@ beat_schedule = {
             'queue': 'inasafe-django'
         }
     },
-    # executes every minute
-    'check-realtime-ash-processing': {
-        'task': 'realtime.tasks.ash.check_processing_task',
-        'schedule': crontab(minute='*'),
-        'options': {
-            'queue': 'inasafe-django'
-        }
-    },
-    # executes every minute
-    'check-realtime-flood-processing': {
-        'task': 'realtime.tasks.flood.check_processing_task',
-        'schedule': crontab(minute='*'),
-        'options': {
-            'queue': 'inasafe-django'
-        }
-    }
 }
 
 beat_scheduler = 'celery.beat.PersistentScheduler'

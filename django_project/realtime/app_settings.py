@@ -176,7 +176,7 @@ ASH_LAYER_ORDER = [
     '/home/headless/contexts/common/exposure/idn_places_wgs84.shp',
 
     # the ash layer will be inserted in the method
-    'ash_layer_path',
+    '@hazard',
 
     # terrain data
     '/home/headless/contexts/ash/context/idn_hillshade_wgs84.tif',
