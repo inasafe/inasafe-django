@@ -6,27 +6,17 @@ import logging
 import os
 
 from celery import chain
-from celery.result import AsyncResult
-
-from django.core.files import File
-from realtime.utils import substitute_layer_order
-
-from realtime.app_settings import (
-    OSM_LEVEL_7_NAME,
-    OSM_LEVEL_8_NAME,
-    FLOOD_EXPOSURE,
-    FLOOD_AGGREGATION,
-    FLOOD_LAYER_ORDER,
-    FLOOD_REPORT_TEMPLATE,
-)
-from core.celery_app import app
 from django.contrib.gis.gdal.datasource import DataSource
 from django.contrib.gis.geos.collections import MultiPolygon
 from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.contrib.gis.geos.polygon import Polygon
+from django.core.files import File
 from django.db.models import Sum
 
-from realtime.app_settings import LOGGER_NAME
+from core.celery_app import app
+from realtime.app_settings import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME, \
+    FLOOD_EXPOSURE, FLOOD_AGGREGATION, FLOOD_LAYER_ORDER, \
+    FLOOD_REPORT_TEMPLATE, LOGGER_NAME
 from realtime.models.flood import (
     Flood,
     FloodEventBoundary,
@@ -34,70 +24,16 @@ from realtime.models.flood import (
     Boundary,
     BoundaryAlias,
     ImpactEventBoundary)
-from realtime.tasks.realtime.flood import process_flood
 from realtime.tasks.headless.inasafe_wrapper import (
     run_analysis, generate_report, RESULT_SUCCESS)
-from realtime.tasks.headless.celery_app import app as headless_app
+from realtime.tasks.realtime.flood import process_flood
+from realtime.utils import substitute_layer_order
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '12/3/15'
 
 
 LOGGER = logging.getLogger(LOGGER_NAME)
-
-
-@app.task(queue='inasafe-django')
-def check_processing_task():
-    """Checking flood processing task."""
-    # Checking analysis task
-    # for flood in Flood.objects.exclude(
-    #         analysis_task_id__isnull=True).exclude(
-    #         analysis_task_id__exact='').filter(
-    #         analysis_task_status__iexact='PENDING'):
-    #     analysis_task_id = flood.analysis_task_id
-    #     result = AsyncResult(id=analysis_task_id, app=headless_app)
-    #     analysis_result = result.result
-    #
-    #     if result.state == 'SUCCESS':
-    #         task_state = 'FAILURE'
-    #         try:
-    #             flood.impact_file_path = result.result['output'][
-    #                 'analysis_summary']
-    #             task_state = 'SUCCESS'
-    #         except BaseException as e:
-    #             LOGGER.exception(e)
-    #         flood.analysis_task_status = task_state
-    #         flood.analysis_task_result = json.dumps(analysis_result)
-    #         flood.save()
-    #         process_impact_layer.delay(flood)
-    # Checking report generation task
-    # for flood in Flood.objects.exclude(
-    #         report_task_id__isnull=True).exclude(
-    #         report_task_id__exact='').filter(
-    #         report_task_status__iexact='PENDING'):
-    #     report_task_id = flood.report_task_id
-    #     result = AsyncResult(id=report_task_id, app=headless_app)
-    #     analysis_result = result.result
-    #     if result.state == 'SUCCESS':
-    #         task_state = 'FAILURE'
-    #         try:
-    #             report_path = result.result[
-    #                 'output']['pdf_product_tag']['realtime-flood-en']
-    #             # Create flood report object
-    #             # Set the language manually first
-    #             flood_report = FloodReport(flood=flood, language='en')
-    #             with open(report_path, 'rb') as report_file:
-    #                 flood_report.impact_map.save(
-    #                     flood_report.impact_map_filename,
-    #                     File(report_file),
-    #                     save=True)
-    #             task_state = 'SUCCESS'
-    #         except BaseException as e:
-    #             LOGGER.exception(e)
-    #
-    #         flood.report_task_status = task_state
-    #         flood.report_task_result = json.dumps(analysis_result)
-    #         flood.save()
 
 
 @app.task(queue='inasafe-django')
