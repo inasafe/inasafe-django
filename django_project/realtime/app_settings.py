@@ -241,7 +241,7 @@ FLOOD_LAYER_ORDER = [
     'dki_jakarta_around_district_boundaries_wgs84.shp',
 
     # the flood layer will be inserted in the method
-    'flood_layer_path',
+    '@hazard',
 
     # Administration boundary
     '/home/headless/contexts/common/context/idn_admin_boundaries_wgs84.shp',
@@ -249,3 +249,7 @@ FLOOD_LAYER_ORDER = [
     # OSM Basemap
     '/home/headless/contexts/flood/context/jakarta.jpg'
 ]
+
+FLOOD_MONITORED_DIRECTORY = os.environ.get(
+    'EARTHQUAKE_MONITORED_DIRECTORY',
+    '/home/realtime/shakemaps')
