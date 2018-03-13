@@ -371,6 +371,8 @@ def handle_analysis(analysis_result, event_id):
     flood.analysis_task_result = json.dumps(analysis_result)
     flood.save()
 
+    return analysis_result
+
 
 def generate_flood_report(flood_event):
     """Generate ash report for flood event.
@@ -448,3 +450,5 @@ def handle_report(report_result, event_id):
     Flood.objects.filter(id=flood.id).update(
         report_task_status=task_state,
         report_task_result=json.dumps(report_result))
+
+    return report_result
