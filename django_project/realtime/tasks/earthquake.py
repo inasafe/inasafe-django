@@ -227,6 +227,8 @@ def handle_analysis(analysis_result, event_id):
     earthquake.analysis_task_result = json.dumps(analysis_result)
     earthquake.save()
 
+    return analysis_result
+
 
 def generate_earthquake_report(event):
     """Generate report for event.
@@ -303,3 +305,5 @@ def handle_report(report_result, event_id):
     Earthquake.objects.filter(id=earthquake.id).update(
         report_task_status=task_state,
         report_task_result=json.dumps(report_result))
+
+    return report_result

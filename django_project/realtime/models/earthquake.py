@@ -250,6 +250,37 @@ class Earthquake(models.Model):
         except (TypeError, ValueError):
             return {}
 
+    def rerun_report_generation(self):
+        """Rerun Report Generations"""
+
+        # Delete existing reports
+        reports = self.reports.all()
+
+        for r in reports:
+            r.delete()
+
+        self.report_task_result = ''
+        self.report_task_status = ''
+        self.save()
+
+    def rerun_analysis(self):
+        """Rerurn Analysis"""
+
+        # Delete existing reports
+        reports = self.reports.all()
+
+        for r in reports:
+            r.delete()
+
+        self.report_task_result = ''
+        self.report_task_status = ''
+
+        # Reset analysis state
+        self.impact_file_path = ''
+        self.analysis_task_result = ''
+        self.analysis_task_status = ''
+        self.save()
+
 
 class EarthquakeReport(models.Model):
     """Earthquake Report Model."""

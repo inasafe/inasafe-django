@@ -8,7 +8,6 @@ import unittest
 from datetime import datetime
 
 import pytz
-from celery.result import AsyncResult
 from django import test
 from django.apps import apps
 from django.core.files.base import File
@@ -16,9 +15,10 @@ from django.core.files.base import File
 from realtime.app_settings import (
     EARTHQUAKE_MONITORED_DIRECTORY,
     LOGGER_NAME,
-    REALTIME_HAZARD_DROP)
+    REALTIME_HAZARD_DROP, ON_TRAVIS)
 from realtime.models.ash import Ash
 from realtime.models.earthquake import Earthquake
+from realtime.models.flood import Flood, BoundaryAlias
 from realtime.models.volcano import Volcano
 from realtime.tasks.flood import create_flood_report
 from realtime.tasks.realtime.celery_app import app as realtime_app
@@ -38,9 +38,8 @@ LOGGER = logging.getLogger(LOGGER_NAME)
     'Realtime Worker needs to be run')
 class TestAshTasks(test.LiveServerTestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestAshTasks, cls).setUpClass()
+    def setUp(self):
+        super(TestAshTasks, self).setUp()
         app_config = apps.get_app_config('realtime')
         app_config.create_rest_group()
         app_config.ready()
@@ -70,39 +69,14 @@ class TestAshTasks(test.LiveServerTestCase):
             eruption_height=100,
             forecast_duration=3)
 
-        # force synchronous result
-        ash.refresh_from_db()
-        result = AsyncResult(id=ash.task_id, app=realtime_app)
-        actual_value = result.get()
-        ash.refresh_from_db()
-
-        # Check state
-        self.assertEqual(result.state, 'SUCCESS')
-
-        # Check ret_val
-        expected_value = {
-            'hazard_path': '/home/realtime/ashmaps/201702211904+0700_Merapi/'
-                           'ash_fall.tif',
-            'success': True
-        }
-        self.assertEqual(expected_value, actual_value)
+        # wait until hazard file is processed
+        while not ash.hazard_layer_exists:
+            ash.refresh_from_db()
+            LOGGER.info('Waiting for Realtime Hazard Push')
+            time.sleep(5)
 
         # Check hazard information pushed to db
         self.assertTrue(ash.hazard_layer_exists)
-
-        from realtime.tasks.ash import check_processing_task
-
-        result = check_processing_task.delay()
-        result.get()
-
-        ash.refresh_from_db()
-
-        # TODO: Fixme. Somehow the following asserts produces an error
-        # It was not supposed to do that.
-        # Check that the same task has been marked as success.
-        # result = AsyncResult(id=ash.task_id, app=realtime_app)
-        # self.assertEqual(result.state, 'SUCCESS')
-        # self.assertEqual(ash.task_status, 'SUCCESS')
 
         ash.delete()
 
@@ -112,9 +86,8 @@ class TestAshTasks(test.LiveServerTestCase):
     'Realtime Worker needs to be run')
 class TestEarthquakeTasks(test.LiveServerTestCase):
 
-    @classmethod
-    def setUpClass(cls):
-        super(TestEarthquakeTasks, cls).setUpClass()
+    def setUp(self):
+        super(TestEarthquakeTasks, self).setUp()
         app_config = apps.get_app_config('realtime')
         app_config.create_rest_group()
         app_config.ready()
@@ -145,39 +118,51 @@ class TestEarthquakeTasks(test.LiveServerTestCase):
         # wait until grid file is processed
         while True:
             try:
-                target_eq = Earthquake.objects.get(
+                target_event = Earthquake.objects.get(
                     shake_id='20180220163351',
                     source_type='initial')
-                if target_eq.hazard_layer_exists and target_eq.shake_grid_xml:
+                if (target_event.hazard_layer_exists and
+                        target_event.shake_grid_xml):
                     break
             except BaseException:
                 pass
 
-            LOGGER.info('Waiting for Realtime EQ push')
+            LOGGER.info('Waiting for Realtime Hazard push')
             time.sleep(5)
 
-        self.assertTrue(target_eq.hazard_layer_exists)
-        self.assertTrue(target_eq.shake_grid_xml)
+        self.assertTrue(target_event.hazard_layer_exists)
+        self.assertTrue(target_event.shake_grid_xml)
 
-        target_eq.delete()
+        target_event.delete()
 
 
 @unittest.skipUnless(
     realtime_app.control.ping(), 'Realtime Worker needs to be run')
-class TestRealtimeCeleryTask(test.SimpleTestCase):
+class TestFloodTasks(test.LiveServerTestCase):
     """Unit test for Realtime Celery tasks."""
+
+    def setUp(self):
+        super(TestFloodTasks, self).setUp()
+        app_config = apps.get_app_config('realtime')
+        app_config.create_rest_group()
+        app_config.ready()
 
     @staticmethod
     def fixtures_path(*path):
         return os.path.abspath(
             os.path.join(os.path.dirname(__file__), 'fixtures', *path))
 
+    @unittest.skipIf(
+        ON_TRAVIS,
+        'We do not want to abuse PetaBencana Server.')
     def test_create_flood_report(self):
         """Test Create Flood report task"""
         create_flood_report()
 
     def test_process_flood_manually(self):
         """Test process flood with existing flood json."""
+        # check boundary alias exists
+        self.assertTrue(BoundaryAlias.objects.all().count() > 0)
 
         flood_json = self.fixtures_path('flood_data.json')
 
@@ -200,3 +185,20 @@ class TestRealtimeCeleryTask(test.SimpleTestCase):
                 'filename': drop_location
             }
         )
+
+        # Wait until hazard is pushed
+        while True:
+            try:
+                target_event = Flood.objects.get(event_id='2018022511-6-rw')
+
+                if target_event.hazard_layer_exists:
+                    break
+            except BaseException as e:
+                LOGGER.exception(e)
+
+            LOGGER.info('Waiting for Realtime Hazard push')
+            time.sleep(5)
+
+        self.assertTrue(target_event.hazard_layer_exists)
+
+        target_event.delete()
