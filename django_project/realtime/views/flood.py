@@ -101,7 +101,9 @@ class FloodList(mixins.ListModelMixin, mixins.CreateModelMixin,
         return retval
 
 
-class FloodDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+class FloodDetail(mixins.RetrieveModelMixin,
+                  mixins.CreateModelMixin,
+                  mixins.UpdateModelMixin,
                   mixins.DestroyModelMixin, GenericAPIView):
     queryset = Flood.objects.all()
     serializer_class = FloodSerializer
@@ -111,6 +113,10 @@ class FloodDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        retval = self.create(request, *args, **kwargs)
+        return retval
 
     def put(self, request, *args, **kwargs):
         try:

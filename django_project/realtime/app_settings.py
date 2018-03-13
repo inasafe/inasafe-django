@@ -18,6 +18,8 @@ from django.conf import settings
 
 LOGGER_NAME = 'InaSAFE Realtime REST Server'
 
+ON_TRAVIS = ast.literal_eval(os.environ.get('ON_TRAVIS', 'False'))
+
 # PROJECT_NAME: The project name for this apps e.g InaSAFE
 default_project_name = 'InaSAFE Realtime'
 PROJECT_NAME = getattr(settings, 'REALTIME_PROJECT_NAME',

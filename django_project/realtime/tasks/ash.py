@@ -122,6 +122,8 @@ def handle_hazard_process(process_result, event_id):
     Ash.objects.filter(id=event_id).update(
         task_status=task_state)
 
+    return process_result
+
 
 def run_ash_analysis(ash_event):
     """Run ash analysis.
@@ -177,6 +179,8 @@ def handle_analysis(analysis_result, event_id):
     ash.analysis_task_status = task_state
     ash.analysis_task_result = json.dumps(analysis_result)
     ash.save()
+
+    return analysis_result
 
 
 def generate_ash_report(ash_event):
@@ -254,3 +258,5 @@ def handle_report(report_result, event_id):
     Ash.objects.filter(id=ash.id).update(
         report_task_status=task_state,
         report_task_result=json.dumps(report_result))
+
+    return report_result
