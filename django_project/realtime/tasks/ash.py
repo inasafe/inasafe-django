@@ -9,19 +9,16 @@ from tempfile import mkdtemp
 
 import pytz
 from celery import chain
-from celery.result import AsyncResult
 from django.core.files import File
-from realtime.utils import substitute_layer_order
 
 from core.celery_app import app
 from realtime.app_settings import LOGGER_NAME, REALTIME_HAZARD_DROP, \
     ASH_LAYER_ORDER, ASH_REPORT_TEMPLATE, ASH_EXPOSURES, ASH_AGGREGATION
 from realtime.models.ash import Ash, AshReport
-from realtime.tasks.headless.celery_app import app as headless_app
 from realtime.tasks.headless.inasafe_wrapper import (
     run_multi_exposure_analysis, generate_report, RESULT_SUCCESS)
 from realtime.tasks.realtime.ash import process_ash
-from realtime.tasks.realtime.celery_app import app as realtime_app
+from realtime.utils import substitute_layer_order
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '20/7/17'
@@ -257,4 +254,3 @@ def handle_report(report_result, event_id):
     Ash.objects.filter(id=ash.id).update(
         report_task_status=task_state,
         report_task_result=json.dumps(report_result))
-

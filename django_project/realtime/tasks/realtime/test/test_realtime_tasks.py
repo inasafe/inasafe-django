@@ -13,8 +13,10 @@ from django import test
 from django.apps import apps
 from django.core.files.base import File
 
-from realtime.app_settings import EARTHQUAKE_MONITORED_DIRECTORY, LOGGER_NAME, \
-    REALTIME_HAZARD_DROP
+from realtime.app_settings import (
+    EARTHQUAKE_MONITORED_DIRECTORY,
+    LOGGER_NAME,
+    REALTIME_HAZARD_DROP)
 from realtime.models.ash import Ash
 from realtime.models.earthquake import Earthquake
 from realtime.models.volcano import Volcano

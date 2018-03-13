@@ -44,8 +44,13 @@ def process_hazard_layer(flood):
     :type flood: realtime.models.flood.Flood
     """
     LOGGER.info('Processing hazard layer %s' % flood.event_id)
+
+    if not BoundaryAlias.objects.all():
+        LOGGER.warning('No Boundary alias, not running process_hazard_layer.')
+        return
+
     # extract hazard layer zip file
-    if not os.path.exists(flood.hazard_path):
+    if not flood.hazard_layer_exists:
         LOGGER.info('No hazard layer at %s' % flood.hazard_path)
         return
 
@@ -126,7 +131,8 @@ def process_hazard_layer(flood):
     # Store boundary flooded in flood
     flood.boundary_flooded = calculate_boundary_flooded(flood)
     # prevent infinite recursive save
-    flood.save(update_fields=['boundary_flooded'])
+    Flood.objects.filter(id=flood.id).update(
+        boundary_flooded=flood.boundary_flooded)
 
     LOGGER.info('Hazard layer processed...')
     return True
@@ -199,7 +205,8 @@ def process_impact_layer(flood):
     # Store affected population in flood
     flood.total_affected = calculate_affected_population(flood)
     # prevent infinite recursive save
-    flood.save(update_fields=['total_affected'])
+    Flood.objects.filter(id=flood.id).update(
+        total_affected=flood.total_affected)
 
     LOGGER.info('Impact layer processed...')
     return True
@@ -259,7 +266,9 @@ def recalculate_impact_info(flood):
     flood.total_affected = calculate_affected_population(flood)
 
     # prevent infinite recursive save
-    flood.save(update_fields=['total_affected', 'boundary_flooded'])
+    Flood.objects.filter(id=flood.id).update(
+        total_affected=flood.total_affected,
+        boundary_flooded=flood.boundary_flooded)
 
 
 @app.task(queue='inasafe-django')
@@ -276,7 +285,7 @@ def generate_event_report(flood_event):
     :type flood_event: Flood
     :return:
     """
-    if not flood_event.flood_data:
+    if not flood_event.flood_data and flood_event.hazard_layer_exists:
         with open(flood_event.hazard_path) as f:
             flood_data = f.read()
 
@@ -284,6 +293,8 @@ def generate_event_report(flood_event):
             id=flood_event.id).update(
             flood_data=flood_data
         )
+
+        process_hazard_layer.delay(flood_event)
 
     if (flood_event.hazard_layer_exists and
             not flood_event.impact_layer_exists and
@@ -346,10 +357,8 @@ def handle_analysis(analysis_result, event_id):
             flood.impact_file_path = analysis_result['output'][
                 'analysis_summary']
 
-            flood.save(update_fields=['impact_file_path'])
-
-            # Flood.objects.get(id=flood.id).update(
-            #     impact_file_path=impact_file_path)
+            Flood.objects.filter(id=event_id).update(
+                impact_file_path=flood.impact_file_path)
 
             task_state = 'SUCCESS'
             process_impact_layer(flood)
@@ -360,6 +369,7 @@ def handle_analysis(analysis_result, event_id):
 
     flood.analysis_task_status = task_state
     flood.analysis_task_result = json.dumps(analysis_result)
+    flood.save()
 
 
 def generate_flood_report(flood_event):
