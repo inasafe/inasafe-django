@@ -227,18 +227,18 @@ FLOOD_EXPOSURE = (
     '/home/headless/contexts/flood/exposure/dki_jakarta_population_wgs84.shp')
 FLOOD_AGGREGATION = (
     '/home/headless/contexts/'
-    'flood/aggregation/dki_jakarta_village_boundary.shp')
+    'flood/aggregation/dki_jakarta_admin_village.shp')
 FLOOD_REPORT_TEMPLATE = (
     '/home/headless/qgis-templates/flood/realtime-flood-en.qpt')
 FLOOD_LAYER_ORDER = [
 
     # Displaced population with circle symbology
     '/home/headless/contexts/'
-    'flood/aggregation/dki_jakarta_village_boundary.shp',
+    'flood/aggregation/dki_jakarta_admin_village.shp',
 
     # Mask vector layer
     '/home/headless/contexts/flood/context/'
-    'dki_jakarta_around_district_boundaries_wgs84.shp',
+    'dki_jakarta_admin_village.shp',
 
     # the flood layer will be inserted in the method
     '@hazard',
