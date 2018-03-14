@@ -67,17 +67,17 @@ def process_hazard_layer(flood):
     rw = BoundaryAlias.objects.get(alias=OSM_LEVEL_8_NAME)
 
     for feat in layer:
-        if not flood.data_source or flood.data_source == 'petajakarta':
+        if not flood.source or flood.source == 'petajakarta':
             upstream_id = feat.get('pkey')
             level_name = feat.get('level_name')
             parent_name = feat.get('parent_nam')
             state = feat.get('state')
-        elif flood.data_source == 'petabencana':
+        elif flood.source == 'petabencana':
             upstream_id = feat.get('area_id')
             level_name = feat.get('area_name')
             parent_name = feat.get('parent_name')
             state = feat.get('state')
-        elif flood.data_source == 'Hazard File':
+        elif flood.source == 'hazard_file':
             upstream_id = feat.get('area_id')
             level_name = feat.get('area_name')
             parent_name = feat.get('parent_name')

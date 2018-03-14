@@ -22,41 +22,38 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        root_logger = logging.getLogger('')
-        root_logger.setLevel(logging.INFO)
-
         # Regenerate Earthquake
         try:
-            LOGGER.info('Regenerate Last EQ')
+            print('Regenerate Last EQ')
             event = Earthquake.objects.order_by('id').last()
-            LOGGER.info('Shake ID: {0}'.format(event.shake_id))
-            LOGGER.info('Source Type: {0}'.format(event.source_type))
+            print('Shake ID: {0}'.format(event.shake_id))
+            print('Source Type: {0}'.format(event.source_type))
             event.rerun_analysis()
-            LOGGER.info('Delegated analysis rerun')
+            print('Delegated analysis rerun')
 
         except BaseException as e:
             LOGGER.exception(e)
 
         # Regenerate Flood
         try:
-            LOGGER.info('Regenerate Last Flood')
+            print('Regenerate Last Flood')
             event = Flood.objects.order_by('id').last()
-            LOGGER.info('Flood ID: {0}'.format(event.event_id))
+            print('Flood ID: {0}'.format(event.event_id))
             event.rerun_analysis()
-            LOGGER.info('Delegated analysis rerun')
+            print('Delegated analysis rerun')
 
         except BaseException as e:
             LOGGER.exception(e)
 
         # Regenerate Ash
         try:
-            LOGGER.info('Regenerate Last Ash')
+            print('Regenerate Last Ash')
             event = Ash.objects.order_by('id').last()
-            LOGGER.info('Ash ID: {0}'.format(event.event_id_formatted))
+            print('Ash ID: {0}'.format(event.event_id_formatted))
             event.rerun_analysis()
-            LOGGER.info('Delegated analysis rerun')
+            print('Delegated analysis rerun')
 
         except BaseException as e:
             LOGGER.exception(e)
 
-        LOGGER.info('Command finished.')
+        print('Command finished.')
