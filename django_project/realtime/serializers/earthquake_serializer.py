@@ -14,26 +14,6 @@ __date__ = '19/06/15'
 
 class EarthquakeReportSerializer(serializers.ModelSerializer):
 
-    # def get_shake_id(self, serializer_field, obj):
-    #     """
-    #     :param serializer_field:
-    #     :type serializer_field: CustomSerializerMethodField
-    #     :param obj:
-    #     :type obj: EarthquakeReport
-    #     :return:
-    #     """
-    #     return obj.earthquake.shake_id
-    #
-    # def get_source_type(self, serializer_field, obj):
-    #     """
-    #     :param serializer_field:
-    #     :type serializer_field: CustomSerializerMethodField
-    #     :param obj:
-    #     :type obj: EarthquakeReport
-    #     :return:
-    #     """
-    #     return obj.earthquake.source_type
-
     def get_url(self, serializer_field, obj):
         """
         :param serializer_field:
@@ -88,7 +68,8 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
             'language',
             'report_pdf',
             'report_image',
-            'report_thumbnail'
+            'report_thumbnail',
+            'report_map_filename'
         )
 
 
@@ -133,7 +114,10 @@ class EarthquakeSerializer(serializers.ModelSerializer):
             'felt',
             'reports',
             'hazard_path',
-            'source_type'
+            'source_type',
+            'event_id_formatted',
+            'shake_grid_download_url',
+            'grid_xml_filename',
         )
 
 
@@ -155,4 +139,7 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
             'location',
             'location_description',
             'felt',
-            'source_type')
+            'source_type',
+            'event_id_formatted',
+            'grid_xml_filename',
+            'has_corrected')

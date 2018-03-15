@@ -404,6 +404,10 @@ class EarthquakeFeatureList(EarthquakeList):
     serializer_class = EarthquakeGeoJsonSerializer
     pagination_class = None
 
+    def get(self, request, source_type='initial', *args, **kwargs):
+        return super(EarthquakeFeatureList, self).get(
+            request, source_type=source_type, *args, **kwargs)
+
 
 def get_grid_xml(request, shake_id, source_type):
     if request.method != 'GET':
@@ -424,7 +428,7 @@ def get_grid_xml(request, shake_id, source_type):
                 shake.shake_grid_xml,
                 content_type='application/octet-stream')
             response['Content-Disposition'] = \
-                'inline; filename="%s-grid.xml"' % shake_id
+                'inline; filename="{0}"'.format(shake.grid_xml_filename)
         else:
             # Legacy shake grid not exists
             # TODO: Update using current workflow

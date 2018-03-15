@@ -5,6 +5,16 @@
 # different port for the web.
 version: '2'
 services:
+
+  {% if 'rabbitmq' in docker_port_forward.inasafe_django %}
+
+  rabbitmq:
+    ports:
+      - "{{ docker_port_forward.inasafe_django.rabbitmq }}:5672"
+
+  {% endif %}
+
+
   db:
     # custom built from docker-postgis, so we can access it on local
     environment:
@@ -100,6 +110,7 @@ services:
       - rabbitmq:rabbitmq
       - uwsgi:uwsgi
       - shakemap-monitor:shakemap-monitor
+      - shakemap-corrected-monitor:shakemap-corrected-monitor
     volumes:
       - {{ inasafe_realtime.host_working_dir }}:{{ inasafe_realtime.working_dir }}
     environment:
@@ -136,7 +147,34 @@ services:
       - INASAFE_LOCALE=id
       - INASAFE_REALTIME_BROKER_HOST=amqp://guest:guest@rabbitmq:5672/
       - INASAFE_WORK_DIR={{ inasafe_realtime.working_dir }}
+      - EQ_GRID_SOURCE_TYPE=initial
       - SHAKEMAPS_DIR={{ inasafe_realtime.working_dir }}/shakemaps
+      - FLOODMAPS_DIR={{ inasafe_realtime.working_dir }}/floodmaps
+      - ASHMAPS_DIR={{ inasafe_realtime.working_dir }}/ashmaps
+      - INASAFE_REALTIME_REST_URL=http://{{ realtime_rest_api.host }}:{{ realtime_rest_api.port }}/realtime/api/v1
+      - INASAFE_REALTIME_REST_USER={{ realtime_rest_api.user }}
+      - INASAFE_REALTIME_REST_PASSWORD={{ realtime_rest_api.password }}
+    network_mode: "bridge"
+
+  shakemap-corrected-monitor:
+    image: inasafe/realtime_hazard-processor
+    command: /docker-entrypoint.sh prod inasafe-realtime-monitor
+    links:
+      - rabbitmq:rabbitmq
+      - uwsgi:uwsgi
+    volumes:
+      - {{ inasafe_realtime.host_working_dir }}:{{ inasafe_realtime.working_dir }}
+    environment:
+      - PYTHONPATH=/usr/share/qgis/python:/usr/share/qgis/python/plugins:/usr/share/qgis/python/plugins/inasafe:/home/app
+      - DISPLAY=:99
+      - C_FORCE_ROOT=True
+      - TASK_ALWAYS_EAGER=False
+      - ON_TRAVIS={{ on_travis }}
+      - INASAFE_LOCALE=id
+      - INASAFE_REALTIME_BROKER_HOST=amqp://guest:guest@rabbitmq:5672/
+      - INASAFE_WORK_DIR={{ inasafe_realtime.working_dir }}
+      - EQ_GRID_SOURCE_TYPE=corrected
+      - SHAKEMAPS_DIR={{ inasafe_realtime.working_dir }}/shakemaps-corrected
       - FLOODMAPS_DIR={{ inasafe_realtime.working_dir }}/floodmaps
       - ASHMAPS_DIR={{ inasafe_realtime.working_dir }}/ashmaps
       - INASAFE_REALTIME_REST_URL=http://{{ realtime_rest_api.host }}:{{ realtime_rest_api.port }}/realtime/api/v1
