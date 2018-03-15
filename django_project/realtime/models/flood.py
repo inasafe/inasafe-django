@@ -109,6 +109,9 @@ class Flood(models.Model):
     source = models.CharField(
         verbose_name=_('Flood Data Source'),
         help_text=_('The source of hazard data'),
+        default=None,
+        blank=True,
+        null=True,
         max_length=255)
     region = models.CharField(
         verbose_name=_('The Region id for source'),
@@ -137,11 +140,6 @@ class Flood(models.Model):
         verbose_name=_('Total boundary flooded'),
         help_text=_('Total boundary affected by flood'),
         default=0)
-    source_type = models.CharField(
-        verbose_name=_('Source Type'),
-        help_text=_('Source type of shake grid'),
-        max_length=30,
-        default='petabencana')
     hazard_path = models.CharField(
         verbose_name=_('Hazard Layer path'),
         help_text=_('Location of hazard layer'),

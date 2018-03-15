@@ -150,9 +150,9 @@ class Earthquake(models.Model):
     objects = models.GeoManager()
 
     def __unicode__(self):
-        shake_string = u'Shake event [%s]' % self.shake_id
+        shake_string = u'Shake event [{0}]'.format(self.event_id_formatted)
         if self.location_description.strip():
-            shake_string += u' in %s' % self.location_description
+            shake_string += u' in {0}'.format(self.location_description)
         return shake_string
 
     def delete(self, using=None):
@@ -196,6 +196,14 @@ class Earthquake(models.Model):
         return False
 
     @property
+    def mmi_layer_saved(self):
+        """Return bool to indicate that MMI Layer were saved.
+
+        True means saved into the database.
+        """
+        return self.contours.all().count() > 0
+
+    @property
     def analysis_zip_path(self):
         """Return analysis zip path for download."""
         dirname = os.path.dirname(self.impact_file_path)
@@ -210,6 +218,15 @@ class Earthquake(models.Model):
     def shake_grid_download_url(self):
         if self.shake_grid_exists:
             return reverse('realtime:shake_grid', kwargs={
+                'shake_id': self.shake_id,
+                'source_type': self.source_type
+            })
+        return None
+
+    @property
+    def mmi_layer_download_url(self):
+        if self.mmi_layer_saved:
+            return reverse('realtime:earthquake_mmi_contours_list', kwargs={
                 'shake_id': self.shake_id,
                 'source_type': self.source_type
             })
@@ -267,6 +284,11 @@ class Earthquake(models.Model):
             event_id_formatted=self.event_id_formatted)
 
     @property
+    def mmi_layer_filename(self):
+        return '{event_id_formatted}-mmi.geojson'.format(
+            event_id_formatted=self.event_id_formatted)
+
+    @property
     def has_corrected(self):
         """Return true if it has corrected grid version."""
         return Earthquake.objects.filter(
@@ -303,6 +325,37 @@ class Earthquake(models.Model):
         self.analysis_task_result = ''
         self.analysis_task_status = ''
         self.save()
+
+
+class EarthquakeMMIContour(models.Model):
+    """Earthquake MMI Contour Model."""
+
+    class Meta:
+        """Meta class."""
+        app_label = 'realtime'
+
+    earthquake = models.ForeignKey(
+        Earthquake,
+        related_name='contours')
+    geometry = models.LineStringField(
+        verbose_name=_('Geometry of the MMI contour'),
+        help_text=_('Geometry of the MMI contour'),
+        dim=3,
+        blank=False)
+    mmi = models.FloatField(
+        verbose_name=_('MMI value'),
+        help_text=_('MMI value'),
+        blank=False)
+    properties = models.TextField(
+        verbose_name=_('JSON representations of feature properties.'),
+        help_text=_('JSON representations of feature properties.'),
+        blank=False)
+
+    def __unicode__(self):
+        description = u'MMI Contour {mmi} of {event_id_formatted}'.format(
+            mmi=self.mmi,
+            event_id_formatted=self.earthquake.event_id_formatted)
+        return description
 
 
 class EarthquakeReport(models.Model):
@@ -344,6 +397,12 @@ class EarthquakeReport(models.Model):
         self.report_image.delete()
         self.report_thumbnail.delete()
         super(EarthquakeReport, self).delete(using=using)
+
+    def __unicode__(self):
+        description = u'Report lang [{lang}] of [{event_id_formatted}]'.format(
+            lang=self.language,
+            event_id_formatted=self.earthquake.event_id_formatted)
+        return description
 
     @property
     def shake_id(self):
