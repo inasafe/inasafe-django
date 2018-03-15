@@ -130,6 +130,8 @@ docker_port_forward:
     # Port forward django manage.py runserver port to local machine.
     # So we can access the web in our machine.
     django: 61102
+    # Option to expose rabbitmq
+    rabbitmq: 6672
   inasafe_realtime:
     # We also need to connect to rabbitmq of InaSAFE Realtime
     rabbitmq: 8100

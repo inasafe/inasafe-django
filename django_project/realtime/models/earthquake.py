@@ -7,12 +7,16 @@ from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from realtime.app_settings import EARTHQUAKE_EVENT_REPORT_FORMAT
+from realtime.app_settings import EARTHQUAKE_EVENT_REPORT_FORMAT, \
+    EARTHQUAKE_EVENT_ID_FORMAT
 from realtime.utils import split_layer_ext
 
 
 class Earthquake(models.Model):
     """Earthquake model."""
+
+    CORRECTED_SOURCE_TYPE = 'corrected'
+
     class Meta:
         """Meta class."""
         app_label = 'realtime'
@@ -250,6 +254,25 @@ class Earthquake(models.Model):
         except (TypeError, ValueError):
             return {}
 
+    @property
+    def event_id_formatted(self):
+        return EARTHQUAKE_EVENT_ID_FORMAT.format(
+            shake_id=self.shake_id,
+            source_type=self.source_type
+        )
+
+    @property
+    def grid_xml_filename(self):
+        return '{event_id_formatted}-grid.xml'.format(
+            event_id_formatted=self.event_id_formatted)
+
+    @property
+    def has_corrected(self):
+        """Return true if it has corrected grid version."""
+        return Earthquake.objects.filter(
+            shake_id=self.shake_id,
+            source_type=self.CORRECTED_SOURCE_TYPE).count() > 0
+
     def rerun_report_generation(self):
         """Rerun Report Generations"""
 
@@ -357,5 +380,5 @@ class EarthquakeReport(models.Model):
             shake_id=self.earthquake.shake_id,
             source_type=self.earthquake.source_type,
             language=self.language,
-            suffix='thumbnail',
+            suffix='-thumbnail',
             extension='png')

@@ -221,6 +221,9 @@ realtime-worker-logs:
 realtime-shakemap-monitor-logs:
 	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 shakemap-monitor
 
+realtime-shakemap-corrected-monitor-logs:
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 shakemap-corrected-monitor
+
 headless-worker:
 	@echo
 	@echo "------------------------------------------------------------------"
