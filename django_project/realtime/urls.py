@@ -13,7 +13,8 @@ from realtime.views.earthquake import (
     EarthquakeDetail,
     EarthquakeReportList,
     EarthquakeReportDetail,
-    EarthquakeFeatureList, iframe_index, get_grid_xml, get_analysis_zip)
+    EarthquakeFeatureList, iframe_index, get_grid_xml, get_analysis_zip,
+    EarthquakeMMIContourList)
 from realtime.views.flood import (
     index as flood_index,
     FloodList,
@@ -60,6 +61,14 @@ urlpatterns = [
         r'(?P<language>[-\w]+)/$',
         EarthquakeReportDetail.as_view(),
         name='earthquake_report_detail'),
+    url(r'^api/v1/earthquake-mmi-contours/'
+        r'(?P<shake_id>[-\d]+)/'
+        r'(?P<source_type>\w*)/$',
+        EarthquakeMMIContourList.as_view(),
+        name='earthquake_mmi_contours_list'),
+    url(r'^api/v1/earthquake-mmi-contours/$',
+        EarthquakeMMIContourList.as_view(),
+        name='earthquake_mmi_contours_list'),
 
     # Flood
     url(r'^api/v1/flood/$',

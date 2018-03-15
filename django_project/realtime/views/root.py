@@ -19,6 +19,8 @@ def api_root(request, format=None, **kwargs):
                 'realtime:earthquake_report_list', **kwargs),
             'earthquake-feature-list': reverse(
                 'realtime:earthquake_feature_list', **kwargs),
+            'earthquake-mmi-contours-list': reverse(
+                'realtime:earthquake_mmi_contours_list', **kwargs),
             'floods': reverse('realtime:flood_list', **kwargs),
             'volcanos': reverse('realtime:volcano_list', **kwargs),
             'volcano-feature-list': reverse(

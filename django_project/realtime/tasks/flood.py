@@ -40,7 +40,7 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 def process_hazard_layer(flood):
     """Process hazard layer and import it to database
 
-    :param flood: Event id of flood
+    :param flood: Instance of flood
     :type flood: realtime.models.flood.Flood
     """
     LOGGER.info('Processing hazard layer %s' % flood.event_id)

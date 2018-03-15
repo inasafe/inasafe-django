@@ -10,6 +10,8 @@ from urlparse import urljoin
 from bs4 import BeautifulSoup
 from celery import chain
 from django.conf import settings
+from django.contrib.gis.gdal import DataSource
+from django.contrib.gis.geos import GEOSGeometry, Polygon, MultiPolygon
 from django.core.files import File
 from django.core.urlresolvers import reverse
 
@@ -19,10 +21,11 @@ from realtime.app_settings import LOGGER_NAME, FELT_EARTHQUAKE_URL, \
     EARTHQUAKE_REPORT_TEMPLATE, \
     EARTHQUAKE_LAYER_ORDER, GRID_FILE_DEFAULT_NAME
 from realtime.helpers.inaware import InAWARERest
-from realtime.models.earthquake import Earthquake, EarthquakeReport
+from realtime.models.earthquake import Earthquake, EarthquakeReport, \
+    EarthquakeMMIContour
 from realtime.tasks.headless.inasafe_wrapper import \
     run_multi_exposure_analysis, generate_report, RESULT_SUCCESS
-from realtime.utils import zip_inasafe_analysis_result, substitute_layer_order
+from realtime.utils import substitute_layer_order
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '3/15/16'
@@ -118,7 +121,7 @@ def generate_event_report(earthquake_event):
     """
     if not earthquake_event.hazard_layer_exists:
 
-        # Skip all process if exists
+        # Skip all process if not exists
         return
 
     # Check raw hazard stored
@@ -157,6 +160,14 @@ def generate_event_report(earthquake_event):
         # If hazard exists but impact layer is not, then create a new analysis
         # job.
         run_earthquake_analysis(earthquake_event)
+
+    # Check MMI Contour saved
+    elif (earthquake_event.mmi_layer_exists and
+            EarthquakeMMIContour.objects.filter(
+                earthquake=earthquake_event).count() == 0):
+        # Don't use celery for this
+        process_mmi_layer(earthquake_event)
+        earthquake_event.save()
 
     # Check report
     elif (not earthquake_event.has_reports and
@@ -203,6 +214,59 @@ def run_earthquake_analysis(event):
 
 
 @app.task(queue='inasafe-django')
+def process_mmi_layer(earthquake):
+    """Process MMI contour layer and import it to database
+
+    :param earthquake: Instance of Earthquake
+    :type earthquake: realtime.models.earthquake.Earthquake
+    """
+    LOGGER.info('Processing MMI contour {0}'.format(
+        earthquake.event_id_formatted))
+
+    if not earthquake.mmi_layer_exists:
+        LOGGER.info('No MMI Contour layer at {0}'.format(
+            earthquake.mmi_output_path))
+        return
+
+    layer_filename = earthquake.mmi_output_path
+
+    source = DataSource(layer_filename)
+
+    layer = source[0]
+
+    EarthquakeMMIContour.objects.filter(earthquake=earthquake).delete()
+
+    for feat in layer:
+        if 'MMI' in feat.fields:
+            mmi = feat.get('MMI')
+        elif 'mmi' in feat.fields:
+            mmi = feat.get('mmi')
+        else:
+            mmi = 0
+
+        properties = {}
+        for field in feat.fields:
+            properties[field] = feat.get(field)
+
+        geometry = feat.geom
+
+        geos_geometry = GEOSGeometry(geometry.geojson)
+
+        if isinstance(geos_geometry, Polygon):
+            # convert to multi polygon
+            geos_geometry = MultiPolygon(geos_geometry)
+
+        EarthquakeMMIContour.objects.create(
+            earthquake=earthquake,
+            geometry=geos_geometry,
+            mmi=mmi,
+            properties=json.dumps(properties))
+
+    LOGGER.info('MMI Contour processed...')
+    return True
+
+
+@app.task(queue='inasafe-django')
 def handle_analysis(analysis_result, event_id):
     """Handle analysis products"""
     earthquake = Earthquake.objects.get(id=event_id)
@@ -215,8 +279,8 @@ def handle_analysis(analysis_result, event_id):
             earthquake.mmi_output_path = analysis_result[
                 'output']['population']['earthquake_contour']
 
-            # Zip result
-            zip_inasafe_analysis_result(earthquake.impact_file_path)
+            # save earthquake MMI Contour
+            process_mmi_layer.delay(earthquake)
             task_state = 'SUCCESS'
         except BaseException as e:
             LOGGER.exception(e)

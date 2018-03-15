@@ -1,11 +1,14 @@
 # coding=utf-8
+import json
+
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
     GeoFeatureModelSerializer
 )
 
-from realtime.models.earthquake import Earthquake, EarthquakeReport
+from realtime.models.earthquake import Earthquake, EarthquakeReport, \
+    EarthquakeMMIContour
 from realtime.serializers.utilities import CustomSerializerMethodField
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
@@ -117,7 +120,10 @@ class EarthquakeSerializer(serializers.ModelSerializer):
             'source_type',
             'event_id_formatted',
             'shake_grid_download_url',
+            'mmi_layer_download_url',
             'grid_xml_filename',
+            'mmi_layer_filename',
+            'mmi_layer_saved',
         )
 
 
@@ -142,4 +148,16 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
             'source_type',
             'event_id_formatted',
             'grid_xml_filename',
-            'has_corrected')
+            'has_corrected',
+            'mmi_layer_saved')
+
+
+class EarthquakeMMIContourGeoJSONSerializer(GeoFeatureModelSerializer):
+
+    class Meta:
+        model = EarthquakeMMIContour
+        geo_field = 'geometry'
+        id = 'id'
+
+    def get_properties(self, instance, fields):
+        return json.loads(instance.properties)
