@@ -162,6 +162,34 @@ function createDownloadReportHandler(report_url, source_type) {
 }
 
 /**
+ * Closure to create handler for downloadMMILayer
+ * @param {string} mmi_layer_url A url that contains shake_id placeholder
+ * @return {function} Download the grid.xml based on shake_id
+ */
+function createDownloadMMIHandler(mmi_layer_url, source_type) {
+    var downloadMMIHandler = function (shake_id) {
+        var url = mmi_layer_url;
+        // replace magic number 000 with shake_id
+        url = url.replace('000', shake_id).replace('source_type', source_type);
+        // expect json returns
+        url = url;
+        $.get(url, function(data){
+            if(data && data.mmi_layer_download_url){
+                var download_url = data.mmi_layer_download_url;
+                var filename = data.mmi_layer_filename;
+                SaveToDisk(download_url + '?format=json', filename);
+            }
+        }).fail(function(e){
+            console.log(e);
+            if(e.status === 404){
+                alert("No Shake grid recorded for this event.");
+            }
+        });
+    };
+    return downloadMMIHandler;
+}
+
+/**
  * Closure to create handler for downloadGrid
  * @param {string} grid_url A report url that contains shake_id placeholder
  * @return {function} Download the grid.xml based on shake_id

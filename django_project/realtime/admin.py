@@ -11,7 +11,8 @@ from leaflet.admin import LeafletGeoAdmin
 
 from realtime.forms.coreflatpage import CoreFlatPageForm
 from realtime.models.coreflatpage import CoreFlatPage
-from realtime.models.earthquake import Earthquake, EarthquakeReport
+from realtime.models.earthquake import Earthquake, EarthquakeReport, \
+    EarthquakeMMIContour
 from realtime.models.flood import Boundary, Flood, FloodEventBoundary, \
     FloodReport
 from realtime.models.ash import Ash, AshReport
@@ -51,8 +52,8 @@ realtime_admin_site = RealtimeAdminSite(name='realtime_admin')
 
 class EarthquakeAdmin(LeafletGeoAdmin):
     """Admin Class for Earthquake Model."""
-    list_display = ('shake_id', 'time', 'location_description', 'magnitude',
-                    'depth')
+    list_display = ('shake_id', 'source_type', 'time', 'location_description',
+                    'magnitude', 'depth')
     list_filter = ('location_description', )
     search_fields = ['shake_id', 'location_description']
 
@@ -66,7 +67,12 @@ class EarthquakeReportAdmin(ModelAdmin):
                      'earthquake__location_description']
 
 
-class BoundaryAdmin(ModelAdmin):
+class EarthquakeMMIContourAdmin(LeafletGeoAdmin):
+    """Admin Class for Earthquake MMI Contour."""
+    list_display = ('earthquake', 'mmi', 'properties')
+
+
+class BoundaryAdmin(LeafletGeoAdmin):
     """Admin Class for Flood Boundary."""
 
     list_display = ('name', 'parent', 'boundary_alias')
@@ -76,28 +82,32 @@ class BoundaryAdmin(ModelAdmin):
 
 class FloodAdmin(ModelAdmin):
     """Admin Class for Flood Event."""
-    pass
+    list_display = ('event_id', 'data_source', 'time',
+                    'total_affected', 'boundary_flooded')
 
 
 class FloodEventBoundaryAdmin(ModelAdmin):
-    pass
+    list_display = ('flood', 'hazard_data')
+    list_filter = ('flood', 'hazard_data')
 
 
 class FloodReportAdmin(ModelAdmin):
-    pass
+    list_display = ('flood', 'language', 'impact_map')
 
 
 class AshAdmin(ModelAdmin):
     """Admin class for Ash model"""
-    pass
+    list_display = ('volcano', 'alert_level', 'event_time',
+                    'event_time_zone_string', 'eruption_height',
+                    'forecast_duration')
 
 
 class AshReportAdmin(ModelAdmin):
     """Admin class for Ash Report"""
-    pass
+    list_display = ('ash', 'language', 'report_map')
 
 
-class VolcanoAdmin(ModelAdmin):
+class VolcanoAdmin(LeafletGeoAdmin):
     """Admin class for volcano model"""
     list_display = (
         'volcano_name', 'location', 'elevation', 'province', 'district',
@@ -108,6 +118,7 @@ class VolcanoAdmin(ModelAdmin):
 
 realtime_admin_site.register(Earthquake, EarthquakeAdmin)
 realtime_admin_site.register(EarthquakeReport, EarthquakeReportAdmin)
+realtime_admin_site.register(EarthquakeMMIContour, EarthquakeMMIContourAdmin)
 realtime_admin_site.register(Boundary, BoundaryAdmin)
 realtime_admin_site.register(Flood, FloodAdmin)
 realtime_admin_site.register(FloodEventBoundary, FloodEventBoundaryAdmin)

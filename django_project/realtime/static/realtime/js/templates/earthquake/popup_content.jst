@@ -62,9 +62,12 @@
                             Grid XML
                         </a>
                     </li>
+                    <% } %>
+
+                    <% if(mmi_layer_saved) { %>
                     <li>
-                        <a href="<%= mmi_output %>" download="<%= shake_id+'-mmi.zip' %>">
-                            MMI Output
+                        <a href="#" onclick="downloadInitialMMIHandler('<%= shake_id %>')">
+                            MMI Layer
                         </a>
                     </li>
                     <% } %>
@@ -82,8 +85,8 @@
                             </a>
                         </li>
                         <li>
-                            <a href="<%= mmi_output %>" download="<%= shake_id+'-mmi.zip' %>">
-                                MMI Output (Corrected)
+                            <a href="#" onclick="downloadCorrectedMMIHandler('<%= shake_id %>')">
+                                MMI Layer (Corrected)
                             </a>
                         </li>
 

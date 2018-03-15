@@ -307,6 +307,8 @@
         var downloadCorrectedReportHandler = createDownloadReportHandler(report_url, 'corrected');
         var downloadInitialGridHandler = createDownloadGridHandler(eq_detail_url, 'initial');
         var downloadCorrectedGridHandler = createDownloadGridHandler(eq_detail_url, 'corrected');
+        var downloadInitialMMIHandler = createDownloadMMIHandler(eq_detail_url, 'initial');
+        var downloadCorrectedMMIHandler = createDownloadMMIHandler(eq_detail_url, 'corrected');
         var button_templates = [
             {
                 type: 'simple-button',
@@ -337,27 +339,22 @@
                         handler: 'downloadInitialReportHandler'
                     },
                     {
-                        type: 'simple-button',
                         active: function(event){return event.shake_grid_download_url},
                         text: '{% trans "Grid XML" %}',
                         handler: 'downloadInitialGridHandler'
                     },
                     {
-                        active: function(event){return event.mmi_layer_exists},
-                        text: '{% trans "MMI output" %}',
-                        href: function(event){return event.mmi_output;},
-                        download: function(event){return event.shake_id+'-mmi.zip'}
+                        active: function(event){return event.mmi_layer_saved},
+                        text: '{% trans "MMI Layer" %}',
+                        handler: 'downloadInitialMMIHandler'
                     },
 
                     {
-                        type: 'simple-button',
                         active: function(event){return event.has_corrected;},
                         text: '{% trans "Report (Corrected)" %}',
                         handler: 'downloadCorrectedReportHandler'
                     },
                     {
-
-                        type: 'simple-button',
                         active: function(event){return event.has_corrected;},
                         text: '{% trans "Grid XML (Corrected)" %}',
                         handler: 'downloadCorrectedGridHandler'
@@ -365,9 +362,8 @@
                     },
                     {
                         active: function(event){return event.has_corrected;},
-                        text: '{% trans "MMI output (Corrected)" %}',
-                        href: function(event){return event.mmi_output;},
-                        download: function(event){return event.shake_id+'-mmi.zip'}
+                        text: '{% trans "MMI Layer (Corrected)" %}',
+                        handler: 'downloadCorrectedMMIHandler'
                     }
                 ]
             }

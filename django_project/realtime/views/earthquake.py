@@ -26,11 +26,12 @@ from rest_framework_gis.filters import InBBoxFilter
 from realtime.filters.earthquake_filter import EarthquakeFilter
 from realtime.forms.earthquake import FilterForm
 from realtime.helpers.rest_push_indicator import track_rest_push
-from realtime.models.earthquake import Earthquake, EarthquakeReport
+from realtime.models.earthquake import Earthquake, EarthquakeReport, \
+    EarthquakeMMIContour
 from realtime.serializers.earthquake_serializer import (
     EarthquakeSerializer,
     EarthquakeReportSerializer,
-    EarthquakeGeoJsonSerializer)
+    EarthquakeGeoJsonSerializer, EarthquakeMMIContourGeoJSONSerializer)
 from realtime.tasks.earthquake import push_shake_to_inaware
 from realtime.tasks.realtime.earthquake import process_shake
 
@@ -407,6 +408,46 @@ class EarthquakeFeatureList(EarthquakeList):
     def get(self, request, source_type='initial', *args, **kwargs):
         return super(EarthquakeFeatureList, self).get(
             request, source_type=source_type, *args, **kwargs)
+
+
+class EarthquakeMMIContourList(
+        mixins.ListModelMixin, GenericAPIView):
+    """
+    Provides GET requests to retrieve Earthquake MMI Contours
+    in a GEOJSON format.
+
+    ### Filters
+
+    These are the available filters:
+
+    * earthquake__shake_id
+    * earthquake__source_type
+    * mmi
+    * in_bbox filled with BBox String in the format SWLon,SWLat,NELon,NELat
+    this is used as geographic box filter
+    """
+    queryset = EarthquakeMMIContour.objects.all()
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly,)
+    serializer_class = EarthquakeMMIContourGeoJSONSerializer
+    pagination_class = None
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filter_fields = ('earthquake__shake_id', 'earthquake__source_type', 'mmi')
+    search_fields = ('earthquake__shake_id', 'earthquake__source_type', 'mmi')
+    ordering_fields = (
+        'earthquake__shake_id', 'earthquake__source_type', 'mmi')
+    ordering = ('earthquake__shake_id', 'earthquake__source_type', 'mmi')
+
+    def get(self, request, *args, **kwargs):
+        return super(EarthquakeMMIContourList, self).list(
+            request, *args, **kwargs)
+
+    def filter_queryset(self, queryset):
+        shake_filter = {}
+        for key, value in self.kwargs.iteritems():
+            shake_filter['earthquake__' + key] = value
+
+        queryset = queryset.filter(**shake_filter)
+        return super(EarthquakeMMIContourList, self).filter_queryset(queryset)
 
 
 def get_grid_xml(request, shake_id, source_type):
