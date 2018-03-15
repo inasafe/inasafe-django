@@ -213,6 +213,12 @@ EARTHQUAKE_LAYER_ORDER = [
     '/home/headless/contexts/common/exposure/idn_population_200m_wgs84.tif',
 ]
 
+EARTHQUAKE_EVENT_ID_FORMAT = getattr(
+    settings,
+    'EARTHQUAKE_EVENT_ID_FORMAT',
+    '{shake_id}-{source_type}'
+)
+
 EARTHQUAKE_EVENT_REPORT_FORMAT = getattr(
     settings,
     'EARTHQUAKE_EVENT_REPORT_FORMAT',

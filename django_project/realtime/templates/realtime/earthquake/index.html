@@ -299,24 +299,33 @@
         var jsonTableContents = [];
         var showEventHandler = createShowEventHandler(map, markers, map_events);
         {#    Use magic number 000 for placeholder#}
-        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' source_type='initial' language=language.code %}';
-        var report_download_url = '{% url "realtime_report:report_pdf" shake_id='000' language=language.code language2=language.code %}';
-        {#var grid_url = '{% url "realtime:shake_grid" shake_id='000' %}';#}
-        var showReportHandler = createShowReportHandler(report_url);
-        var downloadReportHandler = createDownloadReportHandler(report_download_url, '{{ language.code }}');
-        {#var downloadGridHandler = createDownloadGridHandler(grid_url);#}
+        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' source_type='source_type' language=language.code %}';
+        var eq_detail_url = '{% url "realtime:earthquake_detail" shake_id='000' source_type='source_type' %}';
+        var showInitialReportHandler = createShowReportHandler(report_url, 'initial');
+        var showCorrectedReportHandler = createShowReportHandler(report_url, 'corrected');
+        var downloadInitialReportHandler = createDownloadReportHandler(report_url, 'initial');
+        var downloadCorrectedReportHandler = createDownloadReportHandler(report_url, 'corrected');
+        var downloadInitialGridHandler = createDownloadGridHandler(eq_detail_url, 'initial');
+        var downloadCorrectedGridHandler = createDownloadGridHandler(eq_detail_url, 'corrected');
         var button_templates = [
             {
                 type: 'simple-button',
                 name: '{% trans "Zoom" %}',
                 css_class: 'glyphicon glyphicon-search',
-                handler: 'showEventHandler'
+                handler: 'showEventHandler',
             },
             {
                 type: 'simple-button',
                 name: '{% trans "Report" %}',
                 css_class: 'glyphicon glyphicon-file',
-                handler: 'showReportHandler'
+                handler: 'showInitialReportHandler'
+            },
+            {
+                type: 'simple-button',
+                name: '{% trans "Report" %}',
+                css_class: 'glyphicon glyphicon-file',
+                handler: 'showCorrectedReportHandler',
+                active: function(event){return event.has_corrected;}
             },
             {
                 type: 'dropdown',
@@ -325,17 +334,38 @@
                 actions: [
                     {
                         text: '{% trans "Report" %}',
-                        handler: 'downloadReportHandler'
+                        handler: 'downloadInitialReportHandler'
                     },
                     {
+                        type: 'simple-button',
                         active: function(event){return event.shake_grid_download_url},
                         text: '{% trans "Grid XML" %}',
-                        {#handler: 'downloadGridHandler'#}
-                        href: function(event){return event.shake_grid_download_url;}
+                        handler: 'downloadInitialGridHandler'
                     },
                     {
-                        active: function(event){return event.mmi_layer_exists != undefined;},
+                        active: function(event){return event.mmi_layer_exists},
                         text: '{% trans "MMI output" %}',
+                        href: function(event){return event.mmi_output;},
+                        download: function(event){return event.shake_id+'-mmi.zip'}
+                    },
+
+                    {
+                        type: 'simple-button',
+                        active: function(event){return event.has_corrected;},
+                        text: '{% trans "Report (Corrected)" %}',
+                        handler: 'downloadCorrectedReportHandler'
+                    },
+                    {
+
+                        type: 'simple-button',
+                        active: function(event){return event.has_corrected;},
+                        text: '{% trans "Grid XML (Corrected)" %}',
+                        handler: 'downloadCorrectedGridHandler'
+
+                    },
+                    {
+                        active: function(event){return event.has_corrected;},
+                        text: '{% trans "MMI output (Corrected)" %}',
                         href: function(event){return event.mmi_output;},
                         download: function(event){return event.shake_id+'-mmi.zip'}
                     }
