@@ -94,3 +94,5 @@ def substitute_layer_order(layer_order_template, source_dict):
                 # by InaSAFE Headless instead (and decide if it will fail).
 
         layer_order.append(layer)
+
+    return layer_order

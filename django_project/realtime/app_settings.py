@@ -239,8 +239,7 @@ FLOOD_LAYER_ORDER = [
     'flood/aggregation/dki_jakarta_admin_village.shp',
 
     # Mask vector layer
-    '/home/headless/contexts/flood/context/'
-    'dki_jakarta_admin_village.shp',
+    '/home/headless/contexts/flood/context/dki_jakarta_mask_wgs84.shp',
 
     # the flood layer will be inserted in the method
     '@hazard',
