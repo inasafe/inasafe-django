@@ -300,15 +300,17 @@
         var showEventHandler = createShowEventHandler(map, markers, map_events);
         {#    Use magic number 000 for placeholder#}
         var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' source_type='source_type' language=language.code %}';
+        var report_corrected_url = '{% url "realtime:shake_corrected_report" shake_id='000' language=language.code %}';
         var eq_detail_url = '{% url "realtime:earthquake_detail" shake_id='000' source_type='source_type' %}';
+        var eq_corrected_detail_url = '{% url "realtime:shake_corrected" shake_id='000' %}';
         var showInitialReportHandler = createShowReportHandler(report_url, 'initial');
-        var showCorrectedReportHandler = createShowReportHandler(report_url, 'corrected');
+        var showCorrectedReportHandler = createShowReportHandler(report_corrected_url, 'corrected');
         var downloadInitialReportHandler = createDownloadReportHandler(report_url, 'initial');
-        var downloadCorrectedReportHandler = createDownloadReportHandler(report_url, 'corrected');
+        var downloadCorrectedReportHandler = createDownloadReportHandler(report_corrected_url, 'corrected');
         var downloadInitialGridHandler = createDownloadGridHandler(eq_detail_url, 'initial');
-        var downloadCorrectedGridHandler = createDownloadGridHandler(eq_detail_url, 'corrected');
+        var downloadCorrectedGridHandler = createDownloadGridHandler(eq_corrected_detail_url, 'corrected');
         var downloadInitialMMIHandler = createDownloadMMIHandler(eq_detail_url, 'initial');
-        var downloadCorrectedMMIHandler = createDownloadMMIHandler(eq_detail_url, 'corrected');
+        var downloadCorrectedMMIHandler = createDownloadMMIHandler(eq_corrected_detail_url, 'corrected');
         var button_templates = [
             {
                 type: 'simple-button',

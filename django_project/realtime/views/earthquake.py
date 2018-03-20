@@ -5,6 +5,7 @@ from copy import deepcopy
 from django.conf import settings
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.utils import IntegrityError
+from django.http import HttpResponseNotFound
 from django.http.response import (
     HttpResponseBadRequest,
     JsonResponse,
@@ -13,6 +14,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from rest_framework import status, mixins
+from rest_framework.decorators import api_view
 from rest_framework.filters import (
     DjangoFilterBackend,
     SearchFilter,
@@ -444,6 +446,64 @@ class EarthquakeMMIContourList(
 
         queryset = queryset.filter(**shake_filter)
         return super(EarthquakeMMIContourList, self).filter_queryset(queryset)
+
+
+@api_view(['GET'])
+def get_corrected_shakemaps_for_shake_id(request, shake_id):
+    """View to search for corrected shakemaps for a given initial id.
+
+    :param request: A Django request object
+
+    :param shake_id: Initial shake id of shakemaps. This can be a different ID
+        from a shake_id field of a corrected shakemaps.
+    """
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+
+    try:
+        shake = Earthquake.objects.get(
+            shake_id=shake_id,
+            source_type=Earthquake.INITIAL_SOURCE_TYPE)
+        """:type : Earthquake"""
+
+        # Find corrected shakemaps version
+        shake_corrected = shake.corrected_shakemaps
+        serializer = EarthquakeSerializer(shake_corrected)
+        return Response(serializer.data)
+
+    except Earthquake.DoesNotExist:
+        return HttpResponseNotFound()
+
+
+@api_view(['GET'])
+def get_corrected_shakemaps_report_for_shake_id(
+        request, shake_id, language='en'):
+    """View to search for corrected shakemaps report for a given initial id.
+
+    :param request: A Django request object
+
+    :param shake_id: Initial shake id of shakemaps. This can be a different ID
+        from a shake_id field of a corrected shakemaps.
+
+    :param language: Report language to search
+    """
+    try:
+        shake = Earthquake.objects.get(
+            shake_id=shake_id,
+            source_type=Earthquake.INITIAL_SOURCE_TYPE)
+        """:type : Earthquake"""
+
+        # Find corrected shakemaps version
+        shake_corrected = shake.corrected_shakemaps
+        """:type : Earthquake"""
+
+        # Find shake reports
+        report = shake_corrected.reports.get(language=language)
+        serializer = EarthquakeReportSerializer(report)
+        return Response(serializer.data)
+
+    except Earthquake.DoesNotExist:
+        return HttpResponseNotFound()
 
 
 def get_grid_xml(request, shake_id, source_type):
