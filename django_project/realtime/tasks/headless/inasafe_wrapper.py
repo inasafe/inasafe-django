@@ -128,7 +128,9 @@ def run_multi_exposure_analysis(
 def generate_report(
         impact_layer_uri,
         custom_report_template_uri=None,
-        custom_layer_order=None):
+        custom_layer_order=None,
+        custom_legend_layer=None,
+        use_template_extent=False):
     """Generate report based on impact layer uri.
 
     :param impact_layer_uri: The uri to impact layer (one of them).
