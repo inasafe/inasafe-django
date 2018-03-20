@@ -4,8 +4,8 @@ import shutil
 from tempfile import mkdtemp
 
 from django.core.management.base import BaseCommand
+from realtime.tasks.realtime.test.test_realtime_tasks import TestFloodTasks
 
-from realtime.tasks.test.test_realtime_tasks import flood_layer_uri
 from realtime.tasks.realtime.flood import process_flood
 
 
@@ -21,6 +21,7 @@ class Command(BaseCommand):
             'REALTIME_HAZARD_DROP',
             '/home/realtime/hazard-drop/')
         hazard_drop_path = mkdtemp(dir=REALTIME_HAZARD_DROP)
+        flood_layer_uri = TestFloodTasks.fixtures_path('flood_data.json')
         hazard_drop_path = os.path.join(
             hazard_drop_path, os.path.basename(flood_layer_uri))
         print 'Copy flood data to %s' % hazard_drop_path

@@ -1,5 +1,6 @@
 # coding=utf-8
 import errno
+import json
 import logging
 import os
 import shutil
@@ -8,18 +9,22 @@ import unittest
 from datetime import datetime
 
 import pytz
+import timeout_decorator
 from django import test
 from django.apps import apps
 from django.core.files.base import File
+from django.core.urlresolvers import reverse
+from rest_framework import status
 
 from realtime.app_settings import (
     EARTHQUAKE_MONITORED_DIRECTORY,
     LOGGER_NAME,
-    REALTIME_HAZARD_DROP, ON_TRAVIS)
+    REALTIME_HAZARD_DROP, ON_TRAVIS, EARTHQUAKE_CORRECTED_MONITORED_DIRECTORY)
 from realtime.models.ash import Ash
 from realtime.models.earthquake import Earthquake
 from realtime.models.flood import Flood, BoundaryAlias
 from realtime.models.volcano import Volcano
+from realtime.serializers.earthquake_serializer import EarthquakeSerializer
 from realtime.tasks.flood import create_flood_report
 from realtime.tasks.realtime.celery_app import app as realtime_app
 from realtime.tasks.realtime.flood import process_flood
@@ -31,6 +36,9 @@ __revision__ = ':%H$'
 
 
 LOGGER = logging.getLogger(LOGGER_NAME)
+
+# Five minutes test timeout
+LOCAL_TIMEOUT = 5 * 60
 
 
 @unittest.skipUnless(
@@ -49,6 +57,7 @@ class TestAshTasks(test.LiveServerTestCase):
         return os.path.abspath(
             os.path.join(os.path.dirname(__file__), 'fixtures', *path))
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_process_ash(self):
         """Test generating ash hazard."""
         # Create an ash object
@@ -97,6 +106,7 @@ class TestEarthquakeTasks(test.LiveServerTestCase):
         return os.path.abspath(
             os.path.join(os.path.dirname(__file__), 'fixtures', *path))
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_process_earthquake(self):
         """Test generating earthquake hazard."""
         # Drop a grid file to monitored directory
@@ -120,7 +130,7 @@ class TestEarthquakeTasks(test.LiveServerTestCase):
             try:
                 target_event = Earthquake.objects.get(
                     shake_id='20180220163351',
-                    source_type='initial')
+                    source_type=Earthquake.INITIAL_SOURCE_TYPE)
                 if (target_event.hazard_layer_exists and
                         target_event.shake_grid_xml):
                     break
@@ -133,6 +143,66 @@ class TestEarthquakeTasks(test.LiveServerTestCase):
         self.assertTrue(target_event.hazard_layer_exists)
         self.assertTrue(target_event.shake_grid_xml)
 
+        initial_event = target_event
+
+        # Test dropping a corrected shakemaps
+        grid_file = self.fixtures_path(
+            '20180220162928_50_01400_124450_20180220162928-grid.xml')
+
+        drop_location = os.path.join(
+            EARTHQUAKE_CORRECTED_MONITORED_DIRECTORY,
+            '20180220162928_50_01400_124450_20180220162928',
+            'grid.xml')
+
+        try:
+            os.makedirs(os.path.dirname(drop_location))
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+                pass
+
+        shutil.copy(grid_file, drop_location)
+
+        # wait until grid file is processed
+        while True:
+            try:
+                target_event = Earthquake.objects.get(
+                    shake_id='20180220162928_50_01400_124450_20180220162928',
+                    source_type=Earthquake.CORRECTED_SOURCE_TYPE)
+                if (target_event.hazard_layer_exists and
+                        target_event.shake_grid_xml):
+                    break
+            except BaseException:
+                pass
+
+            LOGGER.info('Waiting for Realtime Hazard push')
+            time.sleep(5)
+
+        self.assertTrue(target_event.hazard_layer_exists)
+        self.assertTrue(target_event.shake_grid_xml)
+
+        # Check that corrected shakemaps can be requested from initial
+        # shakemaps
+        initial_event.refresh_from_db()
+        self.assertTrue(initial_event.has_corrected)
+        target_event.refresh_from_db()
+        self.assertEqual(target_event, initial_event.corrected_shakemaps)
+
+        # Check django view return correct object
+        response = self.client.get(
+            reverse('realtime:shake_corrected', kwargs={
+                'shake_id': initial_event.shake_id,
+            }))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        actual_value = json.loads(response.content)
+        # omit shake grid field because it is not a file
+        actual_value.pop('shake_grid')
+
+        eq_serializer = EarthquakeSerializer(target_event)
+        expected_value = json.loads(json.dumps(eq_serializer.data))
+        expected_value.pop('shake_grid')
+        self.assertEqual(actual_value, expected_value)
+
+        initial_event.delete()
         target_event.delete()
 
 
@@ -152,6 +222,7 @@ class TestFloodTasks(test.LiveServerTestCase):
         return os.path.abspath(
             os.path.join(os.path.dirname(__file__), 'fixtures', *path))
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     @unittest.skipIf(
         ON_TRAVIS,
         'We do not want to abuse PetaBencana Server.')
@@ -159,6 +230,7 @@ class TestFloodTasks(test.LiveServerTestCase):
         """Test Create Flood report task"""
         create_flood_report()
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_process_flood_manually(self):
         """Test process flood with existing flood json."""
         # check boundary alias exists
