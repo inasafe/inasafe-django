@@ -121,7 +121,7 @@ services:
       - ON_TRAVIS={{ on_travis }}
       - INASAFE_LOCALE=id
       - INASAFE_REALTIME_BROKER_HOST=amqp://guest:guest@rabbitmq:5672/
-      - INASAFE_WORK_DIR={{ inasafe_realtime.working_dir }}
+      - INASAFE_WORK_DIR={{ inasafe_realtime.working_dir }}/temp/worker
       - SHAKEMAPS_DIR={{ inasafe_realtime.working_dir }}/shakemaps
       - FLOODMAPS_DIR={{ inasafe_realtime.working_dir }}/floodmaps
       - ASHMAPS_DIR={{ inasafe_realtime.working_dir }}/ashmaps
@@ -146,7 +146,7 @@ services:
       - ON_TRAVIS={{ on_travis }}
       - INASAFE_LOCALE=id
       - INASAFE_REALTIME_BROKER_HOST=amqp://guest:guest@rabbitmq:5672/
-      - INASAFE_WORK_DIR={{ inasafe_realtime.working_dir }}
+      - INASAFE_WORK_DIR={{ inasafe_realtime.working_dir }}/temp/shakemaps-monitor
       - EQ_GRID_SOURCE_TYPE=initial
       - SHAKEMAPS_DIR={{ inasafe_realtime.working_dir }}/shakemaps
       - FLOODMAPS_DIR={{ inasafe_realtime.working_dir }}/floodmaps
@@ -172,8 +172,9 @@ services:
       - ON_TRAVIS={{ on_travis }}
       - INASAFE_LOCALE=id
       - INASAFE_REALTIME_BROKER_HOST=amqp://guest:guest@rabbitmq:5672/
-      - INASAFE_WORK_DIR={{ inasafe_realtime.working_dir }}
+      - INASAFE_WORK_DIR={{ inasafe_realtime.working_dir }}/temp/shakemaps-corrected-monitor
       - EQ_GRID_SOURCE_TYPE=corrected
+      - GRID_FILE_PATTERN=(?P<shake_id>\d{14})([\d_-]*)(/output)?/grid\.xml$$
       - SHAKEMAPS_DIR={{ inasafe_realtime.working_dir }}/shakemaps-corrected
       - FLOODMAPS_DIR={{ inasafe_realtime.working_dir }}/floodmaps
       - ASHMAPS_DIR={{ inasafe_realtime.working_dir }}/ashmaps

@@ -15,17 +15,21 @@ from realtime.utils import split_layer_ext
 class Earthquake(models.Model):
     """Earthquake model."""
 
+    INITIAL_SOURCE_TYPE = 'initial'
     CORRECTED_SOURCE_TYPE = 'corrected'
 
     class Meta:
         """Meta class."""
         app_label = 'realtime'
         unique_together = (('shake_id', 'source_type'), )
+        ordering = ['-time', '-shake_id', '-source_type']
 
+    # Shake ID of corrected shakemaps can go as far as:
+    # 20180316015829_52_-6050_142170_20180316015829
     shake_id = models.CharField(
         verbose_name=_('The Shake ID'),
         help_text=_('The Shake ID, which represents the time of the event.'),
-        max_length='14',
+        max_length=50,
         blank=False)
     shake_grid = models.FileField(
         verbose_name=_('Shake Grid XML File'),
@@ -288,12 +292,27 @@ class Earthquake(models.Model):
         return '{event_id_formatted}-mmi.geojson'.format(
             event_id_formatted=self.event_id_formatted)
 
+    def corrected_shakemaps_queryset(self):
+        """Return a proper queryset match to retrieve corrected shakemaps."""
+        return Earthquake.objects.filter(
+            time=self.time,
+            location=self.location,
+            source_type=self.CORRECTED_SOURCE_TYPE)
+
     @property
     def has_corrected(self):
         """Return true if it has corrected grid version."""
-        return Earthquake.objects.filter(
-            shake_id=self.shake_id,
-            source_type=self.CORRECTED_SOURCE_TYPE).count() > 0
+        return self.corrected_shakemaps_queryset().count() > 0
+
+    @property
+    def corrected_shakemaps(self):
+        """Return the corrected version of the shakemaps if any."""
+        if self.source_type == self.CORRECTED_SOURCE_TYPE:
+            # Not Applicable
+            return None
+
+        # Return only the latest one
+        return self.corrected_shakemaps_queryset().first()
 
     def rerun_report_generation(self):
         """Rerun Report Generations"""
