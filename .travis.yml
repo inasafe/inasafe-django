@@ -1,43 +1,58 @@
+sudo: required
+
 language: python
 
 services:
-  - postgresql
+  - docker
 
 env:
   global:
-    - DATABASE_URL='postgres://postgres:@localhost:5432/test_db'
-    - SECRET_KEY='tT\xd7\xb06\xf7\x9b\xff\x0fZL\xca\xca\x11\xefM\xacr\xfb\xdf\xca\x9b'
-    - DJANGO_SETTINGS_MODULE=core.settings.test_travis
+    - ON_TRAVIS=True
+
+virtualenv:
+  system_site_packages: true
 
 python:
   - '2.7'
 
-addons:
-  postgresql: "9.3"
-  apt:
-    packages:
-      - postgresql-9.3-postgis-2.3
-
 install:
-  - pip install coveralls
-  - pip install -r REQUIREMENTS-dev.txt
-
-
-before_script:
-  - psql -c 'create database test_db;' -U postgres
-  - psql -c 'CREATE EXTENSION postgis;' -U postgres -d test_db
-  - cd django_project
+  - pip install -r REQUIREMENTS-TRAVIS.txt
+  - pushd deployment
+  - cp ansible/development/group_vars/all.travis.yml ansible/development/group_vars/all.yml
+  - make setup-ansible ANSIBLE_ARGS="--extra-vars='ansible_sudo_pass=\"\"' --extra-vars='pycharm_version=\"\"' --skip-tags=development"
+  - make build
+  - make pull-external-services
+  - make up
+  - make realtime-worker
+  - make headless-worker
+  - make status
+  - cat docker-compose.override.yml
+  - until make migrate; do echo "Retrying"; sleep 5; done
+  - popd
 
 script:
-  - flake8
-  # Split this, because somehow test failed when using:
-  # coverage run manage.py test
-  - coverage run manage.py test realtime
-  - coverage run manage.py test user_map
+  - pushd deployment
+  - make check-flake8
+  - make coverage-tests
+  - popd
+
+after_script:
+  # Clean up
+  - pushd deployment
+  - make down
+  - popd
 
 after_success:
-  - coveralls
+  - pushd django_project
+  # Fix path (codecov.yml doesn't work)
+  # Replace parent directory to travis directory, because we are running
+  # coverage using docker mount
+  - sed -i 's/home\/web\/django_project/home\/travis\/build\/inasafe\/inasafe-django\/django_project/g' .coverage
+  - cat .coverage
+  - codecov
+  - cat coverage.xml
+  - popd
 
 email:
- - tim@kartoza.com
  - lana.pcfre@gmail.com
+ - imajimatika@gmail.com

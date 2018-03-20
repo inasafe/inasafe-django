@@ -45,9 +45,7 @@ def index(request):
 
     context = RequestContext(request)
     return render_to_response(
-        'realtime/ash/index.html',
-        {},
-        context_instance=context)
+        'realtime/ash/index.html', context_instance=context)
 
 
 @permission_required(
@@ -86,14 +84,16 @@ def upload_form(request):
         }
         volcano_list.append(v)
 
-    context['volcano_list'] = json.dumps(volcano_list)
+    volcano_list_string = json.dumps(volcano_list)
 
     # Render the form
     return render_to_response(
         'realtime/ash/upload_modal.html',
-        {'form': form},
-        context_instance=context
-    )
+        {
+            'form': form,
+            'volcano_list': volcano_list_string
+        },
+        context_instance=context)
 
 
 class AshList(mixins.ListModelMixin, mixins.CreateModelMixin,
@@ -154,9 +154,10 @@ class AshDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
             *args, **kwargs):
         try:
             if volcano_name and event_time:
+                event_time = parse(event_time)
                 instance = Ash.objects.get(
                     volcano__volcano_name__iexact=volcano_name,
-                    event_time=parse(event_time))
+                    event_time=event_time)
                 self.kwargs.update(id=instance.id)
                 if 'hazard_file' in request.FILES and instance.hazard_file:
                     instance.hazard_file.delete()

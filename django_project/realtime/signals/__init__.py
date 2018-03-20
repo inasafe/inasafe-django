@@ -1,4 +1,5 @@
 # coding=utf-8
+from realtime.signals.earthquake import *  # noqa
 from realtime.signals.flood import *  # noqa
 from realtime.signals.ash import *  # noqa
 

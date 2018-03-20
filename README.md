@@ -18,7 +18,9 @@ These badges reflect the current status of our development branch:
 
 Tests status: [![Build Status](https://travis-ci.org/inasafe/inasafe-django.svg)](https://travis-ci.org/inasafe/inasafe-django)
 
-Coverage status: [![Coverage Status](https://coveralls.io/repos/inasafe/inasafe-django/badge.png?branch=develop)](https://coveralls.io/r/inasafe/inasafe-django?branch=develop)
+Coverage status: [![codecov](https://codecov.io/gh/inasafe/inasafe-django/branch/develop_v4/graph/badge.svg)](https://codecov.io/gh/inasafe/inasafe-django)
+
+
 
 Development status: [![Stories in Ready](https://badge.waffle.io/AIFDR/inasafe-django.svg?label=ready&title=Ready)](http://waffle.io/inasafe/inasafe-django) [![Stories in Ready](https://badge.waffle.io/AIFDR/inasafe-django.svg?label=In%20Progress&title=In%20Progress)](http://waffle.io/inasafe/inasafe-django)
 

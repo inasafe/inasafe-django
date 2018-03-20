@@ -13,7 +13,8 @@ from realtime.views.earthquake import (
     EarthquakeDetail,
     EarthquakeReportList,
     EarthquakeReportDetail,
-    EarthquakeFeatureList, iframe_index, get_grid_xml)
+    EarthquakeFeatureList, iframe_index, get_grid_xml, get_analysis_zip,
+    EarthquakeMMIContourList)
 from realtime.views.flood import (
     index as flood_index,
     FloodList,
@@ -21,7 +22,7 @@ from realtime.views.flood import (
     FloodReportList,
     FloodReportDetail, FloodEventList, flood_event_features,
     impact_event_features, rw_flood_frequency, rw_histogram,
-    flood_impact_report, flood_impact_map)
+    flood_impact_report, flood_impact_map, get_flood_data_json)
 from realtime.views.reports import latest_report
 from realtime.views.volcano import VolcanoFeatureList, VolcanoList
 
@@ -29,13 +30,17 @@ urlpatterns = [
     url(r'^api/v1/$', root.api_root, name='api_root'),
 
     # Earthquake
+    url(r'^api/v1/earthquake/(?P<shake_id>[-\w]+)/$',
+        EarthquakeList.as_view(),
+        name='earthquake_list'),
     url(r'^api/v1/earthquake/$',
         EarthquakeList.as_view(),
         name='earthquake_list'),
     url(r'^api/v1/earthquake-feature/$',
         EarthquakeFeatureList.as_view(),
         name='earthquake_feature_list'),
-    url(r'^api/v1/earthquake/(?P<shake_id>[-\w]+)/$',
+    url(r'^api/v1/earthquake/(?P<shake_id>[-\w]+)/'
+        r'(?P<source_type>\w*)/$',
         EarthquakeDetail.as_view(),
         name='earthquake_detail'),
     url(r'^api/v1/earthquake-report/$',
@@ -47,9 +52,23 @@ urlpatterns = [
         name='earthquake_report_list'),
     url(r'^api/v1/earthquake-report/'
         r'(?P<shake_id>[-\d]+)/'
+        r'(?P<source_type>\w*)/$',
+        EarthquakeReportList.as_view(),
+        name='earthquake_report_list'),
+    url(r'^api/v1/earthquake-report/'
+        r'(?P<shake_id>[-\d]+)/'
+        r'(?P<source_type>\w*)/'
         r'(?P<language>[-\w]+)/$',
         EarthquakeReportDetail.as_view(),
         name='earthquake_report_detail'),
+    url(r'^api/v1/earthquake-mmi-contours/'
+        r'(?P<shake_id>[-\d]+)/'
+        r'(?P<source_type>\w*)/$',
+        EarthquakeMMIContourList.as_view(),
+        name='earthquake_mmi_contours_list'),
+    url(r'^api/v1/earthquake-mmi-contours/$',
+        EarthquakeMMIContourList.as_view(),
+        name='earthquake_mmi_contours_list'),
 
     # Flood
     url(r'^api/v1/flood/$',
@@ -128,9 +147,16 @@ urlpatterns = format_suffix_patterns(urlpatterns)
 urlpatterns += [
     url(r'^$', shake_index, name='index'),
 
-    # SHake
+    # Shake
     url(r'^shake/$', shake_index, name='shake_index'),
-    url(r'^shake/grid/(?P<shake_id>[-\d]+)', get_grid_xml, name='shake_grid'),
+    url(r'^shake/grid/(?P<shake_id>[-\d]+)/'
+        r'(?P<source_type>\w*)/$',
+        get_grid_xml,
+        name='shake_grid'),
+    url(r'^shake/analysis/(?P<shake_id>[-\d]+)/'
+        r'(?P<source_type>\w*)/$',
+        get_analysis_zip,
+        name='analysis_zip'),
 
     # Flood
     url(r'^flood/$', flood_index, name='flood_index'),
@@ -144,6 +170,10 @@ urlpatterns += [
         r'(?P<language>[-\w]+)/$',
         flood_impact_map,
         name='flood_impact_map'),
+    url(r'^flood/flood-data/'
+        r'(?P<event_id>\d{10}-(1|3|6)-(rw|village|subdistrict))/$',
+        get_flood_data_json,
+        name='flood_data'),
 
     # Ash
     url(r'^ash/$', ash_index, name='ash_index'),

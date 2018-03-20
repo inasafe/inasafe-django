@@ -260,14 +260,8 @@
                 {
                     active: function(event){return event.hazard_layer !== undefined;},
                     text: '{% trans "Hazard Layer" %}',
-                    href:  function(event){return event.hazard_layer;},
-                    download: function(event){return event.event_id+'-hazard.zip';}
-                },
-                {
-                    active: function(event){return event.impact_layer !== undefined;},
-                    text: '{% trans "Impact Layer" %}',
-                    href:  function(event){return event.impact_layer;},
-                    download: function(event){return event.event_id+'-impact.zip';}
+                    href:  function(event){return event.flood_data_download_url;},
+                    {#download: function(event){return event.event_id+'-hazard.zip';}#}
                 },
                 {
                     text: '{% trans "Impact Map" %}',

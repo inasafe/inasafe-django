@@ -109,40 +109,23 @@ function createShowEventHandler(map, markers, map_events) {
  * use magic number 000 for url placeholder
  *
  * @param {string} report_url A report url that contains shake_id placeholder
+ * @param {string} source_type shakemap source type
  * @return {function} Open the report based on shake_id in a new tab
  */
-function createShowReportHandler(report_url) {
+function createShowReportHandler(report_url, source_type) {
     var showReportHandler = function (shake_id) {
         var url = report_url;
         // replace magic number 000 with shake_id
-        url = url.replace('000', shake_id);
-        $.get(url, function (data) {
-            if (data && data.report_pdf) {
+        // replace source_type with actual value
+        url = url.replace('000', shake_id).replace('source_type', source_type);
+        $.get(url, function(data){
+            if(data && data.report_pdf){
                 var pdf_url = data.report_pdf;
-                var $a = $("<a></a>");
-                $a.attr('href', pdf_url);
-                if(!browser_identity().is_safari){
-                    // it doesn't work in safari
-                    $a.attr('target', '_blank');
-                }
-                $a.attr('rel', 'nofollow');
-                if(browser_identity().is_firefox){
-                    // preferred way to click a link programatically in
-                    // firefox
-                    // http://stackoverflow.com/questions/809057/how-do-i-programmatically-click-on-an-element-in-firefox
-                    var clickEvent = new MouseEvent("click", {
-                        "view": window,
-                        "bubbles": true,
-                        "cancelable": false
-                    });
-                    $a[0].dispatchEvent(clickEvent);
-                }
-                else{
-                    $a[0].click();
-                }
+                OpenReportPDF(pdf_url);
             }
         }).fail(function(e){
-            if(e.status == 404){
+            console.log(e);
+            if(e.status === 404){
                 alert("No Report recorded for this event.");
             }
         });
@@ -155,14 +138,55 @@ function createShowReportHandler(report_url) {
  * @param {string} report_url A report url that contains shake_id placeholder
  * @return {function} Download the report based on shake_id
  */
-function createDownloadReportHandler(report_url, language) {
+function createDownloadReportHandler(report_url, source_type) {
     var downloadReportHandler = function (shake_id) {
         var url = report_url;
+
         // replace magic number 000 with shake_id
-        url = url.replace('000', shake_id);
-        SaveToDisk(url, shake_id+'-'+language+'.pdf');
+        // replace source_type with actual value
+        url = url.replace('000', shake_id).replace('source_type', source_type);
+        $.get(url, function(data){
+            if(data && data.report_pdf){
+                var pdf_url = data.report_pdf;
+                var filename = data.report_map_filename;
+                SaveToDisk(pdf_url, filename);
+            }
+        }).fail(function(e){
+            console.log(e);
+            if(e.status === 404){
+                alert("No Report recorded for this event.");
+            }
+        });
     };
     return downloadReportHandler;
+}
+
+/**
+ * Closure to create handler for downloadMMILayer
+ * @param {string} mmi_layer_url A url that contains shake_id placeholder
+ * @return {function} Download the grid.xml based on shake_id
+ */
+function createDownloadMMIHandler(mmi_layer_url, source_type) {
+    var downloadMMIHandler = function (shake_id) {
+        var url = mmi_layer_url;
+        // replace magic number 000 with shake_id
+        url = url.replace('000', shake_id).replace('source_type', source_type);
+        // expect json returns
+        url = url;
+        $.get(url, function(data){
+            if(data && data.mmi_layer_download_url){
+                var download_url = data.mmi_layer_download_url;
+                var filename = data.mmi_layer_filename;
+                SaveToDisk(download_url + '?format=json', filename);
+            }
+        }).fail(function(e){
+            console.log(e);
+            if(e.status === 404){
+                alert("No Shake grid recorded for this event.");
+            }
+        });
+    };
+    return downloadMMIHandler;
 }
 
 /**
@@ -170,26 +194,23 @@ function createDownloadReportHandler(report_url, language) {
  * @param {string} grid_url A report url that contains shake_id placeholder
  * @return {function} Download the grid.xml based on shake_id
  */
-function createDownloadGridHandler(grid_url) {
+function createDownloadGridHandler(grid_url, source_type) {
     var downloadGridHandler = function (shake_id) {
         var url = grid_url;
         // replace magic number 000 with shake_id
-        url = url.replace('000', shake_id);
-        var shake_list = dynaTable.settings.dataset.originalRecords;
-        var shake_grid;
-        for(var i=0;i < shake_list.length;i++){
-            if(shake_id == shake_list[i].shake_id){
-                shake_grid = shake_list[i].shake_grid;
-                break;
+        url = url.replace('000', shake_id).replace('source_type', source_type);
+        $.get(url, function(data){
+            if(data && data.shake_grid_download_url){
+                var download_url = data.shake_grid_download_url;
+                var filename = data.grid_xml_filename;
+                SaveToDisk(download_url, filename);
             }
-        }
-        if(shake_grid){
-            SaveToDisk(url, shake_id + '-grid.xml');
-        }
-        else{
-            $.get(url);
-            alert("Shake Grid doesn't exists. Trying to fetch it.");
-        }
+        }).fail(function(e){
+            console.log(e);
+            if(e.status === 404){
+                alert("No Shake grid recorded for this event.");
+            }
+        });
     };
     return downloadGridHandler;
 }
@@ -468,7 +489,10 @@ function createActionRowWriter(button_templates, date_format) {
                 var $button = $('<button></button>');
                 $button.addClass('btn btn-primary row-action-container');
                 $button.attr('title', button.name);
-                $button.attr('onclick', button.handler + "('" + record.shake_id + "')");
+                $button.attr('onclick', button.handler + "('" + record.shake_id + "','"+ record.source_type +"')");
+                if(button.active && $.isFunction(button.active) && !button.active(record)){
+                    $button.prop('disabled','disabled');
+                }
                 $button.append($inner_button);
                 $span.append($button);
             }
@@ -488,9 +512,11 @@ function createActionRowWriter(button_templates, date_format) {
                 $menu.addClass('dropdown-menu');
                 for(var j=0;j < button.actions.length;j++){
                     var action = button.actions[j];
+
                     if(action.active && $.isFunction(action.active) && !action.active(record)){
-                        continue;
+                        continue
                     }
+
                     var $li = $('<li></li>');
                     var $action = $('<a></a>');
                     if(action.href == undefined){
@@ -505,7 +531,7 @@ function createActionRowWriter(button_templates, date_format) {
                     }
 
                     if(action.handler){
-                        $action.attr('onclick', action.handler + "('" + record.shake_id + "')");
+                        $action.attr('onclick', action.handler + "('" + record.shake_id + "','"+ record.source_type +"')");
                     }
 
                     $action.text(action.text);

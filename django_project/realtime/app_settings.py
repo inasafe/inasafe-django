@@ -12,9 +12,13 @@ import ast
 from datetime import timedelta
 
 import os
+
+import errno
 from django.conf import settings
 
 LOGGER_NAME = 'InaSAFE Realtime REST Server'
+
+ON_TRAVIS = ast.literal_eval(os.environ.get('ON_TRAVIS', 'False'))
 
 # PROJECT_NAME: The project name for this apps e.g InaSAFE
 default_project_name = 'InaSAFE Realtime'
@@ -114,6 +118,17 @@ OSM_LEVEL_7_NAME = 'Kelurahan'
 
 OSM_LEVEL_8_NAME = 'RW'
 
+# Hazard Drop location
+REALTIME_HAZARD_DROP = os.environ.get(
+    'REALTIME_HAZARD_DROP',
+    '/home/realtime/hazard-drop/')
+
+try:
+    os.makedirs(REALTIME_HAZARD_DROP)
+except OSError as e:
+    if not e.errno == errno.EEXIST:
+        raise
+
 # ASH Report Event ID Format
 ASH_EVENT_ID_FORMAT = getattr(
     settings,
@@ -133,3 +148,115 @@ if ASH_SHOW_PAGE:
     ASH_SHOW_PAGE = ast.literal_eval(ASH_SHOW_PAGE)
 else:
     ASH_SHOW_PAGE = True
+
+# Ash analysis contexts
+
+ASH_EXPOSURES = [
+    # Airport data
+    '/home/headless/contexts/common/exposure/idn_places_wgs84.shp',
+
+    # Disable this one first, to avoid duplicate exposures
+    # Place data
+    # '/home/headless/contexts/common/exposure/'
+    # 'IDN_Capital_Population_Point_WGS84.shp',
+
+    # Raster population data
+    '/home/headless/contexts/common/exposure/idn_population_200m_wgs84.tif',
+
+    # Landcover data
+    '/home/headless/contexts/ash/exposure/idn_landcover_250k_wgs84.shp',
+]
+ASH_AGGREGATION = None
+ASH_REPORT_TEMPLATE = (
+    '/home/headless/qgis-templates/volcanic-ash/realtime-ash-en.qpt')
+ASH_LAYER_ORDER = [
+
+    # Volcano Crater
+    '/home/headless/contexts/ash/context/idn_volcano_wgs84.shp',
+
+    # Airport data and cities
+    '/home/headless/contexts/common/exposure/idn_places_wgs84.shp',
+
+    # the ash layer will be inserted in the method
+    '@hazard',
+
+    # terrain data
+    '/home/headless/contexts/ash/context/idn_hillshade_wgs84.tif',
+]
+
+# Earthquake analysis contexts
+
+GRID_FILE_DEFAULT_NAME = 'grid.xml'
+
+EARTHQUAKE_EXPOSURES = [
+    # Population raster
+    '/home/headless/contexts/common/exposure/idn_population_200m_wgs84.tif',
+
+    # Cities
+    '/home/headless/contexts/common/exposure/idn_places_wgs84.shp',
+
+]
+EARTHQUAKE_AGGREGATION = ''
+EARTHQUAKE_REPORT_TEMPLATE = '/home/headless/qgis-templates/' \
+                             'earthquake/realtime-earthquake-en.qpt'
+EARTHQUAKE_LAYER_ORDER = [
+    # Cities
+    '/home/headless/contexts/common/exposure/idn_places_wgs84.shp',
+
+    # MMI Contour
+    '@population.earthquake_contour',
+
+    # Administration boundary
+    '/home/headless/contexts/common/context/idn_admin_boundaries_wgs84.shp',
+
+    # Population layer
+    '/home/headless/contexts/common/exposure/idn_population_200m_wgs84.tif',
+]
+
+EARTHQUAKE_EVENT_ID_FORMAT = getattr(
+    settings,
+    'EARTHQUAKE_EVENT_ID_FORMAT',
+    '{shake_id}-{source_type}'
+)
+
+EARTHQUAKE_EVENT_REPORT_FORMAT = getattr(
+    settings,
+    'EARTHQUAKE_EVENT_REPORT_FORMAT',
+    '{shake_id}-{source_type}-{language}{suffix}.{extension}')
+
+EARTHQUAKE_MONITORED_DIRECTORY = os.environ.get(
+    'EARTHQUAKE_MONITORED_DIRECTORY',
+    '/home/realtime/shakemaps')
+
+# Flood analysis contexts
+
+FLOOD_EXPOSURE = (
+    # Jakarta population
+    '/home/headless/contexts/flood/exposure/dki_jakarta_population_wgs84.shp')
+FLOOD_AGGREGATION = (
+    '/home/headless/contexts/'
+    'flood/aggregation/dki_jakarta_admin_village.shp')
+FLOOD_REPORT_TEMPLATE = (
+    '/home/headless/qgis-templates/flood/realtime-flood-en.qpt')
+FLOOD_LAYER_ORDER = [
+
+    # Displaced population with circle symbology
+    '/home/headless/contexts/'
+    'flood/aggregation/dki_jakarta_admin_village.shp',
+
+    # Mask vector layer
+    '/home/headless/contexts/flood/context/dki_jakarta_mask_wgs84.shp',
+
+    # the flood layer will be inserted in the method
+    '@hazard',
+
+    # Administration boundary
+    '/home/headless/contexts/common/context/idn_admin_boundaries_wgs84.shp',
+
+    # OSM Basemap
+    '/home/headless/contexts/flood/context/jakarta.jpg'
+]
+
+FLOOD_MONITORED_DIRECTORY = os.environ.get(
+    'EARTHQUAKE_MONITORED_DIRECTORY',
+    '/home/realtime/shakemaps')

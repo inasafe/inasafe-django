@@ -7,8 +7,13 @@ from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError
-from django.http.response import JsonResponse, HttpResponseServerError, \
-    HttpResponse, Http404
+from django.http.response import (
+    JsonResponse,
+    HttpResponseServerError,
+    HttpResponse,
+    Http404,
+    HttpResponseBadRequest,
+)
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
@@ -96,7 +101,9 @@ class FloodList(mixins.ListModelMixin, mixins.CreateModelMixin,
         return retval
 
 
-class FloodDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+class FloodDetail(mixins.RetrieveModelMixin,
+                  mixins.CreateModelMixin,
+                  mixins.UpdateModelMixin,
                   mixins.DestroyModelMixin, GenericAPIView):
     queryset = Flood.objects.all()
     serializer_class = FloodSerializer
@@ -106,6 +113,10 @@ class FloodDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        retval = self.create(request, *args, **kwargs)
+        return retval
 
     def put(self, request, *args, **kwargs):
         try:
@@ -452,3 +463,22 @@ def rw_histogram(
     except Exception as e:
         LOGGER.info(e)
         return HttpResponseServerError()
+
+
+def get_flood_data_json(request, event_id):
+    """Return url to download flood data from an event_id."""
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+    try:
+        flood = Flood.objects.get(
+            event_id=event_id
+        )
+        response = HttpResponse(
+            flood.flood_data,
+            content_type='application/octet-stream'
+        )
+        response['Content-Disposition'] = \
+            'inline; filename="%s.json"' % event_id
+        return response
+    except BaseException:
+        return HttpResponseBadRequest()

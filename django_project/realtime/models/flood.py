@@ -1,6 +1,9 @@
 # coding=utf-8
 """Model class for flood realtime."""
 
+import json
+import os
+
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -83,6 +86,11 @@ class Flood(models.Model):
         max_length=20,
         unique=True,
         blank=False)
+    flood_data = models.TextField(
+        verbose_name=_('Flood Data Contents'),
+        help_text=_('The content of flood data in json format.'),
+        blank=True,
+        null=True)
     data_source = models.CharField(
         verbose_name=_('The source of hazard data'),
         help_text=_('The source of the hazard data used for analysis'),
@@ -101,6 +109,9 @@ class Flood(models.Model):
     source = models.CharField(
         verbose_name=_('Flood Data Source'),
         help_text=_('The source of hazard data'),
+        default=None,
+        blank=True,
+        null=True,
         max_length=255)
     region = models.CharField(
         verbose_name=_('The Region id for source'),
@@ -129,6 +140,64 @@ class Flood(models.Model):
         verbose_name=_('Total boundary flooded'),
         help_text=_('Total boundary affected by flood'),
         default=0)
+    hazard_path = models.CharField(
+        verbose_name=_('Hazard Layer path'),
+        help_text=_('Location of hazard layer'),
+        max_length=255,
+        default=None,
+        null=True,
+        blank=True)
+    inasafe_version = models.CharField(
+        verbose_name=_('InaSAFE version'),
+        help_text=_('InaSAFE version being used'),
+        max_length=10,
+        default=None,
+        null=True,
+        blank=True)
+    analysis_task_id = models.CharField(
+        verbose_name=_('Analysis celery task id'),
+        help_text=_('Task id for running analysis'),
+        max_length=255,
+        default='',
+        blank=True)
+    analysis_task_status = models.CharField(
+        verbose_name=_('Analysis celery task status'),
+        help_text=_('Task status for running analysis'),
+        max_length=30,
+        default='None',
+        blank=True)
+    analysis_task_result = models.TextField(
+        verbose_name=_('Analysis celery task result'),
+        help_text=_('Task result of analysis run'),
+        default='',
+        blank=True,
+        null=True)
+    report_task_id = models.CharField(
+        verbose_name=_('Report celery task id'),
+        help_text=_('Task id for creating analysis report.'),
+        max_length=255,
+        default='',
+        blank=True)
+    report_task_status = models.CharField(
+        verbose_name=_('Report celery task status'),
+        help_text=_('Task status for creating analysis report.'),
+        max_length=30,
+        default='None',
+        blank=True)
+    report_task_result = models.TextField(
+        verbose_name=_('Report celery task result'),
+        help_text=_('Task result of report generation'),
+        default='',
+        blank=True,
+        null=True)
+    impact_file_path = models.CharField(
+        verbose_name=_('Impact File path'),
+        help_text=_('Location of impact file.'),
+        max_length=255,
+        default=None,
+        blank=True,
+        null=True
+    )
 
     objects = models.GeoManager()
 
@@ -139,6 +208,98 @@ class Flood(models.Model):
 
     def __unicode__(self):
         return 'Flood event & interval: %s - %s' % (self.time, self.interval)
+
+    @property
+    def hazard_layer_exists(self):
+        """Return bool to indicate existences of hazard layer"""
+        if self.hazard_path:
+            return os.path.exists(self.hazard_path)
+        return False
+
+    @property
+    def has_reports(self):
+        """Check if the ash object has report or not."""
+        if FloodReport.objects.filter(flood=self):
+            return True
+        else:
+            return False
+
+    @property
+    def impact_layer_exists(self):
+        """Return bool to indicate existences of impact layers"""
+        if self.impact_file_path:
+            return os.path.exists(self.impact_file_path)
+        return False
+
+    @property
+    def need_run_analysis(self):
+        if (self.analysis_task_status and
+                not self.analysis_task_status == 'None'):
+            return False
+        return True
+
+    @property
+    def need_generate_reports(self):
+        if (self.report_task_status and
+                not self.report_task_status == 'None'):
+            return False
+        return True
+
+    @property
+    def analysis_result(self):
+        """Return dict of analysis result."""
+        try:
+            return json.loads(self.analysis_task_result)
+        except (TypeError, ValueError):
+            return {}
+
+    @property
+    def report_result(self):
+        """Return dict of report result."""
+        try:
+            return json.loads(self.report_task_result)
+        except (TypeError, ValueError):
+            return {}
+
+    @property
+    def flood_data_download_url(self):
+        # return self.hazard_path
+        if self.flood_data:
+            return reverse('realtime:flood_data', kwargs={
+                'event_id': self.event_id,
+            })
+        return 'Flood data is empty: %s' % self.flood_data
+
+    def rerun_report_generation(self):
+        """Rerun Report Generations"""
+
+        # Delete existing reports
+        reports = self.reports.all()
+
+        for r in reports:
+            r.delete()
+
+        self.report_task_result = ''
+        self.report_task_status = ''
+        self.save()
+
+    def rerun_analysis(self):
+        """Rerurn Analysis"""
+
+        # Delete existing reports
+        reports = self.reports.all()
+
+        for r in reports:
+            r.delete()
+
+        self.report_task_result = ''
+        self.report_task_status = ''
+
+        # Reset analysis state
+        self.impact_file_path = ''
+        self.analysis_task_result = ''
+        self.analysis_task_status = ''
+        self.save()
 
 
 class FloodReport(models.Model):
@@ -246,9 +407,16 @@ class ImpactEventBoundary(models.Model):
         verbose_name=_('Geometry of the boundary of impact'),
         help_text=_('Geometry of the boundary of impact'),
         blank=False)
-    hazard_class = models.IntegerField(
+    affected = models.BooleanField(
+        verbose_name=_('Affected status of the boundary impact'),
+        help_text=_('Affected status of the boundary impact'),
+        blank=False,
+        null=False,
+        default=False)
+    hazard_class = models.CharField(
         verbose_name=_('Hazard Class'),
         help_text=_('Hazard class in the given boundary'),
+        max_length=50,
         blank=True,
         null=True)
     population_affected = models.IntegerField(
@@ -256,5 +424,6 @@ class ImpactEventBoundary(models.Model):
         help_text=_('The affected population in a given flood boundary'),
         blank=True,
         null=True)
+
 
 from realtime.signals.flood import *  # noqa

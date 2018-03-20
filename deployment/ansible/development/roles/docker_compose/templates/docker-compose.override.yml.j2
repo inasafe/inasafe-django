@@ -5,22 +5,49 @@
 # different port for the web.
 version: '2'
 services:
+
+  {% if 'rabbitmq' in docker_port_forward.inasafe_django %}
+
+  rabbitmq:
+    ports:
+      - "{{ docker_port_forward.inasafe_django.rabbitmq }}:5672"
+
+  {% endif %}
+
+
   db:
     # custom built from docker-postgis, so we can access it on local
     environment:
       - ALLOW_IP_RANGE=0.0.0.0/0
+
+    {% if not on_travis %}
+
     ports:
       - "{{ docker_port_forward.inasafe_django.db }}:5432"
+
+    {% endif %}
+
     network_mode: "bridge"
 
   uwsgi:
     build: docker-dev
+
+    {% if not on_travis %}
+
     ports:
       # expose ssh port so we can access it via pycharm remote interpreter
       - "61103:22"
       # expose django runserver port directly to localhost, because we're not
       # using nginx forwarder for debugging
       - "{{ docker_port_forward.inasafe_django.django }}:8080"
+
+    {% else %}
+
+    working_dir: /home/web/django_project
+    command: python manage.py runserver
+
+    {% endif %}
+
     volumes:
       - ../django_project:/home/web/django_project
       - ./static:/home/web/static
@@ -28,6 +55,8 @@ services:
       - ./reports:/home/web/reports
       - ./logs:/var/log/
       - ./tmp:/tmp
+      - {{ inasafe_headless.host_working_dir }}:{{ inasafe_headless.working_dir }}
+      - {{ inasafe_realtime.host_working_dir }}:{{ inasafe_realtime.working_dir }}
     environment:
       - DATABASE_NAME=gis
       - DATABASE_USERNAME=docker
@@ -38,10 +67,15 @@ services:
       - VIRTUAL_HOST=users.inasafe.org
       - VIRTUAL_PORT=8080
       - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
-      - INASAFE_REALTIME_BROKER_URL=amqp://guest:guest@{{ interpreters.inasafe_realtime.ipaddress }}:{{ docker_port_forward.inasafe_realtime.rabbitmq }}/
+      - INASAFE_REALTIME_BROKER_URL=amqp://guest:guest@{{ inasafe_realtime.broker }}:{{ inasafe_realtime.broker_port }}/
+      - INASAFE_HEADLESS_BROKER_URL=amqp://guest:guest@{{ inasafe_headless.broker }}:{{ inasafe_headless.broker_port }}/
       # Secrets
       - MAPQUEST_MAP_KEY={{ inasafe_django.mapquest_map_key }}
       - SITE_DOMAIN_NAME={{ inasafe_django.site_domain_name }}
+      # Celery
+      - TASK_ALWAYS_EAGER={{ inasafe_django.task_always_eager }}
+      - INASAFE_OUTPUT_DIR={{ inasafe_headless.working_dir }}/outputs
+      - ON_TRAVIS={{ on_travis }}
     links:
       - smtp:smtp
       - db:db
@@ -55,10 +89,133 @@ services:
     environment:
       # Use development settings file
       - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+      # Celery
+      - TASK_ALWAYS_EAGER={{ inasafe_django.task_always_eager }}
     network_mode: "bridge"
 
   indicator-worker:
     environment:
       # Use development settings file
       - DJANGO_SETTINGS_MODULE=core.settings.dev_docker
+      # Celery
+      - TASK_ALWAYS_EAGER={{ inasafe_django.task_always_eager }}
     network_mode: "bridge"
+
+  {% if inasafe_realtime.use_prebuilt_docker %}
+
+  realtime-worker:
+    image: inasafe/realtime_hazard-processor
+    command: /docker-entrypoint.sh prod inasafe-realtime-worker
+    links:
+      - rabbitmq:rabbitmq
+      - uwsgi:uwsgi
+      - shakemap-monitor:shakemap-monitor
+      - shakemap-corrected-monitor:shakemap-corrected-monitor
+    volumes:
+      - {{ inasafe_realtime.host_working_dir }}:{{ inasafe_realtime.working_dir }}
+    environment:
+      - PYTHONPATH=/usr/share/qgis/python:/usr/share/qgis/python/plugins:/usr/share/qgis/python/plugins/inasafe:/home/app
+      - DISPLAY=:99
+      - C_FORCE_ROOT=True
+      - TASK_ALWAYS_EAGER=False
+      - ON_TRAVIS={{ on_travis }}
+      - INASAFE_LOCALE=id
+      - INASAFE_REALTIME_BROKER_HOST=amqp://guest:guest@rabbitmq:5672/
+      - INASAFE_WORK_DIR={{ inasafe_realtime.working_dir }}
+      - SHAKEMAPS_DIR={{ inasafe_realtime.working_dir }}/shakemaps
+      - FLOODMAPS_DIR={{ inasafe_realtime.working_dir }}/floodmaps
+      - ASHMAPS_DIR={{ inasafe_realtime.working_dir }}/ashmaps
+      - INASAFE_REALTIME_REST_URL=http://{{ realtime_rest_api.host }}:{{ realtime_rest_api.port }}/realtime/api/v1
+      - INASAFE_REALTIME_REST_USER={{ realtime_rest_api.user }}
+      - INASAFE_REALTIME_REST_PASSWORD={{ realtime_rest_api.password }}
+    network_mode: "bridge"
+
+  shakemap-monitor:
+    image: inasafe/realtime_hazard-processor
+    command: /docker-entrypoint.sh prod inasafe-realtime-monitor
+    links:
+      - rabbitmq:rabbitmq
+      - uwsgi:uwsgi
+    volumes:
+      - {{ inasafe_realtime.host_working_dir }}:{{ inasafe_realtime.working_dir }}
+    environment:
+      - PYTHONPATH=/usr/share/qgis/python:/usr/share/qgis/python/plugins:/usr/share/qgis/python/plugins/inasafe:/home/app
+      - DISPLAY=:99
+      - C_FORCE_ROOT=True
+      - TASK_ALWAYS_EAGER=False
+      - ON_TRAVIS={{ on_travis }}
+      - INASAFE_LOCALE=id
+      - INASAFE_REALTIME_BROKER_HOST=amqp://guest:guest@rabbitmq:5672/
+      - INASAFE_WORK_DIR={{ inasafe_realtime.working_dir }}
+      - EQ_GRID_SOURCE_TYPE=initial
+      - SHAKEMAPS_DIR={{ inasafe_realtime.working_dir }}/shakemaps
+      - FLOODMAPS_DIR={{ inasafe_realtime.working_dir }}/floodmaps
+      - ASHMAPS_DIR={{ inasafe_realtime.working_dir }}/ashmaps
+      - INASAFE_REALTIME_REST_URL=http://{{ realtime_rest_api.host }}:{{ realtime_rest_api.port }}/realtime/api/v1
+      - INASAFE_REALTIME_REST_USER={{ realtime_rest_api.user }}
+      - INASAFE_REALTIME_REST_PASSWORD={{ realtime_rest_api.password }}
+    network_mode: "bridge"
+
+  shakemap-corrected-monitor:
+    image: inasafe/realtime_hazard-processor
+    command: /docker-entrypoint.sh prod inasafe-realtime-monitor
+    links:
+      - rabbitmq:rabbitmq
+      - uwsgi:uwsgi
+    volumes:
+      - {{ inasafe_realtime.host_working_dir }}:{{ inasafe_realtime.working_dir }}
+    environment:
+      - PYTHONPATH=/usr/share/qgis/python:/usr/share/qgis/python/plugins:/usr/share/qgis/python/plugins/inasafe:/home/app
+      - DISPLAY=:99
+      - C_FORCE_ROOT=True
+      - TASK_ALWAYS_EAGER=False
+      - ON_TRAVIS={{ on_travis }}
+      - INASAFE_LOCALE=id
+      - INASAFE_REALTIME_BROKER_HOST=amqp://guest:guest@rabbitmq:5672/
+      - INASAFE_WORK_DIR={{ inasafe_realtime.working_dir }}
+      - EQ_GRID_SOURCE_TYPE=corrected
+      - SHAKEMAPS_DIR={{ inasafe_realtime.working_dir }}/shakemaps-corrected
+      - FLOODMAPS_DIR={{ inasafe_realtime.working_dir }}/floodmaps
+      - ASHMAPS_DIR={{ inasafe_realtime.working_dir }}/ashmaps
+      - INASAFE_REALTIME_REST_URL=http://{{ realtime_rest_api.host }}:{{ realtime_rest_api.port }}/realtime/api/v1
+      - INASAFE_REALTIME_REST_USER={{ realtime_rest_api.user }}
+      - INASAFE_REALTIME_REST_PASSWORD={{ realtime_rest_api.password }}
+    network_mode: "bridge"
+
+  {% endif %}
+
+  {% if inasafe_headless.use_prebuilt_docker %}
+
+  headless-worker:
+    image: inasafe/headless_processor
+    command: /docker-entrypoint.sh prod inasafe-headless-worker
+    links:
+      - rabbitmq:rabbitmq
+      - uwsgi:uwsgi
+    volumes:
+      - {{ inasafe_headless.host_working_dir }}:{{ inasafe_headless.working_dir }}
+      - ../django_project:/home/web/django_project
+      - {{ inasafe_realtime.host_working_dir }}:{{ inasafe_realtime.working_dir }}
+    environment:
+      - PYTHONPATH=/usr/share/qgis/python:/usr/share/qgis/python/plugins:/usr/share/qgis/python/plugins/inasafe:/home/app
+      - DISPLAY=:99
+      - C_FORCE_ROOT=True
+      - TASK_ALWAYS_EAGER=False
+      - ON_TRAVIS={{ on_travis }}
+      - INASAFE_LOCALE=id
+      - INASAFE_HEADLESS_BROKER_HOST=amqp://guest:guest@rabbitmq:5672/
+      - INASAFE_WORK_DIR={{ inasafe_headless.working_dir }}
+      - INASAFE_OUTPUT_DIR={{ inasafe_headless.working_dir }}/outputs
+    network_mode: "bridge"
+
+  {% endif %}
+
+  contexts-btsync:
+    environment:
+      - SECRET={{ secret_key.contexts_data }}
+      - DEVICE=InaSAFE-Headless-Contexts-{{ remote_user }}
+
+  qgis-templates-btsync:
+    environment:
+      - SECRET={{ secret_key.qgis_templates }}
+      - DEVICE=InaSAFE-Headless-QGIS-Templates-{{ remote_user }}

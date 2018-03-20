@@ -11,12 +11,10 @@ __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '1/28/16'
 
 
-BROKER_URL = os.environ.get('INASAFE_REALTIME_BROKER_URL')
+broker_url = os.environ.get('INASAFE_REALTIME_BROKER_URL')
 
-CELERY_RESULT_BACKEND = BROKER_URL
+result_backend = broker_url
 
-CELERY_ROUTES = {
-    'realtime.tasks.flood': {
-        'queue': 'inasafe-realtime'
-    }
-}
+task_serializer = 'pickle'
+accept_content = {'pickle'}
+result_serializer = 'pickle'

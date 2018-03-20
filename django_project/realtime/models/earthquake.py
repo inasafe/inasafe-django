@@ -1,26 +1,41 @@
 # coding=utf-8
 """Model class for earthquake realtime."""
+import json
+import os
 
 from django.contrib.gis.db import models
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+
+from realtime.app_settings import EARTHQUAKE_EVENT_REPORT_FORMAT, \
+    EARTHQUAKE_EVENT_ID_FORMAT
+from realtime.utils import split_layer_ext
 
 
 class Earthquake(models.Model):
     """Earthquake model."""
+
+    CORRECTED_SOURCE_TYPE = 'corrected'
+
     class Meta:
         """Meta class."""
         app_label = 'realtime'
+        unique_together = (('shake_id', 'source_type'), )
 
     shake_id = models.CharField(
         verbose_name=_('The Shake ID'),
         help_text=_('The Shake ID, which represents the time of the event.'),
         max_length='14',
-        blank=False,
-        unique=True)
+        blank=False)
     shake_grid = models.FileField(
         verbose_name=_('Shake Grid XML File'),
         help_text=_('The Shake Grid to process'),
         upload_to='earthquake/grid',
+        blank=True,
+        null=True)
+    shake_grid_xml = models.TextField(
+        verbose_name=_('Shake Grid XML File Contents'),
+        help_text=_('The content of shake grid file'),
         blank=True,
         null=True)
     mmi_output = models.FileField(
@@ -29,6 +44,13 @@ class Earthquake(models.Model):
         upload_to='earthquake/mmi_output',
         blank=True,
         null=True)
+    mmi_output_path = models.CharField(
+        verbose_name=_('MMI related file path'),
+        help_text=_('MMI related file path location'),
+        max_length=255,
+        blank=True,
+        null=True,
+        default=None)
     magnitude = models.FloatField(
         verbose_name=_('The magnitude'),
         help_text=_('The magnitude of the event.'))
@@ -36,6 +58,12 @@ class Earthquake(models.Model):
         verbose_name=_('Date and Time'),
         help_text=_('The time the shake happened.'),
         blank=False)
+    generated_time = models.DateTimeField(
+        verbose_name=_('Report Generated Date and Time'),
+        help_text=_('The time the shake report generated.'),
+        blank=True,
+        null=True,
+        default=None)
     depth = models.FloatField(
         verbose_name=_('The depth'),
         help_text=_('The depth of the event in km unit.'))
@@ -56,13 +84,75 @@ class Earthquake(models.Model):
         help_text=_("Set to True if this particular event showed up as felt "
                     "Earthquake in BMKG's List"),
         default=False)
+    source_type = models.CharField(
+        verbose_name=_('Source Type'),
+        help_text=_('Source type of shake grid'),
+        max_length=30,
+        default='initial')
+    analysis_task_id = models.CharField(
+        verbose_name=_('Analysis celery task id'),
+        help_text=_('Task id for running analysis'),
+        max_length=255,
+        default='',
+        blank=True)
+    analysis_task_status = models.CharField(
+        verbose_name=_('Analysis celery task status'),
+        help_text=_('Task status for running analysis'),
+        max_length=30,
+        default='None',
+        blank=True)
+    analysis_task_result = models.TextField(
+        verbose_name=_('Analysis celery task result'),
+        help_text=_('Task result of analysis run'),
+        default='',
+        blank=True,
+        null=True)
+    report_task_id = models.CharField(
+        verbose_name=_('Report celery task id'),
+        help_text=_('Task id for creating analysis report.'),
+        max_length=255,
+        default='',
+        blank=True)
+    report_task_status = models.CharField(
+        verbose_name=_('Report celery task status'),
+        help_text=_('Task status for creating analysis report.'),
+        max_length=30,
+        default='None',
+        blank=True)
+    report_task_result = models.TextField(
+        verbose_name=_('Report celery task result'),
+        help_text=_('Task result of report generation'),
+        default='',
+        blank=True,
+        null=True)
+    hazard_path = models.CharField(
+        verbose_name=_('Hazard Layer path'),
+        help_text=_('Location of hazard layer'),
+        max_length=255,
+        default=None,
+        null=True,
+        blank=True)
+    impact_file_path = models.CharField(
+        verbose_name=_('Impact File path'),
+        help_text=_('Location of impact file.'),
+        max_length=255,
+        default=None,
+        blank=True,
+        null=True)
+    inasafe_version = models.CharField(
+        verbose_name=_('InaSAFE version'),
+        help_text=_('InaSAFE version being used'),
+        max_length=10,
+        default=None,
+        null=True,
+        blank=True)
 
     objects = models.GeoManager()
 
     def __unicode__(self):
-        shake_string = u'Shake event [%s]' % self.shake_id
+        shake_string = u'Shake event [{0}]'.format(self.event_id_formatted)
         if self.location_description.strip():
-            shake_string += u' in %s' % self.location_description
+            shake_string += u' in {0}'.format(self.location_description)
         return shake_string
 
     def delete(self, using=None):
@@ -74,6 +164,198 @@ class Earthquake(models.Model):
         for report in self.reports.all():
             report.delete(using=using)
         super(Earthquake, self).delete(using=using)
+
+    @property
+    def hazard_layer_exists(self):
+        """Return bool to indicate existences of hazard layer"""
+        if self.hazard_path:
+            return os.path.exists(self.hazard_path)
+        return False
+
+    @property
+    def has_reports(self):
+        """Check if event has report or not."""
+        return self.reports.count()
+
+    @property
+    def impact_layer_exists(self):
+        """Return bool to indicate existences of impact layers"""
+        if self.impact_file_path:
+            return os.path.exists(self.impact_file_path)
+        return False
+
+    @property
+    def shake_grid_exists(self):
+        return bool(self.shake_grid or self.shake_grid_xml)
+
+    @property
+    def mmi_layer_exists(self):
+        """Return bool to indicate existences of impact layers"""
+        if self.impact_file_path:
+            return os.path.exists(self.mmi_output_path)
+        return False
+
+    @property
+    def mmi_layer_saved(self):
+        """Return bool to indicate that MMI Layer were saved.
+
+        True means saved into the database.
+        """
+        return self.contours.all().count() > 0
+
+    @property
+    def analysis_zip_path(self):
+        """Return analysis zip path for download."""
+        dirname = os.path.dirname(self.impact_file_path)
+        basename = os.path.basename(self.impact_file_path)
+        basename_without_ext = split_layer_ext(basename)[0]
+        zip_path = os.path.join(dirname, basename_without_ext + '.zip')
+        if os.path.exists(zip_path):
+            return zip_path
+        return None
+
+    @property
+    def shake_grid_download_url(self):
+        if self.shake_grid_exists:
+            return reverse('realtime:shake_grid', kwargs={
+                'shake_id': self.shake_id,
+                'source_type': self.source_type
+            })
+        return None
+
+    @property
+    def mmi_layer_download_url(self):
+        if self.mmi_layer_saved:
+            return reverse('realtime:earthquake_mmi_contours_list', kwargs={
+                'shake_id': self.shake_id,
+                'source_type': self.source_type
+            })
+        return None
+
+    @property
+    def analysis_zip_download_url(self):
+        if self.mmi_layer_exists:
+            return reverse('realtime:analysis_zip', kwargs={
+                'shake_id': self.shake_id,
+                'source_type': self.source_type
+            })
+        return None
+
+    @property
+    def need_run_analysis(self):
+        if (self.analysis_task_status and
+                not self.analysis_task_status == 'None'):
+            return False
+        return True
+
+    @property
+    def need_generate_reports(self):
+        if (self.report_task_status and
+                not self.report_task_status == 'None'):
+            return False
+        return True
+
+    @property
+    def analysis_result(self):
+        """Return dict of analysis result."""
+        try:
+            return json.loads(self.analysis_task_result)
+        except (TypeError, ValueError):
+            return {}
+
+    @property
+    def report_result(self):
+        """Return dict of report result."""
+        try:
+            return json.loads(self.report_task_result)
+        except (TypeError, ValueError):
+            return {}
+
+    @property
+    def event_id_formatted(self):
+        return EARTHQUAKE_EVENT_ID_FORMAT.format(
+            shake_id=self.shake_id,
+            source_type=self.source_type
+        )
+
+    @property
+    def grid_xml_filename(self):
+        return '{event_id_formatted}-grid.xml'.format(
+            event_id_formatted=self.event_id_formatted)
+
+    @property
+    def mmi_layer_filename(self):
+        return '{event_id_formatted}-mmi.geojson'.format(
+            event_id_formatted=self.event_id_formatted)
+
+    @property
+    def has_corrected(self):
+        """Return true if it has corrected grid version."""
+        return Earthquake.objects.filter(
+            shake_id=self.shake_id,
+            source_type=self.CORRECTED_SOURCE_TYPE).count() > 0
+
+    def rerun_report_generation(self):
+        """Rerun Report Generations"""
+
+        # Delete existing reports
+        reports = self.reports.all()
+
+        for r in reports:
+            r.delete()
+
+        self.report_task_result = ''
+        self.report_task_status = ''
+        self.save()
+
+    def rerun_analysis(self):
+        """Rerurn Analysis"""
+
+        # Delete existing reports
+        reports = self.reports.all()
+
+        for r in reports:
+            r.delete()
+
+        self.report_task_result = ''
+        self.report_task_status = ''
+
+        # Reset analysis state
+        self.impact_file_path = ''
+        self.analysis_task_result = ''
+        self.analysis_task_status = ''
+        self.save()
+
+
+class EarthquakeMMIContour(models.Model):
+    """Earthquake MMI Contour Model."""
+
+    class Meta:
+        """Meta class."""
+        app_label = 'realtime'
+
+    earthquake = models.ForeignKey(
+        Earthquake,
+        related_name='contours')
+    geometry = models.LineStringField(
+        verbose_name=_('Geometry of the MMI contour'),
+        help_text=_('Geometry of the MMI contour'),
+        dim=3,
+        blank=False)
+    mmi = models.FloatField(
+        verbose_name=_('MMI value'),
+        help_text=_('MMI value'),
+        blank=False)
+    properties = models.TextField(
+        verbose_name=_('JSON representations of feature properties.'),
+        help_text=_('JSON representations of feature properties.'),
+        blank=False)
+
+    def __unicode__(self):
+        description = u'MMI Contour {mmi} of {event_id_formatted}'.format(
+            mmi=self.mmi,
+            event_id_formatted=self.earthquake.event_id_formatted)
+        return description
 
 
 class EarthquakeReport(models.Model):
@@ -115,3 +397,47 @@ class EarthquakeReport(models.Model):
         self.report_image.delete()
         self.report_thumbnail.delete()
         super(EarthquakeReport, self).delete(using=using)
+
+    def __unicode__(self):
+        description = u'Report lang [{lang}] of [{event_id_formatted}]'.format(
+            lang=self.language,
+            event_id_formatted=self.earthquake.event_id_formatted)
+        return description
+
+    @property
+    def shake_id(self):
+        return self.earthquake.shake_id
+
+    @property
+    def source_type(self):
+        return self.earthquake.source_type
+
+    @property
+    def report_map_filename(self):
+        """Return standardized filename for report map."""
+        return EARTHQUAKE_EVENT_REPORT_FORMAT.format(
+            shake_id=self.earthquake.shake_id,
+            source_type=self.earthquake.source_type,
+            language=self.language,
+            suffix='',
+            extension='pdf')
+
+    @property
+    def report_image_filename(self):
+        """Return standardized filename for report map."""
+        return EARTHQUAKE_EVENT_REPORT_FORMAT.format(
+            shake_id=self.earthquake.shake_id,
+            source_type=self.earthquake.source_type,
+            language=self.language,
+            suffix='',
+            extension='png')
+
+    @property
+    def report_thumbnail_filename(self):
+        """Return standardized filename for report map."""
+        return EARTHQUAKE_EVENT_REPORT_FORMAT.format(
+            shake_id=self.earthquake.shake_id,
+            source_type=self.earthquake.source_type,
+            language=self.language,
+            suffix='-thumbnail',
+            extension='png')
