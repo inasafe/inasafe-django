@@ -2,11 +2,9 @@
 """Model class for earthquake realtime."""
 import json
 import os
-import datetime
 
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
-from django.db.models import F, Func
 from django.utils.translation import ugettext_lazy as _
 
 from realtime.app_settings import EARTHQUAKE_EVENT_REPORT_FORMAT, \
@@ -313,32 +311,45 @@ class Earthquake(models.Model):
             time=self.time,
             source_type=self.CORRECTED_SOURCE_TYPE)
 
-        if exact_time_match:
-            return exact_time_match
+        return exact_time_match
 
-        # find a range of shakemaps in a given range, sorted with:
-        # - least time diff
-        # - least magnitude diff
-        # - least location diff
+        # The following section were commented out until we have a proper
+        # algorithm
 
-        # it is difficult to have an absolute time diff using sql alone, so
-        # will try to find the match using date range
-        # Use a maximum of an hour difference
-        delta_time = datetime.timedelta(minutes=30)
-        end_time = self.time + delta_time
-        start_time = self.time - delta_time
-
-        within_time_range_with_location_match = Earthquake.objects\
-            .filter(time__range=[start_time, end_time])\
-            .annotate(
-                # add magnitude diff
-                magnitude_diff=Func(
-                    F('magnitude') - self.magnitude,
-                    function='ABS'))\
-            .distance()\
-            .order_by('-time', 'distance', 'magnitude_diff')
-
-        return within_time_range_with_location_match
+        # # find a range of shakemaps in a given range, sorted with:
+        # # - least time diff
+        # # - least magnitude diff
+        # # - least location diff
+        #
+        # # it is difficult to have an absolute time diff using sql alone, so
+        # # will try to find the match using date range
+        # # Use a maximum of an hour difference
+        # delta_time = datetime.timedelta(minutes=30)
+        # end_time = self.time + delta_time
+        # start_time = self.time - delta_time
+        #
+        # # A range of 1 MMI
+        # magnitude_delta = 1
+        # # A range of 10 km
+        # distance_delta = 10000
+        #
+        # within_time_range_with_location_match = Earthquake.objects\
+        #     .filter(
+        #         time__range=[start_time, end_time],
+        #         source_type=self.CORRECTED_SOURCE_TYPE)\
+        #     .annotate(
+        #         # add magnitude diff
+        #         magnitude_diff=Func(
+        #             F('magnitude') - self.magnitude,
+        #             function='ABS'))\
+        #     .distance(self.location)\
+        #     .filter(
+        #         magnitude_diff__lte=magnitude_delta,
+        #         distance__lte=distance_delta
+        #     )\
+        #     .order_by('-time', 'distance', 'magnitude_diff')
+        #
+        # return within_time_range_with_location_match
 
     @property
     def has_corrected(self):
