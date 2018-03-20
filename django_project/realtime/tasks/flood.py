@@ -397,7 +397,10 @@ def generate_flood_report(flood_event):
     tasks_chain = chain(
         # Generate report
         generate_report.s(
-            impact_layer_uri, FLOOD_REPORT_TEMPLATE, layer_order
+            impact_layer_uri,
+            FLOOD_REPORT_TEMPLATE,
+            layer_order,
+            use_template_extent=True
         ).set(queue=generate_report.queue),
 
         # Handle report
