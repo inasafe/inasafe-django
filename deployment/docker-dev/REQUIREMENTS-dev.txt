@@ -3,6 +3,7 @@ pep8>=1.5.7,<1.6
 pylint
 flake8
 factory_boy==2.8.1
+timeout-decorator==0.4.0
 
 # documentation
 Sphinx

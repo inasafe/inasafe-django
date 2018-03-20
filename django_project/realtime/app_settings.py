@@ -228,6 +228,10 @@ EARTHQUAKE_MONITORED_DIRECTORY = os.environ.get(
     'EARTHQUAKE_MONITORED_DIRECTORY',
     '/home/realtime/shakemaps')
 
+EARTHQUAKE_CORRECTED_MONITORED_DIRECTORY = os.environ.get(
+    'EARTHQUAKE_CORRECTED_MONITORED_DIRECTORY',
+    '/home/realtime/shakemaps-corrected')
+
 # Flood analysis contexts
 
 FLOOD_EXPOSURE = (

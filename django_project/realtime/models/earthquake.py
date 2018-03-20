@@ -2,9 +2,11 @@
 """Model class for earthquake realtime."""
 import json
 import os
+import datetime
 
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
+from django.db.models import F, Func
 from django.utils.translation import ugettext_lazy as _
 
 from realtime.app_settings import EARTHQUAKE_EVENT_REPORT_FORMAT, \
@@ -294,10 +296,49 @@ class Earthquake(models.Model):
 
     def corrected_shakemaps_queryset(self):
         """Return a proper queryset match to retrieve corrected shakemaps."""
-        return Earthquake.objects.filter(
+        # return a combination of querysets
+
+        # Find exact info match
+        exact_combination_match = Earthquake.objects.filter(
             time=self.time,
             location=self.location,
+            magnitude=self.magnitude,
             source_type=self.CORRECTED_SOURCE_TYPE)
+
+        if exact_combination_match:
+            return exact_combination_match
+
+        # Find exact time match
+        exact_time_match = Earthquake.objects.filter(
+            time=self.time,
+            source_type=self.CORRECTED_SOURCE_TYPE)
+
+        if exact_time_match:
+            return exact_time_match
+
+        # find a range of shakemaps in a given range, sorted with:
+        # - least time diff
+        # - least magnitude diff
+        # - least location diff
+
+        # it is difficult to have an absolute time diff using sql alone, so
+        # will try to find the match using date range
+        # Use a maximum of an hour difference
+        delta_time = datetime.timedelta(minutes=30)
+        end_time = self.time + delta_time
+        start_time = self.time - delta_time
+
+        within_time_range_with_location_match = Earthquake.objects\
+            .filter(time__range=[start_time, end_time])\
+            .annotate(
+                # add magnitude diff
+                magnitude_diff=Func(
+                    F('magnitude') - self.magnitude,
+                    function='ABS'))\
+            .distance()\
+            .order_by('-time', 'distance', 'magnitude_diff')
+
+        return within_time_range_with_location_match
 
     @property
     def has_corrected(self):
