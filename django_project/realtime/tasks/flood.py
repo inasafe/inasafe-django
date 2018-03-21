@@ -15,8 +15,8 @@ from django.db.models import Sum
 
 from core.celery_app import app
 from realtime.app_settings import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME, \
-    FLOOD_EXPOSURE, FLOOD_AGGREGATION, FLOOD_LAYER_ORDER, \
-    FLOOD_REPORT_TEMPLATE, LOGGER_NAME
+    FLOOD_EXPOSURE, FLOOD_AGGREGATION, FLOOD_LAYER_ORDER, LOGGER_NAME, \
+    FLOOD_REPORT_TEMPLATE_EN
 from realtime.models.flood import (
     Flood,
     FloodEventBoundary,
@@ -28,7 +28,7 @@ from realtime.tasks.headless.inasafe_wrapper import (
     run_analysis, generate_report, RESULT_SUCCESS)
 from realtime.tasks.realtime.flood import process_flood
 from realtime.utils import substitute_layer_order
-from realtime.views.reports import latest_template
+from realtime.views.reports import update_latest_template
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '12/3/15'
@@ -394,13 +394,12 @@ def generate_flood_report(flood_event):
 
     layer_order = substitute_layer_order(
         FLOOD_LAYER_ORDER, source_dict)
-    template_file_path = latest_template('flood', 'en')
 
     tasks_chain = chain(
         # Generate report
         generate_report.s(
             impact_layer_uri,
-            template_file_path,
+            FLOOD_REPORT_TEMPLATE_EN,
             layer_order,
             use_template_extent=True
         ).set(queue=generate_report.queue),
@@ -417,7 +416,9 @@ def generate_flood_report(flood_event):
         Flood.objects.filter(id=flood_event.id).update(
             report_task_status='FAILURE')
 
-    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
+    async_result = tasks_chain.apply_async(
+        # link_error=_handle_error.s()
+    )
 
     Flood.objects.filter(id=flood_event.id).update(
         report_task_id=async_result.task_id,

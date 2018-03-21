@@ -187,7 +187,7 @@ def latest_report(request, report_type=u'pdf', language=u'id'):
         raise Http404()
 
 
-def latest_template(hazard, language=u'id'):
+def update_latest_template(hazard, language=u'id'):
     """Return the latest report template file of desired hazard and language.
 
     :param hazard: Hazard type.
@@ -204,11 +204,11 @@ def latest_template(hazard, language=u'id'):
             language=language, hazard=hazard).order_by('timestamp').last()
 
         if template:
-            template_content = template.template_file.read()
+            template_content = template.template_file
 
             with open(REPORT_TEMPLATES[hazard][language], 'w+') as (
                     template_file):
-                template_file.write(template_content)
+                template_file.write(template_content.encode('UTF-8'))
                 template_file.close()
 
         if os.path.exists(REPORT_TEMPLATES[hazard][language]):
@@ -238,7 +238,16 @@ def upload_template(request):
             time = datetime.now()
             instance.timestamp = time
 
+            # save file as a text field
+            template_file = form.cleaned_data['template_file']
+            template_content = template_file.read()
+            instance.template_file = template_content
+
             form.save()
+
+            hazard = form.cleaned_data['hazard']
+            language = form.cleaned_data['language']
+            update_latest_template(hazard, language)
 
             # Redirect to the document list after POST
             return HttpResponseRedirect(
