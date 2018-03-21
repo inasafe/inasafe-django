@@ -57,7 +57,7 @@ class ReportTemplate(models.Model):
         null=False
     )
 
-    template_file = models.FileField(
+    template_file = models.TextField(
         verbose_name=_('Template File'),
         help_text=_('Template file formatted as qgis template file (*.qpt).'),
         blank=False

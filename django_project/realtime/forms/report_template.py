@@ -52,3 +52,9 @@ class ReportTemplateUploadForm(forms.ModelForm):
         label=_('Version'),
         widget=forms.TextInput(attrs={'autocomplete': 'off'})
     )
+
+    template_file = forms.FileField(
+        required=True,
+        label=_('Template File'),
+        help_text=_('Template file formatted as qgis template file (*.qpt).')
+    )
