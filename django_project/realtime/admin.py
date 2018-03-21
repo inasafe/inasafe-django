@@ -8,6 +8,7 @@ from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
 
 from leaflet.admin import LeafletGeoAdmin
+from realtime.forms.report_template import ReportTemplate
 
 from realtime.forms.coreflatpage import CoreFlatPageForm
 from realtime.models.coreflatpage import CoreFlatPage
@@ -116,6 +117,10 @@ class VolcanoAdmin(LeafletGeoAdmin):
     search_fields = ['volcano_name', 'province', 'district', 'morphology']
 
 
+class ReportTemplateAdmin(ModelAdmin):
+    """Admin class for report template model"""
+
+
 realtime_admin_site.register(Earthquake, EarthquakeAdmin)
 realtime_admin_site.register(EarthquakeReport, EarthquakeReportAdmin)
 realtime_admin_site.register(EarthquakeMMIContour, EarthquakeMMIContourAdmin)
@@ -126,3 +131,4 @@ realtime_admin_site.register(FloodReport, FloodReportAdmin)
 realtime_admin_site.register(Ash, AshAdmin)
 realtime_admin_site.register(AshReport, AshReportAdmin)
 realtime_admin_site.register(Volcano, VolcanoAdmin)
+realtime_admin_site.register(ReportTemplate, ReportTemplateAdmin)
