@@ -235,10 +235,10 @@ def upload_template(request):
             instance = form.instance
 
             # timestamp
-            time = datetime.fromtimestamp(0, tz=pytz.utc)
+            time = datetime.now()
             instance.timestamp = time
 
-            form.save
+            form.save()
 
             # Redirect to the document list after POST
             return HttpResponseRedirect(
