@@ -26,7 +26,6 @@ from realtime.models.earthquake import Earthquake, EarthquakeReport, \
 from realtime.tasks.headless.inasafe_wrapper import \
     run_multi_exposure_analysis, generate_report, RESULT_SUCCESS
 from realtime.utils import substitute_layer_order
-from realtime.views.reports import update_latest_template
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '3/15/16'
