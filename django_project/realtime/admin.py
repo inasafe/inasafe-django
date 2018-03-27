@@ -119,6 +119,8 @@ class VolcanoAdmin(LeafletGeoAdmin):
 
 class ReportTemplateAdmin(ModelAdmin):
     """Admin class for report template model"""
+    list_display = ('hazard', 'language', 'version', 'timestamp')
+    list_filter  = ('hazard', 'language')
 
 
 realtime_admin_site.register(Earthquake, EarthquakeAdmin)
