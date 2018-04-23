@@ -167,8 +167,10 @@ ASH_EXPOSURES = [
     '/home/headless/contexts/ash/exposure/idn_landcover_250k_wgs84.shp',
 ]
 ASH_AGGREGATION = None
-ASH_REPORT_TEMPLATE = (
+ASH_REPORT_TEMPLATE_EN = (
     '/home/headless/qgis-templates/volcanic-ash/realtime-ash-en.qpt')
+ASH_REPORT_TEMPLATE_ID = (
+    '/home/headless/qgis-templates/volcanic-ash/realtime-ash-id.qpt')
 ASH_LAYER_ORDER = [
 
     # Volcano Crater
@@ -197,8 +199,10 @@ EARTHQUAKE_EXPOSURES = [
 
 ]
 EARTHQUAKE_AGGREGATION = ''
-EARTHQUAKE_REPORT_TEMPLATE = '/home/headless/qgis-templates/' \
-                             'earthquake/realtime-earthquake-en.qpt'
+EARTHQUAKE_REPORT_TEMPLATE_EN = (
+    '/home/headless/qgis-templates/earthquake/realtime-earthquake-en.qpt')
+EARTHQUAKE_REPORT_TEMPLATE_ID = (
+    '/home/headless/qgis-templates/earthquake/realtime-earthquake-id.qpt')
 EARTHQUAKE_LAYER_ORDER = [
     # Cities
     '/home/headless/contexts/common/exposure/idn_places_wgs84.shp',
@@ -240,8 +244,10 @@ FLOOD_EXPOSURE = (
 FLOOD_AGGREGATION = (
     '/home/headless/contexts/'
     'flood/aggregation/dki_jakarta_admin_village.shp')
-FLOOD_REPORT_TEMPLATE = (
+FLOOD_REPORT_TEMPLATE_EN = (
     '/home/headless/qgis-templates/flood/realtime-flood-en.qpt')
+FLOOD_REPORT_TEMPLATE_ID = (
+    '/home/headless/qgis-templates/flood/realtime-flood-id.qpt')
 FLOOD_LAYER_ORDER = [
 
     # Displaced population with circle symbology
@@ -264,3 +270,20 @@ FLOOD_LAYER_ORDER = [
 FLOOD_MONITORED_DIRECTORY = os.environ.get(
     'EARTHQUAKE_MONITORED_DIRECTORY',
     '/home/realtime/shakemaps')
+
+# Report template contexts
+
+REPORT_TEMPLATES = {
+    'ash': {
+        'en': ASH_REPORT_TEMPLATE_EN,
+        'id': ASH_REPORT_TEMPLATE_ID
+    },
+    'earthquake': {
+        'en': EARTHQUAKE_REPORT_TEMPLATE_EN,
+        'id': EARTHQUAKE_REPORT_TEMPLATE_ID
+    },
+    'flood': {
+        'en': FLOOD_REPORT_TEMPLATE_EN,
+        'id': FLOOD_REPORT_TEMPLATE_ID
+    }
+}

@@ -24,7 +24,8 @@ from realtime.views.flood import (
     FloodReportDetail, FloodEventList, flood_event_features,
     impact_event_features, rw_flood_frequency, rw_histogram,
     flood_impact_report, flood_impact_map, get_flood_data_json)
-from realtime.views.reports import latest_report
+from realtime.views.reports import (
+    latest_report, upload_template as template_upload_form)
 from realtime.views.volcano import VolcanoFeatureList, VolcanoList
 
 urlpatterns = [
@@ -193,6 +194,11 @@ urlpatterns += [
         r'(?P<language>[-\w]+)/$',
         ash_report_map,
         name='ash_report_map'),
+
+    # Template
+    url(r'^template/upload$',
+        template_upload_form,
+        name='template_upload_form'),
 
     # IFrame
     url(r'^iframe$', iframe_index, name='iframe'),

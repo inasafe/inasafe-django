@@ -18,8 +18,8 @@ from django.core.urlresolvers import reverse
 from core.celery_app import app
 from realtime.app_settings import LOGGER_NAME, FELT_EARTHQUAKE_URL, \
     EARTHQUAKE_EXPOSURES, EARTHQUAKE_AGGREGATION, \
-    EARTHQUAKE_REPORT_TEMPLATE, \
-    EARTHQUAKE_LAYER_ORDER, GRID_FILE_DEFAULT_NAME
+    EARTHQUAKE_LAYER_ORDER, GRID_FILE_DEFAULT_NAME, \
+    EARTHQUAKE_REPORT_TEMPLATE_EN
 from realtime.helpers.inaware import InAWARERest
 from realtime.models.earthquake import Earthquake, EarthquakeReport, \
     EarthquakeMMIContour
@@ -316,7 +316,7 @@ def generate_earthquake_report(event):
     tasks_chain = chain(
         # Generate report
         generate_report.s(
-            impact_layer_uri, EARTHQUAKE_REPORT_TEMPLATE, layer_order
+            impact_layer_uri, EARTHQUAKE_REPORT_TEMPLATE_EN, layer_order
         ).set(queue=generate_report.queue),
 
         # Handle report

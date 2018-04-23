@@ -15,8 +15,8 @@ from django.db.models import Sum
 
 from core.celery_app import app
 from realtime.app_settings import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME, \
-    FLOOD_EXPOSURE, FLOOD_AGGREGATION, FLOOD_LAYER_ORDER, \
-    FLOOD_REPORT_TEMPLATE, LOGGER_NAME
+    FLOOD_EXPOSURE, FLOOD_AGGREGATION, FLOOD_LAYER_ORDER, LOGGER_NAME, \
+    FLOOD_REPORT_TEMPLATE_EN
 from realtime.models.flood import (
     Flood,
     FloodEventBoundary,
@@ -398,7 +398,7 @@ def generate_flood_report(flood_event):
         # Generate report
         generate_report.s(
             impact_layer_uri,
-            FLOOD_REPORT_TEMPLATE,
+            FLOOD_REPORT_TEMPLATE_EN,
             layer_order,
             use_template_extent=True
         ).set(queue=generate_report.queue),
@@ -415,7 +415,9 @@ def generate_flood_report(flood_event):
         Flood.objects.filter(id=flood_event.id).update(
             report_task_status='FAILURE')
 
-    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
+    async_result = tasks_chain.apply_async(
+        # link_error=_handle_error.s()
+    )
 
     Flood.objects.filter(id=flood_event.id).update(
         report_task_id=async_result.task_id,
