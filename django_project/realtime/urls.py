@@ -16,6 +16,7 @@ from realtime.views.earthquake import (
     EarthquakeFeatureList, iframe_index, get_grid_xml, get_analysis_zip,
     EarthquakeMMIContourList, get_corrected_shakemaps_for_shake_id,
     get_corrected_shakemaps_report_for_shake_id)
+from realtime.views.flatpage import edit
 from realtime.views.flood import (
     index as flood_index,
     FloodList,
@@ -148,6 +149,14 @@ urlpatterns = format_suffix_patterns(urlpatterns)
 
 urlpatterns += [
     url(r'^$', shake_index, name='index'),
+
+    # Flatpage redirect
+    url(r'^coreflatpage/'
+        r'(?P<system_category>\w+)/'
+        r'(?P<slug_id>\w+)/'
+        r'(?P<language>\w+)/$',
+        edit,
+        name='flatpage_edit'),
 
     # Shake
     url(r'^shake/$', shake_index, name='shake_index'),

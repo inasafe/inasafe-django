@@ -2,6 +2,7 @@
 from django.conf.urls import patterns, include, url
 from django.conf import settings
 from django.contrib import admin
+from filebrowser.sites import site
 from django.views.i18n import javascript_catalog
 from realtime.admin import realtime_admin_site
 
@@ -13,6 +14,7 @@ js_info_dict = {
 urlpatterns = patterns(
     '',
 
+    url(r'^admin/filebrowser/', include(site.urls)),
     url(r'^admin/', include(admin.site.urls)),
 
     # uncomment to enable defaut Django auth

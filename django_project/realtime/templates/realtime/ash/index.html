@@ -25,28 +25,46 @@
     <div class="row center-block">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h2 class="panel-title">{% trans "InaSAFE Volcanic Ash" %}</h2>
+                <h2 class="panel-title">
+                    {% if perms.realtime.change_coreflatpage %}
+                    <a href="{% url "realtime:flatpage_edit" slug_id=LANDING_PAGE_SLUG_ID system_category=LANDING_PAGE_SYSTEM_CATEGORY language=LANGUAGE_CODE %}"
+                       class="btn btn-primary" title="{% trans "Edit Content" %}">
+                        <span class="glyphicon glyphicon-edit"></span>
+                    </a>
+                    {% endif %}
+
+                    {% if landing_page %}
+                        {{ landing_page.title|safe }}
+                    {% else %}
+                        {% trans "InaSAFE Volcanic Ash" %}
+                    {% endif %}
+                </h2>
             </div>
             <div class="panel-body">
                 <p class="text-justify">
-                    {% blocktrans %}
-                        This page contains <b>near realtime</b> volcanic ash
-                        impact assessments generated prior to or during recent
-                        volcanic ash eruptions in the Indonesia region.
-                        Hazard maps of volcanic ash thickness on the ground
-                        are produced by Indonesia’s Geological Agency,
-                        Badan Geologi (<a href="http://www.bgl.esdm.go.id">http://www.bgl.esdm.go.id</a>)
-                        and used by the Indonesian National Disaster Management Agency (BNPB)
-                        to produce InaSAFE impact assessments
-                        (<a href="http://www.bnpb.go.id">http://www.bnpb.go.id</a>
-                        or <a href="http://realtime.inasafe.org">http://realtime.inasafe.org)</a>.
-                        InaSAFE Realtime Volcanic Ash assessments estimate the potential impact of volcanic
-                        ash on the ground. This information is used by disaster
-                        managers to help them understand the potential scale of the volcanic ash impact
-                        and to recommend mitigation activities for the most vulnerable communities.
-                        This is particularly important in the lead up to an eruption when communities
-                        have an opportunity to prepare for a possible hazard event.
-                    {% endblocktrans %}
+
+                    {% if landing_page %}
+                        {{ landing_page.content|safe }}
+                    {% else %}
+                        {% blocktrans %}
+                            This page contains <b>near realtime</b> volcanic ash
+                            impact assessments generated prior to or during recent
+                            volcanic ash eruptions in the Indonesia region.
+                            Hazard maps of volcanic ash thickness on the ground
+                            are produced by Indonesia’s Geological Agency,
+                            Badan Geologi (<a href="http://www.bgl.esdm.go.id">http://www.bgl.esdm.go.id</a>)
+                            and used by the Indonesian National Disaster Management Agency (BNPB)
+                            to produce InaSAFE impact assessments
+                            (<a href="http://www.bnpb.go.id">http://www.bnpb.go.id</a>
+                            or <a href="http://realtime.inasafe.org">http://realtime.inasafe.org)</a>.
+                            InaSAFE Realtime Volcanic Ash assessments estimate the potential impact of volcanic
+                            ash on the ground. This information is used by disaster
+                            managers to help them understand the potential scale of the volcanic ash impact
+                            and to recommend mitigation activities for the most vulnerable communities.
+                            This is particularly important in the lead up to an eruption when communities
+                            have an opportunity to prepare for a possible hazard event.
+                        {% endblocktrans %}
+                    {% endif %}
                 </p>
             </div>
         </div>
