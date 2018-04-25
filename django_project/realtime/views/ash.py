@@ -21,8 +21,11 @@ from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 
+from realtime.app_settings import SLUG_ASH_LANDING_PAGE, \
+    LANDING_PAGE_SYSTEM_CATEGORY
 from realtime.forms.ash import AshUploadForm
 from realtime.models.ash import Ash, AshReport
+from realtime.models.coreflatpage import CoreFlatPage
 from realtime.models.volcano import Volcano
 from realtime.serializers.ash_serializer import (
     AshSerializer,
@@ -43,9 +46,20 @@ def index(request):
     if request.method == 'POST':
         pass
 
+    landing_page = CoreFlatPage.objects.filter(
+        slug_id=SLUG_ASH_LANDING_PAGE,
+        system_category=LANDING_PAGE_SYSTEM_CATEGORY,
+        language=request.LANGUAGE_CODE).first()
+
     context = RequestContext(request)
     return render_to_response(
-        'realtime/ash/index.html', context_instance=context)
+        'realtime/ash/index.html',
+        {
+            'landing_page': landing_page,
+            'LANDING_PAGE_SLUG_ID': SLUG_ASH_LANDING_PAGE,
+            'LANDING_PAGE_SYSTEM_CATEGORY': LANDING_PAGE_SYSTEM_CATEGORY
+        },
+        context_instance=context)
 
 
 @permission_required(

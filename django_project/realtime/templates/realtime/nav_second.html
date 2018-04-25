@@ -26,27 +26,37 @@
         <li class="menu-item">
             <a href="{% url 'realtime:indicator' %}">{% trans "Indicator" %}</a>
         </li>
-        {% for g in flatpages.groups %}
-            {% with pages=g.pages %}
-                {% if pages %}
-                <li class="menu-item dropdown">
-                    <a href="#" class="dropdown-toggle" title="{{ g.title|capfirst }}" data-toggle="dropdown" class="dropdown-toggle" aria-haspopup="true" aria-expanded="true">
-                        {{ g.title|capfirst }}
-                        <span class="caret"></span>
-                    </a>
-                    <ul role="menu" class="dropdown-menu">
-                        {% for p in pages %}
-                            <li class="menu-item">
-                                <a title="{{ p.title }}"
-                                   href="{% url 'django.contrib.flatpages.views.flatpage' url=p.url %}">
-                                    {{ p.title|capfirst }}
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </li>
-                {% endif %}
-            {% endwith %}
+        {% for flatpages in additional_nav_menus %}
+            {% for g in flatpages.groups %}
+                {% with pages=g.pages %}
+                    {% if pages %}
+                    <li class="menu-item dropdown">
+                        <a href="#" class="dropdown-toggle" title="{{ g.title|capfirst }}" data-toggle="dropdown" class="dropdown-toggle" aria-haspopup="true" aria-expanded="true">
+                            {{ g.title|capfirst }}
+                            <span class="caret"></span>
+                        </a>
+                        <ul role="menu" class="dropdown-menu">
+                            {% for p in pages %}
+                                <li class="menu-item">
+                                    <div>
+                                        {% if perms.realtime.change_coreflatpage %}
+                                        <a href="{% url "admin:realtime_coreflatpage_change" p.id %}"
+                                           class="btn" title="{% trans "Edit Content" %}">
+                                            <div class="glyphicon glyphicon-edit"></div>
+                                        </a>
+                                        {% endif %}
+                                        <a title="{{ p.title }}"
+                                           href="{% url 'django.contrib.flatpages.views.flatpage' url=p.url %}">
+                                            {{ p.title|capfirst }}
+                                        </a>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endif %}
+                {% endwith %}
+            {% endfor %}
         {% endfor %}
     </ul>
 </nav>

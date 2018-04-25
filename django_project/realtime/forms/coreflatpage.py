@@ -1,6 +1,7 @@
 # coding=utf-8
 
 from django import forms
+from django.utils import translation
 from realtime.models.coreflatpage import CoreFlatPage
 from tinymce.widgets import TinyMCE
 
@@ -16,7 +17,8 @@ class CoreFlatPageForm(forms.ModelForm):
                 'cols': 80,
                 'rows': 30,
 
-            }
+            },
+            content_language=translation.get_language()
         )
     )
 
