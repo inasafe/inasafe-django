@@ -27,7 +27,6 @@ install:
   - make headless-worker
   - make status
   - cat docker-compose.override.yml
-  - make db-logs
   - until make migrate; do echo "Retrying"; sleep 5; done
   - popd
 
