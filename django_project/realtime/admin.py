@@ -25,17 +25,20 @@ class CoreFlatPageAdmin(FlatPageAdmin):
     fieldsets = (
         (None, {
             'fields': (
+                'slug_id',
                 'url',
                 'language',
                 'title',
                 'content',
                 'group',
+                'system_category',
                 'order',
                 'sites'
             )
         }),
     )
-    list_display = ('title', 'url', 'language', 'group', 'order')
+    list_display = (
+        'title', 'url', 'language', 'group', 'system_category', 'order')
     form = CoreFlatPageForm
 
 
@@ -120,7 +123,7 @@ class VolcanoAdmin(LeafletGeoAdmin):
 class ReportTemplateAdmin(ModelAdmin):
     """Admin class for report template model"""
     list_display = ('hazard', 'language', 'version', 'timestamp')
-    list_filter  = ('hazard', 'language')
+    list_filter = ('hazard', 'language')
 
 
 realtime_admin_site.register(Earthquake, EarthquakeAdmin)

@@ -27,7 +27,10 @@ from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 
+from realtime.app_settings import SLUG_FLOOD_LANDING_PAGE, \
+    LANDING_PAGE_SYSTEM_CATEGORY
 from realtime.forms.flood import FilterForm
+from realtime.models.coreflatpage import CoreFlatPage
 from realtime.models.flood import (
     Flood,
     FloodReport,
@@ -65,17 +68,24 @@ def index(request, iframe=False, server_side_filter=False):
         if 'server_side_filter' in request.GET:
             server_side_filter = request.GET.get('server_side_filter')
 
+    landing_page = CoreFlatPage.objects.filter(
+        slug_id=SLUG_FLOOD_LANDING_PAGE,
+        system_category=LANDING_PAGE_SYSTEM_CATEGORY,
+        language=request.LANGUAGE_CODE).first()
+
     context = RequestContext(request)
-    context['select_area_text'] = _('Select Area')
-    context['remove_area_text'] = _('Remove Selection')
-    context['select_current_zoom_text'] = _('Select area within current zoom')
-    context['iframe'] = iframe
     return render_to_response(
         'realtime/flood/index.html',
         {
+            'landing_page': landing_page,
+            'LANDING_PAGE_SLUG_ID': SLUG_FLOOD_LANDING_PAGE,
+            'LANDING_PAGE_SYSTEM_CATEGORY': LANDING_PAGE_SYSTEM_CATEGORY,
             'form': form,
             'iframe': iframe,
-            'server_side_filter': server_side_filter
+            'server_side_filter': server_side_filter,
+            'select_area_text': _('Select Area'),
+            'remove_area_text': _('Remove Selection'),
+            'select_current_zoom_text': _('Select area within current zoom'),
         },
         context_instance=context)
 

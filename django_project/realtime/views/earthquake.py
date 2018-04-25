@@ -13,6 +13,8 @@ from django.http.response import (
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
+from realtime.app_settings import SLUG_EQ_LANDING_PAGE, \
+    LANDING_PAGE_SYSTEM_CATEGORY
 from rest_framework import status, mixins
 from rest_framework.decorators import api_view
 from rest_framework.filters import (
@@ -28,6 +30,7 @@ from rest_framework_gis.filters import InBBoxFilter
 from realtime.filters.earthquake_filter import EarthquakeFilter
 from realtime.forms.earthquake import FilterForm
 from realtime.helpers.rest_push_indicator import track_rest_push
+from realtime.models.coreflatpage import CoreFlatPage
 from realtime.models.earthquake import Earthquake, EarthquakeReport, \
     EarthquakeMMIContour
 from realtime.serializers.earthquake_serializer import (
@@ -65,10 +68,18 @@ def index(request, iframe=False, server_side_filter=False):
         if 'server_side_filter' in request.GET:
             server_side_filter = request.GET.get('server_side_filter')
 
+    landing_page = CoreFlatPage.objects.filter(
+        slug_id=SLUG_EQ_LANDING_PAGE,
+        system_category=LANDING_PAGE_SYSTEM_CATEGORY,
+        language=request.LANGUAGE_CODE).first()
+
     context = RequestContext(request)
     return render_to_response(
         'realtime/earthquake/index.html',
         {
+            'landing_page': landing_page,
+            'LANDING_PAGE_SLUG_ID': SLUG_EQ_LANDING_PAGE,
+            'LANDING_PAGE_SYSTEM_CATEGORY': LANDING_PAGE_SYSTEM_CATEGORY,
             'form': form,
             'iframe': iframe,
             'server_side_filter': server_side_filter,

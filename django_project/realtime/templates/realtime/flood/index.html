@@ -25,20 +25,38 @@
     <div class="row center-block">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h2 class="panel-title">{% trans "InaSAFE Flood Realtime" %}</h2>
+                <h2 class="panel-title">
+                    {% if perms.realtime.change_coreflatpage %}
+                    <a href="{% url "realtime:flatpage_edit" slug_id=LANDING_PAGE_SLUG_ID system_category=LANDING_PAGE_SYSTEM_CATEGORY language=LANGUAGE_CODE %}"
+                       class="btn btn-primary" title="{% trans "Edit Content" %}">
+                        <span class="glyphicon glyphicon-edit"></span>
+                    </a>
+                    {% endif %}
+
+                    {% if landing_page %}
+                        {{ landing_page.title|safe }}
+                    {% else %}
+                        {% trans "InaSAFE Flood Realtime" %}
+                    {% endif %}
+                </h2>
             </div>
             <div class="panel-body">
                 <p class="text-justify">
-                    {% blocktrans %}
-                        This page contains near realtime flood impact assessments following recent floods in Jakarta, Indonesia.
-                        Flood data used here is sourced from <a href="https://petabencana.id/">PetaBencana.id</a> who use crowdsourced data from <a href="http://twitter.com">Twitter</a>,
-                        Telegram, <a href="http://qlue.co.id/">Qlue</a>, <a href="http://pasangmata.detik.com/">PasangMata</a>, Z-Alert, and expert data review by BPBD-DKI Jakarta.
-                        A report is then generated every 6 hours for floods from the last 6 hour interval (if there was any flooding in that period).
-                        This report includes all flooded RWs during the last 6 hours and shows the deepest water depth recorded in the last 6 hours.
-                        This information is used by disaster managers to help them understand the potential scale of a disaster and to
-                        respond more quickly to the hardest hit communities. This is particularly important in the first few hours after a
-                        flood when it may be difficult to get accurate on-the-ground information. Although this service is currently specific to Jakarta, the platform is extensible so that we can add more cities and regions easily.
-                    {% endblocktrans %}
+
+                    {% if landing_page %}
+                        {{ landing_page.content|safe }}
+                    {% else %}
+                        {% blocktrans %}
+                            This page contains near realtime flood impact assessments following recent floods in Jakarta, Indonesia.
+                            Flood data used here is sourced from <a href="https://petabencana.id/">PetaBencana.id</a> who use crowdsourced data from <a href="http://twitter.com">Twitter</a>,
+                            Telegram, <a href="http://qlue.co.id/">Qlue</a>, <a href="http://pasangmata.detik.com/">PasangMata</a>, Z-Alert, and expert data review by BPBD-DKI Jakarta.
+                            A report is then generated every 6 hours for floods from the last 6 hour interval (if there was any flooding in that period).
+                            This report includes all flooded RWs during the last 6 hours and shows the deepest water depth recorded in the last 6 hours.
+                            This information is used by disaster managers to help them understand the potential scale of a disaster and to
+                            respond more quickly to the hardest hit communities. This is particularly important in the first few hours after a
+                            flood when it may be difficult to get accurate on-the-ground information. Although this service is currently specific to Jakarta, the platform is extensible so that we can add more cities and regions easily.
+                        {% endblocktrans %}
+                    {% endif %}
                 </p>
             </div>
         </div>
@@ -274,7 +292,8 @@
     $(document).ready(function(){
         dynatable = $("#realtime-table").dynatable({
             features: {
-                pushState: false
+                pushState: false,
+                search: false
             },
             table: {
                 defaultColumnIdStyle: 'underscore'
@@ -285,9 +304,6 @@
             dataset: {
                 records: jsonTableContents,
                 sorts: {'magnitude': -1}
-            },
-            features: {
-                search: false
             }
         }).data('dynatable');
 
