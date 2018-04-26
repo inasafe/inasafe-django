@@ -215,6 +215,8 @@ ASH_LAYER_ORDER = [
     # terrain data
     '/home/headless/contexts/ash/context/idn_hillshade_wgs84.tif',
 ]
+VOLCANO_LAYER_PATH = (
+    '/home/headless/contexts/ash/context/idn_volcano_wgs84.shp')
 
 # Earthquake analysis contexts
 
