@@ -38,18 +38,22 @@
                         <ul role="menu" class="dropdown-menu">
                             {% for p in pages %}
                                 <li class="menu-item">
+                                    {% if perms.realtime.change_coreflatpage %}
                                     <div>
-                                        {% if perms.realtime.change_coreflatpage %}
                                         <a href="{% url "admin:realtime_coreflatpage_change" p.id %}"
                                            class="btn" title="{% trans "Edit Content" %}">
                                             <div class="glyphicon glyphicon-edit"></div>
                                         </a>
-                                        {% endif %}
+                                    {% endif %}
+
                                         <a title="{{ p.title }}"
                                            href="{% url 'django.contrib.flatpages.views.flatpage' url=p.url %}">
                                             {{ p.title|capfirst }}
                                         </a>
+
+                                    {% if perms.realtime.change_coreflatpage %}
                                     </div>
+                                    {% endif %}
                                 </li>
                             {% endfor %}
                         </ul>
