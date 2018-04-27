@@ -16,7 +16,7 @@ RESULT_SUCCESS = 0
 
 
 @app.task(name='inasafe.headless.tasks.get_keywords', queue='inasafe-headless')
-def get_keywords(layer_uri, keyword=None):
+def get_keywords(layer_uri, keyword=None, locale='en_US'):
     """Get keywords from a layer.
 
     :param layer_uri: Uri to layer.
@@ -38,7 +38,8 @@ def run_analysis(
         hazard_layer_uri,
         exposure_layer_uri,
         aggregation_layer_uri=None,
-        crs=None
+        crs=None,
+        locale='en_US'
 ):
     """Run analysis.
 
@@ -79,7 +80,8 @@ def run_multi_exposure_analysis(
         hazard_layer_uri,
         exposure_layer_uris,
         aggregation_layer_uri=None,
-        crs=None
+        crs=None,
+        locale='en_US'
 ):
     """Run analysis for multi exposure.
 
@@ -130,7 +132,8 @@ def generate_report(
         custom_report_template_uri=None,
         custom_layer_order=None,
         custom_legend_layer=None,
-        use_template_extent=False):
+        use_template_extent=False,
+        locale='en_US'):
     """Generate report based on impact layer uri.
 
     :param impact_layer_uri: The uri to impact layer (one of them).
