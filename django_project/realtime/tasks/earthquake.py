@@ -19,10 +19,9 @@ from core.celery_app import app
 from realtime.app_settings import LOGGER_NAME, FELT_EARTHQUAKE_URL, \
     EARTHQUAKE_EXPOSURES, EARTHQUAKE_AGGREGATION, \
     EARTHQUAKE_LAYER_ORDER, GRID_FILE_DEFAULT_NAME, \
-    EARTHQUAKE_REPORT_TEMPLATE_EN
+    EARTHQUAKE_REPORT_TEMPLATE_EN, ANALYSIS_LANGUAGES
 from realtime.helpers.inaware import InAWARERest
-from realtime.models.earthquake import Earthquake, EarthquakeReport, \
-    EarthquakeMMIContour
+from realtime.models.earthquake import Earthquake, EarthquakeMMIContour
 from realtime.tasks.headless.inasafe_wrapper import \
     run_multi_exposure_analysis, generate_report, RESULT_SUCCESS
 from realtime.utils import substitute_layer_order
@@ -112,13 +111,14 @@ def retrieve_felt_earthquake_list():
 
 
 @app.task(queue='inasafe-django')
-def generate_event_report(earthquake_event):
+def generate_event_report(earthquake_event, locale='en'):
     """Generate Earthquake report
 
     :param earthquake_event: Earthquake event instance
     :type earthquake_event: Earthquake
     :return:
     """
+    earthquake_event.inspected_language = locale
     if not earthquake_event.hazard_layer_exists:
 
         # Skip all process if not exists
@@ -140,7 +140,7 @@ def generate_event_report(earthquake_event):
             with open(grid_path) as f:
                 shake_grid_xml = f.read()
 
-        # Use save to trigger signals again
+        # Do not use save, to avoid triggering signals
         Earthquake.objects.filter(
             id=earthquake_event.id).update(
             shake_grid_xml=shake_grid_xml)
@@ -151,6 +151,18 @@ def generate_event_report(earthquake_event):
         if earthquake_event.shake_grid:
             earthquake_event.shake_grid.delete(save=False)
 
+        # Find matching initial shakemaps if this is a corrected one
+        initial_event = earthquake_event.initial_shakemaps
+        if initial_event:
+            initial_event.mark_shakemaps_has_corrected()
+
+        # Find matching corrected shakemaps if this is an initial one
+        corrected_event = earthquake_event.corrected_shakemaps
+        if corrected_event:
+            # Set into property because it will gets saved.
+            earthquake_event.has_corrected = True
+
+        # Use save to trigger signals again
         earthquake_event.save()
 
     # Check impact layer
@@ -159,7 +171,7 @@ def generate_event_report(earthquake_event):
 
         # If hazard exists but impact layer is not, then create a new analysis
         # job.
-        run_earthquake_analysis(earthquake_event)
+        run_earthquake_analysis(earthquake_event, locale=locale)
 
     # Check MMI Contour saved
     elif (earthquake_event.mmi_layer_exists and
@@ -175,16 +187,17 @@ def generate_event_report(earthquake_event):
 
         # If analysis is done but report doesn't exists, then create the
         # reports.
-        generate_earthquake_report(earthquake_event)
+        generate_earthquake_report(earthquake_event, locale=locale)
 
 
-def run_earthquake_analysis(event):
+def run_earthquake_analysis(event, locale='en'):
     """Run analysis.
 
     :param event: event instance
     :type event: Earthquake
     """
-    event.refresh_from_db()
+    event = Earthquake.objects.get(id=event.id)
+    event.inspected_language = locale
     hazard_layer_uri = event.hazard_path
 
     tasks_chain = chain(
@@ -193,24 +206,33 @@ def run_earthquake_analysis(event):
             hazard_layer_uri,
             EARTHQUAKE_EXPOSURES,
             EARTHQUAKE_AGGREGATION,
+            locale=locale
         ).set(queue=run_multi_exposure_analysis.queue),
 
         # Handle analysis products
         handle_analysis.s(
-            event.id
+            event.id,
+            locale=locale
         ).set(queue=handle_analysis.queue),
     )
 
     @app.task
     def _handle_error(req, exc, traceback):
         """Update task status as Failure."""
-        Earthquake.objects.filter(id=event.id).update(
-            analysis_task_status='FAILURE')
+        # Earthquake.objects.filter(id=event.id).update(
+        #     analysis_task_status='FAILURE')
+        impact_object = event.impact_object
+        impact_object.analysis_task_status = 'Failure'
+        impact_object.save()
 
     async_result = tasks_chain.apply_async(link_error=_handle_error.s())
-    Earthquake.objects.filter(id=event.id).update(
-        analysis_task_id=async_result.task_id,
-        analysis_task_status=async_result.state)
+    # Earthquake.objects.filter(id=event.id).update(
+    #     analysis_task_id=async_result.task_id,
+    #     analysis_task_status=async_result.state)
+    impact_object = event.impact_object
+    impact_object.analysis_task_id = async_result.task_id
+    impact_object.analysis_task_status = async_result.state
+    impact_object.save()
 
 
 @app.task(queue='inasafe-django')
@@ -262,14 +284,18 @@ def process_mmi_layer(earthquake):
             mmi=mmi,
             properties=json.dumps(properties))
 
+    earthquake.refresh_from_db()
+    earthquake.mark_shakemaps_has_contours()
+
     LOGGER.info('MMI Contour processed...')
     return True
 
 
 @app.task(queue='inasafe-django')
-def handle_analysis(analysis_result, event_id):
+def handle_analysis(analysis_result, event_id, locale='en'):
     """Handle analysis products"""
     earthquake = Earthquake.objects.get(id=event_id)
+    earthquake.inspected_language = locale
 
     task_state = 'FAILURE'
     if analysis_result['status'] == RESULT_SUCCESS:
@@ -294,14 +320,19 @@ def handle_analysis(analysis_result, event_id):
     return analysis_result
 
 
-def generate_earthquake_report(event):
+def generate_earthquake_report(event, locale='en'):
     """Generate report for event.
 
     :param event: event instance
     :type event: Earthquake
     """
-    event.refresh_from_db()
+    event = Earthquake.objects.get(id=event.id)
+    event.inspected_language = locale
     impact_layer_uri = event.impact_file_path
+
+    # do nothing if task result was not ready
+    if not event.analysis_task_result:
+        return
 
     analysis_result = json.loads(event.analysis_task_result)
 
@@ -316,47 +347,54 @@ def generate_earthquake_report(event):
     tasks_chain = chain(
         # Generate report
         generate_report.s(
-            impact_layer_uri, EARTHQUAKE_REPORT_TEMPLATE_EN, layer_order
+            impact_layer_uri, EARTHQUAKE_REPORT_TEMPLATE_EN, layer_order,
+            locale=locale
         ).set(queue=generate_report.queue),
 
         # Handle report
         handle_report.s(
-            event.id
+            event.id,
+            locale=locale
         ).set(queue=handle_report.queue)
     )
 
     @app.task
     def _handle_error(req, exc, traceback):
         """Update task status as Failure."""
-        Earthquake.objects.filter(id=event.id).update(
-            report_task_status='FAILURE')
+        # Earthquake.objects.filter(id=event.id).update(
+        #     report_task_status='FAILURE')
+        report_object = event.report_object
+        report_object.report_task_status = 'FAILURE'
+        report_object.save()
 
     async_result = tasks_chain.apply_async(link_error=_handle_error.s())
 
-    Earthquake.objects.filter(id=event.id).update(
-        report_task_id=async_result.task_id,
-        report_task_status=async_result.state)
+    # Earthquake.objects.filter(id=event.id).update(
+    #     report_task_id=async_result.task_id,
+    #     report_task_status=async_result.state)
+    report_object = event.report_object
+    report_object.report_task_id = async_result.task_id
+    report_object.report_task_status = async_result.state
+    report_object.save()
 
 
 @app.task(queue='inasafe-django')
-def handle_report(report_result, event_id):
+def handle_report(report_result, event_id, locale='en'):
     """Handle report product"""
     earthquake = Earthquake.objects.get(id=event_id)
+    earthquake.inspected_language = locale
+    report_object = earthquake.report_object
 
     # Set the report path if success
     task_state = 'FAILURE'
     if report_result['status'] == RESULT_SUCCESS:
         try:
-            # Create earthquake report object
-            # Set the language manually first
-            earthquake_report = EarthquakeReport(
-                earthquake=earthquake, language='en')
 
             report_path = report_result[
                 'output']['pdf_product_tag']['realtime-earthquake-en']
             with open(report_path, 'rb') as report_file:
-                earthquake_report.report_pdf.save(
-                    earthquake_report.report_map_filename,
+                report_object.report_pdf.save(
+                    report_object.report_map_filename,
                     File(report_file),
                     save=True)
                 earthquake.refresh_from_db()
@@ -366,8 +404,11 @@ def handle_report(report_result, event_id):
     else:
         LOGGER.error(report_result['message'])
 
-    Earthquake.objects.filter(id=earthquake.id).update(
-        report_task_status=task_state,
-        report_task_result=json.dumps(report_result))
+    # Earthquake.objects.filter(id=earthquake.id).update(
+    #     report_task_status=task_state,
+    #     report_task_result=json.dumps(report_result))
+    report_object.report_task_status = task_state
+    report_object.report_task_result = json.dumps(report_result)
+    report_object.save()
 
     return report_result
