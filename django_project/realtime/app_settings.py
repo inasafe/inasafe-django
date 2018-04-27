@@ -305,6 +305,8 @@ FLOOD_MONITORED_DIRECTORY = os.environ.get(
 
 # Report template contexts
 
+ANALYSIS_LANGUAGES = ['en', 'id']
+
 REPORT_TEMPLATES = {
     'ash': {
         'en': ASH_REPORT_TEMPLATE_EN,

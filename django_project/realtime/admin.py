@@ -1,22 +1,22 @@
 # coding=utf-8
 """Model Admin Class."""
-from django.contrib.admin.sites import AdminSite
-from django.contrib.admin import ModelAdmin
-
 from django.contrib import admin
+from django.contrib.admin import ModelAdmin, StackedInline
+from django.contrib.admin.sites import AdminSite
+from django.contrib.contenttypes.admin import GenericStackedInline
 from django.contrib.flatpages.admin import FlatPageAdmin
 from django.contrib.flatpages.models import FlatPage
-
 from leaflet.admin import LeafletGeoAdmin
-from realtime.forms.report_template import ReportTemplate
 
 from realtime.forms.coreflatpage import CoreFlatPageForm
+from realtime.forms.report_template import ReportTemplate
+from realtime.models.ash import Ash, AshReport
 from realtime.models.coreflatpage import CoreFlatPage
 from realtime.models.earthquake import Earthquake, EarthquakeReport, \
     EarthquakeMMIContour
 from realtime.models.flood import Boundary, Flood, FloodEventBoundary, \
     FloodReport
-from realtime.models.ash import Ash, AshReport
+from realtime.models.impact import Impact
 from realtime.models.volcano import Volcano
 
 
@@ -54,12 +54,43 @@ class RealtimeAdminSite(AdminSite):
 realtime_admin_site = RealtimeAdminSite(name='realtime_admin')
 
 
+class ImpactAdmin(ModelAdmin):
+    """Admin Class for Impact Model."""
+    list_display = (
+        'id',
+        'content_object_url_link',
+        'content_type', 'language', 'impact_file_path', 'analysis_task_id',
+        'analysis_task_status', 'analysis_task_result')
+
+    def content_object_url_link(self, instance):
+        return '<a href="{url}">{repr}</a>'.format(
+            url=instance.content_object_url(),
+            repr=str(instance.content_object))
+    content_object_url_link.allow_tags = True
+
+
+class ImpactInline(GenericStackedInline):
+    """Inline Admin Class for Impact Model."""
+    model = Impact
+    extra = 0
+
+
+class EarthquakeReportInline(StackedInline):
+    """Inline Admin class for Earthquake Report Model."""
+    model = EarthquakeReport
+    extra = 0
+
+
 class EarthquakeAdmin(LeafletGeoAdmin):
     """Admin Class for Earthquake Model."""
     list_display = ('shake_id', 'source_type', 'time', 'location_description',
                     'magnitude', 'depth')
     list_filter = ('location_description', )
     search_fields = ['shake_id', 'location_description']
+    inlines = [
+        ImpactInline,
+        EarthquakeReportInline,
+    ]
 
 
 class EarthquakeReportAdmin(ModelAdmin):
@@ -126,6 +157,7 @@ class ReportTemplateAdmin(ModelAdmin):
     list_filter = ('hazard', 'language')
 
 
+realtime_admin_site.register(Impact, ImpactAdmin)
 realtime_admin_site.register(Earthquake, EarthquakeAdmin)
 realtime_admin_site.register(EarthquakeReport, EarthquakeReportAdmin)
 realtime_admin_site.register(EarthquakeMMIContour, EarthquakeMMIContourAdmin)

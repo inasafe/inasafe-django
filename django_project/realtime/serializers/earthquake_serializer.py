@@ -137,8 +137,7 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
             'shake_id',
             'shake_grid',
             'shake_grid_download_url',
-            'mmi_output',
-            'analysis_zip_download_url',
+            # 'mmi_output',
             'magnitude',
             'time',
             'depth',
@@ -149,7 +148,8 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
             'event_id_formatted',
             'grid_xml_filename',
             'has_corrected',
-            'mmi_layer_saved')
+            'mmi_layer_saved'
+        )
 
 
 class EarthquakeMMIContourGeoJSONSerializer(GeoFeatureModelSerializer):
