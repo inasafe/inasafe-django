@@ -327,6 +327,12 @@ class BaseEventModel(ImpactMixin, ReportMixin, models.Model):
         blank=True)
 
     @property
+    def event_id_formatted(self):
+        """Return a formatted event id of hazard."""
+        raise NotImplementedError(
+            'Please implement formatted event id on inherited models.')
+
+    @property
     def hazard_layer_exists(self):
         """Return bool to indicate existences of hazard layer"""
         if self.hazard_path:

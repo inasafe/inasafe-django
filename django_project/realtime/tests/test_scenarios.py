@@ -7,13 +7,12 @@ import re
 import shutil
 import sys
 import time
-from functools import wraps
-
-import timeout_decorator
 import unittest
 from datetime import datetime
+from functools import wraps
 
 import pytz
+import timeout_decorator
 from django import test
 from django.apps import apps
 from django.core.files.base import File
@@ -21,37 +20,30 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import activate
 from rest_framework import status
 
+from core.celery_app import app as django_app
 from realtime.app_settings import (
     EARTHQUAKE_MONITORED_DIRECTORY,
     LOGGER_NAME,
     REALTIME_HAZARD_DROP, ON_TRAVIS, EARTHQUAKE_CORRECTED_MONITORED_DIRECTORY,
     ANALYSIS_LANGUAGES)
 from realtime.models import FloodEventBoundary
-from realtime.models.ash import Ash
+from realtime.models.ash import Ash, AshReport
 from realtime.models.earthquake import Earthquake, EarthquakeReport
 from realtime.models.flood import Flood, BoundaryAlias, FloodReport, \
     ImpactEventBoundary
 from realtime.models.impact import Impact
 from realtime.models.volcano import Volcano
-from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
-    EarthquakeMMIContourGeoJSONSerializer
-from realtime.tasks import RESULT_SUCCESS
+from realtime.serializers.earthquake_serializer import EarthquakeSerializer
 from realtime.tasks.flood import create_flood_report
-from core.celery_app import app as django_app
-from realtime.tasks.realtime.celery_app import app as realtime_app
 from realtime.tasks.headless.celery_app import app as headless_app
+from realtime.tasks.realtime.celery_app import app as realtime_app
 from realtime.tasks.realtime.flood import process_flood
-
-__copyright__ = "Copyright 2016, The InaSAFE Project"
-__license__ = "GPL version 3"
-__email__ = "info@inasafe.org"
-__revision__ = ':%H$'
 
 
 LOGGER = logging.getLogger(LOGGER_NAME)
 
 
-FULL_SCENARIO_TEST_CONDITION =(
+FULL_SCENARIO_TEST_CONDITION = (
     # It needs realtime_app worker
     realtime_app.control.ping() and
     # It needs headless_app worker
@@ -119,7 +111,7 @@ class HazardScenarioBaseTestCase(test.LiveServerTestCase):
         """Get filename from content-disposition header."""
         if not response.has_header('content-disposition'):
             return None
-        pattern = r'filename="(?P<filename>[\w\-_.]+)"'
+        pattern = r'filename="(?P<filename>[\w\+\-_.]+)"'
         content_disposition = response['content-disposition']
         match = re.search(pattern, content_disposition)
         return match.group('filename')
@@ -392,8 +384,7 @@ class TestFloodTasks(HazardScenarioBaseTestCase):
             """This method will always loop until it succeeds.
 
             :type self: HazardScenarioBaseTestCase
-            :type shake_id: str
-            :type source_type: str
+            :type event_id: str
             """
             event = Flood.objects.get(event_id=event_id)
             ":type: Flood"
@@ -438,7 +429,6 @@ class TestFloodTasks(HazardScenarioBaseTestCase):
 
         for lang in ANALYSIS_LANGUAGES:
             flood_event.inspected_language = lang
-
 
             self.assertTrue(flood_event.impact_layer_exists)
             self.assertFalse(flood_event.need_run_analysis)
@@ -501,36 +491,23 @@ class TestFloodTasks(HazardScenarioBaseTestCase):
 
 
 @unittest.skipUnless(
-    FULL_SCENARIO_TEST_CONDITION and False,
+    FULL_SCENARIO_TEST_CONDITION,
     'All Workers needs to be run')
-class TestAshTasks(test.LiveServerTestCase):
-
-    def setUp(self):
-        super(TestAshTasks, self).setUp()
-        app_config = apps.get_app_config('realtime')
-        app_config.create_rest_group()
-        app_config.ready()
-
-    @staticmethod
-    def fixtures_path(*path):
-        return os.path.abspath(
-            os.path.join(
-                os.path.dirname(__file__),
-                '../tasks/realtime/test/fixtures', *path))
+class TestAshTasks(HazardScenarioBaseTestCase):
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     def test_process_ash(self):
         """Test generating ash hazard."""
         # Create an ash object
-        volcano = Volcano.objects.get(volcano_name='Merapi')
+        volcano = Volcano.objects.get(volcano_name='Sinabung')
 
         time_zone = pytz.timezone('Asia/Jakarta')
-        event_time = datetime(2017, 2, 21, 12, 4, tzinfo=pytz.utc)
+        event_time = datetime(2018, 3, 23, 16, 36, tzinfo=pytz.utc)
         event_time = event_time.astimezone(time_zone)
 
         ash = Ash.objects.create(
             hazard_file=File(open(self.fixtures_path(
-                '201702211204+0000_Merapi-hazard.tif'))),
+                '201803231636+0700_Sinabung-hazard.tif'))),
             volcano=volcano,
             alert_level='normal',
             event_time=event_time,
@@ -539,35 +516,108 @@ class TestAshTasks(test.LiveServerTestCase):
             eruption_height=100,
             forecast_duration=3)
 
-        # wait until hazard file is processed
-        while not ash.hazard_layer_exists:
-            ash.refresh_from_db()
-            LOGGER.info('Waiting for Realtime Hazard Push')
-            time.sleep(5)
+        # Assumming all process runs normally we should expects all asserts
+        # will eventually passed.
+        bigint = sys.maxint
+        kwargs = {
+            'exception': BaseException,
+            'tries': bigint,
+            'delay': 5,
+            'backoff': 1,
+            'logger': LOGGER
+        }
 
-        # Check hazard information pushed to db
-        self.assertTrue(ash.hazard_layer_exists)
+        @retry(**kwargs)
+        def loop_check(self, event_id):
+            """This method will always loop until it succeeds.
 
-        # wait until analysis were processed
-        while not ash.impact_layer_exists:
-            ash.refresh_from_db()
-            LOGGER.info('Waiting for Headless Analysis')
-            time.sleep(5)
+            :type self: HazardScenarioBaseTestCase
+            :type event_id: str
+            """
+            event = Ash.objects.get(id=event_id)
+            ":type: Ash"
 
-        # Check impact location
-        self.assertTrue(ash.impact_layer_exists)
+            # Check that report is generated
+            for lang in ANALYSIS_LANGUAGES:
 
-        # Check analysis status
-        self.assertEqual(ash.analysis_task_result['status'], RESULT_SUCCESS)
+                event.inspected_language = lang
 
-        # wait until reports were generated
-        while not ash.has_reports > 0:
-            ash.refresh_from_db()
-            LOGGER.info('Waiting for Headless Report')
-            time.sleep(5)
+                # Report must be generated
+                self.assertTrue(event.hazard_layer_exists)
+                self.assertTrue(event.has_reports)
+                self.assertFalse(event.need_generate_reports)
 
-        # Check reports exists
-        self.assertTrue(ash.has_reports)
-        self.assertEqual(ash.reports.first().report_map)
+            return event
+
+        event = loop_check(self, ash.id)
+        event.refresh_from_db()
+
+        self.assertTrue(event.hazard_layer_exists)
+
+        for lang in ANALYSIS_LANGUAGES:
+            event.inspected_language = lang
+
+            self.assertTrue(event.impact_layer_exists)
+            self.assertFalse(event.need_run_analysis)
+
+            # Report must be generated
+            self.assertTrue(event.has_reports)
+            self.assertFalse(event.need_generate_reports)
+
+            # Check django views
+            activate(lang)
+
+            # Download Flood hazard
+            ash_detail_url = reverse(
+                'realtime:ash_detail',
+                kwargs={
+                    'volcano_name': event.volcano.volcano_name,
+                    'event_time': event.event_time_formatted
+                }
+            )
+            params = {
+                'format': 'json'
+            }
+
+            response = self.assertContentView(
+                ash_detail_url,
+                params)
+
+            ash_data = json.loads(response.content)
+
+            ash_hazard_url = ash_data['hazard_file']
+            response = self.assertContentView(ash_hazard_url)
+
+            self.assertEqual(
+                response['content-type'],
+                'image/tiff')
+            self.assertEqual(
+                int(response['content-length']),
+                event.hazard_file.size)
+
+            # Download Report
+            report_download_url = reverse(
+                'realtime:ash_report_map',
+                kwargs={
+                    'volcano_name': event.volcano.volcano_name,
+                    'event_time': event.event_time_formatted,
+                    'language': lang
+                }
+            )
+
+            response = self.assertContentView(report_download_url)
+
+            self.assertEqual(
+                response['content-type'], 'application/pdf')
+            self.assertEqual(
+                self.content_disposition_filename(response),
+                event.canonical_report_filename)
+            self.assertEqual(
+                len(response.content),
+                event.canonical_report_pdf.size)
 
         ash.delete()
+
+        self.assertEqual(0, Ash.objects.all().count())
+        self.assertEqual(0, Impact.objects.all().count())
+        self.assertEqual(0, AshReport.objects.all().count())

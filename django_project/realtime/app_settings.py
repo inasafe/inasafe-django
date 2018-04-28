@@ -160,6 +160,10 @@ except OSError as e:
         raise
 
 # ASH Report Event ID Format
+ASH_EVENT_TIME_FORMAT = getattr(
+    settings,
+    'ASH_EVENT_TIME_FORMAT',
+    '{event_time:%Y%m%d%H%M%S%z}')
 ASH_EVENT_ID_FORMAT = getattr(
     settings,
     'ASH_EVENT_ID_FORMAT',

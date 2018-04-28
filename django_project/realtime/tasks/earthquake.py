@@ -219,15 +219,11 @@ def run_earthquake_analysis(event, locale='en'):
     @app.task
     def _handle_error(req, exc, traceback):
         """Update task status as Failure."""
-        impact_object = event.impact_object
-        impact_object.analysis_task_status = 'FAILURE'
-        impact_object.save()
+        event.analysis_task_status = 'FAILURE'
 
     async_result = tasks_chain.apply_async(link_error=_handle_error.s())
-    impact_object = event.impact_object
-    impact_object.analysis_task_id = async_result.task_id
-    impact_object.analysis_task_status = async_result.state
-    impact_object.save()
+    event.analysis_task_id = async_result.task_id
+    event.analysis_task_status = async_result.state
 
 
 @app.task(queue='inasafe-django')
@@ -356,16 +352,12 @@ def generate_earthquake_report(event, locale='en'):
     @app.task
     def _handle_error(req, exc, traceback):
         """Update task status as Failure."""
-        report_object = event.report_object
-        report_object.report_task_status = 'FAILURE'
-        report_object.save()
+        event.report_task_status = 'FAILURE'
 
     async_result = tasks_chain.apply_async(link_error=_handle_error.s())
 
-    report_object = event.report_object
-    report_object.report_task_id = async_result.task_id
-    report_object.report_task_status = async_result.state
-    report_object.save()
+    event.report_task_id = async_result.task_id
+    event.report_task_status = async_result.status
 
 
 @app.task(queue='inasafe-django')

@@ -153,6 +153,10 @@ class Flood(BaseEventModel):
         return 'Flood event & interval: %s - %s' % (self.time, self.interval)
 
     @property
+    def event_id_formatted(self):
+        return self.event_id
+
+    @property
     def reports_queryset(self):
         return self.reports
 

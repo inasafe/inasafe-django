@@ -103,7 +103,6 @@ class Earthquake(BaseEventModel):
             'Cache flag to tell that this shakemap already saved its '
             'contours.'),
         default=False)
-    BaseEventModel.impacts.related_query_name = 'earthquake'
 
     objects = models.GeoManager()
 

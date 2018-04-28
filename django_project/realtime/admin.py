@@ -141,11 +141,21 @@ class FloodReportAdmin(ModelAdmin):
     list_display = ('flood', 'language', 'impact_map')
 
 
+class AshReportInline(StackedInline):
+    """Inline Admin class for Ash Report Model."""
+    model = AshReport
+    extra = 0
+
+
 class AshAdmin(ModelAdmin):
     """Admin class for Ash model"""
     list_display = ('volcano', 'alert_level', 'event_time',
                     'event_time_zone_string', 'eruption_height',
                     'forecast_duration')
+    inlines = [
+        ImpactInline,
+        AshReportInline
+    ]
 
 
 class AshReportAdmin(ModelAdmin):
