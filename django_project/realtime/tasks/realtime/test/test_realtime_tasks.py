@@ -1,6 +1,5 @@
 # coding=utf-8
 import errno
-import json
 import logging
 import os
 import shutil
@@ -13,8 +12,6 @@ import timeout_decorator
 from django import test
 from django.apps import apps
 from django.core.files.base import File
-from django.core.urlresolvers import reverse
-from rest_framework import status
 
 from realtime.app_settings import (
     EARTHQUAKE_MONITORED_DIRECTORY,
@@ -24,7 +21,6 @@ from realtime.models.ash import Ash
 from realtime.models.earthquake import Earthquake
 from realtime.models.flood import Flood, BoundaryAlias
 from realtime.models.volcano import Volcano
-from realtime.serializers.earthquake_serializer import EarthquakeSerializer
 from realtime.tasks.flood import create_flood_report
 from realtime.tasks.realtime.celery_app import app as realtime_app
 from realtime.tasks.realtime.flood import process_flood
@@ -186,21 +182,6 @@ class TestEarthquakeTasks(test.LiveServerTestCase):
         self.assertTrue(initial_event.has_corrected)
         target_event.refresh_from_db()
         self.assertEqual(target_event, initial_event.corrected_shakemaps)
-
-        # Check django view return correct object
-        response = self.client.get(
-            reverse('realtime:shake_corrected', kwargs={
-                'shake_id': initial_event.shake_id,
-            }))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        actual_value = json.loads(response.content)
-        # omit shake grid field because it is not a file
-        actual_value.pop('shake_grid')
-
-        eq_serializer = EarthquakeSerializer(target_event)
-        expected_value = json.loads(json.dumps(eq_serializer.data))
-        expected_value.pop('shake_grid')
-        self.assertEqual(actual_value, expected_value)
 
         initial_event.delete()
         target_event.delete()

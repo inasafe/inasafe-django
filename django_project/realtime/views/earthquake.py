@@ -534,7 +534,7 @@ def get_grid_xml(request, shake_id, source_type):
                 shake.shake_grid.read(),
                 content_type='application/octet-stream')
             response['Content-Disposition'] = \
-                'inline; filename="%s-grid.xml"' % shake_id
+                'inline; filename="{0}"'.format(shake.grid_xml_filename)
         elif shake.shake_grid_xml:
             response = HttpResponse(
                 shake.shake_grid_xml,
