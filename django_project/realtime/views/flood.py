@@ -321,7 +321,7 @@ def flood_impact_map(request, event_id, language='en'):
         response = HttpResponse(
             instance.impact_map.read(),
             content_type='application/pdf')
-        response['Content-Disposition'] = 'inline; filename={0};'.format(
+        response['Content-Disposition'] = 'inline; filename="{0}";'.format(
             instance.impact_map_filename)
         return response
     except FloodReport.DoesNotExist:

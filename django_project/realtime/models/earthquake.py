@@ -1,17 +1,14 @@
 # coding=utf-8
 """Model class for earthquake realtime."""
-import json
 import os
 
-from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from realtime.app_settings import EARTHQUAKE_EVENT_REPORT_FORMAT, \
     EARTHQUAKE_EVENT_ID_FORMAT
-from realtime.models.impact import Impact
-from realtime.models.mixins import MultiLanguageMixin, BaseEventModel
+from realtime.models.mixins import BaseEventModel
 from realtime.models.report import BaseEventReportModel
 from realtime.utils import split_layer_ext
 
@@ -372,6 +369,10 @@ class EarthquakeReport(BaseEventReportModel):
     @property
     def event(self):
         return self.earthquake
+
+    @event.setter
+    def event(self, value):
+        self.earthquake = value
 
     @property
     def canonical_report_pdf(self):

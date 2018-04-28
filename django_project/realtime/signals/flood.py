@@ -4,7 +4,7 @@ import logging
 from django.db.models.signals import post_save
 from django.dispatch.dispatcher import receiver
 
-from realtime.app_settings import LOGGER_NAME
+from realtime.app_settings import LOGGER_NAME, ANALYSIS_LANGUAGES
 from realtime.models.flood import Flood
 from realtime.tasks.flood import generate_event_report
 
@@ -31,6 +31,7 @@ def flood_post_save(
             if field in update_fields:
                 break
         else:
-            generate_event_report.delay(instance)
+            for lang in ANALYSIS_LANGUAGES:
+                generate_event_report.delay(instance, locale=lang)
     except Exception as e:
         LOGGER.exception(e)

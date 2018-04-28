@@ -1,12 +1,12 @@
 # coding=utf-8
 """Model class for flood realtime."""
 
-import json
-import os
-
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+
+from realtime.models.mixins import BaseEventModel
+from realtime.models.report import BaseEventReportModel
 
 
 class BoundaryAlias(models.Model):
@@ -74,8 +74,9 @@ class Boundary(models.Model):
         return self.name
 
 
-class Flood(models.Model):
+class Flood(BaseEventModel):
     """Flood model."""
+
     class Meta:
         """Meta class."""
         app_label = 'realtime'
@@ -140,64 +141,6 @@ class Flood(models.Model):
         verbose_name=_('Total boundary flooded'),
         help_text=_('Total boundary affected by flood'),
         default=0)
-    hazard_path = models.CharField(
-        verbose_name=_('Hazard Layer path'),
-        help_text=_('Location of hazard layer'),
-        max_length=255,
-        default=None,
-        null=True,
-        blank=True)
-    inasafe_version = models.CharField(
-        verbose_name=_('InaSAFE version'),
-        help_text=_('InaSAFE version being used'),
-        max_length=10,
-        default=None,
-        null=True,
-        blank=True)
-    analysis_task_id = models.CharField(
-        verbose_name=_('Analysis celery task id'),
-        help_text=_('Task id for running analysis'),
-        max_length=255,
-        default='',
-        blank=True)
-    analysis_task_status = models.CharField(
-        verbose_name=_('Analysis celery task status'),
-        help_text=_('Task status for running analysis'),
-        max_length=30,
-        default='None',
-        blank=True)
-    analysis_task_result = models.TextField(
-        verbose_name=_('Analysis celery task result'),
-        help_text=_('Task result of analysis run'),
-        default='',
-        blank=True,
-        null=True)
-    report_task_id = models.CharField(
-        verbose_name=_('Report celery task id'),
-        help_text=_('Task id for creating analysis report.'),
-        max_length=255,
-        default='',
-        blank=True)
-    report_task_status = models.CharField(
-        verbose_name=_('Report celery task status'),
-        help_text=_('Task status for creating analysis report.'),
-        max_length=30,
-        default='None',
-        blank=True)
-    report_task_result = models.TextField(
-        verbose_name=_('Report celery task result'),
-        help_text=_('Task result of report generation'),
-        default='',
-        blank=True,
-        null=True)
-    impact_file_path = models.CharField(
-        verbose_name=_('Impact File path'),
-        help_text=_('Location of impact file.'),
-        max_length=255,
-        default=None,
-        blank=True,
-        null=True
-    )
 
     objects = models.GeoManager()
 
@@ -210,56 +153,12 @@ class Flood(models.Model):
         return 'Flood event & interval: %s - %s' % (self.time, self.interval)
 
     @property
-    def hazard_layer_exists(self):
-        """Return bool to indicate existences of hazard layer"""
-        if self.hazard_path:
-            return os.path.exists(self.hazard_path)
-        return False
+    def reports_queryset(self):
+        return self.reports
 
     @property
-    def has_reports(self):
-        """Check if the ash object has report or not."""
-        if FloodReport.objects.filter(flood=self):
-            return True
-        else:
-            return False
-
-    @property
-    def impact_layer_exists(self):
-        """Return bool to indicate existences of impact layers"""
-        if self.impact_file_path:
-            return os.path.exists(self.impact_file_path)
-        return False
-
-    @property
-    def need_run_analysis(self):
-        if (self.analysis_task_status and
-                not self.analysis_task_status == 'None'):
-            return False
-        return True
-
-    @property
-    def need_generate_reports(self):
-        if (self.report_task_status and
-                not self.report_task_status == 'None'):
-            return False
-        return True
-
-    @property
-    def analysis_result(self):
-        """Return dict of analysis result."""
-        try:
-            return json.loads(self.analysis_task_result)
-        except (TypeError, ValueError):
-            return {}
-
-    @property
-    def report_result(self):
-        """Return dict of report result."""
-        try:
-            return json.loads(self.report_task_result)
-        except (TypeError, ValueError):
-            return {}
+    def report_class(self):
+        return FloodReport
 
     @property
     def flood_data_download_url(self):
@@ -270,39 +169,8 @@ class Flood(models.Model):
             })
         return 'Flood data is empty: %s' % self.flood_data
 
-    def rerun_report_generation(self):
-        """Rerun Report Generations"""
 
-        # Delete existing reports
-        reports = self.reports.all()
-
-        for r in reports:
-            r.delete()
-
-        self.report_task_result = ''
-        self.report_task_status = ''
-        self.save()
-
-    def rerun_analysis(self):
-        """Rerurn Analysis"""
-
-        # Delete existing reports
-        reports = self.reports.all()
-
-        for r in reports:
-            r.delete()
-
-        self.report_task_result = ''
-        self.report_task_status = ''
-
-        # Reset analysis state
-        self.impact_file_path = ''
-        self.analysis_task_result = ''
-        self.analysis_task_status = ''
-        self.save()
-
-
-class FloodReport(models.Model):
+class FloodReport(BaseEventReportModel):
     """Flood Report models"""
 
     class Meta:
@@ -313,12 +181,6 @@ class FloodReport(models.Model):
     flood = models.ForeignKey(
         Flood,
         related_name='reports')
-    language = models.CharField(
-        verbose_name=_('Language ID'),
-        help_text=_('The language ID of the report'),
-        max_length=4,
-        default='id'
-    )
     impact_report = models.FileField(
         blank=True,
         verbose_name=_('Impact Report'),
@@ -329,6 +191,22 @@ class FloodReport(models.Model):
         verbose_name=_('Impact Map'),
         help_text=_('Impact Map file in PDF'),
         upload_to='reports/flood/pdf')
+
+    @property
+    def event(self):
+        return self.flood
+
+    @event.setter
+    def event(self, value):
+        self.flood = value
+
+    @property
+    def canonical_report_pdf(self):
+        return self.impact_map
+
+    @property
+    def canonical_report_filename(self):
+        return self.impact_map_filename
 
     @property
     def impact_report_url(self):

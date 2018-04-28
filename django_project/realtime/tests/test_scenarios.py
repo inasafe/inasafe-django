@@ -26,9 +26,12 @@ from realtime.app_settings import (
     LOGGER_NAME,
     REALTIME_HAZARD_DROP, ON_TRAVIS, EARTHQUAKE_CORRECTED_MONITORED_DIRECTORY,
     ANALYSIS_LANGUAGES)
+from realtime.models import FloodEventBoundary
 from realtime.models.ash import Ash
-from realtime.models.earthquake import Earthquake
-from realtime.models.flood import Flood, BoundaryAlias
+from realtime.models.earthquake import Earthquake, EarthquakeReport
+from realtime.models.flood import Flood, BoundaryAlias, FloodReport, \
+    ImpactEventBoundary
+from realtime.models.impact import Impact
 from realtime.models.volcano import Volcano
 from realtime.serializers.earthquake_serializer import EarthquakeSerializer, \
     EarthquakeMMIContourGeoJSONSerializer
@@ -202,7 +205,7 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
 
             response = self.assertContentView(json_obj['report_pdf'])
             self.assertEqual(
-                event.report_object.report_pdf.size,
+                event.canonical_report_pdf.size,
                 int(response['content-length']))
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
@@ -253,10 +256,10 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
         }
 
         @retry(**kwargs)
-        def loop_check(test_obj, shake_id, source_type):
+        def loop_check(self, shake_id, source_type):
             """This method will always loop until it succeeds.
 
-            :type test_obj: HazardScenarioBaseTestCase
+            :type self: HazardScenarioBaseTestCase
             :type shake_id: str
             :type source_type: str
             """
@@ -322,6 +325,179 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
         expected_value = json.loads(json.dumps(eq_serializer.data))
         expected_value.pop('shake_grid')
         self.assertEqual(actual_value, expected_value)
+
+        initial_event.delete()
+        corrected_event.delete()
+
+        # Make sure reports and impacts were also deleted.
+        self.assertEqual(0, Earthquake.objects.all().count())
+        self.assertEqual(0, Impact.objects.all().count())
+        self.assertEqual(0, EarthquakeReport.objects.all().count())
+
+
+@unittest.skipUnless(
+    FULL_SCENARIO_TEST_CONDITION,
+    'All Workers needs to be run')
+class TestFloodTasks(HazardScenarioBaseTestCase):
+
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipIf(
+        ON_TRAVIS,
+        'We do not want to abuse PetaBencana Server.')
+    def test_create_flood_report(self):
+        """Test Create Flood report task"""
+        create_flood_report()
+
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    def test_process_flood_manually(self):
+        """Test process flood with existing flood json."""
+        # check boundary alias exists
+        self.assertTrue(BoundaryAlias.objects.all().count() > 0)
+
+        flood_json = self.fixtures_path('flood_data.json')
+
+        drop_location = os.path.join(
+            REALTIME_HAZARD_DROP,
+            'flood_data.json')
+
+        try:
+            os.makedirs(os.path.dirname(drop_location))
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+                pass
+
+        shutil.copy(flood_json, drop_location)
+
+        process_flood.delay(
+            flood_id='2018022511-6-rw',
+            data_source='hazard_file',
+            data_source_args={
+                'filename': drop_location
+            }
+        )
+
+        # Assumming all process runs normally we should expects all asserts
+        # will eventually passed.
+        bigint = sys.maxint
+        kwargs = {
+            'exception': BaseException,
+            'tries': bigint,
+            'delay': 5,
+            'backoff': 1,
+            'logger': LOGGER
+        }
+
+        @retry(**kwargs)
+        def loop_check(self, event_id):
+            """This method will always loop until it succeeds.
+
+            :type self: HazardScenarioBaseTestCase
+            :type shake_id: str
+            :type source_type: str
+            """
+            event = Flood.objects.get(event_id=event_id)
+            ":type: Flood"
+
+            # Check that report is generated
+            for lang in ANALYSIS_LANGUAGES:
+
+                event.inspected_language = lang
+
+                # Report must be generated
+                self.assertTrue(event.has_reports)
+                self.assertFalse(event.need_generate_reports)
+
+            return event
+
+        flood_event = loop_check(self, '2018022511-6-rw')
+        flood_event.refresh_from_db()
+
+        self.assertTrue(flood_event.hazard_layer_exists)
+        self.assertEqual(161, flood_event.boundary_flooded)
+        self.assertEqual(1282437, flood_event.total_affected)
+        self.assertTrue(flood_event.flooded_boundaries.all())
+
+        self.assertEqual(
+            0,
+            flood_event.flooded_boundaries.filter(
+                flood_event__hazard_data=0).count())
+        self.assertEqual(
+            3,
+            flood_event.flooded_boundaries.filter(
+                flood_event__hazard_data=1).count())
+        self.assertEqual(
+            151,
+            flood_event.flooded_boundaries.filter(
+                flood_event__hazard_data=2).count())
+        self.assertEqual(
+            7,
+            flood_event.flooded_boundaries.filter(
+                flood_event__hazard_data=3).count())
+
+        self.assertEqual(614, flood_event.impact_event.count())
+
+        for lang in ANALYSIS_LANGUAGES:
+            flood_event.inspected_language = lang
+
+
+            self.assertTrue(flood_event.impact_layer_exists)
+            self.assertFalse(flood_event.need_run_analysis)
+
+            # Report must be generated
+            self.assertTrue(flood_event.has_reports)
+            self.assertFalse(flood_event.need_generate_reports)
+
+            # Check django views
+            activate(lang)
+
+            # Download Flood hazard
+            flood_hazard_download_url = reverse(
+                'realtime:flood_data',
+                kwargs={
+                    'event_id': flood_event.event_id
+                }
+            )
+            params = {
+                'format': 'json'
+            }
+
+            response = self.assertContentView(
+                flood_hazard_download_url,
+                params)
+
+            flood_data = json.loads(response.content)
+            self.assertEqual(
+                flood_event.flooded_boundaries.all().count(),
+                len(flood_data['features']))
+
+            # Download Report
+            report_download_url = reverse(
+                'realtime:flood_impact_map',
+                kwargs={
+                    'event_id': flood_event.event_id,
+                    'language': lang
+                }
+            )
+
+            response = self.assertContentView(report_download_url)
+
+            self.assertEqual(
+                response['content-type'], 'application/pdf')
+            self.assertEqual(
+                self.content_disposition_filename(response),
+                flood_event.canonical_report_filename)
+            self.assertEqual(
+                len(response.content),
+                flood_event.canonical_report_pdf.size)
+
+        flood_event.delete()
+
+        # Make sure reports and impacts were also deleted.
+        self.assertEqual(0, Flood.objects.all().count())
+        self.assertEqual(0, Impact.objects.all().count())
+        self.assertEqual(0, FloodEventBoundary.objects.all().count())
+        self.assertEqual(0, ImpactEventBoundary.objects.all().count())
+        self.assertEqual(0, FloodReport.objects.all().count())
 
 
 @unittest.skipUnless(
