@@ -19,7 +19,7 @@ from core.celery_app import app
 from realtime.app_settings import LOGGER_NAME, FELT_EARTHQUAKE_URL, \
     EARTHQUAKE_EXPOSURES, EARTHQUAKE_AGGREGATION, \
     EARTHQUAKE_LAYER_ORDER, GRID_FILE_DEFAULT_NAME, \
-    EARTHQUAKE_REPORT_TEMPLATE_EN, ANALYSIS_LANGUAGES
+    EARTHQUAKE_REPORT_TEMPLATE_EN
 from realtime.helpers.inaware import InAWARERest
 from realtime.models.earthquake import Earthquake, EarthquakeMMIContour
 from realtime.tasks.headless.inasafe_wrapper import \
@@ -219,16 +219,11 @@ def run_earthquake_analysis(event, locale='en'):
     @app.task
     def _handle_error(req, exc, traceback):
         """Update task status as Failure."""
-        # Earthquake.objects.filter(id=event.id).update(
-        #     analysis_task_status='FAILURE')
         impact_object = event.impact_object
         impact_object.analysis_task_status = 'Failure'
         impact_object.save()
 
     async_result = tasks_chain.apply_async(link_error=_handle_error.s())
-    # Earthquake.objects.filter(id=event.id).update(
-    #     analysis_task_id=async_result.task_id,
-    #     analysis_task_status=async_result.state)
     impact_object = event.impact_object
     impact_object.analysis_task_id = async_result.task_id
     impact_object.analysis_task_status = async_result.state
