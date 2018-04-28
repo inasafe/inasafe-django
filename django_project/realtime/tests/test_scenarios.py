@@ -325,7 +325,7 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
 
 
 @unittest.skipUnless(
-    FULL_SCENARIO_TEST_CONDITION,
+    FULL_SCENARIO_TEST_CONDITION and False,
     'All Workers needs to be run')
 class TestAshTasks(test.LiveServerTestCase):
 
