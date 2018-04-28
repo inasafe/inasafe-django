@@ -34,6 +34,7 @@ script:
   - pushd deployment
   - make check-flake8
   - make coverage-tests
+  - make integration-tests
   - popd
 
 after_script:
@@ -44,6 +45,7 @@ after_script:
 
 after_success:
   - pushd django_project
+  - coverage combine
   # Fix path (codecov.yml doesn't work)
   # Replace parent directory to travis directory, because we are running
   # coverage using docker mount

@@ -163,6 +163,9 @@ Just adapt pgAdmin 3 connection using this information.
 
 
 ### Run Django using Pycharm
+
+For more information on how to use PyCharm features on this project refer to
+[PyCharm Readme](deployment/README-PyCharm.md)
  
 After creating remote docker interpreter for this project, you can use the 
 interpreter to create django configuration.
