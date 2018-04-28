@@ -57,7 +57,7 @@ pull-external-services:
 	@docker-compose -p $(PROJECT_ID) pull headless-worker
 
 coverage-tests:
-	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run --branch --source='.' manage.py test realtime --noinput --liveserver=0.0.0.0:8080 -v 2
+	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test realtime --noinput --liveserver=0.0.0.0:8080 -v 2
 
 build:
 	@echo
