@@ -340,15 +340,11 @@ def run_flood_analysis(flood_event, locale='en'):
     @app.task
     def _handle_error(req, exc, traceback):
         """Update task status as Failure."""
-        impact_object = flood_event.impact_object
-        impact_object.analysis_task_status = 'Failure'
-        impact_object.save()
+        flood_event.analysis_task_status = 'FAILURE'
 
     async_result = tasks_chain.apply_async(link_error=_handle_error.s())
-    impact_object = flood_event.impact_object
-    impact_object.analysis_task_id = async_result.task_id
-    impact_object.analysis_task_status = async_result.state
-    impact_object.save()
+    flood_event.analysis_task_id = async_result.task_id
+    flood_event.analysis_task_status = async_result.state
 
 
 @app.task(queue='inasafe-django')
@@ -364,7 +360,7 @@ def handle_analysis(analysis_result, event_id, locale='en'):
                 'analysis_summary']
 
             task_state = 'SUCCESS'
-            process_impact_layer(flood)
+            process_impact_layer.delay(flood)
         except BaseException as e:
             LOGGER.exception(e)
     else:
@@ -418,16 +414,12 @@ def generate_flood_report(flood_event, locale='en'):
     @app.task
     def _handle_error(req, exc, traceback):
         """Update task status as Failure."""
-        report_object = flood_event.report_object
-        report_object.report_task_status = 'FAILURE'
-        report_object.save()
+        flood_event.report_task_status = 'FAILURE'
 
     async_result = tasks_chain.apply_async(link_error=_handle_error.s())
 
-    report_object = flood_event.report_object
-    report_object.report_task_id = async_result.task_id
-    report_object.report_task_status = async_result.state
-    report_object.save()
+    flood_event.report_task_id = async_result.task_id
+    flood_event.report_task_status = async_result.status
 
 
 @app.task(queue='inasafe-django')
