@@ -19,7 +19,7 @@ down:
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) down
 
-complete-deploy: up wait migrate collectstatic makemessages compilemessages inasafe-worker indicator-worker reload status
+complete-deploy: up wait migrate collectstatic makemessages compilemessages inasafe-worker indicator-worker realtime-worker headless-worker reload status
 
 wait:
 	@echo
@@ -58,6 +58,10 @@ pull-external-services:
 
 coverage-tests:
 	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test realtime --noinput --liveserver=0.0.0.0:8080 -v 2
+
+integration-tests: realtime-worker headless-worker
+	@docker-compose -p $(PROJECT_ID) exec -d -e DJANGO_SETTINGS_MODULE=core.settings.celery_testing uwsgi coverage run -p --branch --source='.' /usr/local/bin/celery -A core.celery_app worker --loglevel=info -Q inasafe-django -n inasafe-django.%h
+	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios
 
 build:
 	@echo
