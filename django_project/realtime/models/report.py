@@ -40,6 +40,12 @@ class BaseEventReportModel(models.Model):
         raise NotImplementedError(
             'Please provide references to related event.')
 
+    @event.setter
+    def event(self, value):
+        """Get reference to related event."""
+        raise NotImplementedError(
+            'Please provide references to related event.')
+
     @property
     def canonical_report_pdf(self):
         """Get reference to canonical Report PDF Field."""
@@ -51,4 +57,3 @@ class BaseEventReportModel(models.Model):
         """Get reference to canonical Report PDF Filename."""
         raise NotImplementedError(
             'Please provide references to canonical Report PDF Filename.')
-

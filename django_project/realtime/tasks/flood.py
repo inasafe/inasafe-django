@@ -20,7 +20,6 @@ from realtime.app_settings import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME, \
 from realtime.models.flood import (
     Flood,
     FloodEventBoundary,
-    FloodReport,
     Boundary,
     BoundaryAlias,
     ImpactEventBoundary)
@@ -278,13 +277,14 @@ def create_flood_report():
 
 
 @app.task(queue='inasafe-django')
-def generate_event_report(flood_event):
+def generate_event_report(flood_event, locale='en'):
     """Generate Flood report
 
     :param flood_event: Flood event instance
     :type flood_event: Flood
     :return:
     """
+    flood_event.inspected_language = locale
     if not flood_event.flood_data and flood_event.hazard_layer_exists:
         with open(flood_event.hazard_path) as f:
             flood_data = f.read()
@@ -300,23 +300,24 @@ def generate_event_report(flood_event):
             not flood_event.impact_layer_exists and
             flood_event.need_run_analysis):
 
-        run_flood_analysis(flood_event)
+        run_flood_analysis(flood_event, locale)
 
     elif (flood_event.hazard_layer_exists and
             flood_event.impact_layer_exists and
             not flood_event.has_reports and
             flood_event.need_generate_reports):
 
-        generate_flood_report(flood_event)
+        generate_flood_report(flood_event, locale)
 
 
-def run_flood_analysis(flood_event):
+def run_flood_analysis(flood_event, locale='en'):
     """Run flood analysis.
 
     :param flood_event: Flood event instance
     :type flood_event: Flood
     """
     flood_event.refresh_from_db()
+    flood_event.inspected_language = locale
 
     hazard_layer_uri = flood_event.hazard_path
 
@@ -326,39 +327,41 @@ def run_flood_analysis(flood_event):
             hazard_layer_uri,
             FLOOD_EXPOSURE,
             FLOOD_AGGREGATION,
+            locale=locale
         ).set(queue=run_analysis.queue),
 
         # Handle analysis product
         handle_analysis.s(
-            flood_event.id
+            flood_event.id,
+            locale=locale
         ).set(queue=handle_analysis.queue)
     )
 
     @app.task
     def _handle_error(req, exc, traceback):
         """Update task status as Failure."""
-        Flood.objects.filter(id=flood_event.id).update(
-            analysis_task_status='FAILURE')
+        impact_object = flood_event.impact_object
+        impact_object.analysis_task_status = 'Failure'
+        impact_object.save()
 
     async_result = tasks_chain.apply_async(link_error=_handle_error.s())
-    Flood.objects.filter(id=flood_event.id).update(
-        analysis_task_id=async_result.task_id,
-        analysis_task_status=async_result.state)
+    impact_object = flood_event.impact_object
+    impact_object.analysis_task_id = async_result.task_id
+    impact_object.analysis_task_status = async_result.state
+    impact_object.save()
 
 
 @app.task(queue='inasafe-django')
-def handle_analysis(analysis_result, event_id):
+def handle_analysis(analysis_result, event_id, locale='en'):
     """Handle analysis products"""
     flood = Flood.objects.get(id=event_id)
+    flood.inspected_language = locale
 
     task_state = 'FAILURE'
     if analysis_result['status'] == RESULT_SUCCESS:
         try:
             flood.impact_file_path = analysis_result['output'][
                 'analysis_summary']
-
-            Flood.objects.filter(id=event_id).update(
-                impact_file_path=flood.impact_file_path)
 
             task_state = 'SUCCESS'
             process_impact_layer(flood)
@@ -374,13 +377,14 @@ def handle_analysis(analysis_result, event_id):
     return analysis_result
 
 
-def generate_flood_report(flood_event):
+def generate_flood_report(flood_event, locale='en'):
     """Generate ash report for flood event.
 
     :param flood_event: Flood event instance
     :type flood_event: Flood
     """
     flood_event.refresh_from_db()
+    flood_event.inspected_language = locale
 
     impact_layer_uri = flood_event.impact_file_path
 
@@ -400,49 +404,48 @@ def generate_flood_report(flood_event):
             impact_layer_uri,
             FLOOD_REPORT_TEMPLATE_EN,
             layer_order,
-            use_template_extent=True
+            use_template_extent=True,
+            locale=locale
         ).set(queue=generate_report.queue),
 
         # Handle report
         handle_report.s(
-            flood_event.id
+            flood_event.id,
+            locale=locale
         ).set(queue=handle_report.queue)
     )
 
     @app.task
     def _handle_error(req, exc, traceback):
         """Update task status as Failure."""
-        Flood.objects.filter(id=flood_event.id).update(
-            report_task_status='FAILURE')
+        report_object = flood_event.report_object
+        report_object.report_task_status = 'FAILURE'
+        report_object.save()
 
-    async_result = tasks_chain.apply_async(
-        # link_error=_handle_error.s()
-    )
+    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
 
-    Flood.objects.filter(id=flood_event.id).update(
-        report_task_id=async_result.task_id,
-        report_task_status=async_result.state)
+    report_object = flood_event.report_object
+    report_object.report_task_id = async_result.task_id
+    report_object.report_task_status = async_result.state
+    report_object.save()
 
 
 @app.task(queue='inasafe-django')
-def handle_report(report_result, event_id):
+def handle_report(report_result, event_id, locale='en'):
     """Handle report product"""
     flood = Flood.objects.get(id=event_id)
+    flood.inspected_language = locale
+    report_object = flood.report_object
 
     # Set the report path if success
     task_state = 'FAILURE'
     if report_result['status'] == RESULT_SUCCESS:
         try:
-            # Create report object
-            # Set the language manually first
-            report = FloodReport(
-                flood=flood, language='en')
-
             report_path = report_result[
                 'output']['pdf_product_tag']['realtime-flood-en']
             with open(report_path, 'rb') as report_file:
-                report.impact_map.save(
-                    report.impact_map_filename,
+                report_object.impact_map.save(
+                    report_object.impact_map_filename,
                     File(report_file),
                     save=True)
                 flood.refresh_from_db()
@@ -452,8 +455,8 @@ def handle_report(report_result, event_id):
     else:
         LOGGER.error(report_result['message'])
 
-    Flood.objects.filter(id=flood.id).update(
-        report_task_status=task_state,
-        report_task_result=json.dumps(report_result))
+    report_object.report_task_status = task_state
+    report_object.report_task_result = json.dumps(report_result)
+    report_object.save()
 
     return report_result

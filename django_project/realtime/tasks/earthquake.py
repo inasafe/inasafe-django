@@ -220,7 +220,7 @@ def run_earthquake_analysis(event, locale='en'):
     def _handle_error(req, exc, traceback):
         """Update task status as Failure."""
         impact_object = event.impact_object
-        impact_object.analysis_task_status = 'Failure'
+        impact_object.analysis_task_status = 'FAILURE'
         impact_object.save()
 
     async_result = tasks_chain.apply_async(link_error=_handle_error.s())
@@ -356,17 +356,12 @@ def generate_earthquake_report(event, locale='en'):
     @app.task
     def _handle_error(req, exc, traceback):
         """Update task status as Failure."""
-        # Earthquake.objects.filter(id=event.id).update(
-        #     report_task_status='FAILURE')
         report_object = event.report_object
         report_object.report_task_status = 'FAILURE'
         report_object.save()
 
     async_result = tasks_chain.apply_async(link_error=_handle_error.s())
 
-    # Earthquake.objects.filter(id=event.id).update(
-    #     report_task_id=async_result.task_id,
-    #     report_task_status=async_result.state)
     report_object = event.report_object
     report_object.report_task_id = async_result.task_id
     report_object.report_task_status = async_result.state
@@ -399,9 +394,6 @@ def handle_report(report_result, event_id, locale='en'):
     else:
         LOGGER.error(report_result['message'])
 
-    # Earthquake.objects.filter(id=earthquake.id).update(
-    #     report_task_status=task_state,
-    #     report_task_result=json.dumps(report_result))
     report_object.report_task_status = task_state
     report_object.report_task_result = json.dumps(report_result)
     report_object.save()
