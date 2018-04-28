@@ -115,10 +115,21 @@ class BoundaryAdmin(LeafletGeoAdmin):
     search_fields = ['name', 'parent__name']
 
 
+class FloodReportInline(StackedInline):
+    """Inline Admin class for Flood Report Model."""
+    model = FloodReport
+    extra = 0
+
+
 class FloodAdmin(ModelAdmin):
     """Admin Class for Flood Event."""
     list_display = ('event_id', 'data_source', 'time',
                     'total_affected', 'boundary_flooded')
+
+    inlines = [
+        ImpactInline,
+        FloodReportInline
+    ]
 
 
 class FloodEventBoundaryAdmin(ModelAdmin):

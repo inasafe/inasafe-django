@@ -240,9 +240,10 @@ class ReportMixin(MultiLanguageMixin):
         if queryset:
             self._report_object = queryset.first()
         else:
-            report = self.report_class.objects.create(
-                earthquake=self,
-                language=self.inspected_language)
+            report = self.report_class()
+            report.event = self
+            report.language = self.inspected_language
+            report.save()
             self._report_object = report
         return self._report_object
 
