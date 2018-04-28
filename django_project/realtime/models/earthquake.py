@@ -11,10 +11,12 @@ from django.utils.translation import ugettext_lazy as _
 from realtime.app_settings import EARTHQUAKE_EVENT_REPORT_FORMAT, \
     EARTHQUAKE_EVENT_ID_FORMAT
 from realtime.models.impact import Impact
+from realtime.models.mixins import MultiLanguageMixin, BaseEventModel
+from realtime.models.report import BaseEventReportModel
 from realtime.utils import split_layer_ext
 
 
-class Earthquake(models.Model):
+class Earthquake(BaseEventModel):
     """Earthquake model."""
 
     INITIAL_SOURCE_TYPE = 'initial'
@@ -95,13 +97,6 @@ class Earthquake(models.Model):
         help_text=_('Source type of shake grid'),
         max_length=30,
         default='initial')
-    hazard_path = models.CharField(
-        verbose_name=_('Hazard Layer path'),
-        help_text=_('Location of hazard layer'),
-        max_length=255,
-        default=None,
-        null=True,
-        blank=True)
     has_corrected = models.BooleanField(
         verbose_name=_(
             'Cache flag to tell that this shakemap has a corrected version.'),
@@ -111,28 +106,27 @@ class Earthquake(models.Model):
             'Cache flag to tell that this shakemap already saved its '
             'contours.'),
         default=False)
-    impacts = GenericRelation(Impact, related_query_name='earthquake')
-    inasafe_version = models.CharField(
-        verbose_name=_('InaSAFE version'),
-        help_text=_('InaSAFE version being used'),
-        max_length=10,
-        default=None,
-        null=True,
-        blank=True)
+    BaseEventModel.impacts.related_query_name = 'earthquake'
 
     objects = models.GeoManager()
 
     def __init__(self, *args, **kwargs):
         super(Earthquake, self).__init__(*args, **kwargs)
-        self._impact_object = None
         self._report_object = None
-        self._inspected_language = 'en'
 
     def __unicode__(self):
         shake_string = u'Shake event [{0}]'.format(self.event_id_formatted)
         if self.location_description.strip():
             shake_string += u' in {0}'.format(self.location_description)
         return shake_string
+
+    @property
+    def reports_queryset(self):
+        return self.reports
+
+    @property
+    def report_class(self):
+        return EarthquakeReport
 
     def delete(self, using=None):
         # delete all report
@@ -161,173 +155,6 @@ class Earthquake(models.Model):
         mmi_layer_saved = bool(self.contours.all().count() > 0)
         Earthquake.objects.filter(id=self.id).update(
             mmi_layer_saved=mmi_layer_saved)
-
-    @property
-    def inspected_language(self):
-        """Language to use when referencing impacts and reports."""
-        try:
-            return self._inspected_language
-        except AttributeError:
-            self._inspected_language = 'en'
-
-        return self._inspected_language
-
-    @inspected_language.setter
-    def inspected_language(self, value):
-        """Set anguage to use when referencing impacts and reports."""
-
-        # Clear impact object and report object cache
-        if self._impact_object and self._report_object:
-            if not self._inspected_language == value:
-                self._impact_object = None
-                self._report_object = None
-        self._inspected_language = value
-
-    def refresh_from_db(self, using=None, fields=None, **kwargs):
-        lang = self.inspected_language
-        super(Earthquake, self).refresh_from_db(
-            using=using, fields=fields, **kwargs)
-        self.inspected_language = lang
-
-    @property
-    def hazard_layer_exists(self):
-        """Return bool to indicate existences of hazard layer"""
-        if self.hazard_path:
-            return os.path.exists(self.hazard_path)
-        return False
-
-    @property
-    def has_reports(self):
-        """Check if event has report or not."""
-        if self.report_object:
-            # Check if report pdf exists
-            return bool(self.report_object.report_pdf)
-        return False
-
-    @property
-    def has_impacts(self):
-        """Check if event has already process an impacts."""
-        return bool(self.impact_object)
-
-    @property
-    def impact_object(self):
-        """Returned impact object for a given inspected language."""
-        # Cache object
-        if self._impact_object:
-            return self._impact_object
-
-        queryset = self.impacts.filter(language=self.inspected_language)
-        if queryset:
-            self._impact_object = queryset.first()
-        else:
-            impact = Impact(
-                content_object=self, language=self.inspected_language)
-            impact.save()
-            self._impact_object = impact
-        return self._impact_object
-
-    @property
-    def report_object(self):
-        """Returned report object for a given inspected language."""
-        # Cache object
-        if self._report_object:
-            return self._report_object
-
-        queryset = self.reports.filter(language=self.inspected_language)
-        if queryset:
-            self._report_object = queryset.first()
-        else:
-            report = EarthquakeReport.objects.create(
-                earthquake=self,
-                language=self.inspected_language)
-            self._report_object = report
-        return self._report_object
-
-    @property
-    def analysis_task_id(self):
-        """Celery task id of analysis"""
-        return self.impact_object.analysis_task_id
-
-    @analysis_task_id.setter
-    def analysis_task_id(self, value):
-        impact = self.impact_object
-        impact.analysis_task_id = value
-        impact.save()
-
-    @property
-    def analysis_task_status(self):
-        """Celery task status of analysis"""
-        return self.impact_object.analysis_task_status
-
-    @analysis_task_status.setter
-    def analysis_task_status(self, value):
-        impact = self.impact_object
-        impact.analysis_task_status = value
-        impact.save()
-
-    @property
-    def analysis_task_result(self):
-        """Celery task result of analysis"""
-        return self.impact_object.analysis_task_result
-
-    @analysis_task_result.setter
-    def analysis_task_result(self, value):
-        impact = self.impact_object
-        impact.analysis_task_result = value
-        impact.save()
-
-    @property
-    def report_task_id(self):
-        """Celery task id of report"""
-        return self.report_object.report_task_id
-
-    @report_task_id.setter
-    def report_task_id(self, value):
-        report = self.report_object
-        report.report_task_id = value
-        report.save()
-
-    @property
-    def report_task_status(self):
-        """Celery task status of report"""
-        return self.report_object.report_task_status
-
-    @report_task_status.setter
-    def report_task_status(self, value):
-        report = self.report_object
-        report.report_task_status = value
-        report.save()
-
-    @property
-    def report_task_result(self):
-        """Celery task result of report"""
-        return self.report_object.report_task_result
-
-    @report_task_result.setter
-    def report_task_result(self, value):
-        report = self.report_object
-        report.report_task_result = value
-        report.save()
-
-    @property
-    def impact_file_path(self):
-        """Return impact file path given language processed."""
-        return self.impact_object.impact_file_path
-
-    @impact_file_path.setter
-    def impact_file_path(self, value):
-        """Set impact file path given language processed."""
-        impact = self.impact_object
-        impact.impact_file_path = value
-        impact.save()
-
-    @property
-    def impact_layer_exists(self):
-        """Return bool to indicate existences of impact layers"""
-        impact_file_path = self.impact_file_path
-        if impact_file_path:
-            return os.path.exists(impact_file_path)
-        return False
 
     @property
     def shake_grid_exists(self):
@@ -377,36 +204,6 @@ class Earthquake(models.Model):
                 'source_type': self.source_type
             })
         return None
-
-    @property
-    def need_run_analysis(self):
-        if (self.analysis_task_status and
-                not self.analysis_task_status == 'None'):
-            return False
-        return True
-
-    @property
-    def need_generate_reports(self):
-        if (self.report_task_status and
-                not self.report_task_status == 'None'):
-            return False
-        return True
-
-    @property
-    def analysis_result(self):
-        """Return dict of analysis result."""
-        try:
-            return json.loads(self.analysis_task_result)
-        except (TypeError, ValueError):
-            return {}
-
-    @property
-    def report_result(self):
-        """Return dict of report result."""
-        try:
-            return json.loads(self.report_task_result)
-        except (TypeError, ValueError):
-            return {}
 
     @property
     def event_id_formatted(self):
@@ -513,37 +310,6 @@ class Earthquake(models.Model):
         # There should be only one
         return self.initial_shakemaps_queryset().first()
 
-    def rerun_report_generation(self):
-        """Rerun Report Generations"""
-
-        # Delete existing reports
-        reports = self.reports.all()
-
-        for r in reports:
-            r.delete()
-
-        self.report_task_result = ''
-        self.report_task_status = ''
-        self.save()
-
-    def rerun_analysis(self):
-        """Rerurn Analysis"""
-
-        # Delete existing reports
-        reports = self.reports.all()
-
-        for r in reports:
-            r.delete()
-
-        self.report_task_result = ''
-        self.report_task_status = ''
-
-        # Reset analysis state
-        self.impacts.all().delete()
-        self.analysis_task_result = ''
-        self.analysis_task_status = ''
-        self.save()
-
 
 class EarthquakeMMIContour(models.Model):
     """Earthquake MMI Contour Model."""
@@ -576,7 +342,7 @@ class EarthquakeMMIContour(models.Model):
         return description
 
 
-class EarthquakeReport(models.Model):
+class EarthquakeReport(BaseEventReportModel):
     """Earthquake Report Model."""
 
     class Meta:
@@ -587,12 +353,6 @@ class EarthquakeReport(models.Model):
     earthquake = models.ForeignKey(
         Earthquake,
         related_name='reports')
-    language = models.CharField(
-        verbose_name=_('Language ID'),
-        help_text=_('The language ID of the report'),
-        max_length=4,
-        default='id'
-    )
     report_pdf = models.FileField(
         verbose_name=_('PDF Report'),
         help_text=_('The impact report stored as PDF'),
@@ -608,24 +368,18 @@ class EarthquakeReport(models.Model):
         help_text=_('The thumbnail of the report stored as PNG File'),
         upload_to='reports/earthquake/thumbnail',
         null=True)
-    report_task_id = models.CharField(
-        verbose_name=_('Report celery task id'),
-        help_text=_('Task id for creating analysis report.'),
-        max_length=255,
-        default='',
-        blank=True)
-    report_task_status = models.CharField(
-        verbose_name=_('Report celery task status'),
-        help_text=_('Task status for creating analysis report.'),
-        max_length=30,
-        default='None',
-        blank=True)
-    report_task_result = models.TextField(
-        verbose_name=_('Report celery task result'),
-        help_text=_('Task result of report generation'),
-        default='',
-        blank=True,
-        null=True)
+
+    @property
+    def event(self):
+        return self.earthquake
+
+    @property
+    def canonical_report_pdf(self):
+        return self.report_pdf
+
+    @property
+    def canonical_report_filename(self):
+        return self.report_map_filename
 
     def delete(self, using=None):
         # delete stored files
