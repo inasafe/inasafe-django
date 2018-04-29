@@ -1,7 +1,6 @@
 # coding=utf-8
 import logging
 
-import os
 from django.apps import AppConfig, apps
 from django.conf import settings
 from django.contrib.auth.management import create_permissions
