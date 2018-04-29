@@ -216,7 +216,7 @@ ASH_LAYER_ORDER = [
     '/home/headless/contexts/ash/context/idn_hillshade_wgs84.tif',
 ]
 VOLCANO_LAYER_PATH = (
-    '/home/headless/contexts/ash/context/idn_volcano_wgs84.shp')
+    '/home/web/django_project/realtime/fixtures/ash/idn_volcano_wgs84.shp')
 
 # Earthquake analysis contexts
 
