@@ -1,7 +1,6 @@
 # coding=utf-8
 import logging
 
-import os
 from django.apps import AppConfig, apps
 from django.conf import settings
 from django.contrib.auth.management import create_permissions
@@ -13,7 +12,7 @@ from realtime.models.volcano import load_volcano_data
 from user_map.models.user import User
 
 from realtime.app_settings import LOGGER_NAME, REST_GROUP, OSM_LEVEL_7_NAME, \
-    OSM_LEVEL_8_NAME, VOLCANO_GROUP, ASH_GROUP
+    OSM_LEVEL_8_NAME, VOLCANO_GROUP, ASH_GROUP, VOLCANO_LAYER_PATH
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '4/1/16'
@@ -49,13 +48,9 @@ class RealtimeConfig(AppConfig):
     def load_volcano_fixtures(self):
         """load volcano fixtures samples"""
         try:
-            dirname = os.path.dirname(__file__)
-            volcano_fixtures = os.path.join(
-                dirname,
-                'fixtures/ash/IDN_Volcano_GVP_VAAC_AOR_WGS84.shp')
             Volcano = self.get_model('Volcano')
             if Volcano.objects.all().count() == 0:
-                load_volcano_data(Volcano, volcano_fixtures)
+                load_volcano_data(Volcano, VOLCANO_LAYER_PATH)
         except Exception as e:
             LOGGER.error(e)
 

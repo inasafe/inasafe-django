@@ -95,6 +95,7 @@ def upload_form(request):
         v = {
             'id': volcano.id,
             'name': str(volcano),
+            'timezone': volcano.timezone
         }
         volcano_list.append(v)
 

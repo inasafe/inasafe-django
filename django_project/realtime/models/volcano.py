@@ -79,6 +79,13 @@ class Volcano(models.Model):
         blank=True
     )
 
+    timezone = models.CharField(
+        verbose_name=_('TimeZone'),
+        help_text=_('The TimeZone where the volcano located'),
+        max_length=50,
+        blank=True
+    )
+
     def __unicode__(self):
         return '%s - %s - %s' % (
             self.volcano_name, self.province, self.district)
@@ -90,15 +97,17 @@ def load_volcano_data(Volcano, volcano_shapefile):
     layer = source[0]
 
     for feat in layer:
-        volcano_name = feat.get('volcano na')
+        volcano_name = feat.get('name')
         elevation = feat.get('elevation')
         region = feat.get('region')
         subregion = feat.get('subregion')
         morphology = feat.get('morphology')
         province = feat.get('province')
         district = feat.get('district')
+        timezone = feat.get('timezone')
 
         geometry = feat.geom
+        geometry.coord_dim = 2  # strip Z dimension
 
         geos_geometry = GEOSGeometry(geometry.geojson)
 
@@ -122,6 +131,7 @@ def load_volcano_data(Volcano, volcano_shapefile):
                 subregion=subregion,
                 morphology=morphology,
                 province=province,
-                district=district)
+                district=district,
+                timezone=timezone)
             LOGGER.debug(
                 'Volcano {0} created'.format(volcano.volcano_name))
