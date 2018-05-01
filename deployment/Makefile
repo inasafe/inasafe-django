@@ -59,9 +59,36 @@ pull-external-services:
 coverage-tests:
 	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test realtime --noinput --liveserver=0.0.0.0:8080 -v 2
 
-integration-tests: realtime-worker headless-worker
-	@docker-compose -p $(PROJECT_ID) exec -d -e DJANGO_SETTINGS_MODULE=core.settings.celery_testing uwsgi coverage run -p --branch --source='.' /usr/local/bin/celery -A core.celery_app worker --loglevel=info -Q inasafe-django -n inasafe-django.%h
-	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios
+integration-tests-worker:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running integration tests celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) up -d integration-test-worker
+
+integration-tests-worker-restart:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart integration tests celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) restart integration-test-worker
+
+integration-tests-worker-stop:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Stop integration tests celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) stop integration-test-worker
+
+integration-tests-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running integration tests celery worker logs"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 integration-test-worker
+
+integration-tests: realtime-worker headless-worker integration-tests-worker
+	@-docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios
 
 build:
 	@echo
@@ -194,7 +221,7 @@ indicator-worker-logs:
 realtime-worker:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker "
+	@echo "Running InaSAFE Realtime celery worker "
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) up -d realtime-worker
 
@@ -204,21 +231,21 @@ realtime-worker-shell:
 realtime-worker-restart:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Restart celery worker "
+	@echo "Restart InaSAFE Realtime celery worker "
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) restart realtime-worker
 
 realtime-worker-stop:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Restart celery worker "
+	@echo "Stop InaSAFE Realtime celery worker "
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) stop realtime-worker
 
 realtime-worker-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker logs"
+	@echo "Running InaSAFE Realtime celery worker logs"
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 realtime-worker
 
@@ -231,7 +258,7 @@ realtime-shakemap-corrected-monitor-logs:
 headless-worker:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker "
+	@echo "Running InaSAFE Headless celery worker "
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) up -d headless-worker
 
@@ -241,21 +268,21 @@ headless-worker-shell:
 headless-worker-restart:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Restart celery worker "
+	@echo "Restart InaSAFE Headless celery worker "
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) restart headless-worker
 
 headless-worker-stop:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Restart celery worker "
+	@echo "Stop InaSAFE Headless celery worker "
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) stop headless-worker
 
 headless-worker-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker logs"
+	@echo "Running InaSAFE Headless celery worker logs"
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 headless-worker
 

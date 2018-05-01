@@ -13,12 +13,13 @@ from django.core.files import File
 
 from core.celery_app import app
 from realtime.app_settings import LOGGER_NAME, REALTIME_HAZARD_DROP, \
-    ASH_LAYER_ORDER, ASH_EXPOSURES, ASH_AGGREGATION, ASH_REPORT_TEMPLATE_EN
+    ASH_LAYER_ORDER, ASH_EXPOSURES, ASH_AGGREGATION, ASH_HAZARD_TYPE
 from realtime.models.ash import Ash
 from realtime.tasks.headless.inasafe_wrapper import (
     run_multi_exposure_analysis, generate_report, RESULT_SUCCESS)
 from realtime.tasks.realtime.ash import process_ash
-from realtime.utils import substitute_layer_order
+from realtime.utils import substitute_layer_order, template_names, \
+    template_paths
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '20/7/17'
@@ -130,6 +131,9 @@ def handle_hazard_process(process_result, event_id):
 
     Ash.objects.filter(id=event_id).update(
         task_status=task_state)
+    ash = Ash.objects.get(id=event_id)
+    ash.task_status = task_state
+    ash.save()
 
     return process_result
 
@@ -200,6 +204,7 @@ def generate_ash_report(ash_event, locale='en'):
     :param ash_event: Ash event instance
     :type ash_event: Ash
     """
+    LOGGER.info('Generate Ash Report {0}'.format(locale))
     ash_event.refresh_from_db()
     ash_event.inspected_language = locale
     impact_layer_uri = ash_event.impact_file_path
@@ -214,10 +219,12 @@ def generate_ash_report(ash_event, locale='en'):
     layer_order = substitute_layer_order(
         ASH_LAYER_ORDER, source_dict)
 
+    report_template = template_paths(ASH_HAZARD_TYPE, locale)
+
     tasks_chain = chain(
         # Generate report
         generate_report.s(
-            impact_layer_uri, ASH_REPORT_TEMPLATE_EN, layer_order,
+            impact_layer_uri, report_template, layer_order,
             locale=locale
         ).set(queue=generate_report.queue),
 
@@ -245,13 +252,14 @@ def handle_report(report_result, event_id, locale='en'):
     ash = Ash.objects.get(id=event_id)
     ash.inspected_language = locale
     report_object = ash.report_object
+    template_name = template_names(ASH_HAZARD_TYPE, locale)
 
     # Set the report path if success
     task_state = 'FAILURE'
     if report_result['status'] == RESULT_SUCCESS:
         try:
             report_path = report_result[
-                'output']['pdf_product_tag']['realtime-ash-en']
+                'output']['pdf_product_tag'][template_name]
             with open(report_path, 'rb') as report_file:
                 report_object.report_map.save(
                     report_object.report_map_filename,

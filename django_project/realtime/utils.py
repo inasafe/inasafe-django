@@ -3,7 +3,7 @@ import logging
 import os
 from zipfile import ZipFile
 
-from realtime.app_settings import LOGGER_NAME
+from realtime.app_settings import LOGGER_NAME, REPORT_TEMPLATES
 
 LOGGER = logging.getLogger(LOGGER_NAME)
 
@@ -96,3 +96,27 @@ def substitute_layer_order(layer_order_template, source_dict):
         layer_order.append(layer)
 
     return layer_order
+
+
+def celery_worker_connected(celery_app, worker_name):
+    """Check worker exists."""
+    pongs = celery_app.control.ping()
+    for pong in pongs:
+        for key in pong:
+            if worker_name in key:
+                return True
+
+    return False
+
+
+def template_paths(hazard_type, locale='en'):
+    """Internal function to return template paths."""
+    return REPORT_TEMPLATES[hazard_type][locale]
+
+
+def template_names(hazard_type, locale='en'):
+    """Internal function to return template output name."""
+    template_filename = template_paths(hazard_type, locale)
+    basename = os.path.basename(template_filename)
+    output_name, _ = os.path.splitext(basename)
+    return output_name
