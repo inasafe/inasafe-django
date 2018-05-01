@@ -19,12 +19,13 @@ from core.celery_app import app
 from realtime.app_settings import LOGGER_NAME, FELT_EARTHQUAKE_URL, \
     EARTHQUAKE_EXPOSURES, EARTHQUAKE_AGGREGATION, \
     EARTHQUAKE_LAYER_ORDER, GRID_FILE_DEFAULT_NAME, \
-    EARTHQUAKE_REPORT_TEMPLATE_EN
+    EARTHQUAKE_HAZARD_TYPE
 from realtime.helpers.inaware import InAWARERest
 from realtime.models.earthquake import Earthquake, EarthquakeMMIContour
 from realtime.tasks.headless.inasafe_wrapper import \
     run_multi_exposure_analysis, generate_report, RESULT_SUCCESS
-from realtime.utils import substitute_layer_order
+from realtime.utils import substitute_layer_order, template_paths, \
+    template_names
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '3/15/16'
@@ -335,10 +336,12 @@ def generate_earthquake_report(event, locale='en'):
     layer_order = substitute_layer_order(
         EARTHQUAKE_LAYER_ORDER, source_dict)
 
+    report_template = template_paths(EARTHQUAKE_HAZARD_TYPE, locale)
+
     tasks_chain = chain(
         # Generate report
         generate_report.s(
-            impact_layer_uri, EARTHQUAKE_REPORT_TEMPLATE_EN, layer_order,
+            impact_layer_uri, report_template, layer_order,
             locale=locale
         ).set(queue=generate_report.queue),
 
@@ -367,13 +370,15 @@ def handle_report(report_result, event_id, locale='en'):
     earthquake.inspected_language = locale
     report_object = earthquake.report_object
 
+    template_name = template_names(EARTHQUAKE_HAZARD_TYPE, locale)
+
     # Set the report path if success
     task_state = 'FAILURE'
     if report_result['status'] == RESULT_SUCCESS:
         try:
 
             report_path = report_result[
-                'output']['pdf_product_tag']['realtime-earthquake-en']
+                'output']['pdf_product_tag'][template_name]
             with open(report_path, 'rb') as report_file:
                 report_object.report_pdf.save(
                     report_object.report_map_filename,

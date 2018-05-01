@@ -3,6 +3,8 @@
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 
+from realtime.app_settings import HAZARD_TEMPLATE_CHOICES
+
 __author__ = 'myarjunar'
 __project_name__ = 'inasafe-django'
 __filename__ = 'report_template'
@@ -54,7 +56,8 @@ class ReportTemplate(models.Model):
         max_length=25,
         default=None,
         blank=False,
-        null=False
+        null=False,
+        choices=HAZARD_TEMPLATE_CHOICES
     )
 
     template_file = models.TextField(
