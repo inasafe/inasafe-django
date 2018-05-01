@@ -24,7 +24,7 @@ from core.celery_app import app as django_app
 from realtime.app_settings import (
     EARTHQUAKE_MONITORED_DIRECTORY,
     LOGGER_NAME,
-    REALTIME_HAZARD_DROP, ON_TRAVIS, EARTHQUAKE_CORRECTED_MONITORED_DIRECTORY,
+    REALTIME_HAZARD_DROP, EARTHQUAKE_CORRECTED_MONITORED_DIRECTORY,
     ANALYSIS_LANGUAGES)
 from realtime.models import FloodEventBoundary
 from realtime.models.ash import Ash, AshReport
@@ -34,22 +34,21 @@ from realtime.models.flood import Flood, BoundaryAlias, FloodReport, \
 from realtime.models.impact import Impact
 from realtime.models.volcano import Volcano
 from realtime.serializers.earthquake_serializer import EarthquakeSerializer
-from realtime.tasks.flood import create_flood_report
 from realtime.tasks.headless.celery_app import app as headless_app
 from realtime.tasks.realtime.celery_app import app as realtime_app
 from realtime.tasks.realtime.flood import process_flood
-
+from realtime.utils import celery_worker_connected
 
 LOGGER = logging.getLogger(LOGGER_NAME)
 
 
 FULL_SCENARIO_TEST_CONDITION = (
     # It needs realtime_app worker
-    realtime_app.control.ping() and
+    celery_worker_connected(realtime_app, 'inasafe-realtime') and
     # It needs headless_app worker
-    headless_app.control.ping() and
+    celery_worker_connected(headless_app, 'inasafe-headless') and
     # It needs django_app worker
-    django_app.control.ping()
+    celery_worker_connected(django_app, 'inasafe-django')
 )
 
 # Five minutes test timeout
@@ -117,9 +116,6 @@ class HazardScenarioBaseTestCase(test.LiveServerTestCase):
         return match.group('filename')
 
 
-@unittest.skipUnless(
-    FULL_SCENARIO_TEST_CONDITION,
-    'All Workers needs to be run')
 class TestEarthquakeTasks(HazardScenarioBaseTestCase):
 
     def assertEarthquake(self, event):
@@ -201,6 +197,9 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
                 int(response['content-length']))
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        FULL_SCENARIO_TEST_CONDITION,
+        'All Workers needs to be run')
     def test_process_earthquake(self):
         """Test generating earthquake scenarios."""
         # Drop a grid file to monitored directory
@@ -327,20 +326,12 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
         self.assertEqual(0, EarthquakeReport.objects.all().count())
 
 
-@unittest.skipUnless(
-    FULL_SCENARIO_TEST_CONDITION,
-    'All Workers needs to be run')
 class TestFloodTasks(HazardScenarioBaseTestCase):
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
-    @unittest.skipIf(
-        ON_TRAVIS,
-        'We do not want to abuse PetaBencana Server.')
-    def test_create_flood_report(self):
-        """Test Create Flood report task"""
-        create_flood_report()
-
-    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        FULL_SCENARIO_TEST_CONDITION,
+        'All Workers needs to be run')
     def test_process_flood_manually(self):
         """Test process flood with existing flood json."""
         # check boundary alias exists
@@ -490,12 +481,12 @@ class TestFloodTasks(HazardScenarioBaseTestCase):
         self.assertEqual(0, FloodReport.objects.all().count())
 
 
-@unittest.skipUnless(
-    FULL_SCENARIO_TEST_CONDITION,
-    'All Workers needs to be run')
 class TestAshTasks(HazardScenarioBaseTestCase):
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        FULL_SCENARIO_TEST_CONDITION,
+        'All Workers needs to be run')
     def test_process_ash(self):
         """Test generating ash hazard."""
         # Create an ash object

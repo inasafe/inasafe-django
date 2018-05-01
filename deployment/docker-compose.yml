@@ -102,7 +102,6 @@ services:
 
   uwsgi: &uwsgi
     build: docker-prod
-    hostname: uwsgi
     environment:
       - DATABASE_NAME=gis
       - DATABASE_USERNAME=docker
@@ -125,6 +124,7 @@ services:
       - sftppgbackup:sftppgbackup
       - sftpmediabackup:sftpmediabackup
       - rabbitmq:rabbitmq
+      - qgis-templates-btsync:qgis-templates-btsync
     env_file:
       - inaware_credential.env
     network_mode: "bridge"
@@ -148,6 +148,9 @@ services:
       - db:db
       - rabbitmq:rabbitmq
     network_mode: "bridge"
+
+  integration-test-worker:
+    <<: *inasafe-worker
 
   indicator-worker:
     <<: *inasafe-worker
@@ -179,9 +182,16 @@ services:
     network_mode: "bridge"
 
   qgis-templates-btsync:
-    image: kartoza/btsync
+    image: alpine/git
+    working_dir: /web
+    entrypoint:
+      - /bin/sh
+    command:
+      - -c
+      - git pull origin master && git log HEAD^..HEAD && tail -f /dev/null
     volumes:
       - ./headless-data/qgis-templates:/web
     environment:
       - DEVICE=InaSAFE-Headless-QGIS-Templates
+      - STANDBY_MODE=TRUE
     network_mode: "bridge"

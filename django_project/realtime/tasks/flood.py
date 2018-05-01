@@ -16,7 +16,7 @@ from django.db.models import Sum
 from core.celery_app import app
 from realtime.app_settings import OSM_LEVEL_7_NAME, OSM_LEVEL_8_NAME, \
     FLOOD_EXPOSURE, FLOOD_AGGREGATION, FLOOD_LAYER_ORDER, LOGGER_NAME, \
-    FLOOD_REPORT_TEMPLATE_EN
+    FLOOD_HAZARD_TYPE
 from realtime.models.flood import (
     Flood,
     FloodEventBoundary,
@@ -26,7 +26,8 @@ from realtime.models.flood import (
 from realtime.tasks.headless.inasafe_wrapper import (
     run_analysis, generate_report, RESULT_SUCCESS)
 from realtime.tasks.realtime.flood import process_flood
-from realtime.utils import substitute_layer_order
+from realtime.utils import substitute_layer_order, template_names, \
+    template_paths
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '12/3/15'
@@ -394,11 +395,13 @@ def generate_flood_report(flood_event, locale='en'):
     layer_order = substitute_layer_order(
         FLOOD_LAYER_ORDER, source_dict)
 
+    report_template = template_paths(FLOOD_HAZARD_TYPE, locale)
+
     tasks_chain = chain(
         # Generate report
         generate_report.s(
             impact_layer_uri,
-            FLOOD_REPORT_TEMPLATE_EN,
+            report_template,
             layer_order,
             use_template_extent=True,
             locale=locale
@@ -428,13 +431,14 @@ def handle_report(report_result, event_id, locale='en'):
     flood = Flood.objects.get(id=event_id)
     flood.inspected_language = locale
     report_object = flood.report_object
+    template_name = template_names(FLOOD_HAZARD_TYPE, locale)
 
     # Set the report path if success
     task_state = 'FAILURE'
     if report_result['status'] == RESULT_SUCCESS:
         try:
             report_path = report_result[
-                'output']['pdf_product_tag']['realtime-flood-en']
+                'output']['pdf_product_tag'][template_name]
             with open(report_path, 'rb') as report_file:
                 report_object.impact_map.save(
                     report_object.impact_map_filename,
