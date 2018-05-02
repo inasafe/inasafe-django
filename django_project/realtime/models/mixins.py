@@ -172,9 +172,14 @@ class ImpactMixin(MultiLanguageMixin, models.Model):
         """Rerun Analysis"""
         # Reset analysis state
         self.impacts.all().delete()
+        self.save()
 
 
-class ReportMixin(MultiLanguageMixin):
+class ReportMixin(MultiLanguageMixin, models.Model):
+    """Generic mixin for hazard to handle multiple impact analysis report."""
+
+    class Meta:
+        abstract = True
 
     def __init__(self, *args, **kwargs):
         super(ReportMixin, self).__init__(*args, **kwargs)
@@ -303,6 +308,8 @@ class ReportMixin(MultiLanguageMixin):
 
         for r in reports:
             r.delete()
+
+        self.save()
 
 
 class BaseEventModel(ImpactMixin, ReportMixin, models.Model):
