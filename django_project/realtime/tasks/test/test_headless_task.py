@@ -23,6 +23,7 @@ from realtime.tasks.headless.inasafe_wrapper import (
     get_generated_report,
     check_broker_connection,
 )
+from realtime.utils import substitute_layer_order
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -137,7 +138,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         # Checking template and layer order for ash
         self.assertTrue(os.path.exists(ASH_REPORT_TEMPLATE_EN))
         for layer in ASH_LAYER_ORDER:
-            if layer != 'ash_layer_path':
+            if not layer.startswith('@'):
                 self.assertTrue(
                     os.path.exists(layer), '%s is not exist' % layer)
 
@@ -146,7 +147,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         # Checking template and layer order for flood
         self.assertTrue(os.path.exists(FLOOD_REPORT_TEMPLATE_EN))
         for layer in FLOOD_LAYER_ORDER:
-            if layer != 'flood_layer_path':
+            if not layer.startswith('@'):
                 self.assertTrue(
                     os.path.exists(layer), '%s is not exist' % layer)
 

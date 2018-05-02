@@ -77,6 +77,7 @@ class ImpactInline(GenericStackedInline):
 
 class EarthquakeReportInline(StackedInline):
     """Inline Admin class for Earthquake Report Model."""
+    exclude = ['report_image', 'report_thumbnail']
     model = EarthquakeReport
     extra = 0
 
