@@ -24,6 +24,7 @@ from realtime.tasks.headless.inasafe_wrapper import (
     generate_report,
     get_generated_report,
     check_broker_connection,
+    push_to_geonode,
 )
 from realtime.utils import celery_worker_connected
 
@@ -86,8 +87,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         result = get_keywords.delay(place_layer_uri)
         keywords = result.get()
         self.assertIsNotNone(keywords)
-        self.assertEqual(
-            keywords['layer_purpose'], 'exposure')
+        self.assertEqual(keywords['layer_purpose'], 'exposure')
         self.assertEqual(keywords['exposure'], 'place')
 
         self.assertTrue(os.path.exists(earthquake_layer_uri))
@@ -456,3 +456,10 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         # Check if the default map reports are not found
         self.assertNotIn('inasafe-map-report-portrait', product_keys)
         self.assertNotIn('inasafe-map-report-landscape', product_keys)
+
+    @unittest.skipIf(os.environ.get('ON_TRAVIS', False), 'No geonode instance')
+    def test_push_tif_to_geonode(self):
+        """Test push tif layer to geonode functionality."""
+        async_result = push_to_geonode.delay(shakemap_layer_uri)
+        result = async_result.get()
+        self.assertEqual(result['status'], 0, result['message'])
