@@ -118,6 +118,14 @@ inaware:
   user:
   password:
 
+# This is used to push hazard layer to GeoNode.
+# Set this fact to your appropriate credentials. If not used,
+# leave as blank
+geonode:
+  host:
+  user:
+  password:
+
 # This declaration is used to describe port forwarding that is being used
 # by docker-compose. Leave it as default.
 docker_port_forward:

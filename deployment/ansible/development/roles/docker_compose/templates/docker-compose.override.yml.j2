@@ -331,6 +331,8 @@ services:
       - INASAFE_WORK_DIR={{ inasafe_headless.working_dir }}
       - INASAFE_OUTPUT_DIR={{ inasafe_headless.working_dir }}/outputs
       - QGIS_DEBUG=0
+    env_file:
+      - geonode_credential.env
     network_mode: "bridge"
 
   {% endif %}
