@@ -31,7 +31,8 @@ def flood_post_save(
             if field in update_fields:
                 break
         else:
-            for lang in ANALYSIS_LANGUAGES:
-                generate_event_report.delay(instance, locale=lang)
+            if instance.analysis_flag:
+                for lang in ANALYSIS_LANGUAGES:
+                    generate_event_report.delay(instance, locale=lang)
     except Exception as e:
         LOGGER.exception(e)

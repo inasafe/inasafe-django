@@ -4,6 +4,9 @@ from __future__ import absolute_import
 import json
 import logging
 import os
+import shutil
+import tempfile
+from zipfile import ZipFile
 
 from celery import chain
 from django.contrib.gis.gdal.datasource import DataSource
@@ -50,12 +53,32 @@ def process_hazard_layer(flood):
         return
 
     # extract hazard layer zip file
-    if not flood.hazard_layer_exists:
+    if not flood.hazard_layer and not flood.hazard_layer_exists:
         LOGGER.info('No hazard layer at %s' % flood.hazard_path)
         return
 
-    # process hazard layer
-    layer_filename = flood.hazard_path
+    # handle legacy logic
+    extract_dir = None
+    if flood.hazard_layer:
+
+        extract_dir = tempfile.mkdtemp()
+
+        with ZipFile(flood.hazard_layer, 'r') as zf:
+
+            zf.extractall(extract_dir, zf.namelist())
+
+        # search flood data
+        layer_filename = os.path.join(extract_dir, 'flood_data.shp')
+
+        if not os.path.exists(layer_filename):
+            layer_filename = os.path.join(extract_dir, 'flood_data.json')
+
+        if not os.path.exists(layer_filename):
+            layer_filename = os.path.join(extract_dir, 'flood_data.geojson')
+
+    else:
+        # process hazard layer
+        layer_filename = flood.hazard_path
 
     source = DataSource(layer_filename)
 
@@ -134,6 +157,10 @@ def process_hazard_layer(flood):
     Flood.objects.filter(id=flood.id).update(
         boundary_flooded=flood.boundary_flooded)
 
+    # legacy cleanup
+    if extract_dir:
+        shutil.rmtree(extract_dir)
+
     LOGGER.info('Hazard layer processed...')
     return True
 
@@ -147,14 +174,26 @@ def process_impact_layer(flood):
     """
     LOGGER.info('Processing impact layer %s ' % flood.event_id)
 
-    # Get impact analysis file path
-    analysis_directory = os.path.dirname(flood.impact_file_path)
-    impact_analysis_path = os.path.join(
-        analysis_directory, 'impact_analysis.geojson')
+    # handle legacy logic
+    extract_dir = None
+    if flood.impact_layer:
+        extract_dir = tempfile.mkdtemp()
 
-    if not os.path.exists(impact_analysis_path):
-        LOGGER.info('No impact analysis layer')
-        return
+        with ZipFile(flood.impact_layer.path, 'r') as zf:
+            zf.extractall(extract_dir, zf.namelist())
+
+        # search impact data
+        impact_analysis_path = os.path.join(extract_dir, 'impact.shp')
+    else:
+
+        # Get impact analysis file path
+        analysis_directory = os.path.dirname(flood.impact_file_path)
+        impact_analysis_path = os.path.join(
+            analysis_directory, 'impact_analysis.geojson')
+
+        if not os.path.exists(impact_analysis_path):
+            LOGGER.info('No impact analysis layer')
+            return
 
     source = DataSource(impact_analysis_path)
 
@@ -165,13 +204,33 @@ def process_impact_layer(flood):
     kelurahan = BoundaryAlias.objects.get(alias=OSM_LEVEL_7_NAME)
 
     for feat in layer:
-        affected = feat.get('affected')
-        if affected != 'True':
-            continue
 
-        hazard_class = feat.get('hazard_class')
-        level_7_name = feat.get('exposure_name').strip()
-        population_affected = feat.get('population')
+        try:
+            affected = feat.get('affected')
+            if not affected and affected != 'True':
+                continue
+        except BaseException:
+            pass
+
+        affected = True
+
+        if 'hazard_class' in layer.fields:
+            hazard_class = feat.get('hazard_class')
+        elif 'affected' in layer.fields:
+            hazard_class = feat.get('affected')
+        else:
+            hazard_class = feat.get('safe_ag')
+
+        if 'exposure_name' in layer.fields:
+            level_7_name = feat.get('exposure_name').strip()
+        else:
+            level_7_name = feat.get('NAMA_KELUR').strip()
+
+        if 'population' in layer.fields:
+            population_affected = feat.get('population')
+        else:
+            population_affected = feat.get('Pop_Total')
+
         geometry = feat.geom
         geos_geometry = GEOSGeometry(geometry.geojson)
 
@@ -207,6 +266,9 @@ def process_impact_layer(flood):
     # prevent infinite recursive save
     Flood.objects.filter(id=flood.id).update(
         total_affected=flood.total_affected)
+
+    if extract_dir:
+        shutil.rmtree(extract_dir)
 
     LOGGER.info('Impact layer processed...')
     return True
