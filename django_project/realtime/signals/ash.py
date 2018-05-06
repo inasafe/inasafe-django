@@ -30,7 +30,8 @@ def ash_post_save(sender, instance, **kwargs):
                 instance.need_generate_hazard):
             generate_hazard_layer.delay(instance)
 
-        for lang in ANALYSIS_LANGUAGES:
-            generate_event_report.delay(instance, locale=lang)
+        if instance.analysis_flag:
+            for lang in ANALYSIS_LANGUAGES:
+                generate_event_report.delay(instance, locale=lang)
     except BaseException as e:
         LOGGER.exception(e)

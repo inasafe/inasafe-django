@@ -74,9 +74,18 @@ class ImpactMixin(MultiLanguageMixin, models.Model):
                 'Please define GenericRelation impacts')
 
         self._impact_object = None
+        self._analysis_flag = True
 
     def change_language_hook(self):
         self._impact_object = None
+
+    @property
+    def analysis_flag(self):
+        return self._analysis_flag
+
+    @analysis_flag.setter
+    def analysis_flag(self, value):
+        self._analysis_flag = value
 
     @property
     def has_impacts(self):

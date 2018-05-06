@@ -23,7 +23,7 @@ from realtime.app_settings import LOGGER_NAME, FELT_EARTHQUAKE_URL, \
 from realtime.helpers.inaware import InAWARERest
 from realtime.models.earthquake import Earthquake, EarthquakeMMIContour
 from realtime.tasks.headless.inasafe_wrapper import \
-    run_multi_exposure_analysis, generate_report, RESULT_SUCCESS
+    run_multi_exposure_analysis, generate_report, RESULT_SUCCESS, get_keywords
 from realtime.utils import substitute_layer_order, template_paths, \
     template_names
 
@@ -299,6 +299,18 @@ def handle_analysis(analysis_result, event_id, locale='en'):
 
             # save earthquake MMI Contour
             process_mmi_layer.delay(earthquake)
+
+            chain(
+                get_keywords.s(
+                    earthquake.impact_file_path
+                ).set(queue=get_keywords.queue),
+
+                handle_keyword_version.s(
+                    earthquake.id
+                ).set(queue=handle_keyword_version.queue)
+
+            ).delay()
+            # set keywords
             task_state = 'SUCCESS'
         except BaseException as e:
             LOGGER.exception(e)
@@ -396,3 +408,12 @@ def handle_report(report_result, event_id, locale='en'):
     report_object.save()
 
     return report_result
+
+
+@app.task(queue='inasafe-django')
+def handle_keyword_version(version, event_id):
+    """Handle keyword version."""
+    event = Earthquake.objects.get(id=event_id)
+    """:type: Earthquake"""
+    event.inasafe_version = version
+    event.save()
