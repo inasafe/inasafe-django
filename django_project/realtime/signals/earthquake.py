@@ -23,8 +23,9 @@ def earthquake_post_save(sender, instance, **kwargs):
     """Extract impact layer of the flood"""
     try:
         LOGGER.info('Sending task earthquake processing.')
-        for lang in ANALYSIS_LANGUAGES:
-            generate_event_report.delay(
-                instance, locale=lang)
+        if instance.analysis_flag:
+            for lang in ANALYSIS_LANGUAGES:
+                generate_event_report.delay(
+                    instance, locale=lang)
     except BaseException:
         pass
