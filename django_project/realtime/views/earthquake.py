@@ -117,6 +117,8 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
     * max_magnitude or maximum_magnitude
     * min_time or time_start
     * max_time or time_end
+    * since_last_days (latest EQ since the last d days)
+    * since_last_hours (latest EQ since the last h hours)
     * location_description
     * in_bbox filled with BBox String in the format SWLon,SWLat,NELon,NELat
     this is used as geographic box filter
@@ -406,6 +408,8 @@ class EarthquakeFeatureList(EarthquakeList):
     * max_magnitude or maximum_magnitude
     * min_time or time_start
     * max_time or time_end
+    * since_last_days (latest EQ since the last d days)
+    * since_last_hours (latest EQ since the last h hours)
     * location_description
     * felt shakes
     * in_bbox filled with BBox String in the format SWLon,SWLat,NELon,NELat
