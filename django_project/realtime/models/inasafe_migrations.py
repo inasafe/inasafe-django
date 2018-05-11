@@ -144,6 +144,7 @@ class EarthquakeMigration(models.Model):
 
             xml_content = event.shake_grid.read()
             event.shake_grid_xml = xml_content
+            event.shake_grid_saved = True
             event.save()
 
             self.check_shake_grid_status()

@@ -200,8 +200,8 @@ function createDownloadGridHandler(grid_url, source_type) {
         // replace magic number 000 with shake_id
         url = url.replace('000', shake_id).replace('source_type', source_type);
         $.get(url, function(data){
-            if(data && data.shake_grid_download_url){
-                var download_url = data.shake_grid_download_url;
+            if(data && data.shake_grid){
+                var download_url = data.shake_grid;
                 var filename = data.grid_xml_filename;
                 SaveToDisk(download_url, filename);
             }

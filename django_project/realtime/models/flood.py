@@ -74,6 +74,13 @@ class Boundary(models.Model):
         return self.name
 
 
+class FloodManager(models.GeoManager):
+
+    def get_queryset(self):
+        return super(FloodManager, self).get_queryset().defer(
+            'flood_data')
+
+
 class Flood(BaseEventModel):
     """Flood model."""
 
@@ -92,6 +99,9 @@ class Flood(BaseEventModel):
         help_text=_('The content of flood data in json format.'),
         blank=True,
         null=True)
+    flood_data_saved = models.BooleanField(
+        verbose_name=_('Cache flag to tell that flood_data is saved.'),
+        default=False)
     data_source = models.CharField(
         verbose_name=_('The source of hazard data'),
         help_text=_('The source of the hazard data used for analysis'),
@@ -142,7 +152,7 @@ class Flood(BaseEventModel):
         help_text=_('Total boundary affected by flood'),
         default=0)
 
-    objects = models.GeoManager()
+    objects = FloodManager()
 
     def delete(self, using=None):
         # delete impact layer
@@ -166,12 +176,9 @@ class Flood(BaseEventModel):
 
     @property
     def flood_data_download_url(self):
-        # return self.hazard_path
-        if self.flood_data:
-            return reverse('realtime:flood_data', kwargs={
-                'event_id': self.event_id,
-            })
-        return 'Flood data is empty: %s' % self.flood_data
+        return reverse('realtime:flood_data', kwargs={
+            'event_id': self.event_id,
+        })
 
 
 class FloodReport(BaseEventReportModel):
