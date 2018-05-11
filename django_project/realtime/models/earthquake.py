@@ -13,6 +13,14 @@ from realtime.models.report import BaseEventReportModel
 from realtime.utils import split_layer_ext
 
 
+class EarthquakeManager(models.GeoManager):
+
+    def get_queryset(self):
+        """Defer text fields"""
+        return super(EarthquakeManager, self).get_queryset().defer(
+            'shake_grid_xml')
+
+
 class Earthquake(BaseEventModel):
     """Earthquake model."""
 
@@ -103,12 +111,13 @@ class Earthquake(BaseEventModel):
             'Cache flag to tell that this shakemap already saved its '
             'contours.'),
         default=False)
+    shake_grid_saved = models.BooleanField(
+        verbose_name=_(
+            'Cache flag to tell that shakemap grid already saved.'
+        ),
+        default=False)
 
-    objects = models.GeoManager()
-
-    def __init__(self, *args, **kwargs):
-        super(Earthquake, self).__init__(*args, **kwargs)
-        self._report_object = None
+    objects = EarthquakeManager()
 
     def __unicode__(self):
         shake_string = u'Shake event [{0}]'.format(self.event_id_formatted)
@@ -154,7 +163,7 @@ class Earthquake(BaseEventModel):
 
     @property
     def shake_grid_exists(self):
-        return bool(self.shake_grid or self.shake_grid_xml)
+        return bool(self.shake_grid or self.shake_grid_saved)
 
     @property
     def mmi_layer_exists(self):
@@ -176,30 +185,24 @@ class Earthquake(BaseEventModel):
 
     @property
     def shake_grid_download_url(self):
-        if self.shake_grid_exists:
-            return reverse('realtime:shake_grid', kwargs={
-                'shake_id': self.shake_id,
-                'source_type': self.source_type
-            })
-        return None
+        return reverse('realtime:shake_grid', kwargs={
+            'shake_id': self.shake_id,
+            'source_type': self.source_type
+        })
 
     @property
     def mmi_layer_download_url(self):
-        if self.mmi_layer_saved:
-            return reverse('realtime:earthquake_mmi_contours_list', kwargs={
-                'shake_id': self.shake_id,
-                'source_type': self.source_type
-            })
-        return None
+        return reverse('realtime:earthquake_mmi_contours_list', kwargs={
+            'shake_id': self.shake_id,
+            'source_type': self.source_type
+        })
 
     @property
     def analysis_zip_download_url(self):
-        if self.mmi_layer_exists:
-            return reverse('realtime:analysis_zip', kwargs={
-                'shake_id': self.shake_id,
-                'source_type': self.source_type
-            })
-        return None
+        return reverse('realtime:analysis_zip', kwargs={
+            'shake_id': self.shake_id,
+            'source_type': self.source_type
+        })
 
     @property
     def event_id_formatted(self):
@@ -307,6 +310,13 @@ class Earthquake(BaseEventModel):
         return self.initial_shakemaps_queryset().first()
 
 
+class EarthquakeMMIContourManager(models.GeoManager):
+
+    def get_queryset(self):
+        return super(EarthquakeMMIContourManager, self).get_queryset().defer(
+            'properties')
+
+
 class EarthquakeMMIContour(models.Model):
     """Earthquake MMI Contour Model."""
 
@@ -330,6 +340,8 @@ class EarthquakeMMIContour(models.Model):
         verbose_name=_('JSON representations of feature properties.'),
         help_text=_('JSON representations of feature properties.'),
         blank=False)
+
+    objects = EarthquakeMMIContourManager()
 
     def __unicode__(self):
         description = u'MMI Contour {mmi} of {event_id_formatted}'.format(

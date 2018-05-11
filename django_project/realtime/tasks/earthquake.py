@@ -144,7 +144,8 @@ def generate_event_report(earthquake_event, locale='en'):
         # Do not use save, to avoid triggering signals
         Earthquake.objects.filter(
             id=earthquake_event.id).update(
-            shake_grid_xml=shake_grid_xml)
+            shake_grid_xml=shake_grid_xml,
+            shake_grid_saved=True)
 
         earthquake_event.refresh_from_db()
 

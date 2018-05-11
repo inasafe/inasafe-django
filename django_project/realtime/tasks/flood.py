@@ -76,6 +76,12 @@ def process_hazard_layer(flood):
         if not os.path.exists(layer_filename):
             layer_filename = os.path.join(extract_dir, 'flood_data.geojson')
 
+        # save flood data to database
+        with open(layer_filename) as f:
+            Flood.objects.filter(id=flood.id).update(
+                flood_data=f.read(),
+                flood_date_saved=True)
+
     else:
         # process hazard layer
         layer_filename = flood.hazard_path
@@ -354,7 +360,8 @@ def generate_event_report(flood_event, locale='en'):
 
         Flood.objects.filter(
             id=flood_event.id).update(
-            flood_data=flood_data
+            flood_data=flood_data,
+            flood_data_saved=True
         )
 
         process_hazard_layer.delay(flood_event)

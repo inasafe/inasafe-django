@@ -2,11 +2,14 @@
 import logging
 import os
 import re
+import shutil
 
+from django.conf import settings
 from django.core.files import File
 from django.core.management.base import BaseCommand
 
 from realtime.models.earthquake import Earthquake
+from realtime.models.flood import Flood
 from realtime.models.inasafe_migrations import EarthquakeMigration, \
     FloodMigration
 
@@ -104,6 +107,27 @@ def clean_up_eq(dry_run=False):
         state.migrate_shake_grid()
         state.mark_migrated()
         print state
+
+    # search stale files
+    media_root = settings.MEDIA_ROOT
+    grid_media_path = os.path.join(media_root, 'earthquake/grid')
+
+    print 'Find stale shake grid file in media.'
+    print
+
+    for path in os.listdir(grid_media_path):
+        if os.path.isfile(path):
+            found = True
+            try:
+                Earthquake.objects.get(shake_grid__endswith=path)
+            except Earthquake.DoesNotExist:
+                found = False
+
+            print '[{0}] found: [{1}]'.format(path, found)
+
+            if not found:
+                shutil.rmtree(path)
+                print 'Deleted [{0}]'.format(path)
 
 
 def scan_eq_raw_files(raw_dir, dry_run=False):
@@ -227,3 +251,24 @@ def clean_up_flood(dry_run=False):
         state.mark_migrated()
 
         print state
+
+    # search stale files
+    media_root = settings.MEDIA_ROOT
+    media_path = os.path.join(media_root, 'reports/flood/zip')
+
+    print 'Find stale flood data file in media.'
+    print
+
+    for path in os.listdir(media_path):
+        if os.path.isfile(path):
+            found = True
+            try:
+                Flood.objects.get(hazard_layer__endswith=path)
+            except Flood.DoesNotExist:
+                found = False
+
+            print '[{0}] found: [{1}]'.format(path, found)
+
+            if not found:
+                shutil.rmtree(path)
+                print 'Deleted [{0}]'.format(path)
