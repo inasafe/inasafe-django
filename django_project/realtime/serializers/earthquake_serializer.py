@@ -1,11 +1,12 @@
 # coding=utf-8
 import json
 
+from django.db import models
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
-    GeoFeatureModelSerializer
-)
+    GeoFeatureModelSerializer,
+    GeoFeatureModelListSerializer)
 
 from realtime.models.earthquake import Earthquake, EarthquakeReport, \
     EarthquakeMMIContour
@@ -76,6 +77,26 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
         )
 
 
+class EarthquakeListSerializer(GeoFeatureModelListSerializer):
+
+    def update(self, instance, validated_data):
+        return super(EarthquakeListSerializer, self).update(
+            instance, validated_data)
+
+    def to_representation(self, data):
+        """
+        List of object instances -> List of dicts of primitive
+        datatypes.
+        """
+        # Dealing with nested relationships, data can be a Manager,
+        # so, first get a queryset from the Manager if needed
+        iterable = data.iterator() if isinstance(data, models.Manager) else data
+
+        return [
+            self.child.to_representation(item) for item in iterable
+        ]
+
+
 class EarthquakeSerializer(serializers.ModelSerializer):
     reports = EarthquakeReportSerializer(
         many=True, required=False, write_only=False,
@@ -86,7 +107,7 @@ class EarthquakeSerializer(serializers.ModelSerializer):
         :param serializer_field:
         :type serializer_field: CustomSerializerMethodField
         :param obj:
-        :type obj: EarthquakeReport
+        :type obj: Earthquake
         :return:
         """
         relative_uri = reverse(
@@ -101,6 +122,21 @@ class EarthquakeSerializer(serializers.ModelSerializer):
 
     # auto bind to get_url method
     url = CustomSerializerMethodField()
+
+    def get_shake_grid(self, serializer_field, obj):
+        """
+        :param serializer_field:
+        :type serializer_field: CustomSerializerMethodField
+        :param obj:
+        :type obj: Earthquake
+        :return:
+        """
+        if obj.shake_grid:
+            return obj.shake_grid.url
+        else:
+            return obj.shake_grid_download_url
+
+    shake_grid = CustomSerializerMethodField()
 
     class Meta:
         model = Earthquake
@@ -129,6 +165,21 @@ class EarthquakeSerializer(serializers.ModelSerializer):
 
 class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
 
+    def get_shake_grid(self, serializer_field, obj):
+        """
+        :param serializer_field:
+        :type serializer_field: CustomSerializerMethodField
+        :param obj:
+        :type obj: Earthquake
+        :return:
+        """
+        if obj.shake_grid:
+            return obj.shake_grid.url
+        else:
+            return obj.shake_grid_download_url
+
+    shake_grid = CustomSerializerMethodField()
+
     class Meta:
         model = Earthquake
         geo_field = "location"
@@ -136,7 +187,6 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
         fields = (
             'shake_id',
             'shake_grid',
-            'shake_grid_download_url',
             # 'mmi_output',
             'magnitude',
             'time',

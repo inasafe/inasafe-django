@@ -20,9 +20,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         earthquakes = Earthquake.objects.all()
-        for _eq in earthquakes:
+        for _eq in earthquakes.iterator():
             eq = _eq
             """:type: Earthquake"""
+
+            if eq.shake_grid_xml:
+                Earthquake.objects.filter(id=eq.id).update(
+                    shake_grid_saved=True)
+                eq.refresh_from_db()
 
             if eq.source_type == Earthquake.INITIAL_SOURCE_TYPE:
                 eq.mark_shakemaps_has_corrected()
