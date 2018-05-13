@@ -10,6 +10,7 @@ from leaflet.admin import LeafletGeoAdmin
 
 from realtime.forms.coreflatpage import CoreFlatPageForm
 from realtime.forms.report_template import ReportTemplate
+from realtime.models import EarthquakeMigration, FloodMigration
 from realtime.models.ash import Ash, AshReport
 from realtime.models.coreflatpage import CoreFlatPage
 from realtime.models.earthquake import Earthquake, EarthquakeReport, \
@@ -179,6 +180,33 @@ class ReportTemplateAdmin(ModelAdmin):
     list_filter = ('hazard', 'language')
 
 
+# Migration Admin Panel
+class EarthquakeMigrationAdmin(ModelAdmin):
+    """Admin class for EarthquakeMigration model"""
+    list_display = [
+        'event', 'migrated', 'has_shake_grid_in_raw_file',
+        'has_shake_grid_in_media_file', 'has_shake_grid_in_database',
+        'has_mmi_in_raw_file', 'has_mmi_in_media_file', 'has_mmi_in_database']
+    list_filter = [
+        'migrated', 'has_shake_grid_in_raw_file',
+        'has_shake_grid_in_media_file', 'has_shake_grid_in_database',
+        'has_mmi_in_raw_file', 'has_mmi_in_media_file', 'has_mmi_in_database']
+    ordering = ['-event']
+
+
+class FloodMigrationAdmin(ModelAdmin):
+    """Admin class for FloodMigration model"""
+    list_display = [
+        'event', 'migrated', 'has_hazard_in_raw_file',
+        'has_hazard_in_media_file', 'has_hazard_in_database',
+        'has_impact_in_raw_file', 'has_impact_in_media_file', 'has_impact_in_database']
+    list_filter = [
+        'migrated', 'has_hazard_in_raw_file',
+        'has_hazard_in_media_file', 'has_hazard_in_database',
+        'has_impact_in_raw_file', 'has_impact_in_media_file', 'has_impact_in_database']
+    ordering = ['-event']
+
+
 realtime_admin_site.register(Impact, ImpactAdmin)
 realtime_admin_site.register(Earthquake, EarthquakeAdmin)
 realtime_admin_site.register(EarthquakeReport, EarthquakeReportAdmin)
@@ -191,3 +219,5 @@ realtime_admin_site.register(Ash, AshAdmin)
 realtime_admin_site.register(AshReport, AshReportAdmin)
 realtime_admin_site.register(Volcano, VolcanoAdmin)
 realtime_admin_site.register(ReportTemplate, ReportTemplateAdmin)
+realtime_admin_site.register(EarthquakeMigration, EarthquakeMigrationAdmin)
+realtime_admin_site.register(FloodMigration, FloodMigrationAdmin)
