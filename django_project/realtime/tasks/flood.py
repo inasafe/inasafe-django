@@ -68,19 +68,18 @@ def process_hazard_layer(flood):
             zf.extractall(extract_dir, zf.namelist())
 
         # search flood data
-        layer_filename = os.path.join(extract_dir, 'flood_data.shp')
-
-        if not os.path.exists(layer_filename):
-            layer_filename = os.path.join(extract_dir, 'flood_data.json')
+        layer_filename = os.path.join(extract_dir, 'flood_data.json')
 
         if not os.path.exists(layer_filename):
             layer_filename = os.path.join(extract_dir, 'flood_data.geojson')
 
-        # save flood data to database
-        with open(layer_filename) as f:
-            Flood.objects.filter(id=flood.id).update(
-                flood_data=f.read(),
-                flood_date_saved=True)
+        if os.path.exists(layer_filename):
+
+            # save flood data to database
+            with open(layer_filename) as f:
+                Flood.objects.filter(id=flood.id).update(
+                    flood_data=f.read(),
+                    flood_date_saved=True)
 
     else:
         # process hazard layer
