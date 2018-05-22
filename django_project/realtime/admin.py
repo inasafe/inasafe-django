@@ -168,8 +168,8 @@ class AshReportAdmin(ModelAdmin):
 class VolcanoAdmin(LeafletGeoAdmin):
     """Admin class for volcano model"""
     list_display = (
-        'volcano_name', 'location', 'elevation', 'province', 'district',
-        'morphology')
+        'volcano_id', 'volcano_name', 'timezone',
+        'location', 'elevation', 'province', 'district', 'morphology')
     list_filter = ('province', 'district', 'morphology')
     search_fields = ['volcano_name', 'province', 'district', 'morphology']
 

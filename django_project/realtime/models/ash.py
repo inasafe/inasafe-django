@@ -120,6 +120,7 @@ class Ash(BaseEventModel):
     @property
     def event_id_formatted(self):
         return ASH_EVENT_ID_FORMAT.format(
+            volcano_id=self.volcano.volcano_id,
             event_time=self.event_time,
             volcano_name=self.volcano.volcano_name)
 

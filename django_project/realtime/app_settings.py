@@ -167,7 +167,7 @@ ASH_EVENT_TIME_FORMAT = getattr(
 ASH_EVENT_ID_FORMAT = getattr(
     settings,
     'ASH_EVENT_ID_FORMAT',
-    '{event_time:%Y%m%d%H%M%z}_{volcano_name}')
+    '{volcano_id}_{event_time:%Y%m%d%H%M%z}_{volcano_name}')
 ASH_EVENT_REPORT_FORMAT = getattr(
     settings,
     'ASH_EVENT_REPORT_FORMAT',
