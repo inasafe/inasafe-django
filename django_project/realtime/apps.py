@@ -1,4 +1,5 @@
 # coding=utf-8
+
 import logging
 
 from django.apps import AppConfig, apps
@@ -8,11 +9,10 @@ from django.contrib.auth.models import Group
 from django.contrib.contenttypes.management import update_contenttypes
 from django.contrib.gis.geos.point import Point
 
-from realtime.models.volcano import load_volcano_data
-from user_map.models.user import User
-
 from realtime.app_settings import LOGGER_NAME, REST_GROUP, OSM_LEVEL_7_NAME, \
     OSM_LEVEL_8_NAME, VOLCANO_GROUP, ASH_GROUP, VOLCANO_LAYER_PATH
+from realtime.models.volcano import load_volcano_data
+from user_map.models.user import User
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '4/1/16'
@@ -151,3 +151,6 @@ class RealtimeConfig(AppConfig):
         except BaseException as e:
             LOGGER.exception(e)
             pass
+
+        # attach signals
+        from realtime import signals  # noqa

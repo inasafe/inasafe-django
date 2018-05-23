@@ -373,7 +373,7 @@ dbrestore:
 	@echo "Create database gis"
 	@docker-compose -p $(PROJECT_ID) exec db su - postgres -c "createdb -O docker -T template_postgis gis"
 	@echo "Dumping to database gis"
-	@docker-compose -p $(PROJECT_ID) exec dbbackup pg_restore /backups/latest.dmp | docker exec -i $(PROJECT_ID)_db_1 su - postgres -c "psql gis"
+	@docker-compose -p $(PROJECT_ID) exec db "pg_restore /backups/latest.dmp | su - postgres -c 'psql gis'"
 
 dbbackup:
 	@echo

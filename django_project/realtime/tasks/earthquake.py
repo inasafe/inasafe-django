@@ -120,6 +120,9 @@ def generate_event_report(earthquake_event, locale='en'):
     :return:
     """
     earthquake_event.inspected_language = locale
+    earthquake_event.refresh_from_db(
+        fields=['shake_grid_xml'])
+
     if not earthquake_event.hazard_layer_exists:
 
         # Skip all process if not exists
@@ -127,8 +130,6 @@ def generate_event_report(earthquake_event, locale='en'):
 
     # Check raw hazard stored
     elif not earthquake_event.shake_grid_xml:
-
-        earthquake_event.refresh_from_db()
 
         # Store Grid XML from hazard path into db
         if earthquake_event.shake_grid:
@@ -147,7 +148,8 @@ def generate_event_report(earthquake_event, locale='en'):
             shake_grid_xml=shake_grid_xml,
             shake_grid_saved=True)
 
-        earthquake_event.refresh_from_db()
+        earthquake_event.refresh_from_db(
+            fields=['shake_grid_xml'])
 
         # Remove un-needed Grid XML
         if earthquake_event.shake_grid:
@@ -303,7 +305,8 @@ def handle_analysis(analysis_result, event_id, locale='en'):
 
             chain(
                 get_keywords.s(
-                    earthquake.impact_file_path
+                    earthquake.impact_file_path,
+                    keyword='keyword_version'
                 ).set(queue=get_keywords.queue),
 
                 handle_keyword_version.s(

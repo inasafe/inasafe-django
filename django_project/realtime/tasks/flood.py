@@ -27,7 +27,7 @@ from realtime.models.flood import (
     BoundaryAlias,
     ImpactEventBoundary)
 from realtime.tasks.headless.inasafe_wrapper import (
-    run_analysis, generate_report, RESULT_SUCCESS)
+    run_analysis, generate_report, RESULT_SUCCESS, get_keywords)
 from realtime.tasks.realtime.flood import process_flood
 from realtime.utils import substitute_layer_order, template_names, \
     template_paths
@@ -430,6 +430,18 @@ def handle_analysis(analysis_result, event_id, locale='en'):
 
             task_state = 'SUCCESS'
             process_impact_layer.delay(flood)
+
+            chain(
+                get_keywords.s(
+                    flood.impact_file_path,
+                    keyword='keyword_version'
+                ).set(queue=get_keywords.queue),
+
+                handle_keyword_version.s(
+                    flood.id
+                ).set(queue=handle_keyword_version.queue)
+
+            ).delay()
         except BaseException as e:
             LOGGER.exception(e)
     else:
@@ -524,3 +536,12 @@ def handle_report(report_result, event_id, locale='en'):
     report_object.save()
 
     return report_result
+
+
+@app.task(queue='inasafe-django')
+def handle_keyword_version(version, event_id):
+    """Handle keyword version."""
+    event = Flood.objects.get(id=event_id)
+    """:type: Earthquake"""
+    event.inasafe_version = version
+    event.save()
