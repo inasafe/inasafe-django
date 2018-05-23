@@ -18,10 +18,14 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 LOGGER.info('Flood Signals registered')
 
 
-@receiver(post_save, sender=Flood)
+@receiver(post_save)
 def flood_post_save(
         sender, instance, created=None, update_fields=None, **kwargs):
     """Extract impact layer of the flood"""
+
+    if not issubclass(sender, Flood):
+        return
+
     try:
         fields = ['total_affected', 'boundary_flooded']
         update_fields = update_fields or []

@@ -2,7 +2,6 @@
 import logging
 import os
 import re
-import shutil
 
 from django.conf import settings
 from django.core.files import File
@@ -85,7 +84,8 @@ def scan_eq_events(dry_run=False):
 
         state.mark_migrated()
 
-        print 'EQ Migrated {0} {1}'.format(state.event.shake_id, state.migrated)
+        print 'EQ Migrated {0} {1}'.format(
+            state.event.shake_id, state.migrated)
 
 
 def clean_up_eq(dry_run=False):

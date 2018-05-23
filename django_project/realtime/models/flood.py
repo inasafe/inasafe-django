@@ -313,6 +313,3 @@ class ImpactEventBoundary(models.Model):
         help_text=_('The affected population in a given flood boundary'),
         blank=True,
         null=True)
-
-
-from realtime.signals.flood import *  # noqa

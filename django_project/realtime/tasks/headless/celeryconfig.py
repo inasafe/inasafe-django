@@ -63,3 +63,8 @@ worker_prefetch_multiplier = 1
 task_serializer = 'pickle'
 accept_content = {'pickle'}
 result_serializer = 'pickle'
+
+
+# Late ACK settings
+task_acks_late = True
+task_reject_on_worker_lost = True
