@@ -1,12 +1,10 @@
 # coding=utf-8
 import json
 
-from django.db import models
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
-    GeoFeatureModelSerializer,
-    GeoFeatureModelListSerializer)
+    GeoFeatureModelSerializer)
 
 from realtime.models.earthquake import Earthquake, EarthquakeReport, \
     EarthquakeMMIContour
@@ -75,26 +73,6 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
             'report_thumbnail',
             'report_map_filename'
         )
-
-
-class EarthquakeListSerializer(GeoFeatureModelListSerializer):
-
-    def update(self, instance, validated_data):
-        return super(EarthquakeListSerializer, self).update(
-            instance, validated_data)
-
-    def to_representation(self, data):
-        """
-        List of object instances -> List of dicts of primitive
-        datatypes.
-        """
-        # Dealing with nested relationships, data can be a Manager,
-        # so, first get a queryset from the Manager if needed
-        iterable = data.iterator() if isinstance(data, models.Manager) else data
-
-        return [
-            self.child.to_representation(item) for item in iterable
-        ]
 
 
 class EarthquakeSerializer(serializers.ModelSerializer):

@@ -213,6 +213,7 @@ services:
       - INASAFE_REALTIME_REST_URL=http://{{ realtime_rest_api.host }}:{{ realtime_rest_api.port }}/realtime/api/v1
       - INASAFE_REALTIME_REST_USER={{ realtime_rest_api.user }}
       - INASAFE_REALTIME_REST_PASSWORD={{ realtime_rest_api.password }}
+      - QGIS_DEBUG=0
     network_mode: "bridge"
 
   shakemap-monitor:
@@ -239,6 +240,7 @@ services:
       - INASAFE_REALTIME_REST_URL=http://{{ realtime_rest_api.host }}:{{ realtime_rest_api.port }}/realtime/api/v1
       - INASAFE_REALTIME_REST_USER={{ realtime_rest_api.user }}
       - INASAFE_REALTIME_REST_PASSWORD={{ realtime_rest_api.password }}
+      - QGIS_DEBUG=0
     network_mode: "bridge"
 
   shakemap-corrected-monitor:
@@ -266,6 +268,7 @@ services:
       - INASAFE_REALTIME_REST_URL=http://{{ realtime_rest_api.host }}:{{ realtime_rest_api.port }}/realtime/api/v1
       - INASAFE_REALTIME_REST_USER={{ realtime_rest_api.user }}
       - INASAFE_REALTIME_REST_PASSWORD={{ realtime_rest_api.password }}
+      - QGIS_DEBUG=0
     network_mode: "bridge"
 
   {% endif %}
@@ -292,6 +295,7 @@ services:
       - INASAFE_HEADLESS_BROKER_HOST=amqp://guest:guest@rabbitmq:5672/
       - INASAFE_WORK_DIR={{ inasafe_headless.working_dir }}
       - INASAFE_OUTPUT_DIR={{ inasafe_headless.working_dir }}/outputs
+      - QGIS_DEBUG=0
     network_mode: "bridge"
 
   {% endif %}

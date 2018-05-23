@@ -23,7 +23,6 @@ from realtime.tasks.headless.inasafe_wrapper import (
     get_generated_report,
     check_broker_connection,
 )
-from realtime.utils import substitute_layer_order
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
