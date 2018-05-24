@@ -8,6 +8,9 @@ services:
 env:
   global:
     - ON_TRAVIS=True
+  matrix:
+    - INTEGRATION_TEST=False
+    - INTEGRATION_TEST=True
 
 virtualenv:
   system_site_packages: true
@@ -16,6 +19,7 @@ python:
   - '2.7'
 
 install:
+  - sudo apt install zip wget
   - pip install -r REQUIREMENTS-TRAVIS.txt
   - pushd deployment
   - cp ansible/development/group_vars/all.travis.yml ansible/development/group_vars/all.yml
@@ -25,6 +29,8 @@ install:
   - make up
   - make status
   - mkdir -p headless-data/qgis-templates
+  - mkdir -p headless-data/contexts
+  # Retrieve latest templates
   - sudo git clone https://github.com/inasafe/inasafe-realtime-resources.git headless-data/qgis-templates
   - cat docker-compose.override.yml
   - until make migrate; do echo "Retrying"; sleep 5; done
@@ -33,12 +39,15 @@ install:
 script:
   - pushd deployment
   - make check-flake8
-  - make coverage-tests
+  - if [ "$INTEGRATION_TEST" = "False" ]; then make coverage-tests; fi
   # Do integration tests
   - make inasafe-worker-stop
   - make realtime-worker
   - make headless-worker
-  - make integration-tests
+  - sleep 30
+  # Retrieve analysis context data
+  - if [ "$INTEGRATION_TEST" = "True" ]; then make retrieve-context-data; fi
+  - if [ "$INTEGRATION_TEST" = "True" ]; then make integration-tests; fi
   - popd
 
 after_script:

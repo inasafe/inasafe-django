@@ -93,12 +93,38 @@ integration-tests-worker-logs:
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 integration-test-worker
 
+combined-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Showing combined worker logs"
+	@echo "------------------------------------------------------------------"
+	@{ make realtime-worker-logs & make headless-worker-logs & make inasafe-worker-logs; }
+
+combined-integration-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Showing combined integration worker logs"
+	@echo "------------------------------------------------------------------"
+	@{ make realtime-worker-logs & make headless-worker-logs & make integration-tests-worker-logs & make integration-tests-runner-logs; }
+
 integration-tests: realtime-worker headless-worker integration-tests-worker
-	@-docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios.TestEarthquakeTasks
+	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios.TestEarthquakeTasks
+	@make integration-tests-worker-restart
+	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios.TestFloodTasks
+	@make integration-tests-worker-restart
+	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios.TestAshTasks
+
+integration-tests-with-logs: realtime-worker headless-worker integration-tests-worker
+	@-{ make headless-worker-logs & make realtime-worker-logs & make integration-tests-worker-logs & docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios.TestEarthquakeTasks; }
 	@-make integration-tests-worker-restart
-	@-docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios.TestFloodTasks
+	@-{ make headless-worker-logs & make realtime-worker-logs & make integration-tests-worker-logs & docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios.TestFloodTasks; }
 	@-make integration-tests-worker-restart
-	@-docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios.TestAshTasks
+	@-{ make headless-worker-logs & make realtime-worker-logs & make integration-tests-worker-logs & docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios.TestAshTasks; }
+
+retrieve-context-data:
+	@wget --no-check-certificate https://inasafe.bnpb.go.id/media/context-data/context-data.zip
+	@mv context-data.zip headless-data/contexts
+	@pushd headless-data/contexts && unzip context-data.zip && popd
 
 build:
 	@echo

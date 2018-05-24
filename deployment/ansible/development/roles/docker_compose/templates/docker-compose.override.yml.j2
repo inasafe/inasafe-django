@@ -120,6 +120,41 @@ services:
       - rabbitmq:rabbitmq
     network_mode: "bridge"
 
+  integration-test-runner:
+    build: docker-dev
+    command: coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios
+    volumes:
+      - ../django_project:/home/web/django_project
+      - ./static:/home/web/static
+      - ./media:/home/web/media
+      - ./reports:/home/web/reports
+      - ./logs:/var/log/
+      - ./tmp:/tmp
+      - {{ inasafe_headless.host_working_dir }}:{{ inasafe_headless.working_dir }}
+      - {{ inasafe_realtime.host_working_dir }}:{{ inasafe_realtime.working_dir }}
+    environment:
+      - DATABASE_NAME=gis
+      - DATABASE_USERNAME=docker
+      - DATABASE_PASSWORD=docker
+      - DATABASE_HOST=db
+      # Use development settings file
+      - DJANGO_SETTINGS_MODULE=core.settings.celery_testing
+      - VIRTUAL_HOST=users.inasafe.org
+      - VIRTUAL_PORT=8080
+      - BROKER_URL=amqp://guest:guest@rabbitmq:5672/
+      - INASAFE_REALTIME_BROKER_URL=amqp://guest:guest@{{ inasafe_realtime.broker }}:{{ inasafe_realtime.broker_port }}/
+      - INASAFE_HEADLESS_BROKER_URL=amqp://guest:guest@{{ inasafe_headless.broker }}:{{ inasafe_headless.broker_port }}/
+      # Secrets
+      - MAPQUEST_MAP_KEY={{ inasafe_django.mapquest_map_key }}
+      - SITE_DOMAIN_NAME={{ inasafe_django.site_domain_name }}
+      # Celery
+      - TASK_ALWAYS_EAGER=False
+      - INASAFE_OUTPUT_DIR={{ inasafe_headless.working_dir }}/outputs
+      - ON_TRAVIS={{ on_travis }}
+    links:
+      - rabbitmq:rabbitmq
+    network_mode: "bridge"
+
   inasafe-worker:
     volumes:
       - ../django_project:/home/web/django_project
