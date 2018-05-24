@@ -27,16 +27,8 @@ def flood_post_save(
         return
 
     try:
-        fields = ['total_affected', 'boundary_flooded']
-        update_fields = update_fields or []
-        for field in fields:
-            # if total_affected or boundary_flooded is updated,
-            # do not recalculate
-            if field in update_fields:
-                break
-        else:
-            if instance.analysis_flag:
-                for lang in ANALYSIS_LANGUAGES:
-                    generate_event_report.delay(instance, locale=lang)
+        if instance.analysis_flag:
+            for lang in ANALYSIS_LANGUAGES:
+                generate_event_report.delay(instance, locale=lang)
     except Exception as e:
         LOGGER.exception(e)

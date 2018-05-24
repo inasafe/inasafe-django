@@ -23,9 +23,9 @@ install:
   - make build
   - make pull-external-services
   - make up
-  - make realtime-worker
-  - make headless-worker
   - make status
+  - mkdir -p headless-data/qgis-templates
+  - sudo git clone https://github.com/inasafe/inasafe-realtime-resources.git headless-data/qgis-templates
   - cat docker-compose.override.yml
   - until make migrate; do echo "Retrying"; sleep 5; done
   - popd
@@ -34,6 +34,10 @@ script:
   - pushd deployment
   - make check-flake8
   - make coverage-tests
+  # Do integration tests
+  - make inasafe-worker-stop
+  - make realtime-worker
+  - make headless-worker
   - make integration-tests
   - popd
 

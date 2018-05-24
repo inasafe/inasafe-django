@@ -82,7 +82,7 @@ def generate_hazard_layer(ash_event):
         Ash.objects.filter(id=ash_event.id).update(
             task_status='FAILURE')
 
-    result = tasks_chain.apply_async(link_error=_handle_error.s())
+    result = tasks_chain.apply_async()
 
     Ash.objects.filter(id=ash_event.id).update(
         task_id=result.task_id,
@@ -170,7 +170,7 @@ def run_ash_analysis(ash_event, locale='en'):
         """Update task status as Failure."""
         ash_event.analysis_task_status = 'FAILURE'
 
-    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
+    async_result = tasks_chain.apply_async()
     ash_event.analysis_task_id = async_result.task_id
     ash_event.analysis_task_status = async_result.state
 
@@ -253,7 +253,7 @@ def generate_ash_report(ash_event, locale='en'):
         """Update task status as Failure."""
         ash_event.report_task_status = 'FAILURE'
 
-    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
+    async_result = tasks_chain.apply_async()
 
     ash_event.report_task_id = async_result.task_id
     ash_event.report_task_status = async_result.status
