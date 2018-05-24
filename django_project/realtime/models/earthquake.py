@@ -66,13 +66,11 @@ class Earthquake(BaseEventModel):
         default=None)
     magnitude = models.FloatField(
         verbose_name=_('The magnitude'),
-        help_text=_('The magnitude of the event.'),
-        null=True)
+        help_text=_('The magnitude of the event.'))
     time = models.DateTimeField(
         verbose_name=_('Date and Time'),
         help_text=_('The time the shake happened.'),
-        blank=False,
-        null=True)
+        blank=False)
     generated_time = models.DateTimeField(
         verbose_name=_('Report Generated Date and Time'),
         help_text=_('The time the shake report generated.'),
@@ -81,8 +79,7 @@ class Earthquake(BaseEventModel):
         default=None)
     depth = models.FloatField(
         verbose_name=_('The depth'),
-        help_text=_('The depth of the event in km unit.'),
-        null=True)
+        help_text=_('The depth of the event in km unit.'))
     location = models.PointField(
         verbose_name=_('Location'),
         help_text=_(
