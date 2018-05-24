@@ -411,7 +411,7 @@ def run_flood_analysis(flood_event, locale='en'):
         """Update task status as Failure."""
         flood_event.analysis_task_status = 'FAILURE'
 
-    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
+    async_result = tasks_chain.apply_async()
     flood_event.analysis_task_id = async_result.task_id
     flood_event.analysis_task_status = async_result.state
 
@@ -499,7 +499,7 @@ def generate_flood_report(flood_event, locale='en'):
         """Update task status as Failure."""
         flood_event.report_task_status = 'FAILURE'
 
-    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
+    async_result = tasks_chain.apply_async()
 
     flood_event.report_task_id = async_result.task_id
     flood_event.report_task_status = async_result.status
