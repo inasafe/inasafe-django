@@ -1,4 +1,6 @@
 # coding=utf-8
+import os
+
 from django.test import TestCase
 
 from realtime.tests.model_factories import FloodFactory
@@ -13,3 +15,4 @@ class TestModelFlood(TestCase):
         flood = FloodFactory.create()
         message = 'The flood object is instantiated successfully.'
         self.assertIsNotNone(flood.id, message)
+        self.assertTrue(os.path.exists(flood.hazard_path))

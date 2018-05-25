@@ -5,6 +5,9 @@ from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
+from realtime.models.mixins import BaseEventModel
+from realtime.models.report import BaseEventReportModel
+
 
 class BoundaryAlias(models.Model):
     """Aliases for Boundary"""
@@ -71,8 +74,16 @@ class Boundary(models.Model):
         return self.name
 
 
-class Flood(models.Model):
+class FloodManager(models.GeoManager):
+
+    def get_queryset(self):
+        return super(FloodManager, self).get_queryset().defer(
+            'flood_data')
+
+
+class Flood(BaseEventModel):
     """Flood model."""
+
     class Meta:
         """Meta class."""
         app_label = 'realtime'
@@ -83,6 +94,14 @@ class Flood(models.Model):
         max_length=20,
         unique=True,
         blank=False)
+    flood_data = models.TextField(
+        verbose_name=_('Flood Data Contents'),
+        help_text=_('The content of flood data in json format.'),
+        blank=True,
+        null=True)
+    flood_data_saved = models.BooleanField(
+        verbose_name=_('Cache flag to tell that flood_data is saved.'),
+        default=False)
     data_source = models.CharField(
         verbose_name=_('The source of hazard data'),
         help_text=_('The source of the hazard data used for analysis'),
@@ -101,6 +120,9 @@ class Flood(models.Model):
     source = models.CharField(
         verbose_name=_('Flood Data Source'),
         help_text=_('The source of hazard data'),
+        default=None,
+        blank=True,
+        null=True,
         max_length=255)
     region = models.CharField(
         verbose_name=_('The Region id for source'),
@@ -130,7 +152,7 @@ class Flood(models.Model):
         help_text=_('Total boundary affected by flood'),
         default=0)
 
-    objects = models.GeoManager()
+    objects = FloodManager()
 
     def delete(self, using=None):
         # delete impact layer
@@ -140,8 +162,26 @@ class Flood(models.Model):
     def __unicode__(self):
         return 'Flood event & interval: %s - %s' % (self.time, self.interval)
 
+    @property
+    def event_id_formatted(self):
+        return self.event_id
 
-class FloodReport(models.Model):
+    @property
+    def reports_queryset(self):
+        return self.reports
+
+    @property
+    def report_class(self):
+        return FloodReport
+
+    @property
+    def flood_data_download_url(self):
+        return reverse('realtime:flood_data', kwargs={
+            'event_id': self.event_id,
+        })
+
+
+class FloodReport(BaseEventReportModel):
     """Flood Report models"""
 
     class Meta:
@@ -152,12 +192,6 @@ class FloodReport(models.Model):
     flood = models.ForeignKey(
         Flood,
         related_name='reports')
-    language = models.CharField(
-        verbose_name=_('Language ID'),
-        help_text=_('The language ID of the report'),
-        max_length=4,
-        default='id'
-    )
     impact_report = models.FileField(
         blank=True,
         verbose_name=_('Impact Report'),
@@ -168,6 +202,22 @@ class FloodReport(models.Model):
         verbose_name=_('Impact Map'),
         help_text=_('Impact Map file in PDF'),
         upload_to='reports/flood/pdf')
+
+    @property
+    def event(self):
+        return self.flood
+
+    @event.setter
+    def event(self, value):
+        self.flood = value
+
+    @property
+    def canonical_report_pdf(self):
+        return self.impact_map
+
+    @property
+    def canonical_report_filename(self):
+        return self.impact_map_filename
 
     @property
     def impact_report_url(self):
@@ -246,9 +296,16 @@ class ImpactEventBoundary(models.Model):
         verbose_name=_('Geometry of the boundary of impact'),
         help_text=_('Geometry of the boundary of impact'),
         blank=False)
-    hazard_class = models.IntegerField(
+    affected = models.BooleanField(
+        verbose_name=_('Affected status of the boundary impact'),
+        help_text=_('Affected status of the boundary impact'),
+        blank=False,
+        null=False,
+        default=False)
+    hazard_class = models.CharField(
         verbose_name=_('Hazard Class'),
         help_text=_('Hazard class in the given boundary'),
+        max_length=50,
         blank=True,
         null=True)
     population_affected = models.IntegerField(
@@ -256,5 +313,6 @@ class ImpactEventBoundary(models.Model):
         help_text=_('The affected population in a given flood boundary'),
         blank=True,
         null=True)
+
 
 from realtime.signals.flood import *  # noqa

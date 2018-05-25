@@ -11,11 +11,12 @@ INSTALLED_APPS += (
     'bootstrapform',
     'bootstrap3_datetime',
     'rest_framework',
-    'djcelery',
-    'kombu.transport.django',
+    'rest_framework_gis',
     'tinymce',
     'filebrowser',
+    'sorl.thumbnail',
     'mce_filebrowser',
+    'django.contrib.admin',
 )
 
 # User map sets up auth where users are identified by their email,
@@ -69,5 +70,7 @@ REST_FRAMEWORK = {
 TINYMCE_DEFAULT_CONFIG = {
     'file_browser_callback': 'mce_filebrowser'
 }
+
+FILEBROWSER_DIRECTORY = './'
 
 from .secret import MAPQUEST_MAP_KEY  # noqa

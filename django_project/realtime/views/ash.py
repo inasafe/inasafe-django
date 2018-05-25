@@ -21,8 +21,11 @@ from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 
+from realtime.app_settings import SLUG_ASH_LANDING_PAGE, \
+    LANDING_PAGE_SYSTEM_CATEGORY
 from realtime.forms.ash import AshUploadForm
 from realtime.models.ash import Ash, AshReport
+from realtime.models.coreflatpage import CoreFlatPage
 from realtime.models.volcano import Volcano
 from realtime.serializers.ash_serializer import (
     AshSerializer,
@@ -43,10 +46,19 @@ def index(request):
     if request.method == 'POST':
         pass
 
+    landing_page = CoreFlatPage.objects.filter(
+        slug_id=SLUG_ASH_LANDING_PAGE,
+        system_category=LANDING_PAGE_SYSTEM_CATEGORY,
+        language=request.LANGUAGE_CODE).first()
+
     context = RequestContext(request)
     return render_to_response(
         'realtime/ash/index.html',
-        {},
+        {
+            'landing_page': landing_page,
+            'LANDING_PAGE_SLUG_ID': SLUG_ASH_LANDING_PAGE,
+            'LANDING_PAGE_SYSTEM_CATEGORY': LANDING_PAGE_SYSTEM_CATEGORY
+        },
         context_instance=context)
 
 
@@ -83,17 +95,20 @@ def upload_form(request):
         v = {
             'id': volcano.id,
             'name': str(volcano),
+            'timezone': volcano.timezone
         }
         volcano_list.append(v)
 
-    context['volcano_list'] = json.dumps(volcano_list)
+    volcano_list_string = json.dumps(volcano_list)
 
     # Render the form
     return render_to_response(
         'realtime/ash/upload_modal.html',
-        {'form': form},
-        context_instance=context
-    )
+        {
+            'form': form,
+            'volcano_list': volcano_list_string
+        },
+        context_instance=context)
 
 
 class AshList(mixins.ListModelMixin, mixins.CreateModelMixin,
@@ -154,9 +169,10 @@ class AshDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
             *args, **kwargs):
         try:
             if volcano_name and event_time:
+                event_time = parse(event_time)
                 instance = Ash.objects.get(
                     volcano__volcano_name__iexact=volcano_name,
-                    event_time=parse(event_time))
+                    event_time=event_time)
                 self.kwargs.update(id=instance.id)
                 if 'hazard_file' in request.FILES and instance.hazard_file:
                     instance.hazard_file.delete()

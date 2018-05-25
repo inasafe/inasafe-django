@@ -54,6 +54,7 @@
             autoSelect: true
         });
 
+        var $timezone = $("#id_event_time_zone_string");
         var $volcano = $("#id_volcano");
         $volcano.closest('.form-group').hide();
 
@@ -62,6 +63,7 @@
             if(current){
                 if(current.name == $volcano_name_input.val()){
                     $volcano.val(current.id);
+                    $timezone.val(current.timezone);
                 }
                 else{
 
@@ -70,7 +72,6 @@
         });
 
         var timezone_list = moment.tz.names();
-        var $timezone = $("#id_event_time_zone_string");
         $timezone.typeahead({
             source: timezone_list,
             autoSelect: true

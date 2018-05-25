@@ -1,0 +1,153 @@
+---
+
+# Set to yes, if you're using pycharm for development
+# Otherwise, set no
+use_pycharm: no
+# Your linux/mac user that will run ansible
+remote_user: travis
+# Your linux/mac group that will run ansible
+remote_group: travis
+# Your project location (this repo)
+project_path: "/home/travis/build/inasafe/inasafe-django"
+# True if it will be running on Travis
+on_travis: True
+
+# Facts for this web app
+inasafe_django:
+  # Site domain name for this web app.
+  # It can be pointing to domain name or ipaddress:port
+  # for local development, use 'http://docker-inasafe-django:61102'
+  site_domain_name: 'http://uwsgi:8080/'
+  # We are using mapquest to show basemap. Put your mapquest key here
+  mapquest_map_key: 'secretkey'
+  # We are using sentry to send error messages. Put your sentry key here
+  sentry_secret_key: 'secretkey'
+  # Toggle for celery always eager settings
+  task_always_eager: True
+
+# Facts for PyCharm integrations
+# Not needed for productions
+interpreters:
+  # Interpreter for this web app
+  inasafe_django:
+    # Just a name for interpreter
+    name: 'InaSAFE Django Container'
+    # Domain alias. We set /etc/hosts to point to this domain alias for this
+    # interpreter
+    domain_alias: 'docker-inasafe-django'
+    # The port that this interpreter will use to redirect to SSH. Default to
+    # 61103
+    ssh_port: &inasafe_django_ssh_port 61103
+    # Location of pycharm helpers to cache pycharm index. Leave it be.
+    pycharm_helpers: /home/web/django_project/.pycharm_helpers
+    # The ip address of this interpreter. Set it to your current ipaddress of
+    # wifi or ethernet interface, so it can be resolved from inside docker.
+    ipaddress: &inasafe_django_host_ip 192.168.1.7
+  # Just a reference to InaSAFE Realtime Container
+  inasafe_realtime:
+    name: 'InaSAFE Realtime Container'
+    # Point to the ipaddress/domain name of InaSAFE Realtime processor
+    ipaddress: *inasafe_django_host_ip
+  inasafe_headless:
+    name: 'InaSAFE Headless Container'
+    # Point to the ipaddress/domain name of InaSAFE Realtime processor
+    ipaddress: *inasafe_django_host_ip
+
+# Facts needed for InaSAFE Realtime
+# This is to setup Realtime Hazard services
+inasafe_realtime:
+  # Use prebuilt docker will generate docker-compose services using prebuilt
+  # docker image, if set to yes. If set to no, then it will assume the service
+  # available locally on another docker-compose service, for example when
+  # debugging in another repo
+  use_prebuilt_docker: yes
+  # set host working dir to the location that will contains inasafe realtime
+  # hazards
+  host_working_dir: ./realtime-hazard
+  # the working dir location seen from inside inasafe_realtime docker service
+  working_dir: /home/realtime
+  # Address to inasafe_realtime broker
+  broker: rabbitmq
+  # Port to inasafe_realtime broker
+  broker_port: 5672
+
+# Facts needed for InaSAFE Headless
+# This is to setup Headless Hazard services
+inasafe_headless:
+  # Use prebuilt docker will generate docker-compose services using prebuilt
+  # docker image, if set to yes. If set to no, then it will assume the service
+  # available locally on another docker-compose service, for example when
+  # debugging in another repo
+  use_prebuilt_docker: yes
+  # set host working dir to the location that will contains inasafe headless
+  # hazards
+  host_working_dir: ./headless-data
+  # the working dir location seen from inside inasafe_realtime docker service
+  working_dir: /home/headless
+  # Address to inasafe_headless broker
+  broker: rabbitmq
+  # Port to inasafe_headless broker
+  broker_port: 5672
+
+# Facts needed for SFTP Backup
+# This is setup to use kartoza hanoi backup scheme
+# The container will push backups to SFTP server if configured.
+# If this is used as development environment, you can set
+# each 'use_backup' key to False. If you're planning to use it in
+# your development environment, set pg_dev and media_dev environment
+# If it is used for production, set pg and media environment.
+sftp_backups:
+  pg:
+    use_backup: False
+    host: remotehost
+    user: remoteuser
+    password: thepassword
+    dir: /inasafe/inasafe-django/pg/
+  media:
+    use_backup: False
+    host: remotehost
+    user: remoteuser
+    password: thepassword
+    dir: /inasafe/inasafe-django/media/
+
+# This is used to push pdf products to InAWARE system
+# Set this fact to your appropriate credentials. If not used,
+# leave as blank
+inaware:
+  host:
+  user:
+  password:
+
+# This declaration is used to describe port forwarding that is being used
+# by docker-compose. Leave it as default.
+docker_port_forward:
+  inasafe_django:
+    # We reuse previous declaration that for ssh port to this
+    # interpreter
+    ssh: *inasafe_django_ssh_port
+    # Port forward postgis to local machine
+    db: 6543
+    # Port forward django manage.py runserver port to local machine.
+    # So we can access the web in our machine.
+    django: 61102
+  inasafe_realtime:
+    # We also need to connect to rabbitmq of InaSAFE Realtime
+    rabbitmq: 8100
+  inasafe_headless:
+    # We also need to connect to rabbitmq of InaSAFE Headless
+    rabbitmq: 8101
+
+# This declaration is used to connect InaSAFE Django and InaSAFE Realtime
+# processor
+realtime_rest_api:
+  host: uwsgi
+  port: 8080
+  # Set your own user & password you set up
+  # This credentials will be used by InaSAFE Realtime
+  user: test@realtime.inasafe.org
+  password: t3st4ccount
+
+# Secret key for sync data
+secret_key:
+  contexts_data: secretkey  # Exposure, Aggregation, Contexts layer
+  qgis_templates: anothersecretkey  # QGIS template and its resources

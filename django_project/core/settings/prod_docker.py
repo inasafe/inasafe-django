@@ -22,7 +22,9 @@ DATABASES = {
         'PASSWORD': os.environ['DATABASE_PASSWORD'],
         'HOST': os.environ['DATABASE_HOST'],
         'PORT': 5432,
-        'TEST_NAME': 'unittests',
+        'TEST': {
+            'NAME': 'unittests',
+        }
     }
 }
 

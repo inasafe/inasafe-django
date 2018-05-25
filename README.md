@@ -18,7 +18,9 @@ These badges reflect the current status of our development branch:
 
 Tests status: [![Build Status](https://travis-ci.org/inasafe/inasafe-django.svg)](https://travis-ci.org/inasafe/inasafe-django)
 
-Coverage status: [![Coverage Status](https://coveralls.io/repos/inasafe/inasafe-django/badge.png?branch=develop)](https://coveralls.io/r/inasafe/inasafe-django?branch=develop)
+Coverage status: [![codecov](https://codecov.io/gh/inasafe/inasafe-django/branch/develop_v4/graph/badge.svg)](https://codecov.io/gh/inasafe/inasafe-django)
+
+
 
 Development status: [![Stories in Ready](https://badge.waffle.io/AIFDR/inasafe-django.svg?label=ready&title=Ready)](http://waffle.io/inasafe/inasafe-django) [![Stories in Ready](https://badge.waffle.io/AIFDR/inasafe-django.svg?label=In%20Progress&title=In%20Progress)](http://waffle.io/inasafe/inasafe-django)
 
@@ -161,6 +163,9 @@ Just adapt pgAdmin 3 connection using this information.
 
 
 ### Run Django using Pycharm
+
+For more information on how to use PyCharm features on this project refer to
+[PyCharm Readme](deployment/README-PyCharm.md)
  
 After creating remote docker interpreter for this project, you can use the 
 interpreter to create django configuration.

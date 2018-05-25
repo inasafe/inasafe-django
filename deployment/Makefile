@@ -19,7 +19,7 @@ down:
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) down
 
-complete-deploy: up wait migrate collectstatic makemessages compilemessages inasafe-worker indicator-worker reload status
+complete-deploy: up wait migrate collectstatic makemessages compilemessages inasafe-worker indicator-worker realtime-worker headless-worker reload status
 
 wait:
 	@echo
@@ -45,6 +45,50 @@ ansible-check:
 setup-ansible:
 	@echo "Setup configurations using ansible"
 	@ansible-playbook -i ansible/development/hosts ansible/development/site.yml -v $(ANSIBLE_ARGS)
+
+check-flake8:
+	@echo "Check flake 8"
+	@flake8 ../django_project
+
+pull-external-services:
+	@echo "Pull InaSAFE Realtime"
+	@docker-compose -p $(PROJECT_ID) pull realtime-worker
+	@echo "Pull InaSAFE Headless"
+	@docker-compose -p $(PROJECT_ID) pull headless-worker
+
+coverage-tests:
+	@docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test realtime --noinput --liveserver=0.0.0.0:8080 -v 2
+
+integration-tests-worker:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running integration tests celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) up -d integration-test-worker
+
+integration-tests-worker-restart:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart integration tests celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) restart integration-test-worker
+
+integration-tests-worker-stop:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Stop integration tests celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) stop integration-test-worker
+
+integration-tests-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running integration tests celery worker logs"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 integration-test-worker
+
+integration-tests: realtime-worker headless-worker integration-tests-worker
+	@-docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios
 
 build:
 	@echo
@@ -142,7 +186,7 @@ inasafe-worker-stop:
 inasafe-worker-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker "
+	@echo "Running celery worker logs"
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 inasafe-worker
 
@@ -170,9 +214,77 @@ indicator-worker-stop:
 indicator-worker-logs:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Running celery worker "
+	@echo "Running celery worker logs"
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 indicator-worker
+
+realtime-worker:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running InaSAFE Realtime celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) up -d realtime-worker
+
+realtime-worker-shell:
+	@docker-compose -p $(PROJECT_ID) exec realtime-worker /bin/bash
+
+realtime-worker-restart:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart InaSAFE Realtime celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) restart realtime-worker
+
+realtime-worker-stop:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Stop InaSAFE Realtime celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) stop realtime-worker
+
+realtime-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running InaSAFE Realtime celery worker logs"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 realtime-worker
+
+realtime-shakemap-monitor-logs:
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 shakemap-monitor
+
+realtime-shakemap-corrected-monitor-logs:
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 shakemap-corrected-monitor
+
+headless-worker:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running InaSAFE Headless celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) up -d headless-worker
+
+headless-worker-shell:
+	@docker-compose -p $(PROJECT_ID) exec headless-worker /bin/bash
+
+headless-worker-restart:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Restart InaSAFE Headless celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) restart headless-worker
+
+headless-worker-stop:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Stop InaSAFE Headless celery worker "
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) stop headless-worker
+
+headless-worker-logs:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running InaSAFE Headless celery worker logs"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) logs -f --tail=50 headless-worker
 
 status:
 	@docker-compose -p $(PROJECT_ID) ps
@@ -317,3 +429,32 @@ reload:
 	@echo "Reload django project "
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) exec uwsgi uwsgi --reload /tmp/django.pid
+
+contexts-sync:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running contexts btsync"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) up -d contexts-btsync
+
+qgis-templates-sync:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Running QGIS templates btsync"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) up -d qgis-templates-btsync
+
+import-kelurahan-boundary:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Import kelurahan boundary"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) exec uwsgi python manage.py \
+	importfloodboundary /home/headless/contexts/flood/exposure/DKI_Jakarta_Population_Dukcapil_2013_WGS84.shp '' NAMA_KELUR 7 Kelurahan
+
+load-flood-test-data:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Load flood test data"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) exec uwsgi python manage.py loadfloodtestdata

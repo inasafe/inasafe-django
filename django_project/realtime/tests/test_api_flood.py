@@ -25,6 +25,11 @@ from realtime.tests.utilities import assertEqualDictionaryWithFiles
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '11/30/15'
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
+flood_layer_uri = os.path.join(
+    dir_path, '..', 'tasks', 'test', 'data', 'input_layers', 'flood_data.json')
+flood_layer_uri = os.path.abspath(flood_layer_uri)
+
 
 LOGGER = logging.getLogger(__name__)
 
@@ -55,7 +60,8 @@ class TestFlood(APITestCase):
             region=u'Jakarta',
             hazard_layer=File(open(
                 self.data_path('hazard.zip')
-            ))
+            )),
+            hazard_path=flood_layer_uri
         )
 
         FloodReport.objects.create(
