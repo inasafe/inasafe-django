@@ -54,8 +54,8 @@ else:
 if 'raven.contrib.django.raven_compat' in INSTALLED_APPS:
     print '*********** Setting up sentry logging ************'
     RAVEN_CONFIG = {
-        'dsn': 'http://05ac39e9c6754f71b697d0b694bca657'
-               ':6c2a47fc6ce04ed2bb966df9454df7d3@sentry.kartoza.com/13',
+        'dsn': 'http://8d4da28ebc7a4f848b864910ce31c250:'
+               'aa93ab1e08024b93af023931148aeedb@sentry.kartoza.com/14',
     }
 
     # MIDDLEWARE_CLASSES = (
