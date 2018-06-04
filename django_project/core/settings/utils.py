@@ -13,8 +13,10 @@ def ABS_PATH(*args):
 
 
 def ensure_secret_key_file():
-    """Checks that secret.py exists in settings dir. If not, creates one
-with a random generated SECRET_KEY setting."""
+    """Checks that secret.py exists in settings dir.
+
+    If not, creates one with a random generated SECRET_KEY setting.
+    """
     secret_path = ABS_PATH('core', 'settings', 'secret.py')
     if not os.path.exists(secret_path):
         from django.utils.crypto import get_random_string
