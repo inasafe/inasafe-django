@@ -27,7 +27,7 @@ services:
     network_mode: "bridge"
 
   rabbitmq:
-    image: library/rabbitmq
+    image: library/rabbitmq:3.6
     restart: on-failure
     hostname: rabbitmq
     environment:

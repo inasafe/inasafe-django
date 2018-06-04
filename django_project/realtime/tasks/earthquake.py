@@ -120,6 +120,7 @@ def generate_event_report(earthquake_event, locale='en'):
     :return:
     """
     earthquake_event.inspected_language = locale
+
     if not earthquake_event.hazard_layer_exists:
 
         # Skip all process if not exists
@@ -127,8 +128,6 @@ def generate_event_report(earthquake_event, locale='en'):
 
     # Check raw hazard stored
     elif not earthquake_event.shake_grid_xml:
-
-        earthquake_event.refresh_from_db()
 
         # Store Grid XML from hazard path into db
         if earthquake_event.shake_grid:
@@ -141,13 +140,8 @@ def generate_event_report(earthquake_event, locale='en'):
             with open(grid_path) as f:
                 shake_grid_xml = f.read()
 
-        # Do not use save, to avoid triggering signals
-        Earthquake.objects.filter(
-            id=earthquake_event.id).update(
-            shake_grid_xml=shake_grid_xml,
-            shake_grid_saved=True)
-
-        earthquake_event.refresh_from_db()
+        earthquake_event.shake_grid_xml = shake_grid_xml
+        earthquake_event.shake_grid_saved = True
 
         # Remove un-needed Grid XML
         if earthquake_event.shake_grid:
@@ -218,12 +212,12 @@ def run_earthquake_analysis(event, locale='en'):
         ).set(queue=handle_analysis.queue),
     )
 
-    @app.task
-    def _handle_error(req, exc, traceback):
-        """Update task status as Failure."""
-        event.analysis_task_status = 'FAILURE'
+    # @app.task
+    # def _handle_error(req, exc, traceback):
+    #     """Update task status as Failure."""
+    #     event.analysis_task_status = 'FAILURE'
 
-    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
+    async_result = tasks_chain.apply_async()
     event.analysis_task_id = async_result.task_id
     event.analysis_task_status = async_result.state
 
@@ -303,7 +297,8 @@ def handle_analysis(analysis_result, event_id, locale='en'):
 
             chain(
                 get_keywords.s(
-                    earthquake.impact_file_path
+                    earthquake.impact_file_path,
+                    keyword='keyword_version'
                 ).set(queue=get_keywords.queue),
 
                 handle_keyword_version.s(
@@ -365,12 +360,12 @@ def generate_earthquake_report(event, locale='en'):
         ).set(queue=handle_report.queue)
     )
 
-    @app.task
-    def _handle_error(req, exc, traceback):
-        """Update task status as Failure."""
-        event.report_task_status = 'FAILURE'
+    # @app.task
+    # def _handle_error(req, exc, traceback):
+    #     """Update task status as Failure."""
+    #     event.report_task_status = 'FAILURE'
 
-    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
+    async_result = tasks_chain.apply_async()
 
     event.report_task_id = async_result.task_id
     event.report_task_status = async_result.status

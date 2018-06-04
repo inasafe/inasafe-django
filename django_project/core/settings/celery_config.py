@@ -26,6 +26,9 @@ task_create_missing_queues = True
 task_serializer = 'pickle'
 accept_content = {'pickle'}
 result_serializer = 'pickle'
+# Late ACK settings
+task_acks_late = True
+task_reject_on_worker_lost = True
 worker_concurrency = 1
 worker_prefetch_multiplier = 1
 

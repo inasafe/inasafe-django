@@ -15,6 +15,7 @@ from core.celery_app import app
 from realtime.app_settings import LOGGER_NAME, REALTIME_HAZARD_DROP, \
     ASH_LAYER_ORDER, ASH_EXPOSURES, ASH_AGGREGATION, ASH_HAZARD_TYPE
 from realtime.models.ash import Ash
+from realtime.tasks import get_keywords
 from realtime.tasks.headless.inasafe_wrapper import (
     run_multi_exposure_analysis, generate_report, RESULT_SUCCESS)
 from realtime.tasks.realtime.ash import process_ash
@@ -81,7 +82,7 @@ def generate_hazard_layer(ash_event):
         Ash.objects.filter(id=ash_event.id).update(
             task_status='FAILURE')
 
-    result = tasks_chain.apply_async(link_error=_handle_error.s())
+    result = tasks_chain.apply_async()
 
     Ash.objects.filter(id=ash_event.id).update(
         task_id=result.task_id,
@@ -169,7 +170,7 @@ def run_ash_analysis(ash_event, locale='en'):
         """Update task status as Failure."""
         ash_event.analysis_task_status = 'FAILURE'
 
-    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
+    async_result = tasks_chain.apply_async()
     ash_event.analysis_task_id = async_result.task_id
     ash_event.analysis_task_status = async_result.state
 
@@ -186,6 +187,18 @@ def handle_analysis(analysis_result, event_id, locale='en'):
             ash.impact_file_path = analysis_result[
                 'output']['analysis_summary']
             task_state = 'SUCCESS'
+
+            chain(
+                get_keywords.s(
+                    ash.impact_file_path,
+                    keyword='keyword_version'
+                ).set(queue=get_keywords.queue),
+
+                handle_keyword_version.s(
+                    ash.id
+                ).set(queue=handle_keyword_version.queue)
+
+            ).delay()
         except BaseException as e:
             LOGGER.exception(e)
     else:
@@ -240,7 +253,7 @@ def generate_ash_report(ash_event, locale='en'):
         """Update task status as Failure."""
         ash_event.report_task_status = 'FAILURE'
 
-    async_result = tasks_chain.apply_async(link_error=_handle_error.s())
+    async_result = tasks_chain.apply_async()
 
     ash_event.report_task_id = async_result.task_id
     ash_event.report_task_status = async_result.status
@@ -277,3 +290,12 @@ def handle_report(report_result, event_id, locale='en'):
     report_object.save()
 
     return report_result
+
+
+@app.task(queue='inasafe-django')
+def handle_keyword_version(version, event_id):
+    """Handle keyword version."""
+    event = Ash.objects.get(id=event_id)
+    """:type: Earthquake"""
+    event.inasafe_version = version
+    event.save()
