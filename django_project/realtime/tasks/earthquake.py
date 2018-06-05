@@ -171,8 +171,7 @@ def generate_event_report(earthquake_event, locale='en'):
 
     # Check MMI Contour saved
     elif (earthquake_event.mmi_layer_exists and
-            EarthquakeMMIContour.objects.filter(
-                earthquake=earthquake_event).count() == 0):
+            not earthquake_event.mmi_layer_saved):
         # Don't use celery for this
         process_mmi_layer(earthquake_event)
         earthquake_event.save()
