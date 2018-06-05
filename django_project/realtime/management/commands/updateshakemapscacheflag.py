@@ -39,6 +39,6 @@ class Command(BaseCommand):
             eq.refresh_from_db()
             print 'Inspecting EQ: {0}. Has contours: {1}'.format(
                 eq.shake_id,
-                eq.has_corrected)
+                eq.mmi_layer_saved)
 
         print 'Command finished.'

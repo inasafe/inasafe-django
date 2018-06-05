@@ -18,9 +18,13 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 LOGGER.info('Ash Signals registered')
 
 
-@receiver(post_save, sender=Ash)
+@receiver(post_save)
 def ash_post_save(sender, instance, **kwargs):
     """Extract impact layer of the flood"""
+
+    if not issubclass(sender, Ash):
+        return
+
     try:
         LOGGER.info('Sending task ash processing.')
 

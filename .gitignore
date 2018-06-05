@@ -140,3 +140,4 @@ deployment/headless-data/outputs/
 deployment/headless-data/qgis-templates/
 deployment/headless-data/test-hazards/
 deployment/reports/
+.coverage*

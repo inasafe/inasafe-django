@@ -42,17 +42,20 @@ from realtime.utils import celery_worker_connected
 LOGGER = logging.getLogger(LOGGER_NAME)
 
 
-FULL_SCENARIO_TEST_CONDITION = (
-    # It needs realtime_app worker
-    celery_worker_connected(realtime_app, 'inasafe-realtime') and
-    # It needs headless_app worker
-    celery_worker_connected(headless_app, 'inasafe-headless') and
-    # It needs django_app worker
-    celery_worker_connected(django_app, 'inasafe-django')
-)
+# minutes test timeout
+LOCAL_TIMEOUT = 10 * 60
 
-# Five minutes test timeout
-LOCAL_TIMEOUT = 5 * 60
+
+def check_full_scenario_test_condition():
+    """Check all workers online at runtime."""
+    return (
+        # It needs realtime_app worker
+        celery_worker_connected(realtime_app, 'inasafe-realtime') and
+        # It needs headless_app worker
+        celery_worker_connected(headless_app, 'inasafe-headless') and
+        # It needs django_app worker
+        celery_worker_connected(django_app, 'inasafe-django')
+    )
 
 
 # Retry decorator for this unittest
@@ -198,7 +201,7 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     @unittest.skipUnless(
-        FULL_SCENARIO_TEST_CONDITION,
+        check_full_scenario_test_condition(),
         'All Workers needs to be run')
     def test_process_earthquake(self):
         """Test generating earthquake scenarios."""
@@ -330,7 +333,7 @@ class TestFloodTasks(HazardScenarioBaseTestCase):
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     @unittest.skipUnless(
-        FULL_SCENARIO_TEST_CONDITION,
+        check_full_scenario_test_condition(),
         'All Workers needs to be run')
     def test_process_flood_manually(self):
         """Test process flood with existing flood json."""
@@ -396,7 +399,7 @@ class TestFloodTasks(HazardScenarioBaseTestCase):
 
         self.assertTrue(flood_event.hazard_layer_exists)
         self.assertEqual(161, flood_event.boundary_flooded)
-        self.assertEqual(1282437, flood_event.total_affected)
+        self.assertEqual(12998562, flood_event.total_affected)
         self.assertTrue(flood_event.flooded_boundaries.all())
 
         self.assertEqual(
@@ -416,7 +419,7 @@ class TestFloodTasks(HazardScenarioBaseTestCase):
             flood_event.flooded_boundaries.filter(
                 flood_event__hazard_data=3).count())
 
-        self.assertEqual(614, flood_event.impact_event.count())
+        self.assertEqual(1064, flood_event.impact_event.count())
 
         for lang in ANALYSIS_LANGUAGES:
             flood_event.inspected_language = lang
@@ -485,7 +488,7 @@ class TestAshTasks(HazardScenarioBaseTestCase):
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     @unittest.skipUnless(
-        FULL_SCENARIO_TEST_CONDITION,
+        check_full_scenario_test_condition(),
         'All Workers needs to be run')
     def test_process_ash(self):
         """Test generating ash hazard."""

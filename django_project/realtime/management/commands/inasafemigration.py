@@ -2,7 +2,6 @@
 import logging
 import os
 import re
-import shutil
 
 from django.conf import settings
 from django.core.files import File
@@ -53,9 +52,9 @@ class Command(BaseCommand):
         dry_run = options.pop('dry_run')
 
         scan_eq_events(dry_run)
-        scan_eq_raw_files(shakemap_raw_dir)
-        scan_eq_raw_files(shakemap_extracted_dir)
-        scan_eq_raw_files(shakemap_corrected)
+        scan_eq_raw_files(shakemap_raw_dir, dry_run)
+        scan_eq_raw_files(shakemap_extracted_dir, dry_run)
+        scan_eq_raw_files(shakemap_corrected, dry_run)
 
         clean_up_eq(dry_run)
 
@@ -85,7 +84,8 @@ def scan_eq_events(dry_run=False):
 
         state.mark_migrated()
 
-        print 'EQ Migrated {0} {1}'.format(state.event.shake_id, state.migrated)
+        print 'EQ Migrated {0} {1}'.format(
+            state.event.shake_id, state.migrated)
 
 
 def clean_up_eq(dry_run=False):
@@ -116,7 +116,8 @@ def clean_up_eq(dry_run=False):
     print
 
     for path in os.listdir(grid_media_path):
-        if os.path.isfile(path):
+        abs_path = os.path.join(grid_media_path, path)
+        if os.path.isfile(abs_path):
             found = True
             try:
                 Earthquake.objects.get(shake_grid__endswith=path)
@@ -126,7 +127,7 @@ def clean_up_eq(dry_run=False):
             print '[{0}] found: [{1}]'.format(path, found)
 
             if not found:
-                shutil.rmtree(path)
+                os.remove(abs_path)
                 print 'Deleted [{0}]'.format(path)
 
 
@@ -139,7 +140,8 @@ def scan_eq_raw_files(raw_dir, dry_run=False):
         pattern = re.compile(shake_id_pattern)
 
         for path in os.listdir(raw_dir):
-            if not os.path.isdir(path):
+            abs_path = os.path.join(raw_dir, path)
+            if not os.path.isdir(abs_path):
                 continue
 
             match = pattern.search(path)
@@ -151,7 +153,7 @@ def scan_eq_raw_files(raw_dir, dry_run=False):
 
             try:
                 event = Earthquake.objects.get(shake_id=shake_id)
-                state = event.migration_state
+                state = event.migration_state.first()
                 """:type: EarthquakeMigration"""
 
                 if state.has_shake_grid_in_database or \
@@ -159,7 +161,7 @@ def scan_eq_raw_files(raw_dir, dry_run=False):
                     # Do not process if we have it in database.
                     continue
 
-            except EarthquakeMigration.DoesNotExist:
+            except Earthquake.DoesNotExist:
                 event = Earthquake(shake_id=shake_id)
                 event.analysis_flag = False
                 event.save()
@@ -174,13 +176,13 @@ def scan_eq_raw_files(raw_dir, dry_run=False):
             # get relative grid file
             # legacy location
             grid_file = os.path.join(
-                path,
+                abs_path,
                 'output/grid.xml')
 
             if not os.path.exists(grid_file):
                 # new location
                 grid_file = os.path.join(
-                    path,
+                    abs_path,
                     'grid.xml')
 
             if not os.path.exists(grid_file):
@@ -260,7 +262,8 @@ def clean_up_flood(dry_run=False):
     print
 
     for path in os.listdir(media_path):
-        if os.path.isfile(path):
+        abs_path = os.path.join(media_path, path)
+        if os.path.isfile(abs_path):
             found = True
             try:
                 Flood.objects.get(hazard_layer__endswith=path)
@@ -270,5 +273,5 @@ def clean_up_flood(dry_run=False):
             print '[{0}] found: [{1}]'.format(path, found)
 
             if not found:
-                shutil.rmtree(path)
+                os.remove(abs_path)
                 print 'Deleted [{0}]'.format(path)

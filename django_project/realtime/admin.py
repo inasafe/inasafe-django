@@ -199,11 +199,13 @@ class FloodMigrationAdmin(ModelAdmin):
     list_display = [
         'event', 'migrated', 'has_hazard_in_raw_file',
         'has_hazard_in_media_file', 'has_hazard_in_database',
-        'has_impact_in_raw_file', 'has_impact_in_media_file', 'has_impact_in_database']
+        'has_impact_in_raw_file', 'has_impact_in_media_file',
+        'has_impact_in_database']
     list_filter = [
         'migrated', 'has_hazard_in_raw_file',
         'has_hazard_in_media_file', 'has_hazard_in_database',
-        'has_impact_in_raw_file', 'has_impact_in_media_file', 'has_impact_in_database']
+        'has_impact_in_raw_file', 'has_impact_in_media_file',
+        'has_impact_in_database']
     ordering = ['-event']
 
 

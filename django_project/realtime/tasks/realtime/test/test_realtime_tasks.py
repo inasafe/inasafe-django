@@ -12,6 +12,7 @@ import timeout_decorator
 from django import test
 from django.apps import apps
 from django.core.files.base import File
+from realtime.utils import celery_worker_connected
 
 from realtime.app_settings import (
     EARTHQUAKE_MONITORED_DIRECTORY,
@@ -33,13 +34,10 @@ __revision__ = ':%H$'
 
 LOGGER = logging.getLogger(LOGGER_NAME)
 
-# Five minutes test timeout
-LOCAL_TIMEOUT = 5 * 60
+# minutes test timeout
+LOCAL_TIMEOUT = 10 * 60
 
 
-@unittest.skipUnless(
-    realtime_app.control.ping(),
-    'Realtime Worker needs to be run')
 class TestAshTasks(test.LiveServerTestCase):
 
     def setUp(self):
@@ -54,6 +52,9 @@ class TestAshTasks(test.LiveServerTestCase):
             os.path.join(os.path.dirname(__file__), 'fixtures', *path))
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(realtime_app, 'inasafe-realtime'),
+        'Realtime Worker needs to be run')
     def test_process_ash(self):
         """Test generating ash hazard."""
         # Create an ash object
@@ -86,9 +87,6 @@ class TestAshTasks(test.LiveServerTestCase):
         ash.delete()
 
 
-@unittest.skipUnless(
-    realtime_app.control.ping(),
-    'Realtime Worker needs to be run')
 class TestEarthquakeTasks(test.LiveServerTestCase):
 
     def setUp(self):
@@ -103,6 +101,9 @@ class TestEarthquakeTasks(test.LiveServerTestCase):
             os.path.join(os.path.dirname(__file__), 'fixtures', *path))
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(realtime_app, 'inasafe-realtime'),
+        'Realtime Worker needs to be run')
     def test_process_earthquake(self):
         """Test generating earthquake hazard."""
         # Drop a grid file to monitored directory
@@ -187,8 +188,6 @@ class TestEarthquakeTasks(test.LiveServerTestCase):
         target_event.delete()
 
 
-@unittest.skipUnless(
-    realtime_app.control.ping(), 'Realtime Worker needs to be run')
 class TestFloodTasks(test.LiveServerTestCase):
     """Unit test for Realtime Celery tasks."""
 
@@ -207,11 +206,17 @@ class TestFloodTasks(test.LiveServerTestCase):
     @unittest.skipIf(
         ON_TRAVIS,
         'We do not want to abuse PetaBencana Server.')
+    @unittest.skipUnless(
+        celery_worker_connected(realtime_app, 'inasafe-realtime'),
+        'Realtime Worker needs to be run')
     def test_create_flood_report(self):
         """Test Create Flood report task"""
         create_flood_report()
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(realtime_app, 'inasafe-realtime'),
+        'Realtime Worker needs to be run')
     def test_process_flood_manually(self):
         """Test process flood with existing flood json."""
         # check boundary alias exists

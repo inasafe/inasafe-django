@@ -8,6 +8,8 @@ services:
     volumes:
       - ./rancher-data:/var/lib/mysql
       - ./ssl-cert/certificate.cert:/var/lib/rancher/etc/ssl/ca.crt
+    environment:
+      JAVA_OPTS: "-Xms4096m -Xmx4096m"
 
   nginx:
     hostname: nginx

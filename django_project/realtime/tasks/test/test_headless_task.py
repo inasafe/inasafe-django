@@ -5,6 +5,7 @@ import os
 import unittest
 
 from django import test
+from timeout_decorator import timeout_decorator
 
 from realtime.app_settings import (
     ASH_EXPOSURES,
@@ -14,6 +15,7 @@ from realtime.app_settings import (
     FLOOD_REPORT_TEMPLATE_EN,
     FLOOD_LAYER_ORDER
 )
+from realtime.tasks.headless.celery_app import app as headless_app
 from realtime.tasks.headless.inasafe_wrapper import (
     get_keywords,
     run_analysis,
@@ -23,7 +25,7 @@ from realtime.tasks.headless.inasafe_wrapper import (
     get_generated_report,
     check_broker_connection,
 )
-from realtime.utils import substitute_layer_order
+from realtime.utils import celery_worker_connected
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -56,6 +58,10 @@ OUTPUT_DIRECTORY = os.environ.get(
     'INASAFE_OUTPUT_DIR', '/home/headless/outputs')
 
 
+# minutes test timeout
+LOCAL_TIMEOUT = 10 * 60
+
+
 class TestHeadlessCeleryTask(test.SimpleTestCase):
     """Unit test for Headless Celery tasks."""
 
@@ -70,6 +76,10 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         self.check_path(os.path.join(dir_path, 'data'))
         self.check_path(os.path.join(dir_path, 'data', 'input_layers'))
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(headless_app, 'inasafe-headless'),
+        'Headless Worker needs to be run')
     def test_get_keywords(self):
         """Test get_keywords task."""
         self.assertTrue(os.path.exists(place_layer_uri))
@@ -97,6 +107,10 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         self.assertEqual(
             keywords['layer_purpose'], 'aggregation')
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(headless_app, 'inasafe-headless'),
+        'Headless Worker needs to be run')
     def test_run_analysis(self):
         """Test run analysis."""
         # With aggregation
@@ -119,6 +133,10 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
             self.assertTrue(os.path.exists(layer_uri))
             self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(headless_app, 'inasafe-headless'),
+        'Headless Worker needs to be run')
     @unittest.skipIf(
         not all([os.path.exists(path) for path in ASH_EXPOSURES]),
         'Skip the unit test since there is no exposure data.')
@@ -151,6 +169,10 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
                 self.assertTrue(
                     os.path.exists(layer), '%s is not exist' % layer)
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(headless_app, 'inasafe-headless'),
+        'Headless Worker needs to be run')
     def test_run_multi_exposure_analysis(self):
         """Test run multi_exposure analysis."""
         exposure_layer_uris = [
@@ -198,6 +220,10 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         # of exposures
         self.assertEqual(num_exposure_output, len(exposure_layer_uris))
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(headless_app, 'inasafe-headless'),
+        'Headless Worker needs to be run')
     def test_generate_contour(self):
         """Test generate_contour task."""
         # Layer
@@ -207,6 +233,10 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         self.assertTrue(result.startswith(OUTPUT_DIRECTORY))
         self.assertTrue(os.path.exists(result), result + ' is not exist')
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(headless_app, 'inasafe-headless'),
+        'Headless Worker needs to be run')
     def test_generate_report(self):
         """Test generate report for single analysis."""
         # Run analysis first
@@ -232,6 +262,10 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
                     product_key, product_uri)
                 self.assertTrue(os.path.exists(product_uri), message)
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(headless_app, 'inasafe-headless'),
+        'Headless Worker needs to be run')
     def test_generate_custom_report(self):
         """Test generate custom report for single analysis."""
         # Run analysis first
@@ -271,6 +305,10 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         self.assertNotIn('inasafe-map-report-portrait', product_keys)
         self.assertNotIn('inasafe-map-report-landscape', product_keys)
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(headless_app, 'inasafe-headless'),
+        'Headless Worker needs to be run')
     def test_get_generated_report(self):
         """Test get generated report task."""
         # Run analysis first
@@ -304,12 +342,20 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         self.assertEqual(0, result['status'], result['message'])
         self.assertDictEqual(report_metadata, result['output'])
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(headless_app, 'inasafe-headless'),
+        'Headless Worker needs to be run')
     def test_check_broker_connection(self):
         """Test check_broker_connection task."""
         async_result = check_broker_connection.delay()
         result = async_result.get()
         self.assertTrue(result)
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(headless_app, 'inasafe-headless'),
+        'Headless Worker needs to be run')
     @unittest.skipIf(
         not all([os.path.exists(path) for path in ASH_EXPOSURES]),
         'Skip the unit test since there is no exposure data.')
@@ -362,6 +408,10 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         self.assertNotIn('inasafe-map-report-portrait', product_keys)
         self.assertNotIn('inasafe-map-report-landscape', product_keys)
 
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        celery_worker_connected(headless_app, 'inasafe-headless'),
+        'Headless Worker needs to be run')
     @unittest.skipIf(
         not os.path.exists(FLOOD_EXPOSURE),
         'Skip the unit test since there is no exposure data.')
