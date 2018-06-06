@@ -21,6 +21,8 @@ from realtime.tasks.headless.inasafe_wrapper import (
 from realtime.tasks.realtime.ash import process_ash
 from realtime.utils import substitute_layer_order, template_names, \
     template_paths
+from realtime.tasks.geonode import (
+    upload_layer_to_geonode, handle_push_to_geonode)
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '20/7/17'
@@ -73,7 +75,17 @@ def generate_hazard_layer(ash_event):
         # Handle hazard process
         handle_hazard_process.s(
             event_id=ash_event.id
-        ).set(queue=handle_hazard_process.queue)
+        ).set(queue=handle_hazard_process.queue),
+
+        # # Push to GeoNode
+        upload_layer_to_geonode.s(
+            event_id=ash_event.id
+        ).set(queue=upload_layer_to_geonode.queue),
+        #
+        # # Handle push to geonode process
+        handle_push_to_geonode.s(
+            event_id=ash_event.id
+        ).set(queue=handle_push_to_geonode.queue)
     )
 
     @app.task
