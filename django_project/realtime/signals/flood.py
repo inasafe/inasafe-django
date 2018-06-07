@@ -7,6 +7,7 @@ from django.dispatch.dispatcher import receiver
 from realtime.app_settings import LOGGER_NAME, ANALYSIS_LANGUAGES
 from realtime.models.flood import Flood
 from realtime.tasks.flood import generate_event_report
+from realtime.tasks.geonode import push_hazard_to_geonode
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '12/4/15'
@@ -30,5 +31,7 @@ def flood_post_save(
         if instance.analysis_flag:
             for lang in ANALYSIS_LANGUAGES:
                 generate_event_report.delay(instance, locale=lang)
+        if instance.analysis_flag:
+            push_hazard_to_geonode.delay(sender, instance)
     except Exception as e:
         LOGGER.exception(e)
