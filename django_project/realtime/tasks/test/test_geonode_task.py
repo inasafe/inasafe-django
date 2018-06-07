@@ -1,6 +1,6 @@
 # coding=utf-8
 import os
-
+from unittest import skip
 from django.test import TestCase
 
 from realtime.tasks.geonode import push_hazard_to_geonode
@@ -10,7 +10,7 @@ from realtime.tests.model_factories import FloodFactory
 
 class TestModelFlood(TestCase):
 
-    @TestCase.skipTest('Under development')
+    @skip('Under development')
     def test_upload_flood_hazard(self):
         flood = FloodFactory.create()
         message = 'The flood object is instantiated successfully.'

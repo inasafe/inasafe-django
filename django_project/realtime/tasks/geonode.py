@@ -2,7 +2,6 @@
 """InaSAFE Django task related to GeoNode upload."""
 from __future__ import absolute_import
 import logging
-import os
 
 from celery import chain
 
