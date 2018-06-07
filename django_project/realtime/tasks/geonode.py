@@ -2,6 +2,7 @@
 """InaSAFE Django task related to GeoNode upload."""
 from __future__ import absolute_import
 import logging
+import os
 
 from celery import chain
 
@@ -10,7 +11,7 @@ from core.celery_app import app
 from realtime.models.ash import Ash
 from realtime.models.flood import Flood
 from realtime.models.earthquake import Earthquake
-from realtime.app_settings import LOGGER_NAME
+from realtime.app_settings import LOGGER_NAME, REALTIME_GEONODE_ENABLE
 from realtime.tasks.headless.inasafe_wrapper import push_to_geonode
 
 LOGGER = logging.getLogger(LOGGER_NAME)
@@ -49,8 +50,15 @@ def handle_push_to_geonode(push_result, hazard_class_name, hazard_event_id):
 @app.task(queue='inasafe-django')
 def push_hazard_to_geonode(hazard_event):
     """Upload layer to geonode and update the status of hazard."""
+    # If geonode push is disabled, skip the task
+    if not REALTIME_GEONODE_ENABLE:
+        hazard_event.__class__.objects.filter(id=hazard_event.id).update(
+            push_task_status='DISABLED',
+            push_task_result='GeoNode push is disabled in the setting.'
+        )
+        return
     LOGGER.info('Push layer to geonode.')
-    # Skip if it's already running
+    # Skip if it's already running.
     if hazard_event.push_task_status:
         return
     hazard_layer_uri = hazard_event.hazard_path

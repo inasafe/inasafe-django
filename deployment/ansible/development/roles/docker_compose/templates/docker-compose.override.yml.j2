@@ -76,6 +76,7 @@ services:
       - TASK_ALWAYS_EAGER={{ inasafe_django.task_always_eager }}
       - INASAFE_OUTPUT_DIR={{ inasafe_headless.working_dir }}/outputs
       - ON_TRAVIS={{ on_travis }}
+      - REALTIME_GEONODE_ENABLE={{ geonode.enable }}
     links:
       - smtp:smtp
       - db:db
