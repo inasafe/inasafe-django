@@ -119,8 +119,7 @@ inaware:
   password: thepassword
 
 # This is used to push hazard layer to GeoNode.
-# Set this fact to your appropriate credentials. If not used,
-# leave as blank
+# Set this fact to your appropriate credentials.
 geonode:
   enable: False
   user: test_geonode_user

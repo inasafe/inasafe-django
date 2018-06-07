@@ -120,11 +120,11 @@ inaware:
 
 # This is used to push hazard layer to GeoNode.
 # Set this fact to your appropriate credentials.
-geonode_push:
+geonode:
   enable: False
-  user: InvalidGeoNodeUser
-  password: InvalidGeoNodePassword
-  url: InvalidGeoNodeURL
+  user: test_geonode_user
+  password: test_geonode_password
+  url: http://url_to_geonode_instance
 
 
 # This declaration is used to describe port forwarding that is being used
