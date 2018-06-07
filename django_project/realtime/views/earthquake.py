@@ -111,8 +111,8 @@ def index(request, iframe=False, server_side_filter=False):
             'shake_events_from_bmkg': list_of_event_id,
             'shake_events_no_hazard_file': list_of_no_hazard_file,
             'analysis_warning_text': _(
-                'Some earthquake events may still '
-                'be running on the background...'),
+                'waiting for %s events to be processed...' % len(
+                    list_of_no_hazard_file))
         },
         context_instance=context)
 

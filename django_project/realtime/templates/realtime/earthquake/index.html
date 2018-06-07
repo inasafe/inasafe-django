@@ -176,6 +176,16 @@
                 <h3 class="panel-title">{% trans "Earthquakes" %}</h3>
                 {% if shake_events_no_hazard_file %}
                     <i style="margin-bottom:0px; font-size: 13px; color:#cc4607;">({{ analysis_warning_text }})</i>
+                    <div class="btn-group btn-group-xs format-selection">
+                        <button class="btn btn-primary dropdown-toggle js-tooltip" data-toggle="dropdown" title="" data-original-title="Specify a format for the GET request" aria-expanded="false">
+                          <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            {% for event_id in shake_events_no_hazard_file %}
+                                <li><a class="js-tooltip format-option" rel="nofollow" title="" data-original-title="">{{ event_id }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 {% endif %}
             </div>
             <div class="panel-body">
