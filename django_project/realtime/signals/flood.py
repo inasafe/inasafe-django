@@ -32,6 +32,6 @@ def flood_post_save(
             for lang in ANALYSIS_LANGUAGES:
                 generate_event_report.delay(instance, locale=lang)
         if instance.analysis_flag:
-            push_hazard_to_geonode.delay(sender, instance)
+            push_hazard_to_geonode.delay(instance)
     except Exception as e:
         LOGGER.exception(e)

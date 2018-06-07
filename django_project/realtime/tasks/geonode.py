@@ -8,16 +8,25 @@ from celery import chain
 from core.celery_app import app
 
 from realtime.models.ash import Ash
+from realtime.models.flood import Flood
+from realtime.models.earthquake import Earthquake
 from realtime.app_settings import LOGGER_NAME
 from realtime.tasks.headless.inasafe_wrapper import push_to_geonode
 
 LOGGER = logging.getLogger(LOGGER_NAME)
 GEONODE_PUSH_SUCCESS = 0
 
+hazard_class_mapping = {
+    Ash.__name__: Ash,
+    Flood.__name__: Flood,
+    Earthquake.__name__: Earthquake
+}
+
 
 @app.task(queue='inasafe-django')
-def handle_push_to_geonode(push_result, hazard_class, hazard_event_id):
+def handle_push_to_geonode(push_result, hazard_class_name, hazard_event_id):
     """Handle geonode push result."""
+    hazard_class = hazard_class_mapping.get(hazard_class_name)
     hazard = hazard_class.objects.get(id=hazard_event_id)
     task_state = 'FAILURE'
     if not push_result:
@@ -30,11 +39,13 @@ def handle_push_to_geonode(push_result, hazard_class, hazard_event_id):
 
 
 @app.task(queue='inasafe-django')
-def push_hazard_to_geonode(hazard_class, hazard_event):
+def push_hazard_to_geonode(hazard_event):
     """Upload layer to geonode and update the status of hazard."""
     LOGGER.info('Push layer to geonode.')
     hazard_layer_uri = hazard_event.hazard_path
     hazard_event_id = hazard_event.id
+    hazard_class = hazard_event.__class__
+    hazard_class_name = hazard_class.__name__
 
     tasks_chain = chain(
         # Push to layer to geonode
@@ -44,7 +55,7 @@ def push_hazard_to_geonode(hazard_class, hazard_event):
 
         # Handle the push result
         handle_push_to_geonode.s(
-            hazard_class,
+            hazard_class_name,
             hazard_event_id
         )
     )
