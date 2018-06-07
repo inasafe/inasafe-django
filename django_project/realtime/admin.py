@@ -85,8 +85,9 @@ class EarthquakeReportInline(StackedInline):
 
 class EarthquakeAdmin(LeafletGeoAdmin):
     """Admin Class for Earthquake Model."""
-    list_display = ('shake_id', 'source_type', 'time', 'location_description',
-                    'magnitude', 'depth')
+    list_display = (
+        'shake_id', 'source_type', 'time', 'location_description',
+        'magnitude', 'depth', 'push_task_status', 'push_task_result')
     list_filter = ('location_description', )
     search_fields = ['shake_id', 'location_description']
     inlines = [
@@ -125,8 +126,9 @@ class FloodReportInline(StackedInline):
 
 class FloodAdmin(ModelAdmin):
     """Admin Class for Flood Event."""
-    list_display = ('event_id', 'data_source', 'time',
-                    'total_affected', 'boundary_flooded')
+    list_display = (
+        'event_id', 'data_source', 'time', 'total_affected',
+        'boundary_flooded', 'push_task_status', 'push_task_result')
 
     inlines = [
         ImpactInline,
@@ -151,9 +153,10 @@ class AshReportInline(StackedInline):
 
 class AshAdmin(ModelAdmin):
     """Admin class for Ash model"""
-    list_display = ('volcano', 'alert_level', 'event_time',
-                    'event_time_zone_string', 'eruption_height',
-                    'forecast_duration')
+    list_display = (
+        'volcano', 'alert_level', 'event_time',
+        'event_time_zone_string', 'eruption_height',
+        'forecast_duration', 'push_task_status', 'push_task_result')
     inlines = [
         ImpactInline,
         AshReportInline
