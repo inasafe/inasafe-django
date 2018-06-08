@@ -13,7 +13,8 @@ from realtime.app_settings import (
     ASH_LAYER_ORDER,
     FLOOD_EXPOSURE,
     FLOOD_REPORT_TEMPLATE_EN,
-    FLOOD_LAYER_ORDER
+    FLOOD_LAYER_ORDER,
+    REALTIME_GEONODE_ENABLE,
 )
 from realtime.tasks.headless.celery_app import app as headless_app
 from realtime.tasks.headless.inasafe_wrapper import (
@@ -457,9 +458,16 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         self.assertNotIn('inasafe-map-report-portrait', product_keys)
         self.assertNotIn('inasafe-map-report-landscape', product_keys)
 
-    @unittest.skipIf(os.environ.get('ON_TRAVIS', False), 'No geonode instance')
+    @unittest.skipIf(not REALTIME_GEONODE_ENABLE, 'GeoNode push is disabled.')
     def test_push_tif_to_geonode(self):
         """Test push tif layer to geonode functionality."""
         async_result = push_to_geonode.delay(shakemap_layer_uri)
+        result = async_result.get()
+        self.assertEqual(result['status'], 0, result['message'])
+
+    @unittest.skipIf(not REALTIME_GEONODE_ENABLE, 'GeoNode push is disabled.')
+    def test_push_geojson_to_geonode(self):
+        """Test push geojson layer to geonode functionality."""
+        async_result = push_to_geonode.delay(flood_layer_uri)
         result = async_result.get()
         self.assertEqual(result['status'], 0, result['message'])
