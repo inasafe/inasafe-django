@@ -46,6 +46,13 @@ make up
 This will instantiate containers and run it. There are some containers that uses 
 prebuilt docker images, so you probably need to download some images.
 
+
+```
+make pull-external-services
+```
+
+This will pull necessary docker images to integrate with InaSAFE Realtime and InaSAFE Headless backends
+
 ```
 make migrate
 ```
@@ -71,6 +78,18 @@ make indicator-worker
 
 This will run indicator worker, a service to make sure InaSAFE Django and 
 InaSAFE Realtime processor is connected.
+
+```
+make realtime-worker
+```
+
+This will run InaSAFE Realtime worker, a service to collect hazard events.
+
+```
+make headless-worker
+```
+
+This will run InaSAFE Headless worker, a service to run InaSAFE analysis headlessly.
 
 ```
 make compilemessages
@@ -107,21 +126,21 @@ one command to do everything. You can chain your command (because it is
 just a make command), like this:
 
 ```
-make up inasafe-worker indicator-worker
+make up inasafe-worker indicator-worker realtime-worker headless-worker
 ```
 
 Sometimes, the database failed to load, because it is accessed before it was 
 ready. In this case, you could use wait command
 
 ```
-make up wait inasafe-worker indicator-worker
+make up wait inasafe-worker indicator-worker realtime-worker headless-worker
 ```
 
 The default wait time for that command is 10 seconds. However, if you think 
 that this is too long or too short, you can change it by passing DELAY argument 
 
 ```
-make up wait DELAY=5 inasafe-worker indicator-worker
+make up wait DELAY=5 inasafe-worker indicator-worker  realtime-worker headless-worker
 ```
 
 To make it more simple, we provide a shortcut command for it.
@@ -210,6 +229,10 @@ To view/attach to celery worker logs
 ```
 make inasafe-worker-logs
 make indicator-worker-logs
+make realtime-worker-logs
+make headless-worker-logs
+make realtime-shakemap-monitor-logs
+make realtime-shakemap-corrected-monitor-logs
 ```
 
 These logs is helpful for debugging purposes in production mode.

@@ -1,0 +1,24 @@
+version: '2'
+services:
+
+  rancher-server:
+    hostname: rancher-server
+    image: rancher/server:stable
+    restart: unless-stopped
+    volumes:
+      - ./rancher-data:/var/lib/mysql
+      - ./ssl-cert/certificate.cert:/var/lib/rancher/etc/ssl/ca.crt
+    environment:
+      JAVA_OPTS: "-Xms4096m -Xmx4096m"
+
+  nginx:
+    hostname: nginx
+    image: nginx
+    links:
+      - rancher-server
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+    volumes:
+      - ./ssl-cert:/home/cert
+      - ./nginx-conf.d:/etc/nginx/conf.d

@@ -5,14 +5,18 @@ from copy import deepcopy
 from django.conf import settings
 from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.utils import IntegrityError
+from django.http import HttpResponseNotFound
 from django.http.response import (
     HttpResponseBadRequest,
     JsonResponse,
     HttpResponse)
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
+from realtime.app_settings import SLUG_EQ_LANDING_PAGE, \
+    LANDING_PAGE_SYSTEM_CATEGORY
 from rest_framework import status, mixins
+from rest_framework.decorators import api_view
 from rest_framework.filters import (
     DjangoFilterBackend,
     SearchFilter,
@@ -26,11 +30,13 @@ from rest_framework_gis.filters import InBBoxFilter
 from realtime.filters.earthquake_filter import EarthquakeFilter
 from realtime.forms.earthquake import FilterForm
 from realtime.helpers.rest_push_indicator import track_rest_push
-from realtime.models.earthquake import Earthquake, EarthquakeReport
+from realtime.models.coreflatpage import CoreFlatPage
+from realtime.models.earthquake import Earthquake, EarthquakeReport, \
+    EarthquakeMMIContour
 from realtime.serializers.earthquake_serializer import (
     EarthquakeSerializer,
     EarthquakeReportSerializer,
-    EarthquakeGeoJsonSerializer)
+    EarthquakeGeoJsonSerializer, EarthquakeMMIContourGeoJSONSerializer)
 from realtime.tasks.earthquake import push_shake_to_inaware
 from realtime.tasks.realtime.earthquake import process_shake
 
@@ -62,17 +68,24 @@ def index(request, iframe=False, server_side_filter=False):
         if 'server_side_filter' in request.GET:
             server_side_filter = request.GET.get('server_side_filter')
 
+    landing_page = CoreFlatPage.objects.filter(
+        slug_id=SLUG_EQ_LANDING_PAGE,
+        system_category=LANDING_PAGE_SYSTEM_CATEGORY,
+        language=request.LANGUAGE_CODE).first()
+
     context = RequestContext(request)
-    context['select_area_text'] = _('Select Area')
-    context['remove_area_text'] = _('Remove Selection')
-    context['select_current_zoom_text'] = _('Select area within current zoom')
-    context['iframe'] = iframe
     return render_to_response(
         'realtime/earthquake/index.html',
         {
+            'landing_page': landing_page,
+            'LANDING_PAGE_SLUG_ID': SLUG_EQ_LANDING_PAGE,
+            'LANDING_PAGE_SYSTEM_CATEGORY': LANDING_PAGE_SYSTEM_CATEGORY,
             'form': form,
             'iframe': iframe,
-            'server_side_filter': server_side_filter
+            'server_side_filter': server_side_filter,
+            'select_area_text': _('Select Area'),
+            'remove_area_text': _('Remove Selection'),
+            'select_current_zoom_text': _('Select area within current zoom'),
         },
         context_instance=context)
 
@@ -118,21 +131,40 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
                        InBBoxFilter)
     bbox_filter_field = 'location'
     bbox_filter_include_overlapping = True
-    filter_fields = ('depth', 'magnitude', 'shake_id')
+    filter_fields = ('depth', 'magnitude', 'shake_id', 'source_type')
     filter_class = EarthquakeFilter
     search_fields = ('location_description', )
-    ordering = ('shake_id', )
+    ordering = ('shake_id', 'source_type')
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+    def get(self, request, shake_id=None, source_type=None, *args, **kwargs):
+        try:
+            queryset = Earthquake.objects.all()
+            if shake_id or source_type:
+                if shake_id:
+                    queryset = queryset.filter(shake_id=shake_id)
+                if source_type:
+                    queryset = queryset.filter(source_type=source_type)
+                page = self.paginate_queryset(queryset)
+                if page is not None:
+                    serializer = self.get_serializer(page, many=True)
+                    return self.get_paginated_response(serializer.data)
+
+                serializer = self.get_serializer(queryset, many=True)
+                return Response(serializer.data)
+            else:
+                return self.list(request, *args, **kwargs)
+        except EarthquakeReport.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request, *args, **kwargs):
         retval = self.create(request, *args, **kwargs)
         track_rest_push(request)
         if not settings.DEV_MODE:
             # carefuly DO NOT push it to InaWARE when in dev_mode
-            push_shake_to_inaware.delay(request.data.get('shake_id'))
+            push_shake_to_inaware.delay(
+                request.data.get('shake_id'),
+                request.data.get('source_type'))
         return retval
 
 
@@ -144,8 +176,41 @@ class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     """
     queryset = Earthquake.objects.all()
     serializer_class = EarthquakeSerializer
-    lookup_field = 'shake_id'
+    lookup_field = ['shake_id', 'source_type']
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
+
+    def get_object(self):
+        """
+        Returns the object the view is displaying.
+
+        You may want to override this if you need to provide non-standard
+        queryset lookups.  Eg if objects are referenced using multiple
+        keyword arguments in the url conf.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+
+        # Perform the lookup filtering.
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+
+        for lookup_url in lookup_url_kwarg:
+            assert lookup_url in self.kwargs, (
+                'Expected view %s to be called with a URL keyword argument '
+                'named "%s". Fix your URL conf, or set the `.lookup_field` '
+                'attribute on the view correctly.' %
+                (self.__class__.__name__, lookup_url_kwarg)
+            )
+
+        filter_kwargs = {
+            key: self.kwargs[key]
+            for key in lookup_url_kwarg
+            if self.kwargs[key]
+        }
+        obj = get_object_or_404(queryset, **filter_kwargs)
+
+        # May raise a permission denied
+        self.check_object_permissions(self.request, obj)
+
+        return obj
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -154,7 +219,9 @@ class EarthquakeDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
         try:
             data = request.data
             shake_id = kwargs.get('shake_id') or data.get('shake_id')
-            instance = Earthquake.objects.get(shake_id=shake_id)
+            source_type = kwargs.get('source_type') or data.get('source_type')
+            instance = Earthquake.objects.get(
+                shake_id=shake_id, source_type=source_type)
             if 'shake_grid' in request.FILES and instance.shake_grid:
                 instance.shake_grid.delete()
             if 'mmi_output' in request.FILES and instance.mmi_output:
@@ -214,8 +281,12 @@ class EarthquakeReportList(mixins.ListModelMixin,
         data = request.data
         try:
             shake_id = kwargs.get('shake_id') or data.get('shake_id')
+            source_type = kwargs.get('source_type') or data.get('source_type')
             data['shake_id'] = shake_id
-            earthquake = Earthquake.objects.get(shake_id=shake_id)
+            data['source_type'] = source_type
+            earthquake = Earthquake.objects.get(
+                shake_id=shake_id,
+                source_type=source_type)
             report = EarthquakeReport.objects.filter(
                 earthquake=earthquake, language=data['language'])
         except Earthquake.DoesNotExist:
@@ -259,11 +330,13 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
     parser_classes = (JSONParser, FormParser, MultiPartParser, )
     permission_classes = (DjangoModelPermissionsOrAnonReadOnly, )
 
-    def get(self, request, shake_id=None, language=None, *args, **kwargs):
+    def get(self, request, shake_id=None, source_type=None, language=None,
+            *args, **kwargs):
         try:
-            if shake_id and language:
+            if shake_id and source_type and language:
                 instance = EarthquakeReport.objects.get(
                     earthquake__shake_id=shake_id,
+                    earthquake__source_type=source_type,
                     language=language)
                 serializer = self.get_serializer(instance)
                 return Response(serializer.data)
@@ -278,17 +351,21 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
             LOGGER.warning(e.message)
             instance = EarthquakeReport.objects.filter(
                 earthquake__shake_id=shake_id,
+                earthquake__source_type=source_type,
                 language=language).last()
             serializer = self.get_serializer(instance)
             return Response(serializer.data)
 
-    def put(self, request, shake_id=None, language=None):
+    def put(self, request, shake_id=None, source_type=None, language=None):
         data = request.data
         try:
-            if shake_id:
+            if shake_id and source_type and language:
                 data['shake_id'] = shake_id
+                data['source_type'] = source_type
                 report = EarthquakeReport.objects.get(
-                    earthquake__shake_id=shake_id, language=language)
+                    earthquake__shake_id=shake_id,
+                    earthquake__source_type=source_type,
+                    language=language)
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
         except EarthquakeReport.DoesNotExist:
@@ -303,10 +380,12 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, shake_id, language):
+    def delete(self, request, shake_id, source_type, language):
         try:
             report = EarthquakeReport.objects.get(
-                earthquake__shake_id=shake_id, language=language)
+                earthquake__shake_id=shake_id,
+                earthquake__source_type=source_type,
+                language=language)
         except EarthquakeReport.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -339,21 +418,162 @@ class EarthquakeFeatureList(EarthquakeList):
     serializer_class = EarthquakeGeoJsonSerializer
     pagination_class = None
 
+    def get(self, request, source_type='initial', *args, **kwargs):
+        return super(EarthquakeFeatureList, self).get(
+            request, source_type=source_type, *args, **kwargs)
 
-def get_grid_xml(request, shake_id):
+
+class EarthquakeMMIContourList(
+        mixins.ListModelMixin, GenericAPIView):
+    """
+    Provides GET requests to retrieve Earthquake MMI Contours
+    in a GEOJSON format.
+
+    ### Filters
+
+    These are the available filters:
+
+    * earthquake__shake_id
+    * earthquake__source_type
+    * mmi
+    * in_bbox filled with BBox String in the format SWLon,SWLat,NELon,NELat
+    this is used as geographic box filter
+    """
+    queryset = EarthquakeMMIContour.objects.all()
+    permission_classes = (DjangoModelPermissionsOrAnonReadOnly,)
+    serializer_class = EarthquakeMMIContourGeoJSONSerializer
+    pagination_class = None
+    filter_backends = (DjangoFilterBackend, SearchFilter, OrderingFilter)
+    filter_fields = ('earthquake__shake_id', 'earthquake__source_type', 'mmi')
+    search_fields = ('earthquake__shake_id', 'earthquake__source_type', 'mmi')
+    ordering_fields = (
+        'earthquake__shake_id', 'earthquake__source_type', 'mmi')
+    ordering = ('earthquake__shake_id', 'earthquake__source_type', 'mmi')
+
+    def get(self, request, *args, **kwargs):
+        return super(EarthquakeMMIContourList, self).list(
+            request, *args, **kwargs)
+
+    def filter_queryset(self, queryset):
+        shake_filter = {}
+        for key, value in self.kwargs.iteritems():
+            shake_filter['earthquake__' + key] = value
+
+        queryset = queryset.filter(**shake_filter)
+        return super(EarthquakeMMIContourList, self).filter_queryset(queryset)
+
+
+@api_view(['GET'])
+def get_corrected_shakemaps_for_shake_id(request, shake_id):
+    """View to search for corrected shakemaps for a given initial id.
+
+    :param request: A Django request object
+
+    :param shake_id: Initial shake id of shakemaps. This can be a different ID
+        from a shake_id field of a corrected shakemaps.
+    """
     if request.method != 'GET':
         return HttpResponseBadRequest()
 
     try:
-        shake = Earthquake.objects.get(shake_id=shake_id)
-        if not shake.shake_grid:
-            # fetch shake grid from Realtime Processor
-            process_shake.delay(shake_id)
-            return JsonResponse({'success': True})
-        response = HttpResponse(
-            shake.shake_grid.read(), content_type='application/octet-stream')
-        response['Content-Disposition'] = \
-            'inline; filename="%s-grid.xml"' % shake_id
+        shake = Earthquake.objects.get(
+            shake_id=shake_id,
+            source_type=Earthquake.INITIAL_SOURCE_TYPE)
+        """:type : Earthquake"""
+
+        # Find corrected shakemaps version
+        shake_corrected = shake.corrected_shakemaps
+        serializer = EarthquakeSerializer(shake_corrected)
+        return Response(serializer.data)
+
+    except Earthquake.DoesNotExist:
+        return HttpResponseNotFound()
+
+
+@api_view(['GET'])
+def get_corrected_shakemaps_report_for_shake_id(
+        request, shake_id, language='en'):
+    """View to search for corrected shakemaps report for a given initial id.
+
+    :param request: A Django request object
+
+    :param shake_id: Initial shake id of shakemaps. This can be a different ID
+        from a shake_id field of a corrected shakemaps.
+
+    :param language: Report language to search
+    """
+    try:
+        shake = Earthquake.objects.get(
+            shake_id=shake_id,
+            source_type=Earthquake.INITIAL_SOURCE_TYPE)
+        """:type : Earthquake"""
+
+        # Find corrected shakemaps version
+        shake_corrected = shake.corrected_shakemaps
+        """:type : Earthquake"""
+
+        # Find shake reports
+        report = shake_corrected.reports.get(language=language)
+        serializer = EarthquakeReportSerializer(report)
+        return Response(serializer.data)
+
+    except Earthquake.DoesNotExist:
+        return HttpResponseNotFound()
+
+
+def get_grid_xml(request, shake_id, source_type):
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+
+    try:
+        shake = Earthquake.objects.get(
+            shake_id=shake_id,
+            source_type=source_type)
+        if shake.shake_grid:
+            response = HttpResponse(
+                shake.shake_grid.read(),
+                content_type='application/octet-stream')
+            response['Content-Disposition'] = \
+                'inline; filename="{0}"'.format(shake.grid_xml_filename)
+        elif shake.shake_grid_xml:
+            response = HttpResponse(
+                shake.shake_grid_xml,
+                content_type='application/octet-stream')
+            response['Content-Disposition'] = \
+                'inline; filename="{0}"'.format(shake.grid_xml_filename)
+        else:
+            # Legacy shake grid not exists
+            # TODO: Update using current workflow
+            response = JsonResponse({'success': False})
+
+        return response
+    except BaseException:
+        return HttpResponseBadRequest()
+
+
+def get_analysis_zip(request, shake_id, source_type):
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+
+    try:
+        shake = Earthquake.objects.get(
+            shake_id=shake_id,
+            source_type=source_type)
+
+        if shake.analysis_zip_path:
+            with open(shake.analysis_zip_path) as f:
+                response = HttpResponse(
+                    f.read(),
+                    content_type='application/octet-stream')
+                response['Content-Disposition'] = \
+                    'inline; filename=' \
+                    '"{shake_id}-{source_type}-analysis.zip"'.format(
+                        shake_id=shake_id,
+                        source_type=source_type)
+        else:
+            # Legacy shake grid not exists
+            # TODO: Update using current workflow
+            response = JsonResponse({'success': False})
 
         return response
     except BaseException:
@@ -365,6 +585,8 @@ def trigger_process_shake(request, shake_id):
         return HttpResponseBadRequest()
 
     try:
+        # Legacy shake grid not exists
+        # TODO: Update using current workflow
         process_shake.delay(shake_id)
         return JsonResponse({'success': True})
     except BaseException:

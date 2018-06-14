@@ -2,13 +2,13 @@
 from __future__ import absolute_import
 
 import logging
+import os
 from datetime import datetime
 
-import os
 import pytz
+from celery.result import allow_join_result
 
 from core.celery_app import app
-
 from realtime.app_settings import LOGGER_NAME
 from realtime.helpers.realtime_broker_indicator import RealtimeBrokerIndicator
 from realtime.scripts.check_indicators import check_indicator_status
@@ -37,6 +37,8 @@ def update_indicator(check_broker_retval):
         indicator = RealtimeBrokerIndicator()
         now = datetime.utcnow().replace(tzinfo=pytz.utc)
         indicator.value = now
+        return True
+    return False
 
 
 @app.task(queue='inasafe-django-indicator')
@@ -44,9 +46,12 @@ def check_realtime_broker():
     res = check_broker_connection.delay()
     # wait to sync result
     try:
-        update_indicator.delay(res.get())
-    except BaseException:
-        pass
+        with allow_join_result():
+            update_indicator.delay(res.get())
+            return res.get()
+    except BaseException as e:
+        LOGGER.exception(e)
+    return False
 
 
 @app.task(queue='inasafe-django-indicator')

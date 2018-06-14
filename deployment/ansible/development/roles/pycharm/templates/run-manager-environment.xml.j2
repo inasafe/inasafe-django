@@ -5,7 +5,9 @@
         <env name="DATABASE_USERNAME" value="docker" />
         <env name="DATABASE_PASSWORD" value="docker" />
         <env name="DATABASE_HOST" value="db" />
-        <env name="INASAFE_REALTIME_BROKER_URL" value="amqp://guest:guest@{{ interpreters.inasafe_realtime.ipaddress }}:{{ docker_port_forward.inasafe_realtime.rabbitmq }}/" />
+        <env name="INASAFE_REALTIME_BROKER_URL" value="amqp://guest:guest@{{ inasafe_realtime.broker }}:{{ inasafe_realtime.broker_port }}/" />
+        <env name="INASAFE_HEADLESS_BROKER_URL" value="amqp://guest:guest@{{ inasafe_headless.broker }}:{{ inasafe_headless.broker_port }}/" />
+        <env name="INASAFE_OUTPUT_DIR" value="{{ inasafe_headless.working_dir }}/outputs" />
         <env name="MAPQUEST_MAP_KEY" value="{{ inasafe_django.mapquest_map_key }}" />
         <env name="SITE_DOMAIN_NAME" value="{{ inasafe_django.site_domain_name }}" />
         <env name="PYTHONUNBUFFERED" value="1" />

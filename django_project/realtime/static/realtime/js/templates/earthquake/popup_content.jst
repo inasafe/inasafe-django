@@ -27,9 +27,20 @@
         <span>
             <button class="show-report btn btn-primary row-action-container"
                     title="Open Report"
-                    onclick="showReportHandler('<%= shake_id %>')">
+                    onclick="showInitialReportHandler('<%= shake_id %>')">
                 <span class="row-action-icon glyphicon glyphicon-file"></span>
             </button>
+
+
+            <button class="show-report btn btn-primary row-action-container"
+                    title="Open Report (Corrected)"
+                    <% if(!has_corrected){ %>
+                    disabled="disabled"
+                    <% } %>
+                    onclick="showCorrectedReportHandler('<%= shake_id %>')">
+                <span class="row-action-icon glyphicon glyphicon-file"></span>
+            </button>
+
             <div class="btn-group">
                 <button class="download-report btn btn-primary dropdown-toggle row-action-container"
                         title="Download"
@@ -41,23 +52,44 @@
                 </button>
                 <ul class="dropdown-menu">
                     <li>
-                        <a href="#" onclick="downloadReportHandler('<%= shake_id %>')">
+                        <a href="#" onclick="downloadInitialReportHandler('<%= shake_id %>')">
                             Report
                         </a>
                     </li>
                     <% if(shake_grid) { %>
                     <li>
-                        <a href="#" onclick="downloadGridHandler('<%= shake_id %>', '<%= shake_grid %>')">
+                        <a href="#" onclick="downloadInitialGridHandler('<%= shake_id %>')">
                             Grid XML
                         </a>
                     </li>
                     <% } %>
-                    <% if(mmi_output){ %>
+
+                    <% if(mmi_layer_saved) { %>
                     <li>
-                        <a href="<%= mmi_output %>" download="<%= shake_id+'-mmi.zip' %>">
-                            MMI Output
+                        <a href="#" onclick="downloadInitialMMIHandler('<%= shake_id %>')">
+                            MMI Layer
                         </a>
                     </li>
+                    <% } %>
+
+                    <% if(has_corrected){ %>
+
+                        <li>
+                            <a href="#" onclick="downloadCorrectedReportHandler('<%= shake_id %>')">
+                                Report (Corrected)
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="downloadCorrectedGridHandler('<%= shake_id %>')">
+                                Grid XML (Corrected)
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" onclick="downloadCorrectedMMIHandler('<%= shake_id %>')">
+                                MMI Layer (Corrected)
+                            </a>
+                        </li>
+
                     <% } %>
                 </ul>
             </div>

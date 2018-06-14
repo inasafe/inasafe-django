@@ -1,11 +1,15 @@
 # coding=utf-8
 """Model class for ash realtime."""
+
 import pytz
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from realtime.app_settings import ASH_EVENT_ID_FORMAT, ASH_EVENT_REPORT_FORMAT
+from realtime.app_settings import ASH_EVENT_ID_FORMAT, \
+    ASH_EVENT_REPORT_FORMAT, ASH_EVENT_TIME_FORMAT
+from realtime.models.mixins import BaseEventModel
+from realtime.models.report import BaseEventReportModel
 from realtime.models.volcano import Volcano
 
 __author__ = 'ismailsunni'
@@ -15,8 +19,9 @@ __date__ = '7/15/16'
 __copyright__ = 'imajimatika@gmail.com'
 
 
-class Ash(models.Model):
+class Ash(BaseEventModel):
     """Ash model."""
+
     class Meta:
         """Meta class."""
         app_label = 'realtime'
@@ -91,6 +96,14 @@ class Ash(models.Model):
         super(Ash, self).__init__(*args, **kwargs)
         self.use_timezone()
 
+    @property
+    def reports_queryset(self):
+        return self.reports
+
+    @property
+    def report_class(self):
+        return AshReport
+
     def use_timezone(self):
         """Use saved timezone information for event_time"""
         # Reformat event_time with timezone
@@ -99,6 +112,10 @@ class Ash(models.Model):
             self.event_time = self.event_time.astimezone(tz)
         except BaseException:
             pass
+
+    @property
+    def event_time_formatted(self):
+        return ASH_EVENT_TIME_FORMAT.format(event_time=self.event_time)
 
     @property
     def event_id_formatted(self):
@@ -114,8 +131,14 @@ class Ash(models.Model):
             self.impact_files.delete()
         return super(Ash, self).delete(using=using)
 
+    @property
+    def need_generate_hazard(self):
+        if self.task_status and not self.task_status == 'None':
+            return False
+        return True
 
-class AshReport(models.Model):
+
+class AshReport(BaseEventReportModel):
     """Ash Report Model."""
 
     class Meta:
@@ -125,17 +148,27 @@ class AshReport(models.Model):
     ash = models.ForeignKey(
         Ash,
         related_name='reports')
-    language = models.CharField(
-        verbose_name=_('Language ID'),
-        help_text=_('The language ID of the report'),
-        max_length=4,
-        default='en'
-    )
     report_map = models.FileField(
         verbose_name=_('Map PDF Report'),
         help_text=_('The map impact report stored as PDF'),
         upload_to='reports/ash/pdf'
     )
+
+    @property
+    def event(self):
+        return self.ash
+
+    @event.setter
+    def event(self, value):
+        self.ash = value
+
+    @property
+    def canonical_report_pdf(self):
+        return self.report_map
+
+    @property
+    def canonical_report_filename(self):
+        return self.report_map_filename
 
     @property
     def report_map_filename(self):

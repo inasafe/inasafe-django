@@ -25,27 +25,46 @@
     <div class="row center-block">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h2 class="panel-title">{% trans "InaSAFE Realtime Earthquake Reports" %}</h2>
+                <h2 class="panel-title">
+                    {% if perms.realtime.change_coreflatpage %}
+                    <a href="{% url "realtime:flatpage_edit" slug_id=LANDING_PAGE_SLUG_ID system_category=LANDING_PAGE_SYSTEM_CATEGORY language=LANGUAGE_CODE %}"
+                       class="btn btn-primary" title="{% trans "Edit Content" %}">
+                        <span class="glyphicon glyphicon-edit"></span>
+                    </a>
+                    {% endif %}
+
+                    {% if landing_page %}
+                        {{ landing_page.title|safe }}
+                    {% else %}
+                        {% trans "InaSAFE Realtime Earthquake Reports" %}
+                    {% endif %}
+                </h2>
             </div>
             <div class="panel-body">
                 <p class="text-justify">
-                    {% blocktrans %}
-                        This page contains <b>near realtime</b> earthquake impact assessments
-                        following recent earthquakes in the Indonesia region.
-                        Shakemaps of earthquake ground shaking are produced by the
-                        Indonesian Agency for Meteorology, Climatology and Geophysics (BMKG)
-                        and used by the Indonesian National Disaster Management Agency (BNPB)
-                        to produce InaSAFE impact assessments within minutes of an earthquake
-                        (
-                        <a href="http://www.bnpb.go.id">http://www.bnpb.go.id</a>
-                        or
-                        <a href="http://realtime.inasafe.org">http://realtime.inasafe.org</a>).
-                        This information is used by disaster managers to help them understand
-                        the potential scale of a disaster and to respond faster to the
-                        hardest hit communities. This is particularly important in the
-                        first few hours after a large earthquake when it may be difficult
-                        to get accurate on-the-ground information.
-                    {% endblocktrans %}
+
+                    {% if landing_page %}
+                        {{ landing_page.content|safe }}
+                    {% else %}
+                        {% blocktrans %}
+                            This page contains <b>near realtime</b> earthquake impact assessments
+                            following recent earthquakes in the Indonesia region.
+                            Shakemaps of earthquake ground shaking are produced by the
+                            Indonesian Agency for Meteorology, Climatology and Geophysics (BMKG)
+                            and used by the Indonesian National Disaster Management Agency (BNPB)
+                            to produce InaSAFE impact assessments within minutes of an earthquake
+                            (
+                            <a href="http://www.bnpb.go.id">http://www.bnpb.go.id</a>
+                            or
+                            <a href="http://realtime.inasafe.org">http://realtime.inasafe.org</a>).
+                            This information is used by disaster managers to help them understand
+                            the potential scale of a disaster and to respond faster to the
+                            hardest hit communities. This is particularly important in the
+                            first few hours after a large earthquake when it may be difficult
+                            to get accurate on-the-ground information.
+                        {% endblocktrans %}
+                    {% endif %}
+
                 </p>
             </div>
         </div>
@@ -299,24 +318,37 @@
         var jsonTableContents = [];
         var showEventHandler = createShowEventHandler(map, markers, map_events);
         {#    Use magic number 000 for placeholder#}
-        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' language=language.code %}';
-        var report_download_url = '{% url "realtime_report:report_pdf" shake_id='000' language=language.code language2=language.code %}';
-        var grid_url = '{% url "realtime:shake_grid" shake_id='000' %}';
-        var showReportHandler = createShowReportHandler(report_url);
-        var downloadReportHandler = createDownloadReportHandler(report_download_url, '{{ language.code }}');
-        var downloadGridHandler = createDownloadGridHandler(grid_url);
+        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' source_type='source_type' language=language.code %}';
+        var report_corrected_url = '{% url "realtime:shake_corrected_report" shake_id='000' language=language.code %}';
+        var eq_detail_url = '{% url "realtime:earthquake_detail" shake_id='000' source_type='source_type' %}';
+        var eq_corrected_detail_url = '{% url "realtime:shake_corrected" shake_id='000' %}';
+        var showInitialReportHandler = createShowReportHandler(report_url, 'initial');
+        var showCorrectedReportHandler = createShowReportHandler(report_corrected_url, 'corrected');
+        var downloadInitialReportHandler = createDownloadReportHandler(report_url, 'initial');
+        var downloadCorrectedReportHandler = createDownloadReportHandler(report_corrected_url, 'corrected');
+        var downloadInitialGridHandler = createDownloadGridHandler(eq_detail_url, 'initial');
+        var downloadCorrectedGridHandler = createDownloadGridHandler(eq_corrected_detail_url, 'corrected');
+        var downloadInitialMMIHandler = createDownloadMMIHandler(eq_detail_url, 'initial');
+        var downloadCorrectedMMIHandler = createDownloadMMIHandler(eq_corrected_detail_url, 'corrected');
         var button_templates = [
             {
                 type: 'simple-button',
                 name: '{% trans "Zoom" %}',
                 css_class: 'glyphicon glyphicon-search',
-                handler: 'showEventHandler'
+                handler: 'showEventHandler',
             },
             {
                 type: 'simple-button',
                 name: '{% trans "Report" %}',
                 css_class: 'glyphicon glyphicon-file',
-                handler: 'showReportHandler'
+                handler: 'showInitialReportHandler'
+            },
+            {
+                type: 'simple-button',
+                name: '{% trans "Report (Corrected)" %}',
+                css_class: 'glyphicon glyphicon-file',
+                handler: 'showCorrectedReportHandler',
+                active: function(event){return event.has_corrected;}
             },
             {
                 type: 'dropdown',
@@ -325,18 +357,34 @@
                 actions: [
                     {
                         text: '{% trans "Report" %}',
-                        handler: 'downloadReportHandler'
+                        handler: 'downloadInitialReportHandler'
                     },
                     {
-                        active: function(event){return event.shake_grid != undefined;},
+                        active: function(event){return event.shake_grid},
                         text: '{% trans "Grid XML" %}',
-                        handler: 'downloadGridHandler'
+                        handler: 'downloadInitialGridHandler'
                     },
                     {
-                        active: function(event){return event.mmi_output != undefined;},
-                        text: '{% trans "MMI output" %}',
-                        href: function(event){return event.mmi_output;},
-                        download: function(event){return event.shake_id+'-mmi.zip'}
+                        active: function(event){return event.mmi_layer_saved},
+                        text: '{% trans "MMI Layer" %}',
+                        handler: 'downloadInitialMMIHandler'
+                    },
+
+                    {
+                        active: function(event){return event.has_corrected;},
+                        text: '{% trans "Report (Corrected)" %}',
+                        handler: 'downloadCorrectedReportHandler'
+                    },
+                    {
+                        active: function(event){return event.has_corrected;},
+                        text: '{% trans "Grid XML (Corrected)" %}',
+                        handler: 'downloadCorrectedGridHandler'
+
+                    },
+                    {
+                        active: function(event){return event.has_corrected;},
+                        text: '{% trans "MMI Layer (Corrected)" %}',
+                        handler: 'downloadCorrectedMMIHandler'
                     }
                 ]
             }

@@ -2,6 +2,7 @@
 """Model factories definition for models."""
 import datetime
 import random
+import os
 
 from django.contrib.gis.geos import Point
 from django.contrib.gis.geos import Polygon
@@ -9,6 +10,11 @@ from factory.django import DjangoModelFactory
 
 from realtime.models.earthquake import Earthquake
 from realtime.models.flood import Boundary, Flood
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
+flood_layer_uri = os.path.join(
+    dir_path, '..', 'tasks', 'test', 'data', 'input_layers', 'flood_data.json')
+flood_layer_uri = os.path.abspath(flood_layer_uri)
 
 
 class EarthquakeFactory(DjangoModelFactory):
@@ -64,3 +70,4 @@ class FloodFactory(DjangoModelFactory):
     time = datetime.datetime.now()
     interval = 6
     source = 'PetaJakarta'
+    hazard_path = flood_layer_uri
