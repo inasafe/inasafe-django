@@ -5,11 +5,13 @@ This file is intended only for a sample.
 Please copy it as celeryconfig.py so it can be read
 """
 
+import os
+
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '1/28/16'
 
 
-BROKER_URL = 'amqp://guest:guest@{{ interpreters.inasafe_realtime.ipaddress }}:{{ docker_port_forward.inasafe_realtime.rabbitmq }}/'
+BROKER_URL = os.environ.get('INASAFE_REALTIME_BROKER_URL')
 
 CELERY_RESULT_BACKEND = BROKER_URL
 

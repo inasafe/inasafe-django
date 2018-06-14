@@ -145,12 +145,8 @@ function createShowFeaturesHandler(event_features_url){
                 layer_control.addOverlay(
                     event_layer, '<span id="'+layer_control_id+'"></span>Flood Event');
                 // programmatically enable the layer
-                $("#"+layer_control_id).parent().siblings('input').click();
+                event_layer.addTo(map);
 
-                // scroll to map
-                $('html, body').animate({
-                    scrollTop: $("#"+map_id).offset().top
-                }, 500);
                 var fitBoundsOption = {
                     maxZoom: 15,
                     pan: {
@@ -193,16 +189,9 @@ function createShowReportHandler(report_url) {
         // replace placeholder with event_id
         url = url.replace('0000000000-6-rw', event_id);
         $.get(url, function (data) {
-            if (data && data.impact_report) {
-                var pdf_url = data.impact_report;
-                var $a = $("<a></a>");
-                $a.attr('href', pdf_url);
-                if(!browser_identity().is_safari){
-                    // it doesn't work in safari
-                    $a.attr('target', '_blank');
-                }
-                $a.attr('rel', 'nofollow');
-                $a[0].click();
+            if (data && data.impact_report_url) {
+                var pdf_url = data.impact_report_url;
+                OpenReportPDF(pdf_url);
             }
         }).fail(function(e){
             console.log(e);
@@ -227,16 +216,9 @@ function createShowImpactMapHandler(report_url) {
         // replace placeholder with event_id
         url = url.replace('0000000000-6-rw', event_id);
         $.get(url, function (data) {
-            if (data && data.impact_map) {
-                var pdf_url = data.impact_map;
-                var $a = $("<a></a>");
-                $a.attr('href', pdf_url);
-                if(!browser_identity().is_safari){
-                    // it doesn't work in safari
-                    $a.attr('target', '_blank');
-                }
-                $a.attr('rel', 'nofollow');
-                $a[0].click();
+            if (data && data.impact_map_url) {
+                var pdf_url = data.impact_map_url;
+                OpenReportPDF(pdf_url);
             }
         }).fail(function(e){
             console.log(e);
@@ -259,9 +241,9 @@ function createDownloadImpactMapHandler(report_url) {
         // replace magic number 0000000000-6-rw with event_id
         url = url.replace('0000000000-6-rw', event_id);
         $.get(url, function (data) {
-            if (data && data.impact_map) {
-                var pdf_url = data.impact_map;
-                SaveToDisk(pdf_url, data.event_id+'-'+data.language+'.pdf');
+            if (data && data.impact_map_url) {
+                var pdf_url = data.impact_map_url;
+                SaveToDisk(pdf_url, data.impact_map_filename);
             }
         }).fail(function(e){
             console.log(e);

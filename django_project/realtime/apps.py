@@ -102,6 +102,9 @@ class RealtimeConfig(AppConfig):
                 test_user.save()
 
     def ready(self):
-        self.load_boundary_alias()
-        self.load_volcano_fixtures()
-        self.load_test_users()
+        try:
+            self.load_boundary_alias()
+            self.load_volcano_fixtures()
+            self.load_test_users()
+        except BaseException:
+            pass

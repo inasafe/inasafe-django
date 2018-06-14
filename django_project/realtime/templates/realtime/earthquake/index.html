@@ -5,6 +5,8 @@
 {% load pipeline %}
 {% load i18n %}
 
+{% get_language_info for LANGUAGE_CODE as language %}
+
 {% block head_resources %}
     {{ block.super }}
     {% leaflet_js %}
@@ -134,13 +136,13 @@
             <div class="panel-body">
                 <div id="earthquake-fast-filters" class="btn-group" role="group" data-toggle="buttons">
                     <label class="btn btn-default" onclick="filterRecentBigShake()">
-                        <input name="earthquake-fast-filters" type="radio"/>{% trans "Recent Large Earthquakes" %}
+                        <input name="earthquake-fast-filters" type="radio" value="recent-big"/>{% trans "Recent Large Earthquakes" %}
                     </label>
                     <label class="btn btn-default" onclick="filterRecentSmallShake()">
-                        <input name="earthquake-fast-filters" type="radio"/>{% trans "Recent Small Earthquakes" %}
+                        <input name="earthquake-fast-filters" type="radio" value="recent-small"/>{% trans "Recent Small Earthquakes" %}
                     </label>
                     <label class="btn btn-default" onclick="filterRecentFeltShake()">
-                        <input name="earthquake-fast-filters" type="radio"/>{% trans "Recent Felt Earthquakes" %}
+                        <input name="earthquake-fast-filters" type="radio" value="recent-felt"/>{% trans "Recent Felt Earthquakes" %}
                     </label>
                 </div>
             </div>
@@ -232,7 +234,6 @@
     {% javascript 'realtime_contrib' %}
     {% javascript 'realtime_appjs' %}
     {% javascript 'realtime_shakejs' %}
-    <script src="https://www.mapquestapi.com/sdk/leaflet/v2.2/mq-map.js?key={{ mapquest_key }}"></script>
     <script type="text/javascript">
         var base_map;
 
@@ -248,9 +249,6 @@
                 {% endif %}
             {% endfor %}
         };
-
-        // Override because of new MapQuest policy to use licensed API
-        base_map['MapQuest'] = MQ.mapLayer();
 
         //Create Map with prepared base_map
         map = L.map('map', {
@@ -293,19 +291,19 @@
             position: 'topleft'
         }).addTo(map);
 
-        project_icon_path = "{% static 'realtime/img/earthquake.png' %}";
-        ashIcon = createIconMarker(
+        var project_icon_path = "{% static 'realtime/img/earthquake.png' %}";
+        var marker_icon = createIconMarker(
                 project_icon_path);
 
         // create dynatable
         var jsonTableContents = [];
         var showEventHandler = createShowEventHandler(map, markers, map_events);
         {#    Use magic number 000 for placeholder#}
-        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' language=language.selected_language.id %}';
-        var report_download_url = '{% url "realtime_report:report_pdf" shake_id='000' language=language.selected_language.id language2=language.selected_language.id %}';
+        var report_url = '{% url "realtime:earthquake_report_detail" shake_id='000' language=language.code %}';
+        var report_download_url = '{% url "realtime_report:report_pdf" shake_id='000' language=language.code language2=language.code %}';
         var grid_url = '{% url "realtime:shake_grid" shake_id='000' %}';
         var showReportHandler = createShowReportHandler(report_url);
-        var downloadReportHandler = createDownloadReportHandler(report_download_url, '{{ language.selected_language.id }}');
+        var downloadReportHandler = createDownloadReportHandler(report_download_url, '{{ language.code }}');
         var downloadGridHandler = createDownloadGridHandler(grid_url);
         var button_templates = [
             {
@@ -350,7 +348,7 @@
             L.geoJson(event_json, {
                 onEachFeature: onEachFeature,
                 pointToLayer: function (feature, latlng) {
-                    var marker = L.marker(latlng, {icon: ashIcon});
+                    var marker = L.marker(latlng, {icon: marker_icon});
                     map_events[feature.properties.shake_id] = marker;
                     return marker;
                 }
@@ -363,11 +361,6 @@
             dynaTable.paginationPerPage.set(20);
             dynaTable.sorts.add('time', -1);
             dynaTable.process();
-
-            if(jsonTableContents.length > 0){
-                var shake_id = jsonTableContents[0].shake_id;
-                showEventHandler(shake_id);
-            }
         }
 
         function onEachFeature(feature, layer) {
@@ -404,9 +397,9 @@
                 '{% trans "with magnitudes between %(min_magnitude)s and %(max_magnitude)s" %}',
                 '{% trans "with magnitudes greater than or equal %(min_magnitude)s" %}',
                 '{% trans "with magnitudes less than or equal %(max_magnitude)s" %}',
-                '{% trans "over the period %(start_moment) and %(end_moment)s" %}',
+                '{% trans "over the period %(start_moment)s and %(end_moment)s" %}',
                 '{% trans "since %(start_moment)s" %}',
-                '{% trans "before %(end_moment)" %}'
+                '{% trans "before %(end_moment)s" %}'
         );
 
         $(document).ready(function () {
@@ -415,8 +408,11 @@
             var $navbar = $('#navbar');
 
             dynaTable = $('#realtime-table').dynatable({
+                features: {
+                    pushState: false
+                },
                 table: {
-                    defaultColumnIdStyle: 'underscore',
+                    defaultColumnIdStyle: 'underscore'
                 },
                 writers: {
                     _rowWriter: createActionRowWriter(button_templates, '{% trans "YYYY-MM-DD [at] HH:mm:ss" %}')
@@ -433,6 +429,9 @@
             $.get(get_events_url, function (data) {
                 event_json = data;
                 getEarthquakeEventsJson(data);
+                jsonTableContents = dynaTable.settings.dataset.originalRecords
+                var shake_id = jsonTableContents[0].shake_id;
+                showEventHandler(shake_id);
                 modifyMapDescriptions(".map-title");
             });
 

@@ -2,6 +2,8 @@
 {% load bootstrap %}
 {% load pipeline %}
 {% load i18n %}
+
+{% get_language_info for LANGUAGE_CODE as language %}
 <!DOCTYPE html>
 <html lang="{{ language }}">
 <head>
@@ -93,17 +95,26 @@
                         <div id="lang_sel">
                             <ul>
                                 <li>
-                                    <a href="#">{{ language.selected_language.name }}
-                                        {% if language.language_list|length > 0 %}
+                                    <a href="#">{{ language.name_local }}
+                                        {% if LANGUAGES|length > 0 %}
                                             <span class="caret"></span>
                                         {% endif %}
                                     </a>
-                                    {% if language.language_list|length > 0 %}
+                                    {% if LANGUAGES|length > 0 %}
                                         <ul>
-                                            {% for l in language.language_list %}
+                                            {% for lang_key, lang_name in LANGUAGES %}
+                                                {% get_language_info for lang_key as lang %}
+                                                {% if not lang.code == language.code %}
                                                 <li>
-                                                    <a href="{{ request.path }}?lang={{ l.id }}">{{ l.name }}</a>
+                                                    <form id="set-lang-{{ lang.code }}" action="{% url 'set_language' %}" method="post" class="hidden">
+                                                        {% csrf_token %}
+                                                        <input name="next" type="hidden" value="{{ redirect_to }}" />
+                                                        <input name="language" value="{{ lang.code }}" />
+                                                        <input type="submit" />
+                                                    </form>
+                                                    <a href="javascript:set_language('{{ lang.code }}');">{{ lang.name_local }}</a>
                                                 </li>
+                                                {% endif %}
                                             {% endfor %}
                                         </ul>
                                     {% endif %}
@@ -114,12 +125,12 @@
                             {% if not user.is_authenticated %}
                                 <li class="dropdown">
                                     <a href="#" class="dropdown-toggle"
-                                       data-toggle="dropdown"><b>Account</b>
+                                       data-toggle="dropdown"><b>{% trans "Account" %}</b>
                                         <b class="caret"></b></a>
                                     <ul class="dropdown-menu">
                                         <li>
-                                            <a href="{% url 'realtime_admin:login' %}">
-                                                Log In
+                                            <a href="{% url 'realtime_admin:login' %}?next=/">
+                                                {% trans "Log in" %}
                                             </a>
                                         </li>
                                     </ul>
@@ -127,14 +138,19 @@
                             {% endif %}
                             {% if user.is_authenticated %}
                                 <li class="dropdown">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>Hi, {{ user.name }}</b>
+                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown"><b>{% trans "Hi, " %}{{ user.name }}</b>
                                         <b class="caret"></b></a>
                                     <ul class="dropdown-menu">
+                                        {% if user.is_superuser %}
                                         <li>
-                                            <a href="{% url 'realtime_admin:index' %}">Admin Page</a>
+                                            <a href="{% url 'admin:index' %}">{% trans "Super Admin Page" %}</a>
+                                        </li>
+                                        {% endif %}
+                                        <li>
+                                            <a href="{% url 'realtime_admin:index' %}">{% trans "Model Admin Page" %}</a>
                                         </li>
                                         <li>
-                                            <a href="{% url 'realtime_admin:logout' %}">Log Out</a>
+                                            <a href="{% url 'realtime_admin:logout' %}?next=/">{% trans "Log Out" %}</a>
                                         </li>
                                     </ul>
                                 </li>

@@ -31,7 +31,7 @@
                 {{ form|bootstrap }}
                 <div class="form-group">
                     <div class="col-lg-6">
-                        <input type="submit" name="upload-ash" value="Submit" class="btn btn-default">
+                        <input type="submit" name="upload-ash" value="{% trans "Submit" %}" class="btn btn-default">
                     </div>
                 </div>
             </form>
@@ -69,23 +69,23 @@
             }
         });
 
-        var $timezone = $("#id_timezone_string");
-        var $utc_offset = $("#id_utc_offset");
+        var timezone_list = moment.tz.names();
+        var $timezone = $("#id_event_time_zone_string");
+        $timezone.typeahead({
+            source: timezone_list,
+            autoSelect: true
+        });
+        var $utc_offset = $("#id_event_time_zone_offset");
         var timezone_name = moment.tz.guess();
         var timezone_moment = moment().tz(timezone_name);
         $utc_offset.val(timezone_moment.utcOffset());
-        var timezone_offset = timezone_moment.format('Z');
-        var timezone_string = '';
-        if(timezone_name){
-            timezone_string += timezone_name;
-            if(timezone_offset){
-                timezone_string += ' ('+timezone_offset+')';
-            }
-        }
-        if(!timezone_name && timezone_offset){
-            timezone_string += timezone_offset;
-        }
-        $timezone.val(timezone_string);
+        $timezone.on('change', function(evt){
+            var tz_name = $(this).val();
+            var tz_moment = moment().tz(tz_name);
+            var tz_offset = tz_moment.utcOffset();
+            $utc_offset.val(tz_offset);
+        });
+        $timezone.val(timezone_name);
     });
     </script>
 {% endblock %}

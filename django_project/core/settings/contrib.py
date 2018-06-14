@@ -30,6 +30,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
     'django.core.context_processors.media',
     'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.i18n',
     'user_map.context_processors.user_map_settings',
     'realtime.context_processors.realtime_settings',
 )
@@ -69,8 +70,4 @@ TINYMCE_DEFAULT_CONFIG = {
     'file_browser_callback': 'mce_filebrowser'
 }
 
-try:
-    # This settings will be used for mapquest tiles for realtime and user_map
-    from .mapquest import MAPQUEST_MAP_KEY  # noqa
-except:
-    pass
+from .secret import MAPQUEST_MAP_KEY  # noqa

@@ -12,6 +12,13 @@ default: web
 
 up: build web
 
+down:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Shutdown docker containers"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) down
+
 complete-deploy: up wait migrate collectstatic makemessages compilemessages inasafe-worker indicator-worker reload status
 
 wait:
@@ -28,7 +35,7 @@ deploy: up wait inasafe-worker indicator-worker
 	@echo "You can access it on http://localhost:61100"
 	@echo "------------------------------------------------------------------"
 
-restart: kill deploy
+restart: down deploy
 
 ansible-check:
 	@echo "Check ansible command"
@@ -84,16 +91,16 @@ compilemessages:
 transifex-pull:
 	@echo
 	@echo "------------------------------------------------------------------"
-	@echo "Download translation from Transifex "
+	@echo "Download translation from Transifex ${LANG}"
 	@echo "------------------------------------------------------------------"
-	@cd ../; tx pull
+	@cd ../; tx pull -l ${LANG}
 
 transifex-push-language:
 	@echo
 	@echo "------------------------------------------------------------------"
 	@echo "Push translation to Transifex for language $(LANG)"
 	@echo "------------------------------------------------------------------"
-	@cd ../; tx push -t -l id
+	@cd ../; tx push -t -l $(LANG)
 
 transifex-push-source:
 	@echo
@@ -301,9 +308,8 @@ dbsync:
 	@echo "------------------------------------------------------------------"
 	@echo "Syncing database files from live server $(TARGET_SERVER)"
 	@echo "------------------------------------------------------------------"
-	-@ssh $(TARGET_SERVER) "cd /home/data/inasafe-django/deployment; make dbbackup"
-	rsync -av --progress $(TARGET_SERVER):/home/data/inasafe-django/deployment/sftp_backup/target/pg/latest.dmp backups
-	rsync -av --progress $(TARGET_SERVER):/home/data/inasafe-django/deployment/sftp_backup/backups/pg backups
+	rsync -av --progress $(TARGET_SERVER):/home/data/inasafe-django/deployment/sftp_backup/target/pg/latest.dmp pg/dbbackup/backups
+	rsync -av --progress $(TARGET_SERVER):/home/data/inasafe-django/deployment/sftp_backup/backups/pg pg/dbbackup/backups
 
 reload:
 	@echo

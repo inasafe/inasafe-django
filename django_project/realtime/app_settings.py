@@ -8,7 +8,10 @@
     For mailing. as the default, it wil use 'DEFAULT_FROM_MAIL' setting from
     the project.
 """
+import ast
 from datetime import timedelta
+
+import os
 from django.conf import settings
 
 LOGGER_NAME = 'InaSAFE Realtime REST Server'
@@ -30,28 +33,22 @@ FAVICON_FILE = getattr(settings, 'REALTIME_FAVICON_FILE',
 
 # LEAFLET CONFIG
 default_leaflet_tiles = (
-    ['MapQuest',
-     'OpenStreetMap',
-     ],
     [
-        'http://otile{s}.mqcdn.com/tiles/1.0.0/osm/{z}/{x}/{y}.png',
-        'http://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png',
+        'OpenStreetMap',
     ],
     [
-        '1234',
-        'abcd',
+        'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     ],
-    ['© <a href="http://www.openstreetmap.org" target="_parent">OpenStreetMap'
-     '</a> and contributors, under an <a '
-     'href="http://www.openstreetmap.org/copyright" target="_parent">open '
-     'license</a>. Tiles Courtesy of <a '
-     'href="http://www.mapquest.com/">MapQuest</a> <img '
-     'src="http://developer.mapquest.com/content/osm/mq_logo.png"',
-     '© <a href="http://www.openstreetmap.org" target="_parent">OpenStreetMap'
-     '</a> and contributors, under an <a '
-     'href="http://www.openstreetmap.org/copyright" target="_parent">open '
-     'license</a>.',
-     ]
+    [
+        'abc',
+    ],
+    [
+        '© <a href="http://www.openstreetmap.org" target="_parent">'
+        'OpenStreetMap'
+        '</a> and contributors, under an <a '
+        'href="http://www.openstreetmap.org/copyright" target="_parent">'
+        'open license</a>.',
+    ]
 )
 LEAFLET_TILES = getattr(settings, 'LEAFLET_TILES', default_leaflet_tiles)
 
@@ -116,3 +113,23 @@ MAPQUEST_MAP_KEY = getattr(settings, 'MAPQUEST_MAP_KEY', '')
 OSM_LEVEL_7_NAME = 'Kelurahan'
 
 OSM_LEVEL_8_NAME = 'RW'
+
+# ASH Report Event ID Format
+ASH_EVENT_ID_FORMAT = getattr(
+    settings,
+    'ASH_EVENT_ID_FORMAT',
+    '{event_time:%Y%m%d%H%M%z}_{volcano_name}')
+ASH_EVENT_REPORT_FORMAT = getattr(
+    settings,
+    'ASH_EVENT_REPORT_FORMAT',
+    '{event_time:%Y%m%d%H%M%z}_{volcano_name}-{language}.pdf')
+
+# ASH landing page toggle
+ASH_SHOW_PAGE = os.environ.get(
+    'ASH_SHOW_PAGE',
+    'True')
+
+if ASH_SHOW_PAGE:
+    ASH_SHOW_PAGE = ast.literal_eval(ASH_SHOW_PAGE)
+else:
+    ASH_SHOW_PAGE = True

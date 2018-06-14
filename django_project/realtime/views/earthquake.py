@@ -11,7 +11,6 @@ from django.http.response import (
     HttpResponse)
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.utils import translation
 from django.utils.translation import ugettext as _
 from rest_framework import status, mixins
 from rest_framework.filters import (
@@ -64,10 +63,6 @@ def index(request, iframe=False, server_side_filter=False):
             server_side_filter = request.GET.get('server_side_filter')
 
     context = RequestContext(request)
-    selected_language = context['language']['selected_language']
-    translation.activate(selected_language['id'])
-    request.session[translation.LANGUAGE_SESSION_KEY] = \
-        selected_language['id']
     context['select_area_text'] = _('Select Area')
     context['remove_area_text'] = _('Remove Selection')
     context['select_current_zoom_text'] = _('Select area within current zoom')
@@ -109,6 +104,8 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
     * max_magnitude or maximum_magnitude
     * min_time or time_start
     * max_time or time_end
+    * since_last_days (latest EQ since the last d days)
+    * since_last_hours (latest EQ since the last h hours)
     * location_description
     * in_bbox filled with BBox String in the format SWLon,SWLat,NELon,NELat
     this is used as geographic box filter
@@ -332,6 +329,8 @@ class EarthquakeFeatureList(EarthquakeList):
     * max_magnitude or maximum_magnitude
     * min_time or time_start
     * max_time or time_end
+    * since_last_days (latest EQ since the last d days)
+    * since_last_hours (latest EQ since the last h hours)
     * location_description
     * felt shakes
     * in_bbox filled with BBox String in the format SWLon,SWLat,NELon,NELat
@@ -357,7 +356,7 @@ def get_grid_xml(request, shake_id):
             'inline; filename="%s-grid.xml"' % shake_id
 
         return response
-    except:
+    except BaseException:
         return HttpResponseBadRequest()
 
 
@@ -368,5 +367,5 @@ def trigger_process_shake(request, shake_id):
     try:
         process_shake.delay(shake_id)
         return JsonResponse({'success': True})
-    except:
+    except BaseException:
         return HttpResponseBadRequest()

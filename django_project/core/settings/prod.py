@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import os
+import ast
+
 from .project import *  # noqa
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
@@ -38,6 +41,23 @@ USE_X_FORWARDED_HOST = True
 # Set debug to false for production
 DEBUG = TEMPLATE_DEBUG = False
 
+LOGGING_MAIL_ADMINS = ast.literal_eval(
+    os.environ.get('LOGGING_MAIL_ADMINS', 'False'))
+LOGGING_SENTRY = ast.literal_eval(
+    os.environ.get('LOGGING_SENTRY', 'False'))
+
+LOGGING_DEFAULT_HANDLER = os.environ.get('LOGGING_DEFAULT_HANDLER', 'console')
+
+if LOGGING_MAIL_ADMINS:
+    mail_admins_handler = 'mail_admins'
+else:
+    mail_admins_handler = LOGGING_DEFAULT_HANDLER
+
+if LOGGING_SENTRY:
+    sentry_handler = 'sentry'
+else:
+    sentry_handler = LOGGING_DEFAULT_HANDLER
+
 if 'raven.contrib.django.raven_compat' in INSTALLED_APPS:
     print '*********** Setting up sentry logging ************'
     RAVEN_CONFIG = {
@@ -59,7 +79,7 @@ if 'raven.contrib.django.raven_compat' in INSTALLED_APPS:
         # default root logger - handle with sentry
         'root': {
             'level': 'ERROR',
-            'handlers': ['sentry'],
+            'handlers': [sentry_handler],
         },
         'handlers': {
             # send email to mail_admins, if DEBUG=False
@@ -73,26 +93,37 @@ if 'raven.contrib.django.raven_compat' in INSTALLED_APPS:
                 'class': (
                     'raven.contrib.django.raven_compat.'
                     'handlers.SentryHandler'),
-            }
+            },
+            # file logger
+            'logfile': {
+                'class': 'logging.FileHandler',
+                'filename': '/var/log/django.log',
+                'level': 'DEBUG'
+            },
+            # console output
+            'console': {
+                'class': 'logging.StreamHandler',
+                'level': 'DEBUG',
+            },
         },
         'loggers': {
             'django.db.backends': {
                 'level': 'ERROR',
-                'handlers': ['sentry'],
+                'handlers': [sentry_handler],
                 'propagate': False
             },
             'raven': {
                 'level': 'ERROR',
-                'handlers': ['mail_admins'],
+                'handlers': [mail_admins_handler],
                 'propagate': False
             },
             'sentry.errors': {
                 'level': 'ERROR',
-                'handlers': ['mail_admins'],
+                'handlers': [mail_admins_handler],
                 'propagate': False
             },
             'django.request': {
-                'handlers': ['mail_admins'],
+                'handlers': [mail_admins_handler],
                 'level': 'ERROR',
                 'propagate': True
             }

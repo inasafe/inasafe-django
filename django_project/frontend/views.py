@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
+from django.shortcuts import redirect
 from django.views.generic import TemplateView
 from django.conf import settings
 
@@ -14,6 +15,9 @@ class MainView(TemplateView):
         context = super(MainView, self).get_context_data(**kwargs)
         context['debug'] = settings.DEBUG
         return context
+
+    def get(self, request, *args, **kwargs):
+        return redirect('/realtime/')
 
 
 class AboutView(TemplateView):

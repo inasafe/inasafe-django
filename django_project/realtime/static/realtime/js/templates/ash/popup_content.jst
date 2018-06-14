@@ -11,7 +11,7 @@
                 </tr>
                 <tr>
                     <th>Event Time</th>
-                    <td class="event-time"><%= moment(new Date(Date.parse(event_time))).format('YYYY-MM-DD [at] HH:mm:ss') %></td>
+                    <td class="event-time"><%= moment(event_time).tz(event_time_zone_string).format('YYYY-MM-DD [at] HH:mm:ss ZZ') %></td>
                 </tr>
                 <tr>
                     <th>Province</th>
@@ -59,14 +59,14 @@
                     </li>
                     <% if(hazard_file) { %>
                     <li>
-                        <a href="<%= hazard_file %>" download="<%= event_id_formatted+'-hazard.zip' %>">
+                        <a href="<%= hazard_file %>" download="<%= event_id_formatted+'_hazard.tif' %>">
                             Hazard File
                         </a>
                     </li>
                     <% } %>
                     <% if(impact_files){ %>
                     <li>
-                        <a href="<%= impact_files %>" download="<%= event_id_formatted+'-impacts.zip' %>">
+                        <a href="<%= impact_files %>" download="<%= event_id_formatted+'_impacts.zip' %>">
                             Impact Files
                         </a>
                     </li>

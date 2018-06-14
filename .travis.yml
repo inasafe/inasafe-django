@@ -14,6 +14,9 @@ python:
 
 addons:
   postgresql: "9.3"
+  apt:
+    packages:
+      - postgresql-9.3-postgis-2.3
 
 install:
   - pip install coveralls

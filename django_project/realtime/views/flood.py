@@ -7,10 +7,10 @@ from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError
-from django.http.response import JsonResponse, HttpResponseServerError
+from django.http.response import JsonResponse, HttpResponseServerError, \
+    HttpResponse, Http404
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from django.utils import translation
 from django.utils.translation import ugettext as _
 from rest_framework import mixins, status
 from rest_framework.filters import (
@@ -61,10 +61,6 @@ def index(request, iframe=False, server_side_filter=False):
             server_side_filter = request.GET.get('server_side_filter')
 
     context = RequestContext(request)
-    selected_language = context['language']['selected_language']
-    translation.activate(selected_language['id'])
-    request.session[translation.LANGUAGE_SESSION_KEY] = \
-        selected_language['id']
     context['select_area_text'] = _('Select Area')
     context['remove_area_text'] = _('Remove Selection')
     context['select_current_zoom_text'] = _('Select area within current zoom')
@@ -281,6 +277,36 @@ class FloodEventList(FloodList):
         return Flood.objects.filter(query)
 
 
+def flood_impact_report(request, event_id, language='en'):
+    """View to serve pdf report."""
+    try:
+        instance = FloodReport.objects.get(
+            flood__event_id=event_id,
+            language=language)
+        response = HttpResponse(
+            instance.impact_report.read(),
+            content_type='application/pdf')
+        return response
+    except FloodReport.DoesNotExist:
+        raise Http404()
+
+
+def flood_impact_map(request, event_id, language='en'):
+    """View to serve pdf report."""
+    try:
+        instance = FloodReport.objects.get(
+            flood__event_id=event_id,
+            language=language)
+        response = HttpResponse(
+            instance.impact_map.read(),
+            content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename={0};'.format(
+            instance.impact_map_filename)
+        return response
+    except FloodReport.DoesNotExist:
+        raise Http404()
+
+
 def flood_event_features(request, event_id):
     try:
         flood = Flood.objects.get(event_id=event_id)
@@ -295,6 +321,7 @@ def flood_event_features(request, event_id):
                     'geometry': json.loads(b.geometry.geojson),
                     'properties': {
                         'event_id': flood.event_id,
+                        'time': flood.time,
                         'name': b.name,
                         'parent_name': b.parent.name,
                         'hazard_data': event_data.hazard_data
@@ -308,7 +335,7 @@ def flood_event_features(request, event_id):
         }
 
         return JsonResponse(feature_collection)
-    except:
+    except BaseException:
         return HttpResponseServerError()
 
 

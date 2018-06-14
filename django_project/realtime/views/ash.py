@@ -4,15 +4,13 @@ import logging
 
 import pytz
 from dateutil.parser import parse
-from dateutil.tz import tzoffset
 from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import MultipleObjectsReturned, ValidationError
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.db.utils import IntegrityError
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import render_to_response, redirect
 from django.template import RequestContext
-from django.utils import translation
 from rest_framework import mixins, status
 from rest_framework.filters import (
     DjangoFilterBackend,
@@ -41,25 +39,11 @@ __copyright__ = 'lana.pcfre@gmail.com'
 LOGGER = logging.getLogger(__name__)
 
 
-@permission_required(
-    perm=[
-        'realtime.change_ashreport',
-        'realtime.delete_ashreport',
-        'realtime.add_ashreport',
-        'realtime.change_ash',
-        'realtime.delete_ash',
-        'realtime.add_ash'],
-    login_url='/realtime/admin/login')
 def index(request):
     if request.method == 'POST':
         pass
 
     context = RequestContext(request)
-
-    selected_language = context['language']['selected_language']
-    translation.activate(selected_language['id'])
-    request.session[translation.LANGUAGE_SESSION_KEY] = \
-        selected_language['id']
     return render_to_response(
         'realtime/ash/index.html',
         {},
@@ -68,24 +52,24 @@ def index(request):
 
 @permission_required(
     perm=['realtime.add_ash'],
-    login_url='/realtime/admin/login')
+    login_url=reverse_lazy('realtime_admin:login'))
 def upload_form(request):
     """Upload ash event."""
     context = RequestContext(request)
     if request.method == 'POST':
         form = AshUploadForm(request.POST, request.FILES)
         if form.is_valid():
+            instance = form.instance
+
             # convert timezone from browser and add it to time information
-            tz_offset_string = form.data['utc_offset']
+            tz_name = instance.event_time_zone_string
             try:
-                offset_second = int(tz_offset_string) * 60
-                tz = tzoffset('', offset=offset_second)
-            except:
+                tz = pytz.timezone(tz_name)
+            except BaseException:
                 tz = pytz.utc
 
-            instance = form.instance
-            instance.event_time = instance.event_time.replace(tzinfo=tz)
-            instance.event_time = instance.event_time.astimezone(pytz.utc)
+            instance.event_time = tz.localize(instance.event_time.replace(
+                tzinfo=None))
             form.save()
 
             # Redirect to the document list after POST
@@ -338,6 +322,23 @@ class AshReportDetail(mixins.ListModelMixin,
 
         report.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+def ash_report_map(request, volcano_name, event_time, language='en'):
+    """View to serve pdf report."""
+    try:
+        instance = AshReport.objects.get(
+            ash__volcano__volcano_name__iexact=volcano_name,
+            ash__event_time=parse(event_time),
+            language=language)
+        response = HttpResponse(
+            instance.report_map.read(),
+            content_type='application/pdf')
+        response['Content-Disposition'] = 'inline; filename="{0}";'.format(
+            instance.report_map_filename)
+        return response
+    except AshReport.DoesNotExist:
+        raise Http404()
 
 
 class AshFeatureList(AshList):

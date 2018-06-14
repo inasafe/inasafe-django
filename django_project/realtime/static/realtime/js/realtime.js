@@ -7,6 +7,14 @@
  */
 
 /**
+ * Helper function to set language
+ */
+function set_language(lang_code){
+    var $form = $("#set-lang-"+lang_code);
+    $form.submit();
+}
+
+/**
  * Create basemap instance to be used.
  *
  * @param {string} url The URL for the tiles layer
@@ -45,6 +53,35 @@ function browser_identity(){
         is_safari: is_safari,
         is_opera: is_opera
     };
+}
+
+/**
+ * Cross browser way to programmatically open report pdf in new tab/popup
+ * @param url
+ * @constructor
+ */
+function OpenReportPDF(url){
+    var $a = $("<a></a>");
+    $a.attr('href', url);
+    if(!browser_identity().is_safari){
+        // it doesn't work in safari
+        $a.attr('target', '_blank');
+    }
+    $a.attr('rel', 'nofollow');
+    if(browser_identity().is_firefox){
+        // preferred way to click a link programatically in
+        // firefox
+        // http://stackoverflow.com/questions/809057/how-do-i-programmatically-click-on-an-element-in-firefox
+        var clickEvent = new MouseEvent("click", {
+            "view": window,
+            "bubbles": true,
+            "cancelable": false
+        });
+        $a[0].dispatchEvent(clickEvent);
+    }
+    else{
+        $a[0].click();
+    }
 }
 
 /**

@@ -75,10 +75,6 @@ function createShowEventHandler(map, markers, map_events) {
     var showEventHandler = function showEventHandler(shake_id) {
         var marker = map_events[shake_id];
         var map_id = $(map._container).attr("id");
-        // scroll to map
-        $('html, body').animate({
-            scrollTop: $("#"+map_id).offset().top
-        }, 500);
         markers.zoomToShowLayer(marker, function () {
             var fitBoundsOption = {
                 /*

@@ -31,6 +31,8 @@ def ash_post_save(sender, **kwargs):
             if instance.task_status and not instance.task_status == 'None':
                 return
 
+            instance.use_timezone()
+
             if instance.event_time.tzinfo:
                 event_time = instance.event_time
             else:
@@ -49,11 +51,13 @@ def ash_post_save(sender, **kwargs):
                 volcano_name=instance.volcano.volcano_name,
                 volcano_location=location,
                 eruption_height=instance.eruption_height,
+                vent_height=instance.volcano.elevation,
+                forecast_duration=instance.forecast_duration,
                 region=instance.volcano.province,
                 alert_level=instance.alert_level,
                 hazard_url=hazard_url)
             instance.task_id = result.id
             instance.task_status = 'PENDING'
             instance.save()
-    except:
+    except BaseException:
         pass

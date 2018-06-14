@@ -70,11 +70,6 @@ function createIconMarker(icon_path, shadow_path) {
 function createShowEventHandler(map, markers, map_events) {
     var showEventHandler = function showEventHandler(id) {
         var marker = map_events[id];
-        var map_id = $(map._container).attr("id");
-        // scroll to map
-        $('html, body').animate({
-            scrollTop: $("#"+map_id).offset().top
-        }, 500);
         markers.zoomToShowLayer(marker, function () {
             var fitBoundsOption = {
                 /*
@@ -137,29 +132,9 @@ function createShowReportHandler(report_url) {
         url = url.replace('VOLCANOTEMPLATENAME', volcano_name)
             .replace('1234567890123456789', event_time_string);
         $.get(url, function (data) {
-            if (data && data.report_map) {
-                var pdf_url = data.report_map;
-                var $a = $("<a></a>");
-                $a.attr('href', pdf_url);
-                if(!browser_identity().is_safari){
-                    // it doesn't work in safari
-                    $a.attr('target', '_blank');
-                }
-                $a.attr('rel', 'nofollow');
-                if(browser_identity().is_firefox){
-                    // preferred way to click a link programatically in
-                    // firefox
-                    // http://stackoverflow.com/questions/809057/how-do-i-programmatically-click-on-an-element-in-firefox
-                    var clickEvent = new MouseEvent("click", {
-                        "view": window,
-                        "bubbles": true,
-                        "cancelable": false
-                    });
-                    $a[0].dispatchEvent(clickEvent);
-                }
-                else{
-                    $a[0].click();
-                }
+            if (data && data.report_map_url) {
+                var pdf_url = data.report_map_url;
+                OpenReportPDF(pdf_url);
             }
         }).fail(function(e){
             console.log(e);
@@ -192,7 +167,7 @@ function createDownloadReportHandler(report_url) {
         var volcano_name = feature.properties.volcano.volcano_name;
         var event_time = feature.properties.event_time;
         var event_time_string = moment(event_time).format('YYYYMMDDHHmmssZZ');
-        var event_id_formatted = feature.properties.event_id_formatted;
+        var report_filename = feature.properties.report_map_fileame;
         var task_status = feature.properties.task_status;
         if(task_status == 'PENDING'){
             alert("Report is currently being generated. Refresh this page later.");
@@ -205,9 +180,9 @@ function createDownloadReportHandler(report_url) {
         url = url.replace('VOLCANOTEMPLATENAME', volcano_name)
             .replace('1234567890123456789', event_time_string);
         $.get(url, function (data) {
-            if (data && data.report_map) {
-                var pdf_url = data.report_map;
-                SaveToDisk(pdf_url, event_id_formatted+'-'+data.language+'.pdf');
+            if (data && data.report_map_url) {
+                var pdf_url = data.report_map_url;
+                SaveToDisk(pdf_url, report_filename);
             }
         }).fail(function(e){
             console.log(e);
@@ -232,10 +207,10 @@ function createActionRowWriter(button_templates, date_format) {
         var tr = '';
         // reformat 'time' column
         var time = record.event_time;
-        var moment_time = moment(time);
+        var moment_time = moment(time).tz(record.event_time_zone_string);
         record = $.extend(true, {}, record);
         if(date_format === undefined){
-            date_format = 'YYYY-MM-DD [at] HH:mm:ss';
+            date_format = 'YYYY-MM-DD [at] HH:mm:ss ZZ';
         }
         record.event_time = moment_time.format(date_format);
         // record.event_time = moment_time.fromNow();

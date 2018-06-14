@@ -5,6 +5,8 @@
 {% load pipeline %}
 {% load i18n %}
 
+{% get_language_info for LANGUAGE_CODE as language %}
+
 {% block head_resources %}
     {{ block.super }}
     {% leaflet_js %}
@@ -23,24 +25,27 @@
     <div class="row center-block">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h2 class="panel-title">InaSAFE Ash</h2>
+                <h2 class="panel-title">{% trans "InaSAFE Volcanic Ash" %}</h2>
             </div>
             <div class="panel-body">
                 <p class="text-justify">
                     {% blocktrans %}
                         This page contains <b>near realtime</b> volcanic ash
                         impact assessments generated prior to or during recent
-                        volcanic eruptions in the Indonesia region.
-                        Ashmaps of volcanic ash thickness are produced by Indonesia’s
-                        Geological Agency, Badan Geologi
-                        (<a href="http://www.bgl.esdm.go.id">http://www.bgl.esdm.go.id</a>)
+                        volcanic ash eruptions in the Indonesia region.
+                        Hazard maps of volcanic ash thickness on the ground
+                        are produced by Indonesia’s Geological Agency,
+                        Badan Geologi (<a href="http://www.bgl.esdm.go.id">http://www.bgl.esdm.go.id</a>)
                         and used by the Indonesian National Disaster Management Agency (BNPB)
                         to produce InaSAFE impact assessments
                         (<a href="http://www.bnpb.go.id">http://www.bnpb.go.id</a>
-                        or <a href="http://realtime.inasafe.org">http://realtime.inasafe.org</a>).
-                        This information is used by disaster managers to help
-                        them understand the potential scale of a volcanic
-                        disaster and to respond faster to the hardest hit communities.
+                        or <a href="http://realtime.inasafe.org">http://realtime.inasafe.org)</a>.
+                        InaSAFE Realtime Volcanic Ash assessments estimate the potential impact of volcanic
+                        ash on the ground. This information is used by disaster
+                        managers to help them understand the potential scale of the volcanic ash impact
+                        and to recommend mitigation activities for the most vulnerable communities.
+                        This is particularly important in the lead up to an eruption when communities
+                        have an opportunity to prepare for a possible hazard event.
                     {% endblocktrans %}
                 </p>
             </div>
@@ -58,9 +63,15 @@
                 <!-- All the templates from view-->
             </div>
 
+            {% if perms.realtime.add_ash %}
             <div class="panel-body">
-                <a href="{% url "realtime:ash_upload_form" %}" class="btn btn-primary">Upload Ash</a>
+                <a href="{% url "realtime:ash_upload_form" %}" class="btn btn-primary">{% trans "Upload Volcanic Ash" %}</a>
             </div>
+            {% else %}
+            <div class="panel-body">
+                <a href="{% url "realtime_admin:login" %}?next={% url 'realtime:ash_upload_form' %}" class="btn btn-primary">{% trans "Log in to Upload Volcanic Ash" %}</a>
+            </div>
+            {% endif %}
         </div>
     </div>
 {% endblock main_content %}
@@ -96,7 +107,6 @@
     {% javascript 'realtime_contrib' %}
     {% javascript 'realtime_appjs' %}
     {% javascript 'realtime_ashjs' %}
-    <script src="https://www.mapquestapi.com/sdk/leaflet/v2.2/mq-map.js?key={{ mapquest_key }}"></script>
     <script type="text/javascript">
         var base_map;
 
@@ -112,9 +122,6 @@
                 {% endif %}
             {% endfor %}
         };
-
-        // Override because of new MapQuest policy to use licensed API
-        base_map['MapQuest'] = MQ.mapLayer();
 
         //Create Map with prepared base_map
         map = L.map('map', {
@@ -157,8 +164,8 @@
             position: 'topleft'
         }).addTo(map);
 
-        project_icon_path = "{% static 'realtime/img/volcano.svg' %}";
-        ashIcon = createIconMarker(
+        var project_icon_path = "{% static 'realtime/img/volcano.svg' %}";
+        var marker_icon = createIconMarker(
                 project_icon_path);
 
         // create dynatable
@@ -166,7 +173,7 @@
         var showEventHandler = createShowEventHandler(map, markers, map_events);
 
         {#  Use magic number 000 for placeholders #}
-        var report_url = '{% url "realtime:ash_report_detail" volcano_name='VOLCANOTEMPLATENAME' event_time='1234567890123456789' language=language.selected_language.id %}';
+        var report_url = '{% url "realtime:ash_report_detail" volcano_name='VOLCANOTEMPLATENAME' event_time='1234567890123456789' language=language.code %}';
         var showReportHandler = createShowReportHandler(report_url);
         var downloadReportHandler = createDownloadReportHandler(report_url);
         var button_templates = [
@@ -212,7 +219,7 @@
             L.geoJson(event_json, {
                 onEachFeature: onEachFeature,
                 pointToLayer: function (feature, latlng) {
-                    var marker = L.marker(latlng, {icon: ashIcon});
+                    var marker = L.marker(latlng, {icon: marker_icon});
                     map_events[feature.id] = marker;
                     return marker;
                 }
@@ -227,7 +234,7 @@
             dynaTable.process();
 
             if(jsonTableContents.length > 0){
-                var event_id = jsonTableContents[0].id
+                var event_id = jsonTableContents[0].id;
                 showEventHandler(event_id);
             }
         }
@@ -251,11 +258,14 @@
             var $navbar = $("#navbar");
 
             dynaTable = $('#realtime-table').dynatable({
+                features: {
+                    pushState: false
+                },
                 table: {
-                    defaultColumnIdStyle: 'underscore',
+                    defaultColumnIdStyle: 'underscore'
                 },
                 writers: {
-                    _rowWriter: createActionRowWriter(button_templates, '{% trans "YYYY-MM-DD [at] HH:mm:ss" %}')
+                    _rowWriter: createActionRowWriter(button_templates, '{% trans "YYYY-MM-DD [at] HH:mm:ss ZZ" %}')
                 },
                 dataset: {
                     records: jsonTableContents
