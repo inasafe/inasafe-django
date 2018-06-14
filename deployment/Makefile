@@ -122,7 +122,7 @@ integration-tests-with-logs: realtime-worker headless-worker integration-tests-w
 	@-{ make headless-worker-logs & make realtime-worker-logs & make integration-tests-worker-logs & docker-compose -p $(PROJECT_ID) exec uwsgi coverage run -p --branch --source='.' manage.py test --liveserver=0.0.0.0:8080 --noinput realtime.tests.test_scenarios.TestAshTasks; }
 
 retrieve-context-data:
-	@docker run --rm -d --name analysis_context kartoza/analysis_context_image:v4.4.0 tail -f /dev/null
+	@docker run --rm -d --name analysis_context inasafe/analysis_context_image:v4.4.0 tail -f /dev/null
 	@docker cp -a analysis_context:/data/. headless-data/contexts
 	@docker stop analysis_context
 
