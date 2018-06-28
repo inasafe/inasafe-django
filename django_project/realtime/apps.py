@@ -49,8 +49,7 @@ class RealtimeConfig(AppConfig):
         """load volcano fixtures samples"""
         try:
             Volcano = self.get_model('Volcano')
-            if Volcano.objects.all().count() == 0:
-                load_volcano_data(Volcano, VOLCANO_LAYER_PATH)
+            load_volcano_data(Volcano, VOLCANO_LAYER_PATH)
         except Exception as e:
             LOGGER.error(e)
 
