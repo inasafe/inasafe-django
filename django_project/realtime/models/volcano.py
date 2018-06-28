@@ -24,6 +24,13 @@ class Volcano(models.Model):
         app_label = 'realtime'
         verbose_name_plural = 'Volcanoes'
 
+    volcano_id = models.CharField(
+        verbose_name=_('The Volcano ID'),
+        help_text=_('The ID of the volcano'),
+        max_length=50,
+        default='',
+        blank=False)
+
     volcano_name = models.CharField(
         verbose_name=_('The Volcano Name'),
         help_text=_('The name of the volcano'),
@@ -97,6 +104,7 @@ def load_volcano_data(Volcano, volcano_shapefile):
     layer = source[0]
 
     for feat in layer:
+        volcano_id = feat.get('volcano nu')
         volcano_name = feat.get('name')
         elevation = feat.get('elevation')
         region = feat.get('region')
@@ -122,8 +130,18 @@ def load_volcano_data(Volcano, volcano_shapefile):
                 morphology__iexact=morphology,)
             LOGGER.info(
                 'Volcano {0} already exists'.format(volcano.volcano_name))
+
+            # Check for volcano id record.
+            if not volcano.volcano_id:
+                volcano.volcano_id = volcano_id
+            # Check for volcano timezone record.
+            if not volcano.timezone:
+                volcano.timezone = timezone
+            volcano.save()
+
         except Volcano.DoesNotExist:
             volcano = Volcano.objects.create(
+                volcano_id=volcano_id,
                 volcano_name=volcano_name,
                 location=geos_geometry,
                 elevation=elevation,
