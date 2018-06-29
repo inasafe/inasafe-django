@@ -1,5 +1,7 @@
 # coding=utf-8
 import logging
+import urllib2
+from bs4 import BeautifulSoup
 from copy import deepcopy
 
 from django.conf import settings
@@ -14,7 +16,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from realtime.app_settings import SLUG_EQ_LANDING_PAGE, \
-    LANDING_PAGE_SYSTEM_CATEGORY
+    LANDING_PAGE_SYSTEM_CATEGORY, FELT_EARTHQUAKE_URL
 from rest_framework import status, mixins
 from rest_framework.decorators import api_view
 from rest_framework.filters import (
@@ -73,6 +75,26 @@ def index(request, iframe=False, server_side_filter=False):
         system_category=LANDING_PAGE_SYSTEM_CATEGORY,
         language=request.LANGUAGE_CODE).first()
 
+    # check for latest shake from BMKG's site
+    list_of_event_id = []
+    response = urllib2.urlopen(FELT_EARTHQUAKE_URL)
+    html = response.read()
+    soup = BeautifulSoup(html, 'html.parser')
+    trs = soup.table.tbody.find_all('tr')
+    for tr in trs:
+        tds = tr.find_all('td')
+        event_id = tds[5].a['data-target'][1:]
+        magnitude = tds[3].text
+        if float(magnitude) >= 5.0:
+            list_of_event_id.append(str(event_id))
+
+    # check for 20 (per page) latest EQ with no hazard file
+    list_of_no_hazard_file = []
+    last_20_eq = Earthquake.objects.all().order_by('time')[:20][::-1]
+    for eq in last_20_eq:
+        if not eq.hazard_layer_exist:
+            list_of_no_hazard_file.append(eq.shake_id)
+
     context = RequestContext(request)
     return render_to_response(
         'realtime/earthquake/index.html',
@@ -86,6 +108,11 @@ def index(request, iframe=False, server_side_filter=False):
             'select_area_text': _('Select Area'),
             'remove_area_text': _('Remove Selection'),
             'select_current_zoom_text': _('Select area within current zoom'),
+            'shake_events_from_bmkg': list_of_event_id,
+            'shake_events_no_hazard_file': list_of_no_hazard_file,
+            'analysis_warning_text': _(
+                'waiting for %s events to be processed...' % len(
+                    list_of_no_hazard_file))
         },
         context_instance=context)
 

@@ -8004,3 +8004,13 @@ li.dropdown ul.dropdown-menu li.dropdown.pull-left {
     padding-left: 30px;
     padding-right: 30px
 }
+
+.btn-group-xs>.btn {
+    height: 15px;
+    padding: 1px 5px;
+    font-size: 12px;
+    line-height: 1.5;
+}
+.btn-group-xs>.btn>.caret {
+    padding-bottom: 8px;
+}
