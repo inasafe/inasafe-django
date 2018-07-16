@@ -153,11 +153,14 @@ class Earthquake(BaseEventModel):
             Earthquake.objects.filter(id=self.id).update(
                 has_corrected=has_corrected)
 
-    def mark_shakemaps_has_contours(self):
+    def mark_shakemaps_has_contours(self, layer_saved=False):
         """Mark cache flag of mmi_layer_saved.
         This is to tell that this shakemaps have contours saved in database.
         """
-        mmi_layer_saved = bool(self.contours.all().count() > 0)
+        if layer_saved:
+            mmi_layer_saved = layer_saved
+        else:
+            mmi_layer_saved = bool(self.contours.all().count() > 0)
         Earthquake.objects.filter(id=self.id).update(
             mmi_layer_saved=mmi_layer_saved)
 
