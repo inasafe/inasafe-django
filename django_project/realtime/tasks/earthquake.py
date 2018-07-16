@@ -174,6 +174,7 @@ def generate_event_report(earthquake_event, locale='en'):
             not earthquake_event.mmi_layer_saved):
         # Don't use celery for this
         process_mmi_layer(earthquake_event)
+        earthquake_event.refresh_from_db()
         earthquake_event.save()
 
     # Check report
