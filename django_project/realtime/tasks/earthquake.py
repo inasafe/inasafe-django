@@ -272,7 +272,7 @@ def process_mmi_layer(earthquake):
             properties=json.dumps(properties))
 
     earthquake.refresh_from_db()
-    earthquake.mark_shakemaps_has_contours()
+    earthquake.mark_shakemaps_has_contours(layer_saved=True)
 
     LOGGER.info('MMI Contour processed...')
     return True
