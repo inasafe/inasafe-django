@@ -250,3 +250,11 @@ def check_broker_connection():
     """
     LOGGER.info('proxy tasks')
     return True
+
+
+@app.task(
+    name='inasafe.headless.tasks.push_to_geonode',
+    queue='inasafe-headless')
+def push_to_geonode(layer_uri):
+    LOGGER.info('proxy tasks')
+    pass

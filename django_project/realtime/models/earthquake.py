@@ -117,6 +117,21 @@ class Earthquake(BaseEventModel):
         ),
         default=False)
 
+    push_task_status = models.CharField(
+        verbose_name=_('GeoNode Push Task Status'),
+        help_text=_('The Status for the GeoNode Push Task'),
+        max_length=255,
+        default=None,
+        null=True,
+        blank=True)
+
+    push_task_result = models.TextField(
+        verbose_name=_('Report push task result'),
+        help_text=_('Task result of GeoNode Push Task'),
+        default='',
+        blank=True,
+        null=True)
+
     objects = EarthquakeManager()
 
     def __unicode__(self):
@@ -153,11 +168,14 @@ class Earthquake(BaseEventModel):
             Earthquake.objects.filter(id=self.id).update(
                 has_corrected=has_corrected)
 
-    def mark_shakemaps_has_contours(self):
+    def mark_shakemaps_has_contours(self, layer_saved=False):
         """Mark cache flag of mmi_layer_saved.
         This is to tell that this shakemaps have contours saved in database.
         """
-        mmi_layer_saved = bool(self.contours.all().count() > 0)
+        if layer_saved:
+            mmi_layer_saved = layer_saved
+        else:
+            mmi_layer_saved = bool(self.contours.all().count() > 0)
         Earthquake.objects.filter(id=self.id).update(
             mmi_layer_saved=mmi_layer_saved)
 

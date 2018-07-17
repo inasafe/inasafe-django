@@ -174,6 +174,7 @@ def generate_event_report(earthquake_event, locale='en'):
             not earthquake_event.mmi_layer_saved):
         # Don't use celery for this
         process_mmi_layer(earthquake_event)
+        earthquake_event.refresh_from_db()
         earthquake_event.save()
 
     # Check report
@@ -271,7 +272,7 @@ def process_mmi_layer(earthquake):
             properties=json.dumps(properties))
 
     earthquake.refresh_from_db()
-    earthquake.mark_shakemaps_has_contours()
+    earthquake.mark_shakemaps_has_contours(layer_saved=True)
 
     LOGGER.info('MMI Contour processed...')
     return True
