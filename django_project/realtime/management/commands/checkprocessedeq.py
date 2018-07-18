@@ -65,7 +65,7 @@ class Command(BaseCommand):
             for lang in ANALYSIS_LANGUAGES:
                 eq.inspected_language = lang
 
-                if not eq.has_impacts:
+                if not eq.impact_layer_exists:
                     unprocessed_impacts.append((eq, lang))
                     continue
 
@@ -89,6 +89,8 @@ class Command(BaseCommand):
                 eq.rerun_analysis()
                 eq.rerun_report_generation()
 
+        print 'Total Unprocessed impacts ({0})'.format(
+            len(unprocessed_impacts))
         print ''
         print 'Unprocessed reports:'
 
@@ -102,4 +104,7 @@ class Command(BaseCommand):
                 eq.inspected_language = lang
                 eq.rerun_report_generation()
 
+        print 'Total Unprocessed reports ({0})'.format(
+            len(unprocessed_reports))
+        print ''
         print('Command finished.')
