@@ -61,6 +61,7 @@ class TestEarthquake(APITestCase):
             )
             earthquake = Earthquake.objects.get(shake_id='20150619200628')
             earthquake.save()
+            self.earthquake = earthquake
         report_pdf = earthquake.shake_id + '-id.pdf'
         report_png = earthquake.shake_id + '-id.png'
         report_thumb = earthquake.shake_id + '-thumb-id.png'
@@ -190,6 +191,130 @@ class TestEarthquake(APITestCase):
         self.assertEqual(serializer.count, 1)
         self.assertEqual(actual_results[0]['shake_id'],
                          expected_shake_id)
+
+        # Test basic filters
+        def _check_response(test_instance, query, result_count):
+            """Shortcut to validate query."""
+            r = test_instance.client.get(
+                reverse('realtime:earthquake_list'),
+                data=query)
+
+            test_instance.assertEqual(r.status_code, status.HTTP_200_OK)
+            s = PageNumberPaginationSerializer(
+                serializer_class=EarthquakeSerializer, data=r.data)
+            test_instance.assertEqual(s.count, result_count)
+
+        # Depth filters
+        depth_query = {
+            'min_depth': 9
+        }
+        _check_response(self, depth_query, 1)
+
+        depth_query = {
+            'min_depth': 11
+        }
+        _check_response(self, depth_query, 0)
+
+        depth_query = {
+            'max_depth': 9
+        }
+        _check_response(self, depth_query, 0)
+
+        depth_query = {
+            'max_depth': 11
+        }
+        _check_response(self, depth_query, 1)
+
+        depth_query = {
+            'min_depth': 9,
+            'max_depth': 11
+        }
+        _check_response(self, depth_query, 1)
+
+        depth_query = {
+            'min_depth': 11,
+            'max_depth': 9
+        }
+        _check_response(self, depth_query, 0)
+
+        # Magnitude filters
+        magnitude_query = {
+            'min_magnitude': 4
+        }
+        _check_response(self, magnitude_query, 1)
+
+        magnitude_query = {
+            'min_magnitude': 5
+        }
+        _check_response(self, magnitude_query, 0)
+
+        magnitude_query = {
+            'max_magnitude': 5
+        }
+        _check_response(self, magnitude_query, 1)
+
+        magnitude_query = {
+            'max_magnitude': 4
+        }
+        _check_response(self, magnitude_query, 0)
+
+        magnitude_query = {
+            'min_magnitude': 4,
+            'max_magnitude': 5
+        }
+        _check_response(self, magnitude_query, 1)
+
+        magnitude_query = {
+            'min_magnitude': 5,
+            'max_magnitude': 4
+        }
+        _check_response(self, magnitude_query, 0)
+
+        # Time based filters
+        time_query = {
+            'min_time': '2015-06-19'
+        }
+        _check_response(self, time_query, 1)
+
+        time_query = {
+            'max_time': '2015-06-19'
+        }
+        _check_response(self, time_query, 0)
+
+        # manipulate time so we can filter by since_ query
+        previous_time = self.earthquake.time
+        days = 30
+        hours = days * 24
+        today = pytz.utc.fromutc(datetime.datetime.utcnow())
+        new_time = today - datetime.timedelta(days=30)
+
+        # temporarily change time value, so we can be sure we are filtering
+        # by this value
+        self.earthquake.time = new_time
+        self.earthquake.save()
+
+        time_query = {
+            'since_last_days': days + 1
+        }
+        _check_response(self, time_query, 1)
+
+        time_query = {
+            'since_last_days': days - 1
+        }
+        _check_response(self, time_query, 0)
+
+        time_query = {
+            'since_last_hours': hours + 1
+        }
+        _check_response(self, time_query, 1)
+
+        time_query = {
+            'since_last_hours': hours - 1
+        }
+        _check_response(self, time_query, 0)
+
+        self.earthquake.time = previous_time
+        self.earthquake.save()
 
     def test_earthquake_detail(self):
         kwargs = {
