@@ -139,12 +139,13 @@ class EarthquakeList(mixins.ListModelMixin, mixins.CreateModelMixin,
 
     def get(self, request, shake_id=None, source_type=None, *args, **kwargs):
         try:
-            queryset = Earthquake.objects.all()
+            queryset = self.get_queryset()
             if shake_id or source_type:
                 if shake_id:
                     queryset = queryset.filter(shake_id=shake_id)
                 if source_type:
                     queryset = queryset.filter(source_type=source_type)
+                queryset = self.filter_queryset(queryset)
                 page = self.paginate_queryset(queryset)
                 if page is not None:
                     serializer = self.get_serializer(page, many=True)
@@ -263,14 +264,16 @@ class EarthquakeReportList(mixins.ListModelMixin,
     def get(self, request, shake_id=None, *args, **kwargs):
         try:
             if shake_id:
-                instances = EarthquakeReport.objects.filter(
+                queryset = self.get_queryset()
+                queryset = queryset.filter(
                     earthquake__shake_id=shake_id)
-                page = self.paginate_queryset(instances)
+                queryset = self.filter_queryset(queryset)
+                page = self.paginate_queryset(queryset)
                 if page is not None:
                     serializer = self.get_serializer(page, many=True)
                     return self.get_paginated_response(serializer.data)
 
-                serializer = self.get_serializer(instances, many=True)
+                serializer = self.get_serializer(queryset, many=True)
                 return Response(serializer.data)
             else:
                 return self.list(request, *args, **kwargs)
@@ -334,11 +337,13 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
             *args, **kwargs):
         try:
             if shake_id and source_type and language:
-                instance = EarthquakeReport.objects.get(
+                queryset = self.get_queryset()
+                queryset = queryset.get(
                     earthquake__shake_id=shake_id,
                     earthquake__source_type=source_type,
                     language=language)
-                serializer = self.get_serializer(instance)
+                queryset = self.filter_queryset(queryset)
+                serializer = self.get_serializer(queryset)
                 return Response(serializer.data)
             elif shake_id:
                 return self.list(request, *args, **kwargs)
@@ -349,11 +354,13 @@ class EarthquakeReportDetail(mixins.ListModelMixin,
             # But in case it is happening, returned the last object, but still
             # log the error to sentry
             LOGGER.warning(e.message)
-            instance = EarthquakeReport.objects.filter(
+            queryset = self.get_queryset()
+            queryset = queryset.filter(
                 earthquake__shake_id=shake_id,
                 earthquake__source_type=source_type,
                 language=language).last()
-            serializer = self.get_serializer(instance)
+            queryset = self.filter_queryset(queryset)
+            serializer = self.get_serializer(queryset)
             return Response(serializer.data)
 
     def put(self, request, shake_id=None, source_type=None, language=None):
