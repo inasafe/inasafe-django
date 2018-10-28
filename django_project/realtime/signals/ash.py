@@ -29,9 +29,9 @@ def ash_post_save(sender, instance, **kwargs):
         LOGGER.info('Sending task ash processing.')
 
         # Check hazard layer
-        if (instance.hazard_file and
-                not instance.hazard_layer_exists and
-                instance.need_generate_hazard):
+        if (instance.hazard_file
+                and not instance.hazard_layer_exists
+                and instance.need_generate_hazard):
             generate_hazard_layer.delay(instance)
 
         if instance.analysis_flag:

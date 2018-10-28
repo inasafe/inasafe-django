@@ -48,12 +48,12 @@ class ShakeEventIndicator(Indicator):
         shake_event_delta = now - value
 
         healthy_seconds = (
-            mean_interval.total_seconds() +
-            deviation.total_seconds() * SHAKE_INTERVAL_MULTIPLIER['healthy']
+            mean_interval.total_seconds()
+            + deviation.total_seconds() * SHAKE_INTERVAL_MULTIPLIER['healthy']
         )
         warning_seconds = (
-            mean_interval.total_seconds() +
-            deviation.total_seconds() * SHAKE_INTERVAL_MULTIPLIER['warning']
+            mean_interval.total_seconds()
+            + deviation.total_seconds() * SHAKE_INTERVAL_MULTIPLIER['warning']
         )
         healthy_range = timedelta(
             seconds=healthy_seconds)

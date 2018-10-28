@@ -83,8 +83,8 @@ class Command(BaseCommand):
 
             try:
                 query = (
-                    Q(name__iexact=name.strip()) &
-                    Q(boundary_alias=boundary_alias))
+                    Q(name__iexact=name.strip())
+                    & Q(boundary_alias=boundary_alias))
                 if parent_boundary:
                     query = query & Q(parent=parent_boundary)
                 boundary = Boundary.objects.get(query)
