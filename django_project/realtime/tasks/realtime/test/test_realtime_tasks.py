@@ -128,8 +128,8 @@ class TestEarthquakeTasks(test.LiveServerTestCase):
                 target_event = Earthquake.objects.get(
                     shake_id='20180220163351',
                     source_type=Earthquake.INITIAL_SOURCE_TYPE)
-                if (target_event.hazard_layer_exists and
-                        target_event.shake_grid_xml):
+                if (target_event.hazard_layer_exists
+                        and target_event.shake_grid_xml):
                     break
             except BaseException:
                 pass
@@ -165,8 +165,8 @@ class TestEarthquakeTasks(test.LiveServerTestCase):
                 target_event = Earthquake.objects.get(
                     shake_id='20180220162928_50_01400_124450_20180220162928',
                     source_type=Earthquake.CORRECTED_SOURCE_TYPE)
-                if (target_event.hazard_layer_exists and
-                        target_event.shake_grid_xml):
+                if (target_event.hazard_layer_exists
+                        and target_event.shake_grid_xml):
                     break
             except BaseException:
                 pass

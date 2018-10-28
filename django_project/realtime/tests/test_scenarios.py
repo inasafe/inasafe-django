@@ -50,11 +50,11 @@ def check_full_scenario_test_condition():
     """Check all workers online at runtime."""
     return (
         # It needs realtime_app worker
-        celery_worker_connected(realtime_app, 'inasafe-realtime') and
+        celery_worker_connected(realtime_app, 'inasafe-realtime')
         # It needs headless_app worker
-        celery_worker_connected(headless_app, 'inasafe-headless') and
+        and celery_worker_connected(headless_app, 'inasafe-headless')
         # It needs django_app worker
-        celery_worker_connected(django_app, 'inasafe-django')
+        and celery_worker_connected(django_app, 'inasafe-django')
     )
 
 

@@ -365,16 +365,16 @@ def generate_event_report(flood_event, locale='en'):
 
         process_hazard_layer.delay(flood_event)
 
-    if (flood_event.hazard_layer_exists and
-            not flood_event.impact_layer_exists and
-            flood_event.need_run_analysis):
+    if (flood_event.hazard_layer_exists
+            and not flood_event.impact_layer_exists
+            and flood_event.need_run_analysis):
 
         run_flood_analysis(flood_event, locale)
 
-    elif (flood_event.hazard_layer_exists and
-            flood_event.impact_layer_exists and
-            not flood_event.has_reports and
-            flood_event.need_generate_reports):
+    elif (flood_event.hazard_layer_exists
+          and flood_event.impact_layer_exists
+          and not flood_event.has_reports
+          and flood_event.need_generate_reports):
 
         generate_flood_report(flood_event, locale)
 

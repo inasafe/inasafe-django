@@ -1,5 +1,7 @@
 # noinspection PyUnresolvedReferences
 
+import os
+
 from .prod import *  # noqa
 from .celery_config import *  # noqa
 

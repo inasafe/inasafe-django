@@ -162,24 +162,24 @@ def generate_event_report(earthquake_event, locale='en'):
         earthquake_event.save()
 
     # Check impact layer
-    elif (not earthquake_event.impact_layer_exists and
-            earthquake_event.need_run_analysis):
+    elif (not earthquake_event.impact_layer_exists
+          and earthquake_event.need_run_analysis):
 
         # If hazard exists but impact layer is not, then create a new analysis
         # job.
         run_earthquake_analysis(earthquake_event, locale=locale)
 
     # Check MMI Contour saved
-    elif (earthquake_event.mmi_layer_exists and
-            not earthquake_event.mmi_layer_saved):
+    elif (earthquake_event.mmi_layer_exists
+          and not earthquake_event.mmi_layer_saved):
         # Don't use celery for this
         process_mmi_layer(earthquake_event)
         earthquake_event.refresh_from_db()
         earthquake_event.save()
 
     # Check report
-    elif (not earthquake_event.has_reports and
-            earthquake_event.need_generate_reports):
+    elif (not earthquake_event.has_reports
+          and earthquake_event.need_generate_reports):
 
         # If analysis is done but report doesn't exists, then create the
         # reports.
