@@ -293,8 +293,8 @@ class FloodEventList(FloodList):
         # this interval is specific for Jakarta (GMT+07)
         # it will show up as 6 hourly flood data from 00:00
         query = (
-            Q(time__hour=23) | Q(time__hour=5) |
-            Q(time__hour=11) | Q(time__hour=17))
+            Q(time__hour=23) | Q(time__hour=5)
+            | Q(time__hour=11) | Q(time__hour=17))
         return Flood.objects.filter(query)
 
 

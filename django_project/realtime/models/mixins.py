@@ -164,8 +164,8 @@ class ImpactMixin(MultiLanguageMixin, models.Model):
 
     @property
     def need_run_analysis(self):
-        if (self.analysis_task_status and
-                not self.analysis_task_status == 'None'):
+        if (self.analysis_task_status
+                and not self.analysis_task_status == 'None'):
             return False
         return True
 
@@ -296,8 +296,8 @@ class ReportMixin(MultiLanguageMixin, models.Model):
 
     @property
     def need_generate_reports(self):
-        if (self.report_task_status and
-                not self.report_task_status == 'None'):
+        if (self.report_task_status
+                and not self.report_task_status == 'None'):
             return False
         return True
 

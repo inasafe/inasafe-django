@@ -31,9 +31,9 @@ class Command(BaseCommand):
                 print 'check filena' \
                       'me : %s' % rel_filename
                 exists_pdf = EarthquakeReport.objects.filter(
-                    Q(report_pdf=rel_filename) |
-                    Q(report_thumbnail=rel_filename) |
-                    Q(report_image=rel_filename))
+                    Q(report_pdf=rel_filename)
+                    | Q(report_thumbnail=rel_filename)
+                    | Q(report_image=rel_filename))
                 if exists_pdf.count() == 0:
                     try:
                         os.remove(abs_filename)
