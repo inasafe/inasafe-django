@@ -7,8 +7,13 @@ from django.core.exceptions import ValidationError, MultipleObjectsReturned
 from django.db.models import Q
 from django.db.models.aggregates import Count
 from django.db.utils import IntegrityError
-from django.http.response import JsonResponse, HttpResponseServerError, \
-    HttpResponse, Http404
+from django.http.response import (
+    JsonResponse,
+    HttpResponseServerError,
+    HttpResponse,
+    Http404,
+    HttpResponseBadRequest,
+)
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
@@ -22,7 +27,10 @@ from rest_framework.parsers import JSONParser, FormParser, MultiPartParser
 from rest_framework.permissions import DjangoModelPermissionsOrAnonReadOnly
 from rest_framework.response import Response
 
+from realtime.app_settings import SLUG_FLOOD_LANDING_PAGE, \
+    LANDING_PAGE_SYSTEM_CATEGORY
 from realtime.forms.flood import FilterForm
+from realtime.models.coreflatpage import CoreFlatPage
 from realtime.models.flood import (
     Flood,
     FloodReport,
@@ -60,17 +68,24 @@ def index(request, iframe=False, server_side_filter=False):
         if 'server_side_filter' in request.GET:
             server_side_filter = request.GET.get('server_side_filter')
 
+    landing_page = CoreFlatPage.objects.filter(
+        slug_id=SLUG_FLOOD_LANDING_PAGE,
+        system_category=LANDING_PAGE_SYSTEM_CATEGORY,
+        language=request.LANGUAGE_CODE).first()
+
     context = RequestContext(request)
-    context['select_area_text'] = _('Select Area')
-    context['remove_area_text'] = _('Remove Selection')
-    context['select_current_zoom_text'] = _('Select area within current zoom')
-    context['iframe'] = iframe
     return render_to_response(
         'realtime/flood/index.html',
         {
+            'landing_page': landing_page,
+            'LANDING_PAGE_SLUG_ID': SLUG_FLOOD_LANDING_PAGE,
+            'LANDING_PAGE_SYSTEM_CATEGORY': LANDING_PAGE_SYSTEM_CATEGORY,
             'form': form,
             'iframe': iframe,
-            'server_side_filter': server_side_filter
+            'server_side_filter': server_side_filter,
+            'select_area_text': _('Select Area'),
+            'remove_area_text': _('Remove Selection'),
+            'select_current_zoom_text': _('Select area within current zoom'),
         },
         context_instance=context)
 
@@ -96,7 +111,9 @@ class FloodList(mixins.ListModelMixin, mixins.CreateModelMixin,
         return retval
 
 
-class FloodDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+class FloodDetail(mixins.RetrieveModelMixin,
+                  mixins.CreateModelMixin,
+                  mixins.UpdateModelMixin,
                   mixins.DestroyModelMixin, GenericAPIView):
     queryset = Flood.objects.all()
     serializer_class = FloodSerializer
@@ -106,6 +123,10 @@ class FloodDetail(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        retval = self.create(request, *args, **kwargs)
+        return retval
 
     def put(self, request, *args, **kwargs):
         try:
@@ -272,8 +293,8 @@ class FloodEventList(FloodList):
         # this interval is specific for Jakarta (GMT+07)
         # it will show up as 6 hourly flood data from 00:00
         query = (
-            Q(time__hour=23) | Q(time__hour=5) |
-            Q(time__hour=11) | Q(time__hour=17))
+            Q(time__hour=23) | Q(time__hour=5)
+            | Q(time__hour=11) | Q(time__hour=17))
         return Flood.objects.filter(query)
 
 
@@ -300,7 +321,7 @@ def flood_impact_map(request, event_id, language='en'):
         response = HttpResponse(
             instance.impact_map.read(),
             content_type='application/pdf')
-        response['Content-Disposition'] = 'inline; filename={0};'.format(
+        response['Content-Disposition'] = 'inline; filename="{0}";'.format(
             instance.impact_map_filename)
         return response
     except FloodReport.DoesNotExist:
@@ -452,3 +473,22 @@ def rw_histogram(
     except Exception as e:
         LOGGER.info(e)
         return HttpResponseServerError()
+
+
+def get_flood_data_json(request, event_id):
+    """Return url to download flood data from an event_id."""
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+    try:
+        flood = Flood.objects.get(
+            event_id=event_id
+        )
+        response = HttpResponse(
+            flood.flood_data,
+            content_type='application/octet-stream'
+        )
+        response['Content-Disposition'] = \
+            'inline; filename="%s.json"' % event_id
+        return response
+    except BaseException:
+        return HttpResponseBadRequest()

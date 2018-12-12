@@ -27,7 +27,7 @@ services:
     network_mode: "bridge"
 
   rabbitmq:
-    image: library/rabbitmq
+    image: library/rabbitmq:3.6
     restart: on-failure
     hostname: rabbitmq
     environment:
@@ -102,7 +102,6 @@ services:
 
   uwsgi: &uwsgi
     build: docker-prod
-    hostname: uwsgi
     environment:
       - DATABASE_NAME=gis
       - DATABASE_USERNAME=docker
@@ -125,6 +124,7 @@ services:
       - sftppgbackup:sftppgbackup
       - sftpmediabackup:sftpmediabackup
       - rabbitmq:rabbitmq
+      - qgis-templates-btsync:qgis-templates-btsync
     env_file:
       - inaware_credential.env
     network_mode: "bridge"
@@ -149,6 +149,9 @@ services:
       - rabbitmq:rabbitmq
     network_mode: "bridge"
 
+  integration-test-worker:
+    <<: *inasafe-worker
+
   indicator-worker:
     <<: *inasafe-worker
     restart: on-failure
@@ -168,4 +171,27 @@ services:
       - uwsgi:uwsgi
     ports:
       - "61100:8080"
+    network_mode: "bridge"
+
+  contexts-btsync:
+    image: kartoza/btsync
+    volumes:
+      - ./headless-data/contexts:/web
+    environment:
+      - DEVICE=InaSAFE-Headless-Contexts
+    network_mode: "bridge"
+
+  qgis-templates-btsync:
+    image: alpine/git
+    working_dir: /web
+    entrypoint:
+      - /bin/sh
+    command:
+      - -c
+      - git pull origin master && git log HEAD^..HEAD && tail -f /dev/null
+    volumes:
+      - ./headless-data/qgis-templates:/web
+    environment:
+      - DEVICE=InaSAFE-Headless-QGIS-Templates
+      - STANDBY_MODE=TRUE
     network_mode: "bridge"

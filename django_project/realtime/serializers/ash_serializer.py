@@ -31,12 +31,11 @@ class AshReportSerializer(serializers.ModelSerializer):
         :type obj: AshReport
         :return:
         """
-        dateformat = '%Y%m%d%H%M%S%z'
         relative_uri = reverse(
             'realtime:ash_report_detail',
             kwargs={
                 'volcano_name': obj.ash.volcano.volcano_name,
-                'event_time': obj.ash.event_time.strftime(dateformat),
+                'event_time': obj.ash.event_time_formatted,
                 'language': obj.language})
         if self.context and 'request' in self.context:
             return self.context['request'].build_absolute_uri(relative_uri)
@@ -54,12 +53,11 @@ class AshReportSerializer(serializers.ModelSerializer):
         :type obj: AshReport
         :return:
         """
-        dateformat = '%Y%m%d%H%M%S%z'
         relative_uri = reverse(
             'realtime:ash_detail',
             kwargs={
                 'volcano_name': obj.ash.volcano.volcano_name,
-                'event_time': obj.ash.event_time.strftime(dateformat)
+                'event_time': obj.ash.event_time_formatted
             })
         if self.context and 'request' in self.context:
             return self.context['request'].build_absolute_uri(relative_uri)
@@ -98,12 +96,11 @@ class AshSerializer(serializers.ModelSerializer):
         :type obj: Ash
         :return:
         """
-        dateformat = '%Y%m%d%H%M%S%z'
         relative_uri = reverse(
             'realtime:ash_detail',
             kwargs={
                 'volcano_name': obj.volcano.volcano_name,
-                'event_time': obj.event_time.strftime(dateformat)
+                'event_time': obj.event_time_formatted
             })
         if self.context and 'request' in self.context:
             return self.context['request'].build_absolute_uri(relative_uri)
@@ -125,6 +122,7 @@ class AshSerializer(serializers.ModelSerializer):
             'event_time',
             'task_status',
             'eruption_height',
+            'hazard_path',
         )
 
 

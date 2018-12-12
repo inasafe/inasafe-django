@@ -7,21 +7,6 @@
     owner: '{{ remote_user }}'
     group: '{{ remote_group }}'
     mode: "u=rw,g=rw,o=r"
-  tags:
-    - development
-
-- name: customize apt cacher ng
-  template:
-    src: apt-cacher-ng.j2
-    dest: '{{ project_path }}/deployment/{{ item }}/71-apt-cacher-ng'
-    owner: '{{ remote_user }}'
-    group: '{{ remote_group }}'
-    mode: "u=rw,g=rw,o=r"
-  with_items:
-    - docker-dev
-    - docker-prod
-  tags:
-    - development
 
 - name: customize backup
   template:

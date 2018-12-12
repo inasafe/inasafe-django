@@ -1,17 +1,18 @@
 # coding=utf-8
+
 import logging
 
-import os
-from django.apps import AppConfig
+from django.apps import AppConfig, apps
 from django.conf import settings
+from django.contrib.auth.management import create_permissions
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.management import update_contenttypes
 from django.contrib.gis.geos.point import Point
 
+from realtime.app_settings import LOGGER_NAME, REST_GROUP, OSM_LEVEL_7_NAME, \
+    OSM_LEVEL_8_NAME, VOLCANO_GROUP, ASH_GROUP, VOLCANO_LAYER_PATH
 from realtime.models.volcano import load_volcano_data
 from user_map.models.user import User
-
-from realtime.app_settings import LOGGER_NAME, REST_GROUP, OSM_LEVEL_7_NAME, \
-    OSM_LEVEL_8_NAME, VOLCANO_GROUP, ASH_GROUP
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '4/1/16'
@@ -47,13 +48,9 @@ class RealtimeConfig(AppConfig):
     def load_volcano_fixtures(self):
         """load volcano fixtures samples"""
         try:
-            dirname = os.path.dirname(__file__)
-            volcano_fixtures = os.path.join(
-                dirname,
-                'fixtures/ash/IDN_Volcano_GVP_VAAC_AOR_WGS84.shp')
             Volcano = self.get_model('Volcano')
             if Volcano.objects.all().count() == 0:
-                load_volcano_data(Volcano, volcano_fixtures)
+                load_volcano_data(Volcano, VOLCANO_LAYER_PATH)
         except Exception as e:
             LOGGER.error(e)
 
@@ -101,10 +98,59 @@ class RealtimeConfig(AppConfig):
                 test_user.is_confirmed = True
                 test_user.save()
 
+    def create_rest_group(self):
+        """Helper file for unittests to generate REST Group."""
+        # update content types
+        update_contenttypes(self, interactive=False)
+        # update permissions
+        create_permissions(self, interactive=False)
+        Group = apps.get_model('auth', 'Group')
+        group_list = [
+            (REST_GROUP, [
+                'ash',
+                'floodreport',
+                'earthquakereport',
+                'impacteventboundary',
+                'flood',
+                'userpush',
+                'boundary',
+                'boundaryalias',
+                'floodeventboundary',
+                'earthquake',
+                'volcano',
+                'ashreport'
+            ]),
+            (VOLCANO_GROUP, [
+                'volcano',
+            ]),
+            (ASH_GROUP, [
+                'ash',
+                'ashreport',
+            ]),
+        ]
+        for g in group_list:
+            try:
+                realtime_group = Group.objects.get(name=g[0])
+            except Group.DoesNotExist:
+                realtime_group = Group.objects.create(name=g[0])
+
+            Permission = apps.get_model('auth', 'Permission')
+            for m in g[1]:
+                realtime_permissions = Permission.objects.filter(
+                    content_type__app_label='realtime',
+                    content_type__model=m)
+
+                realtime_group.permissions.add(*realtime_permissions)
+                realtime_group.save()
+
     def ready(self):
         try:
             self.load_boundary_alias()
             self.load_volcano_fixtures()
             self.load_test_users()
-        except BaseException:
+        except BaseException as e:
+            LOGGER.exception(e)
             pass
+
+        # attach signals
+        from realtime import signals  # noqa

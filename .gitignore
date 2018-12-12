@@ -108,7 +108,10 @@ deployment/docker-compose.override.yml
 !deployment/sftp_backup/backups/pg/README.md
 django_project/realtime/local_settings.py
 django_project/celerybeat.pid
+django_project/celerybeat-schedule
 django_project/temp
+deployment/realtime-hazard
+!deployment/realtime-hazard/shakemaps/.gitkeep
 
 sftp_media_credential.env
 sftp_pg_credential.env
@@ -130,3 +133,11 @@ django_project/media_test
 # pickled indicator
 django_project/.run/
 .realtime_broker_indicator.pickle
+deployment/backups/
+deployment/headless-data/contexts/
+deployment/headless-data/inasafe/
+deployment/headless-data/outputs/
+deployment/headless-data/qgis-templates/
+deployment/headless-data/test-hazards/
+deployment/reports/
+.coverage*

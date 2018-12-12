@@ -3,7 +3,8 @@
 from realtime import app_settings
 from realtime.app_settings import (
     LEAFLET_TILES,
-    MAPQUEST_MAP_KEY, ASH_SHOW_PAGE)
+    MAPQUEST_MAP_KEY, ASH_SHOW_PAGE, OTHER_PAGE_SYSTEM_CATEGORY,
+    ABOUT_PAGE_SYSTEM_CATEGORY)
 from realtime.models.coreflatpage import CoreFlatPage
 
 
@@ -29,34 +30,46 @@ def realtime_settings(request):
 
     # Check Navbar flat pages exists and show it
     # Get distinct Groups
-    groups = CoreFlatPage.objects.order_by().values_list('group')\
-        .distinct()
-    flatpages = {
-        'groups': []
-    }
-    for g in groups:
-        group = {
-            'title': g[0],
-            'pages': []
+    def retrieve_flat_pages(system_category):
+        groups = CoreFlatPage.objects.order_by().values_list('group')\
+            .distinct()
+        flatpages = {
+            'groups': []
         }
-        pages = CoreFlatPage.objects.filter(
-            group__iexact=g,
-            language=request.LANGUAGE_CODE
-        ).order_by('order')
-        for p in pages:
-            page = {
-                'title': p.title,
-                'url': p.url
+        for g in groups:
+            group = {
+                'title': g[0],
+                'pages': []
             }
-            group['pages'].append(page)
-        if pages:
-            flatpages['groups'].append(group)
+            pages = CoreFlatPage.objects.filter(
+                group__iexact=g,
+                system_category=system_category,
+                language=request.LANGUAGE_CODE
+            ).order_by('order')
+            # for p in pages:
+            #     page = {
+            #         'ic': p.id,
+            #         'title': p.title,
+            #         'url': p.url
+            #     }
+            #     group['pages'].append(page)
+            group['pages'] = pages
+            if pages:
+                flatpages['groups'].append(group)
+
+        return flatpages
+
+    flatpages = retrieve_flat_pages(OTHER_PAGE_SYSTEM_CATEGORY)
+    abouts = retrieve_flat_pages(ABOUT_PAGE_SYSTEM_CATEGORY)
+    additional_nav_menus = [abouts, flatpages]
 
     return {
         'REALTIME_PROJECT_NAME': app_settings.PROJECT_NAME,
         'REALTIME_BRAND_LOGO': app_settings.BRAND_LOGO,
         'REALTIME_FAVICON_PATH': app_settings.FAVICON_FILE,
-        'flatpages': flatpages,
+        # 'abouts': abouts,
+        # 'flatpages': flatpages,
+        'additional_nav_menus': additional_nav_menus,
         'leaflet_tiles': leaflet_tiles,
         'mapquest_key': MAPQUEST_MAP_KEY,
         'ASH_SHOW_PAGE': ASH_SHOW_PAGE

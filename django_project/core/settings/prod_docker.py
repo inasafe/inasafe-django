@@ -1,5 +1,7 @@
 # noinspection PyUnresolvedReferences
 
+import os
+
 from .prod import *  # noqa
 from .celery_config import *  # noqa
 
@@ -22,7 +24,9 @@ DATABASES = {
         'PASSWORD': os.environ['DATABASE_PASSWORD'],
         'HOST': os.environ['DATABASE_HOST'],
         'PORT': 5432,
-        'TEST_NAME': 'unittests',
+        'TEST': {
+            'NAME': 'unittests',
+        }
     }
 }
 

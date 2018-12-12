@@ -7369,7 +7369,7 @@ a.toggle-nav.open {
     background: #2f3338
 }
 
-.navbar .dropdown-menu li.active a,.navbar .dropdown-menu li:hover a {
+.navbar .dropdown-menu > li.active > a,.navbar .dropdown-menu > li:hover > a {
     background: #202326;
     color: #ddd
 }
