@@ -121,7 +121,7 @@ class HazardScenarioBaseTestCase(test.LiveServerTestCase):
         return match.group('filename')
 
 
-class TestEarthquakeTasks(HazardScenarioBaseTestCase):
+class BaseTestEarthquakeTasks(HazardScenarioBaseTestCase):
 
     # Assumming all process runs normally we should expects all asserts
     # will eventually passed.
@@ -236,6 +236,9 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
 
         return event
 
+
+class TestEarthquakeTasks(BaseTestEarthquakeTasks):
+
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     @unittest.skipUnless(
         check_full_scenario_test_condition(),
@@ -258,6 +261,13 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
 
         shutil.copy(grid_file, drop_location_initial)
 
+        initial_event = self.loop_check(
+            '20180220163351', Earthquake.INITIAL_SOURCE_TYPE)
+
+        initial_event.refresh_from_db()
+
+        self.assertEarthquake(initial_event)
+
         # Test dropping a corrected shakemaps
         grid_file = self.fixtures_path(
             '20180220162928_50_01400_124450_20180220162928-grid.xml')
@@ -274,13 +284,6 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
                 pass
 
         shutil.copy(grid_file, drop_location_corrected)
-
-        initial_event = self.loop_check(
-            '20180220163351', Earthquake.INITIAL_SOURCE_TYPE)
-
-        initial_event.refresh_from_db()
-
-        self.assertEarthquake(initial_event)
 
         corrected_event = self.loop_check(
             '20180220162928_50_01400_124450_20180220162928',
@@ -331,6 +334,9 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
         self.assertEqual(0, Earthquake.objects.all().count())
         self.assertEqual(0, Impact.objects.all().count())
         self.assertEqual(0, EarthquakeReport.objects.all().count())
+
+
+class TestEarthquakeCheckProcessedTasks(BaseTestEarthquakeTasks):
 
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     @unittest.skipUnless(
