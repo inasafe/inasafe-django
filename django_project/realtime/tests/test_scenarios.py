@@ -123,6 +123,17 @@ class HazardScenarioBaseTestCase(test.LiveServerTestCase):
 
 class TestEarthquakeTasks(HazardScenarioBaseTestCase):
 
+    # Assumming all process runs normally we should expects all asserts
+    # will eventually passed.
+    bigint = sys.maxint
+    retry_kwargs = {
+        'exception': BaseException,
+        'tries': bigint,
+        'delay': 5,
+        'backoff': 1,
+        'logger': LOGGER
+    }
+
     def assertEarthquake(self, event):
         """Check that earthquake is processed."""
         self.assertTrue(event.hazard_layer_exists)
@@ -201,6 +212,30 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
                 event.canonical_report_pdf.size,
                 int(response['content-length']))
 
+    @retry(**retry_kwargs)
+    def loop_check(self, shake_id, source_type):
+        """This method will always loop until it succeeds.
+
+        :type shake_id: str
+        :type source_type: str
+        """
+
+        event = Earthquake.objects.get(
+            shake_id=shake_id,
+            source_type=source_type)
+        """:type: Earthquake"""
+
+        # Check that report is generated
+        for lang in ANALYSIS_LANGUAGES:
+
+            event.inspected_language = lang
+
+            # Report must be generated
+            self.assertTrue(event.has_reports)
+            self.assertFalse(event.need_generate_reports)
+
+        return event
+
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     @unittest.skipUnless(
         check_full_scenario_test_condition(),
@@ -210,81 +245,45 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
         # Drop a grid file to monitored directory
         grid_file = self.fixtures_path('20180220163351-grid.xml')
 
-        drop_location = os.path.join(
+        drop_location_initial = os.path.join(
             EARTHQUAKE_MONITORED_DIRECTORY,
             '20180220163351',
             'grid.xml')
 
         try:
-            os.makedirs(os.path.dirname(drop_location))
+            os.makedirs(os.path.dirname(drop_location_initial))
         except OSError as e:
             if e.errno == errno.EEXIST:
                 pass
 
-        shutil.copy(grid_file, drop_location)
+        shutil.copy(grid_file, drop_location_initial)
 
         # Test dropping a corrected shakemaps
         grid_file = self.fixtures_path(
             '20180220162928_50_01400_124450_20180220162928-grid.xml')
 
-        drop_location = os.path.join(
+        drop_location_corrected = os.path.join(
             EARTHQUAKE_CORRECTED_MONITORED_DIRECTORY,
             '20180220162928_50_01400_124450_20180220162928',
             'grid.xml')
 
         try:
-            os.makedirs(os.path.dirname(drop_location))
+            os.makedirs(os.path.dirname(drop_location_corrected))
         except OSError as e:
             if e.errno == errno.EEXIST:
                 pass
 
-        shutil.copy(grid_file, drop_location)
+        shutil.copy(grid_file, drop_location_corrected)
 
-        # Assumming all process runs normally we should expects all asserts
-        # will eventually passed.
-        bigint = sys.maxint
-        kwargs = {
-            'exception': BaseException,
-            'tries': bigint,
-            'delay': 5,
-            'backoff': 1,
-            'logger': LOGGER
-        }
-
-        @retry(**kwargs)
-        def loop_check(self, shake_id, source_type):
-            """This method will always loop until it succeeds.
-
-            :type self: HazardScenarioBaseTestCase
-            :type shake_id: str
-            :type source_type: str
-            """
-
-            event = Earthquake.objects.get(
-                shake_id=shake_id,
-                source_type=source_type)
-            """:type: Earthquake"""
-
-            # Check that report is generated
-            for lang in ANALYSIS_LANGUAGES:
-
-                event.inspected_language = lang
-
-                # Report must be generated
-                self.assertTrue(event.has_reports)
-                self.assertFalse(event.need_generate_reports)
-
-            return event
-
-        initial_event = loop_check(
-            self, '20180220163351', Earthquake.INITIAL_SOURCE_TYPE)
+        initial_event = self.loop_check(
+            '20180220163351', Earthquake.INITIAL_SOURCE_TYPE)
 
         initial_event.refresh_from_db()
 
         self.assertEarthquake(initial_event)
 
-        corrected_event = loop_check(
-            self, '20180220162928_50_01400_124450_20180220162928',
+        corrected_event = self.loop_check(
+            '20180220162928_50_01400_124450_20180220162928',
             Earthquake.CORRECTED_SOURCE_TYPE)
 
         corrected_event.refresh_from_db()
@@ -322,6 +321,46 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
         expected_value.pop('shake_grid')
         self.assertEqual(actual_value, expected_value)
 
+        initial_event.delete()
+        corrected_event.delete()
+
+        os.remove(drop_location_initial)
+        os.remove(drop_location_corrected)
+
+        # Make sure reports and impacts were also deleted.
+        self.assertEqual(0, Earthquake.objects.all().count())
+        self.assertEqual(0, Impact.objects.all().count())
+        self.assertEqual(0, EarthquakeReport.objects.all().count())
+
+    @timeout_decorator.timeout(LOCAL_TIMEOUT)
+    @unittest.skipUnless(
+        check_full_scenario_test_condition(),
+        'All Workers needs to be run')
+    def test_checkprocessedeq_command(self):
+        """Test checkprocessedeq management command."""
+        # Drop a grid file to monitored directory
+        grid_file = self.fixtures_path('20180220163351-grid.xml')
+
+        drop_location_initial = os.path.join(
+            EARTHQUAKE_MONITORED_DIRECTORY,
+            '20180220163351',
+            'grid.xml')
+
+        try:
+            os.makedirs(os.path.dirname(drop_location_initial))
+        except OSError as e:
+            if e.errno == errno.EEXIST:
+                pass
+
+        shutil.copy(grid_file, drop_location_initial)
+
+        initial_event = self.loop_check(
+            '20180220163351', Earthquake.INITIAL_SOURCE_TYPE)
+
+        initial_event.refresh_from_db()
+
+        self.assertEarthquake(initial_event)
+
         # Check that running checkprocessedeq will return a clean results
         out = StringIO.StringIO()
         management.call_command(
@@ -357,8 +396,8 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
         self.assertIn('Total Unprocessed reports (2)', output_messages)
 
         # This should pass
-        initial_event = loop_check(
-            self, '20180220163351', Earthquake.INITIAL_SOURCE_TYPE)
+        initial_event = self.loop_check(
+            '20180220163351', Earthquake.INITIAL_SOURCE_TYPE)
 
         self.assertTrue(initial_event.has_reports)
 
@@ -407,18 +446,14 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
         self.assertIn('Total Unprocessed impacts (2)', output_messages)
 
         # Reports needs to be generated
-        initial_event = loop_check(
-            self, '20180220163351', Earthquake.INITIAL_SOURCE_TYPE)
+        initial_event = self.loop_check(
+            '20180220163351', Earthquake.INITIAL_SOURCE_TYPE)
 
         self.assertTrue(initial_event.has_reports)
 
         initial_event.delete()
-        corrected_event.delete()
 
-        # Make sure reports and impacts were also deleted.
-        self.assertEqual(0, Earthquake.objects.all().count())
-        self.assertEqual(0, Impact.objects.all().count())
-        self.assertEqual(0, EarthquakeReport.objects.all().count())
+        os.remove(drop_location_initial)
 
 
 class TestFloodTasks(HazardScenarioBaseTestCase):
