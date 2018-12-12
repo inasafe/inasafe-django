@@ -49,7 +49,7 @@ class Command(BaseCommand):
         qs = Earthquake.objects.all()
 
         if since:
-            print 'Checking only since: {0}'.format(since)
+            self.stdout.write('Checking only since: {0}'.format(since))
             qs = qs.filter(time__gte=since)
 
         # tuple of eq object and language for unprocessed impacts
@@ -65,46 +65,50 @@ class Command(BaseCommand):
             for lang in ANALYSIS_LANGUAGES:
                 eq.inspected_language = lang
 
-                if not eq.impact_layer_exists:
-                    unprocessed_impacts.append((eq, lang))
+                if eq.has_reports:
+                    # If it has reports, consider it already processed
                     continue
-
-                if not eq.has_reports:
+                else:
+                    # Need to generate reports
                     unprocessed_reports.append((eq, lang))
 
-        if dry_run:
-            print 'Dry Run result.'
+                if not eq.impact_layer_exists:
+                    # Also need to generate impact layers
+                    unprocessed_impacts.append((eq, lang))
 
-        print 'Unprocessed impacts:'
+        if dry_run:
+            self.stdout.write('Dry Run result.')
+
+        self.stdout.write('Unprocessed impacts:')
 
         for tup in unprocessed_impacts:
             lang = tup[1]
             eq = tup[0]
             """:type: Earthquake"""
 
-            print '{0} {1}'.format(lang, eq)
+            self.stdout.write('{0} {1}'.format(lang, eq))
 
             if not dry_run:
                 eq.inspected_language = lang
                 eq.rerun_analysis()
                 eq.rerun_report_generation()
 
-        print 'Total Unprocessed impacts ({0})'.format(
-            len(unprocessed_impacts))
-        print ''
-        print 'Unprocessed reports:'
+        self.stdout.write('Total Unprocessed impacts ({0})'.format(
+            len(unprocessed_impacts)))
+        self.stdout.write('')
+        self.stdout.write('Unprocessed reports:')
 
         for tup in unprocessed_reports:
             lang = tup[1]
             eq = tup[0]
             """:type: Earthquake"""
 
-            print '{0} {1}'.format(lang, eq)
+            self.stdout.write('{0} {1}'.format(lang, eq))
             if not dry_run:
                 eq.inspected_language = lang
                 eq.rerun_report_generation()
 
-        print 'Total Unprocessed reports ({0})'.format(
-            len(unprocessed_reports))
-        print ''
-        print('Command finished.')
+        self.stdout.write('Total Unprocessed reports ({0})'.format(
+            len(unprocessed_reports)))
+        self.stdout.write('')
+        self.stdout.write('Command finished.')
