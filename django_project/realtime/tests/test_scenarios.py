@@ -1,4 +1,5 @@
 # coding=utf-8
+import StringIO
 import errno
 import json
 import logging
@@ -15,6 +16,7 @@ import pytz
 import timeout_decorator
 from django import test
 from django.apps import apps
+from django.core import management
 from django.core.files.base import File
 from django.core.urlresolvers import reverse
 from django.utils.translation import activate
@@ -319,6 +321,96 @@ class TestEarthquakeTasks(HazardScenarioBaseTestCase):
         expected_value = json.loads(json.dumps(eq_serializer.data))
         expected_value.pop('shake_grid')
         self.assertEqual(actual_value, expected_value)
+
+        # Check that running checkprocessedeq will return a clean results
+        out = StringIO.StringIO()
+        management.call_command(
+            'checkprocessedeq',
+            since='2018/02/19',
+            dry_run=False,
+            stdout=out)
+
+        output_messages = out.getvalue()
+
+        # All shake should have been processed
+        self.assertIn('Total Unprocessed impacts (0)', output_messages)
+
+        # All reports should be generated
+        self.assertIn('Total Unprocessed reports (0)', output_messages)
+
+        # Clear out report generation flag
+        for lang in ANALYSIS_LANGUAGES:
+
+            initial_event.inspected_language = lang
+            initial_event.report_object.delete()
+
+        # Command needs to recognize missing reports
+        out = StringIO.StringIO()
+        management.call_command(
+            'checkprocessedeq',
+            since='2018/02/19',
+            dry_run=False,
+            stdout=out)
+
+        output_messages = out.getvalue()
+
+        self.assertIn('Total Unprocessed reports (2)', output_messages)
+
+        # This should pass
+        initial_event = loop_check(
+            self, '20180220163351', Earthquake.INITIAL_SOURCE_TYPE)
+
+        self.assertTrue(initial_event.has_reports)
+
+        # Clear out impact layers
+        for lang in ANALYSIS_LANGUAGES:
+
+            initial_event.inspected_language = lang
+            impact_dirname = os.path.dirname(
+                initial_event.impact_file_path)
+            shutil.rmtree(impact_dirname, ignore_errors=True)
+            self.assertFalse(os.path.exists(impact_dirname))
+
+        # Command needs to ignore missing impacts when reports were processed.
+        out = StringIO.StringIO()
+        management.call_command(
+            'checkprocessedeq',
+            since='2018/02/19',
+            dry_run=False,
+            stdout=out)
+
+        output_messages = out.getvalue()
+
+        self.assertIn('Total Unprocessed reports (0)', output_messages)
+
+        # However if we delete the reports it should recognized missing
+        # impacts
+        # Clear out report generation flag
+        for lang in ANALYSIS_LANGUAGES:
+
+            initial_event.inspected_language = lang
+            initial_event.report_object.delete()
+
+        # Command needs to recognize missing reports
+        out = StringIO.StringIO()
+        management.call_command(
+            'checkprocessedeq',
+            since='2018/02/19',
+            dry_run=False,
+            stdout=out)
+
+        output_messages = out.getvalue()
+
+        self.assertIn('Total Unprocessed reports (2)', output_messages)
+
+        # also recognized missing impacts
+        self.assertIn('Total Unprocessed impacts (2)', output_messages)
+
+        # Reports needs to be generated
+        initial_event = loop_check(
+            self, '20180220163351', Earthquake.INITIAL_SOURCE_TYPE)
+
+        self.assertTrue(initial_event.has_reports)
 
         initial_event.delete()
         corrected_event.delete()
