@@ -73,6 +73,7 @@ def push_shake_to_inaware(self, shake_id, source_type):
             pdf_url)
         inaware.post_url_product(
             hazard_id, pdf_url, 'InaSAFE Perkiraan Dampak Gempa - ID')
+        return True
 
     except ValueError as exc:
         LOGGER.debug(exc)

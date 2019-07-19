@@ -20,6 +20,7 @@ from django.core import management
 from django.core.files.base import File
 from django.core.urlresolvers import reverse
 from django.utils.translation import activate
+from mock import patch, MagicMock
 from rest_framework import status
 
 from core.celery_app import app as django_app
@@ -36,6 +37,7 @@ from realtime.models.flood import Flood, BoundaryAlias, FloodReport, \
 from realtime.models.impact import Impact
 from realtime.models.volcano import Volcano
 from realtime.serializers.earthquake_serializer import EarthquakeSerializer
+from realtime.tasks.earthquake import push_shake_to_inaware
 from realtime.tasks.headless.celery_app import app as headless_app
 from realtime.tasks.realtime.celery_app import app as realtime_app
 from realtime.tasks.realtime.flood import process_flood
@@ -239,6 +241,17 @@ class BaseTestEarthquakeTasks(HazardScenarioBaseTestCase):
 
 class TestEarthquakeTasks(BaseTestEarthquakeTasks):
 
+    class InAWARERestMock(MagicMock):
+
+        def get_hazard_id(self, shake_id):
+            """Arbitrary hazard ID returned by InAWARE"""
+            return 123
+
+        def post_url_product(
+                self, hazard_id, url_product, title='Automated URL Product'):
+            """Do nothing. Emulate successful post"""
+            return True
+
     @timeout_decorator.timeout(LOCAL_TIMEOUT)
     @unittest.skipUnless(
         check_full_scenario_test_condition(),
@@ -323,6 +336,15 @@ class TestEarthquakeTasks(BaseTestEarthquakeTasks):
         expected_value = json.loads(json.dumps(eq_serializer.data))
         expected_value.pop('shake_grid')
         self.assertEqual(actual_value, expected_value)
+
+        # Test InAWARE push using mock
+        with patch(
+                'realtime.tasks.earthquake.InAWARERest',
+                new=self.InAWARERestMock):
+            result = push_shake_to_inaware(
+                initial_event.shake_id,
+                initial_event.source_type)
+            self.assertTrue(result)
 
         initial_event.delete()
         corrected_event.delete()
