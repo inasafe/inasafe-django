@@ -121,6 +121,7 @@ def retrieve_felt_earthquake_list():
 
             event_ids.append(id_note)
     except Exception as e:
+        LOGGER.error(e)
         LOGGER.info('Failed to connect to {url}'.format(url=target_url))
 
     return event_ids
