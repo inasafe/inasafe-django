@@ -28,6 +28,7 @@ RUN echo "export VISIBLE=now" >> /etc/profile
 # Open port 8080 as we will be running our uwsgi socket on that
 EXPOSE 8080
 
+ADD sitecustomize.py /usr/local/lib/python2.7/site-packages/sitecustomize.py
 ADD REQUIREMENTS.txt /REQUIREMENTS.txt
 ADD REQUIREMENTS-dev.txt /REQUIREMENTS-dev.txt
 RUN pip install -r /REQUIREMENTS.txt
