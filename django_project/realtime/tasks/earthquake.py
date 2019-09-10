@@ -4,7 +4,7 @@ from __future__ import absolute_import
 import json
 import logging
 import os
-import urllib2
+import requests
 from urlparse import urljoin
 
 from bs4 import BeautifulSoup
@@ -94,22 +94,36 @@ def retrieve_felt_earthquake_list():
     """
     # Scraped from BMKG's web
     target_url = FELT_EARTHQUAKE_URL
+    event_ids = []
     try:
-        response = urllib2.urlopen(target_url)
-        html = response.read()
+        response = requests.get(
+            target_url,
+            # Target might redirect to https
+            # We don't need to verify ssl for this
+            verify=False
+        )
+        html = response.text
         soup = BeautifulSoup(html, 'html.parser')
         trs = soup.table.tbody.find_all('tr')
         for tr in trs:
             tds = tr.find_all('td')
             event_id = tds[5].a['data-target'][1:]
+            id_note = {
+                'event_id': event_id
+            }
             try:
                 shake = Earthquake.objects.get(shake_id=event_id)
                 shake.felt = True
                 shake.save()
+                id_note['found'] = True
             except Earthquake.DoesNotExist:
-                pass
-    except urllib2.URLError:
-        LOGGER.debug('Failed to connect to {url}'.format(url=target_url))
+                id_note['found'] = False
+
+            event_ids.append(id_note)
+    except Exception as e:
+        LOGGER.info('Failed to connect to {url}'.format(url=target_url))
+
+    return event_ids
 
 
 @app.task(queue='inasafe-django')
