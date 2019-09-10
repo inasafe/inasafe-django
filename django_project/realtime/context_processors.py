@@ -16,13 +16,19 @@ def realtime_settings(request):
     :type request: request
     """
 
+    def _protocol_check(url, is_secure):
+        """Change protocol to https if secure"""
+        if is_secure and 'http://' in url:
+            return url.replace('http://', 'https://')
+        return url
+
     # Leaflet context
     leaflet_tiles = []
     for i in range(0, len(LEAFLET_TILES[1])):
         leaflet_tiles.append(
             dict(
                 name=LEAFLET_TILES[0][i],
-                url=LEAFLET_TILES[1][i],
+                url=_protocol_check(LEAFLET_TILES[1][i], request.is_secure()),
                 subdomains=LEAFLET_TILES[2][i],
                 attribution=LEAFLET_TILES[3][i]
             )
