@@ -6,8 +6,9 @@ from django import test
 from timeout_decorator import timeout_decorator
 
 from realtime.app_settings import LOGGER_NAME
-from realtime.tasks import check_realtime_broker, \
-    retrieve_felt_earthquake_list
+from realtime.tasks import (
+    check_realtime_broker,
+    retrieve_felt_earthquake_list)
 from realtime.tasks.realtime.celery_app import app as realtime_app
 from realtime.utils import celery_worker_connected
 
@@ -37,7 +38,7 @@ class CeleryTaskTest(test.SimpleTestCase):
     @unittest.skipUnless(
         celery_worker_connected(realtime_app, 'inasafe-django'),
         'Realtime Worker needs to be run')
-    def test_indicator(self):
+    def test_retrieve_felt_earthquake(self):
         """Test broker connection."""
         result = retrieve_felt_earthquake_list.delay()
         self.assertTrue(result.get())
