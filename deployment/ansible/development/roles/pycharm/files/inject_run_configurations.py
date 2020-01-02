@@ -25,7 +25,7 @@ def inject_run_configurations(
             break
     else:
         component_index = 0
-        print 'Not Found'
+        print('Not Found')
 
     if component_index >= 0:
         root = tree.getroot()
