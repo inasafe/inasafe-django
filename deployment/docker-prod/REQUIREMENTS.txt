@@ -27,4 +27,4 @@ django-tinymce==2.6
 django-filebrowser==3.7.2
 django-tinymce-filebrowser==0.2.1
 urllib3==1.24.2
-pyyaml==3.12
+pyyaml==5.1
