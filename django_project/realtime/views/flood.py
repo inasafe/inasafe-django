@@ -334,7 +334,7 @@ def flood_event_features(request, event_id):
         # build feature layer
         features = []
         for b in flood.flooded_boundaries.filter(boundary_alias__osm_level=8):
-            event_data = b.flood_event.get(flood=flood)
+            event_data = b.flood_event.filter(flood=flood).first()
             if event_data.hazard_data > 0:
                 feat = {
                     'id': b.upstream_id,
