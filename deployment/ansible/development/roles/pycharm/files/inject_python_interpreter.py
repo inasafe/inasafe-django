@@ -30,7 +30,7 @@ def inject_python_interpreter(
             break
     else:
         interpreter_index = 0
-        print 'Not Found'
+        print('Not Found')
 
     if interpreter_index >= 0:
         # add only if not found
