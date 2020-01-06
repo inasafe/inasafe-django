@@ -180,6 +180,17 @@ class Flood(BaseEventModel):
             'event_id': self.event_id,
         })
 
+    def rerun_analysis(self):
+        """Rerun Analysis"""
+        # Reset analysis state
+        self.flood_data = None
+        self.flood_data_saved = False
+        Flood.objects.filter(id=self.id).update(
+            flood_data=self.flood_data,
+            flood_data_saved=self.flood_data_saved)
+        self.impacts.all().delete()
+        self.save()
+
 
 class FloodReport(BaseEventReportModel):
     """Flood Report models"""

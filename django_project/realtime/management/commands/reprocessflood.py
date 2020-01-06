@@ -17,23 +17,39 @@ class Command(BaseCommand):
     """
     help = 'Command to re-execute flood process on existing event id'
 
-    def handle(self, *args, **options):
-        using_range = False
-        if len(args) == 3:
-            if args[0] == 'range':
-                using_range = True
-                Command.regenerate_flood_from_range(args[1], args[2])
+    def add_arguments(self, parser):
+        parser.add_argument(
+            'flood_event_ids',
+            nargs='*',
+            type=str)
 
-        if len(args) > 0 and not using_range:
-            for a in args:
-                print 'Process using celery broker : %s' % a
-                process_flood.delay(a).get()
+        parser.add_argument(
+            '--range',
+            action='store_true',
+        )
+
+    def handle(self, *args, **options):
+        using_range = options.get('range')
+        flood_event_ids = options.get('flood_event_ids')
+        if using_range and len(flood_event_ids) == 2:
+            Command.regenerate_flood_from_range(
+                flood_event_ids[0], flood_event_ids[1])
+
+        if len(flood_event_ids) > 0 and not using_range:
+            for event_id in flood_event_ids:
+                print('Process using celery broker : {}'.format(event_id))
+                flood = Flood.objects.get(event_id=event_id)
+                flood.rerun_analysis()
 
         elif not using_range:
-            floods = Flood.objects.all().order_by('-flood')
-            print 'Process using celery broker (%s)' % len(floods)
+            floods = Flood.objects.all().order_by('-time')
+            print(
+                'Process using celery broker. '
+                'Total number of events ({})'.format(len(floods)))
             for flood in floods:
-                process_flood.delay(flood.event_id).get()
+                event_id = flood.event_id
+                print('Process using celery broker : {}'.format(event_id))
+                flood.rerun_analysis()
 
     @staticmethod
     def regenerate_flood_from_range(start_event_id, end_event_id):
@@ -48,20 +64,15 @@ class Command(BaseCommand):
         end_time = end_time.replace(tzinfo=pytz.UTC)
         time_diff = end_time - start_time
         total_hours = int(time_diff.total_seconds() / 3600)
-        success = 0
-        failed = 0
+        total_events = 0
         for i in range(0, total_hours):
             hour_diff = datetime.timedelta(hours=i + 1)
             target_time = start_time + hour_diff
             event_id = target_time.strftime(format_str)
-            print 'Processing flood: %s' % event_id
-            result = process_flood.delay(event_id)
-            is_success = result.get()
-            print 'Task result: %s' % is_success
-            if is_success:
-                success += 1
-            else:
-                failed += 1
+            print('Processing flood: {}'.format(event_id))
+            flood = Flood.objects.get(event_id=event_id)
+            flood.rerun_analysis()
+            total_events += 1
 
-        print 'Regenerate process done'
-        print 'Success: %s. Failed: %s' % (success, failed)
+        print('Regenerate process done')
+        print('Total processed events: {}'.format(total_events))
