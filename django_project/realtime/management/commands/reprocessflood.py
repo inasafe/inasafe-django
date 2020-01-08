@@ -5,7 +5,6 @@ import pytz
 from django.core.management.base import BaseCommand
 
 from realtime.models.flood import Flood
-from realtime.tasks.realtime.flood import process_flood
 
 __author__ = 'Rizky Maulana Nugraha "lucernae" <lana.pcfre@gmail.com>'
 __date__ = '07/09/15'
@@ -69,10 +68,13 @@ class Command(BaseCommand):
             hour_diff = datetime.timedelta(hours=i + 1)
             target_time = start_time + hour_diff
             event_id = target_time.strftime(format_str)
-            print('Processing flood: {}'.format(event_id))
-            flood = Flood.objects.get(event_id=event_id)
-            flood.rerun_analysis()
-            total_events += 1
+            try:
+                print('Processing flood: {}'.format(event_id))
+                flood = Flood.objects.get(event_id=event_id)
+                flood.rerun_analysis()
+                total_events += 1
+            except Flood.DoesNotExist:
+                pass
 
         print('Regenerate process done')
         print('Total processed events: {}'.format(total_events))
