@@ -14,6 +14,7 @@ from django.contrib.gis.geos.collections import MultiPolygon
 from django.contrib.gis.geos.geometry import GEOSGeometry
 from django.contrib.gis.geos.polygon import Polygon
 from django.core.files import File
+from django.db import transaction
 from django.db.models import Sum
 
 from core.celery_app import app
@@ -120,33 +121,34 @@ def process_hazard_layer(flood):
             geos_geometry = MultiPolygon(geos_geometry)
 
         # check parent exists
-        try:
-            boundary_kelurahan = Boundary.objects.get(
-                name__iexact=parent_name.strip(),
-                boundary_alias=kelurahan)
-        except Boundary.DoesNotExist:
-            boundary_kelurahan = Boundary.objects.create(
-                upstream_id=upstream_id,
-                geometry=geos_geometry,
-                name=parent_name,
-                boundary_alias=kelurahan)
-            boundary_kelurahan.save()
+        with transaction.atomic():
+            try:
+                boundary_kelurahan = Boundary.objects.get(
+                    name__iexact=parent_name.strip(),
+                    boundary_alias=kelurahan)
+            except Boundary.DoesNotExist:
+                boundary_kelurahan = Boundary.objects.create(
+                    upstream_id=upstream_id,
+                    geometry=geos_geometry,
+                    name=parent_name,
+                    boundary_alias=kelurahan)
+                boundary_kelurahan.save()
 
-        try:
-            boundary_rw = Boundary.objects.get(
-                upstream_id=upstream_id, boundary_alias=rw)
-            boundary_rw.geometry = geos_geometry
-            boundary_rw.name = level_name
-            boundary_rw.parent = boundary_kelurahan
-        except Boundary.DoesNotExist:
-            boundary_rw = Boundary.objects.create(
-                upstream_id=upstream_id,
-                geometry=geos_geometry,
-                name=level_name,
-                parent=boundary_kelurahan,
-                boundary_alias=rw)
+            try:
+                boundary_rw = Boundary.objects.get(
+                    upstream_id=upstream_id, boundary_alias=rw)
+                boundary_rw.geometry = geos_geometry
+                boundary_rw.name = level_name
+                boundary_rw.parent = boundary_kelurahan
+            except Boundary.DoesNotExist:
+                boundary_rw = Boundary.objects.create(
+                    upstream_id=upstream_id,
+                    geometry=geos_geometry,
+                    name=level_name,
+                    parent=boundary_kelurahan,
+                    boundary_alias=rw)
 
-        boundary_rw.save()
+            boundary_rw.save()
 
         if not state or int(state) == 0:
             continue
@@ -243,20 +245,21 @@ def process_impact_layer(flood):
             # convert to multi polygon
             geos_geometry = MultiPolygon(geos_geometry)
 
-        try:
-            boundary_kelurahan = Boundary.objects.get(
-                name__iexact=level_7_name,
-                boundary_alias=kelurahan)
-        except Boundary.DoesNotExist:
-            LOGGER.debug('Boundary does not exists: %s' % level_7_name)
-            LOGGER.debug('Kelurahan Boundary should have been filled '
-                         'already')
-            # Will try to create new one
-            boundary_kelurahan = Boundary.objects.create(
-                geometry=geos_geometry,
-                name=level_7_name,
-                boundary_alias=kelurahan)
-            boundary_kelurahan.save()
+        with transaction.atomic():
+            try:
+                boundary_kelurahan = Boundary.objects.get(
+                    name__iexact=level_7_name,
+                    boundary_alias=kelurahan)
+            except Boundary.DoesNotExist:
+                LOGGER.debug('Boundary does not exists: %s' % level_7_name)
+                LOGGER.debug('Kelurahan Boundary should have been filled '
+                             'already')
+                # Will try to create new one
+                boundary_kelurahan = Boundary.objects.create(
+                    geometry=geos_geometry,
+                    name=level_7_name,
+                    boundary_alias=kelurahan)
+                boundary_kelurahan.save()
 
         ImpactEventBoundary.objects.create(
             flood=flood,
