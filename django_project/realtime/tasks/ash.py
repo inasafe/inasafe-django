@@ -73,7 +73,8 @@ def generate_hazard_layer(ash_event):
         # Handle hazard process
         handle_hazard_process.s(
             event_id=ash_event.id
-        ).set(queue=handle_hazard_process.queue)
+        ).set(queue=handle_hazard_process.queue),
+
     )
 
     @app.task

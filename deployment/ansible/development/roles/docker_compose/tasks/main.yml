@@ -26,3 +26,11 @@
     owner: '{{ remote_user }}'
     group: '{{ remote_group }}'
     mode: "u=rw,g=rw,o=r"
+
+- name: customize geonode credentials
+  template:
+    src: geonode_credential.env.j2
+    dest: '{{ project_path }}/deployment/geonode_credential.env'
+    owner: '{{ remote_user }}'
+    group: '{{ remote_group }}'
+    mode: "u=rw,g=rw,o=r"

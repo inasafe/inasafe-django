@@ -6,6 +6,7 @@ from realtime.tasks.earthquake import *  # noqa
 from realtime.tasks.flood import *  # noqa
 from realtime.tasks.ash import *  # noqa
 from realtime.tasks.indicator import *  # noqa
+from realtime.tasks.geonode import *  # noqa
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '12/3/15'
