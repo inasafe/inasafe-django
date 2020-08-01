@@ -1,4 +1,5 @@
 # coding=utf-8
+from builtins import object
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.gis.db import models
@@ -9,7 +10,7 @@ from django.utils.translation import ugettext_lazy as _
 class Impact(models.Model):
     """InaSAFE Impact Analysis model."""
 
-    class Meta:
+    class Meta(object):
         """Meta class."""
         app_label = 'realtime'
 

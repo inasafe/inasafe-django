@@ -1,5 +1,6 @@
 # coding=utf-8
 
+from builtins import object
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -7,7 +8,7 @@ from django.utils.translation import ugettext_lazy as _
 class BaseEventReportModel(models.Model):
     """Base model for event report."""
 
-    class Meta:
+    class Meta(object):
         abstract = True
 
     language = models.CharField(

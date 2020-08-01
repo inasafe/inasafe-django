@@ -1,4 +1,6 @@
 # coding=utf-8
+from builtins import range
+from builtins import object
 import filecmp
 import logging
 import threading
@@ -37,7 +39,7 @@ def test_concurrently(times):
             def call_test_func():
                 try:
                     test_func(*args, **kwargs)
-                except Exception, e:
+                except Exception as e:  # NOQA
                     exceptions.append(e)
                     raise
             threads = []
@@ -117,7 +119,7 @@ def assertEqualDictionaryWithFiles(testcase, dict_value, dict_control):
         from self.data_path directory
     :type dict_control: dict
     """
-    for key, value in dict_control.iteritems():
+    for key, value in dict_control.items():
         if isinstance(value, File):
             # tries to do a file comparison
             control_path = os.path.abspath(value.name)

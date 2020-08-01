@@ -463,7 +463,7 @@ class EarthquakeMMIContourList(
 
     def filter_queryset(self, queryset):
         shake_filter = {}
-        for key, value in self.kwargs.iteritems():
+        for key, value in self.kwargs.items():
             shake_filter['earthquake__' + key] = value
 
         queryset = queryset.filter(**shake_filter)

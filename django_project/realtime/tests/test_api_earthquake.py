@@ -409,7 +409,7 @@ class TestEarthquake(APITestCase):
             source_type=u'corrected')
 
         serializer = EarthquakeSerializer(earthquake)
-        for key, value in shake_json.iteritems():
+        for key, value in shake_json.items():
             if isinstance(serializer.data[key], GeoJsonDict):
                 self.compare_geo_json_dict(value, serializer.data[key])
             else:
@@ -423,9 +423,9 @@ class TestEarthquake(APITestCase):
             return self.assertDictEqual(val1, val2)
         elif isinstance(val1, GeoJsonDict) and isinstance(val2, dict):
             self.assertEqual(
-                [v for v in val1.iterkeys()],
-                [v for v in val2.iterkeys()])
-            for key in val1.iterkeys():
+                [v for v in val1.keys()],
+                [v for v in val2.keys()])
+            for key in val1.keys():
                 v1 = val1[key]
                 v2 = val2[key]
                 if isinstance(v1, tuple):
@@ -685,7 +685,7 @@ class TestEarthquake(APITestCase):
                 kwargs=kwargs))
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        for key, value in kwargs.iteritems():
+        for key, value in kwargs.items():
             self.assertEqual(response.data[key], value)
 
     def test_earthquake_report_put(self):

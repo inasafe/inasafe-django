@@ -1,11 +1,12 @@
 # coding=utf-8
 """Model class for OSM Role"""
+from builtins import object
 from django.contrib.gis.db import models
 
 
 class OsmRole(models.Model):
     """OSM Role for users e.g. OSM Mapper, Trainer."""
-    class Meta:
+    class Meta(object):
         """Meta class."""
         app_label = 'user_map'
 

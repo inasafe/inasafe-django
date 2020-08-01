@@ -1,5 +1,6 @@
 # coding=utf-8
 """Model class of custom user for InaSAFE User Map."""
+from builtins import object
 import os
 import uuid
 
@@ -46,7 +47,7 @@ def image_path(instance, file_name):
 class User(PermissionsMixin, AbstractBaseUser):
     """User class for InaSAFE User Map."""
 
-    class Meta:
+    class Meta(object):
         """Meta class."""
         app_label = 'user_map'
 

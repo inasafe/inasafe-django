@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function
 import logging
 import os
 import re
@@ -70,11 +71,11 @@ def scan_eq_events(dry_run=False):
     unmigrated = EarthquakeMigration.objects.filter(
         has_shake_grid_in_database=False)
     if not unmigrated:
-        print 'All EQ events migrated.'
+        print('All EQ events migrated.')
 
     if dry_run:
         for state in unmigrated.iterator():
-            print state
+            print(state)
         return
 
     for state in unmigrated.iterator():
@@ -84,8 +85,8 @@ def scan_eq_events(dry_run=False):
 
         state.mark_migrated()
 
-        print 'EQ Migrated {0} {1}'.format(
-            state.event.shake_id, state.migrated)
+        print('EQ Migrated {0} {1}'.format(
+            state.event.shake_id, state.migrated))
 
 
 def clean_up_eq(dry_run=False):
@@ -95,25 +96,25 @@ def clean_up_eq(dry_run=False):
         has_shake_grid_in_media_file=True)
 
     if not undeleted:
-        print 'All EQ events cleaned up.'
+        print('All EQ events cleaned up.')
 
     if dry_run:
         for state in undeleted.iterator():
-            print state
+            print(state)
         return
 
     for state in undeleted.iterator():
 
         state.migrate_shake_grid()
         state.mark_migrated()
-        print state
+        print(state)
 
     # search stale files
     media_root = settings.MEDIA_ROOT
     grid_media_path = os.path.join(media_root, 'earthquake/grid')
 
-    print 'Find stale shake grid file in media.'
-    print
+    print('Find stale shake grid file in media.')
+    print()
 
     for path in os.listdir(grid_media_path):
         abs_path = os.path.join(grid_media_path, path)
@@ -124,11 +125,11 @@ def clean_up_eq(dry_run=False):
             except Earthquake.DoesNotExist:
                 found = False
 
-            print '[{0}] found: [{1}]'.format(path, found)
+            print('[{0}] found: [{1}]'.format(path, found))
 
             if not found:
                 os.remove(abs_path)
-                print 'Deleted [{0}]'.format(path)
+                print('Deleted [{0}]'.format(path))
 
 
 def scan_eq_raw_files(raw_dir, dry_run=False):
@@ -170,7 +171,7 @@ def scan_eq_raw_files(raw_dir, dry_run=False):
                     has_shake_grid_in_raw_file=True)
 
             if dry_run:
-                print state
+                print(state)
                 continue
 
             # get relative grid file
@@ -201,7 +202,7 @@ def scan_eq_raw_files(raw_dir, dry_run=False):
             state.mark_migrated()
 
     except BaseException as e:
-        print e
+        print(e)
 
 
 def scan_flood_events(dry_run=False):
@@ -210,11 +211,11 @@ def scan_flood_events(dry_run=False):
 
     unmigrated = FloodMigration.objects.filter(migrated=False)
     if not unmigrated:
-        print 'All Flood events migrated.'
+        print('All Flood events migrated.')
 
     if dry_run:
         for state in unmigrated.iterator():
-            print state
+            print(state)
         return
 
     for state in unmigrated.iterator():
@@ -224,9 +225,9 @@ def scan_flood_events(dry_run=False):
 
         state.mark_migrated()
 
-        print 'Flood Migrated {0} {1}'.format(
+        print('Flood Migrated {0} {1}'.format(
             state.event.event_id_formatted,
-            state.migrated)
+            state.migrated))
 
 
 def clean_up_flood(dry_run=False):
@@ -238,11 +239,11 @@ def clean_up_flood(dry_run=False):
         has_impact_in_database=True,
         has_impact_in_media_file=True)
     if not undeleted:
-        print 'All Flood events cleaned up.'
+        print('All Flood events cleaned up.')
 
     if dry_run:
         for state in undeleted.iterator():
-            print state
+            print(state)
         return
 
     for state in undeleted.iterator():
@@ -252,14 +253,14 @@ def clean_up_flood(dry_run=False):
 
         state.mark_migrated()
 
-        print state
+        print(state)
 
     # search stale files
     media_root = settings.MEDIA_ROOT
     media_path = os.path.join(media_root, 'reports/flood/zip')
 
-    print 'Find stale flood data file in media.'
-    print
+    print('Find stale flood data file in media.')
+    print()
 
     for path in os.listdir(media_path):
         abs_path = os.path.join(media_path, path)
@@ -270,8 +271,8 @@ def clean_up_flood(dry_run=False):
             except Flood.DoesNotExist:
                 found = False
 
-            print '[{0}] found: [{1}]'.format(path, found)
+            print('[{0}] found: [{1}]'.format(path, found))
 
             if not found:
                 os.remove(abs_path)
-                print 'Deleted [{0}]'.format(path)
+                print('Deleted [{0}]'.format(path))

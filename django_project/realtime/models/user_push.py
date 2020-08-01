@@ -3,6 +3,7 @@
 Model class for Realtime User related
 """
 
+from builtins import object
 from datetime import datetime
 from django.contrib.gis.db import models
 from user_map.models.user import User
@@ -18,7 +19,7 @@ class UserPush(models.Model):
     It is mainly used to make sure that Realtime is running.
     """
 
-    class Meta:
+    class Meta(object):
         app_label = 'realtime'
 
     # should be tied to a unique user in Realtime REST Group

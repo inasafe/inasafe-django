@@ -1,4 +1,6 @@
 # coding=utf-8
+from __future__ import print_function, unicode_literals
+from builtins import input
 import datetime
 import shutil
 from django.conf import settings
@@ -24,7 +26,7 @@ class Command(BaseCommand):
         return u'realtime/tests/data/' + filename
 
     def handle(self, *args, **options):
-        delete_all = raw_input('Delete all existing data? (y/N)')
+        delete_all = input('Delete all existing data? (y/N)')
 
         if delete_all.lower() == 'y':
             for report in EarthquakeReport.objects.all():
@@ -63,6 +65,6 @@ class Command(BaseCommand):
                 with open(self.data_path(report_thumb)) as thumb:
                     report.report_thumbnail = File(thumb)
                     report.save()
-            print 'Test data successfully loaded.'
+            print('Test data successfully loaded.')
         else:
-            print 'Cancel execution.'
+            print('Cancel execution.')

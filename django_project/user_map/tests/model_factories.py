@@ -1,5 +1,6 @@
 # coding=utf-8
 """Model factories definition for models."""
+from builtins import object
 from django.contrib.gis.geos import Point
 import factory
 from factory.django import DjangoModelFactory
@@ -11,7 +12,7 @@ from user_map.models.osm_role import OsmRole
 
 class InasafeRoleFactory(DjangoModelFactory):
     """Factory class for InaSAFE Role model."""
-    class Meta:
+    class Meta(object):
         """Meta definition."""
         model = InasafeRole
 
@@ -22,7 +23,7 @@ class InasafeRoleFactory(DjangoModelFactory):
 
 class OsmRoleFactory(DjangoModelFactory):
     """Factory class for OSM Role model."""
-    class Meta:
+    class Meta(object):
         """Meta definition."""
         model = OsmRole
 
@@ -33,7 +34,7 @@ class OsmRoleFactory(DjangoModelFactory):
 
 class UserFactory(DjangoModelFactory):
     """Factory class for User Model"""
-    class Meta:
+    class Meta(object):
         """"Meta definition."""
         model = User
         django_get_or_create = ('email',)

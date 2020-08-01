@@ -1,4 +1,5 @@
 # coding=utf-8
+from builtins import object
 import json
 
 from django.core.urlresolvers import reverse
@@ -60,7 +61,7 @@ class EarthquakeReportSerializer(serializers.ModelSerializer):
     # auto bind to get_shake_url method
     shake_url = CustomSerializerMethodField()
 
-    class Meta:
+    class Meta(object):
         model = EarthquakeReport
         fields = (
             'url',
@@ -116,7 +117,7 @@ class EarthquakeSerializer(serializers.ModelSerializer):
 
     shake_grid = CustomSerializerMethodField()
 
-    class Meta:
+    class Meta(object):
         model = Earthquake
         fields = (
             'url',
@@ -158,7 +159,7 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
 
     shake_grid = CustomSerializerMethodField()
 
-    class Meta:
+    class Meta(object):
         model = Earthquake
         geo_field = "location"
         id = 'id'
@@ -182,7 +183,7 @@ class EarthquakeGeoJsonSerializer(GeoFeatureModelSerializer):
 
 class EarthquakeMMIContourGeoJSONSerializer(GeoFeatureModelSerializer):
 
-    class Meta:
+    class Meta(object):
         model = EarthquakeMMIContour
         geo_field = 'geometry'
         id = 'id'

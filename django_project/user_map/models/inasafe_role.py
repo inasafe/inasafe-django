@@ -1,11 +1,12 @@
 # coding=utf-8
 """Model class for InaSAFE Role"""
+from builtins import object
 from django.contrib.gis.db import models
 
 
 class InasafeRole(models.Model):
     """InaSAFE Role for users e.g. InaSAFE developer, trainer, user."""
-    class Meta:
+    class Meta(object):
         """Meta class."""
         app_label = 'user_map'
 

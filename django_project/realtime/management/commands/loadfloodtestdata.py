@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function
 import os
 import shutil
 from tempfile import mkdtemp
@@ -24,11 +25,11 @@ class Command(BaseCommand):
         flood_layer_uri = TestFloodTasks.fixtures_path('flood_data.json')
         hazard_drop_path = os.path.join(
             hazard_drop_path, os.path.basename(flood_layer_uri))
-        print 'Copy flood data to %s' % hazard_drop_path
+        print('Copy flood data to %s' % hazard_drop_path)
         shutil.copy(flood_layer_uri, hazard_drop_path)
 
         flood_id = '2018022511-6-rw'
-        print 'Send flood data to InaSAFE Django with flood id = %s' % flood_id
+        print('Send flood data to InaSAFE Django with flood id = %s' % flood_id)
         process_flood.delay(
             flood_id=flood_id,
             data_source='hazard_file',

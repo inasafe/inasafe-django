@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function
 import os
 import shutil
 import tempfile
@@ -49,7 +50,7 @@ class Command(BaseCommand):
         target_dir = os.path.join(media_root, 'flood_data')
 
         for flood in Flood.objects.all().iterator():
-            print '[{0}]'.format(flood.event_id)
+            print('[{0}]'.format(flood.event_id))
             self.extract_flood_data(flood, target_dir)
 
-        print 'Finished.'
+        print('Finished.')

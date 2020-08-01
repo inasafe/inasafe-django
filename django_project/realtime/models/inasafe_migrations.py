@@ -1,5 +1,6 @@
 # coding=utf-8
 
+from builtins import object
 import logging
 
 from django.contrib.gis.db import models
@@ -14,7 +15,7 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 class EarthquakeMigration(models.Model):
     """This model will handle migration state of earthquake."""
 
-    class Meta:
+    class Meta(object):
         app_label = 'realtime'
 
     event = models.ForeignKey(Earthquake, related_name='migration_state')
@@ -155,7 +156,7 @@ class EarthquakeMigration(models.Model):
 class FloodMigration(models.Model):
     """This model will handle migration state of flood."""
 
-    class Meta:
+    class Meta(object):
         app_label = 'realtime'
 
     event = models.ForeignKey(Flood, related_name='migration_state')

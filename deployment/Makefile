@@ -48,7 +48,7 @@ setup-ansible:
 
 check-flake8:
 	@echo "Check flake 8"
-	@flake8 ../django_project
+	@cd ../django_project; flake8 .
 
 pull-external-services:
 	@echo "Pull InaSAFE Realtime"
@@ -373,6 +373,13 @@ db-shell:
 	@echo "Shelling in database containers"
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) exec db /bin/bash
+
+db-ready:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Wait for db ready"
+	@echo "------------------------------------------------------------------"
+	@until docker-compose -p $(PROJECT_ID) exec db pg_isready -h localhost; do sleep 5; done
 
 postgres-shell:
 	@echo

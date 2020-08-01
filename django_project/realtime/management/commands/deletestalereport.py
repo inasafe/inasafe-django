@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function
 import os
 from django.db.models.query_utils import Q
 from django.conf import settings
@@ -16,20 +17,20 @@ class Command(BaseCommand):
     help = 'Delete orphan report files in media to save spaces.'
 
     def handle(self, *args, **options):
-        print 'Deleting orphan report files which is not recorded in ' \
-              'database.'
+        print('Deleting orphan report files which is not recorded in ' \
+              'database.')
         media_root = os.path.relpath(settings.MEDIA_ROOT)
         report_root = 'reports'
         files_root = os.path.abspath(os.path.join(media_root, report_root))
-        print 'Folder to process : %s' % files_root
-        print 'Media root : %s' % media_root
-        print 'Reports root : %s' % report_root
+        print('Folder to process : %s' % files_root)
+        print('Media root : %s' % media_root)
+        print('Reports root : %s' % report_root)
         for folders, _, files in os.walk(files_root):
             for f in files:
                 abs_filename = os.path.join(folders, f)
                 rel_filename = os.path.relpath(abs_filename, media_root)
-                print 'check filena' \
-                      'me : %s' % rel_filename
+                print('check filena' \
+                      'me : %s' % rel_filename)
                 exists_pdf = EarthquakeReport.objects.filter(
                     Q(report_pdf=rel_filename)
                     | Q(report_thumbnail=rel_filename)
@@ -37,6 +38,6 @@ class Command(BaseCommand):
                 if exists_pdf.count() == 0:
                     try:
                         os.remove(abs_filename)
-                        print 'Deleted : %s' % rel_filename
+                        print('Deleted : %s' % rel_filename)
                     except Exception as exc:
-                        print exc.message
+                        print(exc.message)

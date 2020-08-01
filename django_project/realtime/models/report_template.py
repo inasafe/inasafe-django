@@ -1,5 +1,6 @@
 # coding=utf-8
 """Model class for Report Template."""
+from builtins import object
 from django.contrib.gis.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -14,7 +15,7 @@ __copyright__ = 'myarjuanar@gmail.com'
 
 class ReportTemplate(models.Model):
     """ReportTemplate model."""
-    class Meta:
+    class Meta(object):
         """Meta class."""
         app_label = 'realtime'
         verbose_name_plural = 'Report Templates'

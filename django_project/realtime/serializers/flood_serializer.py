@@ -1,4 +1,5 @@
 # coding=utf-8
+from builtins import object
 import pytz
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
@@ -58,7 +59,7 @@ class FloodReportSerializer(serializers.ModelSerializer):
     # auto bind to get_shake_url method
     flood_url = CustomSerializerMethodField()
 
-    class Meta:
+    class Meta(object):
         model = FloodReport
         fields = (
             'url',
@@ -137,7 +138,7 @@ class FloodSerializer(serializers.ModelSerializer):
     # auto bind to get_event_id_formatted method
     event_id_formatted = CustomSerializerMethodField()
 
-    class Meta:
+    class Meta(object):
         model = Flood
         fields = (
             'url',

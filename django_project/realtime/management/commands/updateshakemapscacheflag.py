@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function
 import logging
 
 from django.core.management.base import BaseCommand
@@ -32,13 +33,13 @@ class Command(BaseCommand):
             if eq.source_type == Earthquake.INITIAL_SOURCE_TYPE:
                 eq.mark_shakemaps_has_corrected()
                 eq.refresh_from_db()
-                print 'Inspecting EQ: {0}. Has corrected: {1}'.format(
-                    eq.shake_id, eq.has_corrected)
+                print('Inspecting EQ: {0}. Has corrected: {1}'.format(
+                    eq.shake_id, eq.has_corrected))
 
             eq.mark_shakemaps_has_contours()
             eq.refresh_from_db()
-            print 'Inspecting EQ: {0}. Has contours: {1}'.format(
+            print('Inspecting EQ: {0}. Has contours: {1}'.format(
                 eq.shake_id,
-                eq.mmi_layer_saved)
+                eq.mmi_layer_saved))
 
-        print 'Command finished.'
+        print('Command finished.')

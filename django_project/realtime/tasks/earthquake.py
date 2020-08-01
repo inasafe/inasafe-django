@@ -1,11 +1,13 @@
 # coding=utf-8
-from __future__ import absolute_import
+from __future__ import absolute_import, unicode_literals
 
+from future import standard_library
+standard_library.install_aliases()
 import json
 import logging
 import os
 import requests
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 from celery import chain

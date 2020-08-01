@@ -1,5 +1,6 @@
 # coding=utf-8
 """Model Admin Class."""
+from builtins import str
 from django.contrib import admin
 from django.contrib.admin import ModelAdmin, StackedInline
 from django.contrib.admin.sites import AdminSite

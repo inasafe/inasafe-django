@@ -1,5 +1,6 @@
 # coding=utf-8
 """Views of the apps."""
+from builtins import str
 import unicodecsv as csv
 
 from django.shortcuts import render, render_to_response

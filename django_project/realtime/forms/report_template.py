@@ -1,5 +1,6 @@
 # coding=utf-8
 """Forms for realtime app."""
+from builtins import object
 from django import forms
 from django.utils.translation import ugettext_lazy as _
 
@@ -16,7 +17,7 @@ datetime_format = 'YYYY-MM-DD HH:mm:ss'
 
 class ReportTemplateUploadForm(forms.ModelForm):
 
-    class Meta:
+    class Meta(object):
         model = ReportTemplate
         fields = [
             'hazard',

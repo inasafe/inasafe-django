@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function
 import os
 
 from django.conf import settings
@@ -19,10 +20,10 @@ class Command(BaseCommand):
                 '{0}.json'.format(flood.event_id))
             if os.path.exists(flood_data_filename):
 
-                print 'Processing: [{0}]'.format(flood_data_filename)
+                print('Processing: [{0}]'.format(flood_data_filename))
 
                 with open(flood_data_filename) as f:
                     flood.flood_data = f.read()
                     flood.save()
 
-        print 'Finished.'
+        print('Finished.')

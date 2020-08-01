@@ -1,5 +1,6 @@
 # coding=utf-8
 """Custom User Manager for user of InaSAFE User Map."""
+from builtins import object
 from django.contrib.gis.db.models import GeoManager
 from django.contrib.auth.models import BaseUserManager
 from django.contrib.gis.geos import Point
@@ -8,7 +9,7 @@ from django.utils.crypto import get_random_string
 
 class CustomUserManager(BaseUserManager, GeoManager):
     """Custom user manager for user map."""
-    class Meta:
+    class Meta(object):
         """Meta class."""
         app_label = 'user_map'
 

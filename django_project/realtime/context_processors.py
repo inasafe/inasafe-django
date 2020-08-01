@@ -1,5 +1,6 @@
 # coding=utf-8
 """Module for custom context processor for InaSAFE Realtime."""
+from builtins import range
 from realtime import app_settings
 from realtime.app_settings import (
     LEAFLET_TILES,

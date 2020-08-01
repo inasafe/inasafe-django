@@ -1,5 +1,7 @@
 # coding=utf-8
 
+from __future__ import print_function
+from builtins import input
 from django.core.management.base import BaseCommand
 from realtime.models.earthquake import Earthquake, EarthquakeReport
 
@@ -18,13 +20,13 @@ class Command(BaseCommand):
         return u'realtime/tests/data/' + filename
 
     def handle(self, *args, **options):
-        delete_all = raw_input('Delete all existing data? (y/N)')
+        delete_all = input('Delete all existing data? (y/N)')
 
         if delete_all.lower() == 'y':
             for report in EarthquakeReport.objects.all():
                 report.delete()
             EarthquakeReport.objects.all().delete()
             Earthquake.objects.all().delete()
-            print 'Test data successfully cleared.'
+            print('Test data successfully cleared.')
         else:
-            print 'Cancel execution.'
+            print('Cancel execution.')

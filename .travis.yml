@@ -33,7 +33,8 @@ install:
   # Retrieve latest templates
   - sudo git clone https://github.com/inasafe/inasafe-realtime-resources.git headless-data/qgis-templates
   - cat docker-compose.override.yml
-  - until make migrate; do echo "Retrying"; sleep 5; done
+  - make db-ready
+  - until make migrate; do echo "Retrying"; docker-compose -p inasafedjango logs uwsgi; sleep 5; done
   - popd
 
 script:

@@ -1,5 +1,6 @@
 # coding=utf-8
 """Model class for earthquake realtime."""
+from builtins import object
 import os
 
 from django.contrib.gis.db import models
@@ -27,7 +28,7 @@ class Earthquake(BaseEventModel):
     INITIAL_SOURCE_TYPE = 'initial'
     CORRECTED_SOURCE_TYPE = 'corrected'
 
-    class Meta:
+    class Meta(object):
         """Meta class."""
         app_label = 'realtime'
         unique_together = (('shake_id', 'source_type'), )
@@ -323,7 +324,7 @@ class EarthquakeMMIContourManager(models.GeoManager):
 class EarthquakeMMIContour(models.Model):
     """Earthquake MMI Contour Model."""
 
-    class Meta:
+    class Meta(object):
         """Meta class."""
         app_label = 'realtime'
 
@@ -356,7 +357,7 @@ class EarthquakeMMIContour(models.Model):
 class EarthquakeReport(BaseEventReportModel):
     """Earthquake Report Model."""
 
-    class Meta:
+    class Meta(object):
         """Meta class."""
         app_label = 'realtime'
         unique_together = (('earthquake', 'language'),)

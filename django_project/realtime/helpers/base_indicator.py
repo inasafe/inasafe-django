@@ -1,4 +1,6 @@
 # coding=utf-8
+from builtins import range
+from builtins import object
 from datetime import datetime, timedelta
 from math import isnan
 from django.utils.translation import ugettext as _
