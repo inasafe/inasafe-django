@@ -1,5 +1,6 @@
 # coding=utf-8
 """Forms for realtime app."""
+from builtins import object
 from bootstrap3_datetime.widgets import DateTimePicker
 from django import forms
 from django.utils.translation import ugettext_lazy as _
@@ -8,7 +9,7 @@ from realtime.models.earthquake import Earthquake
 
 
 class EarthquakeForm(forms.ModelForm):
-    class Meta:
+    class Meta(object):
         model = Earthquake
         fields = [
             'shake_id',

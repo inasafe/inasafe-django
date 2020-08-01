@@ -1,4 +1,5 @@
 # coding=utf-8
+from builtins import object
 from rest_framework import serializers
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
@@ -10,7 +11,7 @@ __date__ = '7/18/16'
 
 class VolcanoSerializer(serializers.ModelSerializer):
 
-    class Meta:
+    class Meta(object):
         model = Volcano
         fields = (
             'volcano_name',
@@ -26,7 +27,7 @@ class VolcanoSerializer(serializers.ModelSerializer):
 
 class VolcanoGeoJsonSerializer(GeoFeatureModelSerializer):
 
-    class Meta:
+    class Meta(object):
         model = Volcano
         geo_field = 'location'
         id = 'id'

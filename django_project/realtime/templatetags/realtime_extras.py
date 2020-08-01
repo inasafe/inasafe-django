@@ -1,4 +1,5 @@
 # coding=utf-8
+from builtins import str
 from django import template
 from django.utils.translation import ugettext as _
 from realtime.helpers.base_indicator import Indicator

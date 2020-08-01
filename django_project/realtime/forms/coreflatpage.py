@@ -1,5 +1,6 @@
 # coding=utf-8
 
+from builtins import object
 from django import forms
 from django.utils import translation
 from realtime.models.coreflatpage import CoreFlatPage
@@ -22,6 +23,6 @@ class CoreFlatPageForm(forms.ModelForm):
         )
     )
 
-    class Meta:
+    class Meta(object):
         model = CoreFlatPage
         fields = '__all__'

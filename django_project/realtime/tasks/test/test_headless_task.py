@@ -1,6 +1,8 @@
 # coding=utf-8
 """Docstring here."""
+from __future__ import print_function
 
+from past.builtins import basestring
 import os
 import unittest
 
@@ -119,7 +121,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         result = result_delay.get()
         self.assertEqual(0, result['status'], result['message'])
         self.assertLess(0, len(result['output']))
-        for key, layer_uri in result['output'].items():
+        for key, layer_uri in list(result['output'].items()):
             self.assertTrue(os.path.exists(layer_uri))
             self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
 
@@ -129,7 +131,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         result = result_delay.get()
         self.assertEqual(0, result['status'], result['message'])
         self.assertLess(0, len(result['output']))
-        for key, layer_uri in result['output'].items():
+        for key, layer_uri in list(result['output'].items()):
             self.assertTrue(os.path.exists(layer_uri))
             self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
 
@@ -187,13 +189,13 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         self.assertEqual(0, result['status'], result['message'])
         self.assertLess(0, len(result['output']))
         num_exposure_output = 0
-        for key, layer_uri in result['output'].items():
+        for key, layer_uri in list(result['output'].items()):
             if isinstance(layer_uri, basestring):
                 self.assertTrue(os.path.exists(layer_uri))
                 self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
             elif isinstance(layer_uri, dict):
                 num_exposure_output += 1
-                for the_key, the_layer_uri in layer_uri.items():
+                for the_key, the_layer_uri in list(layer_uri.items()):
                     self.assertTrue(os.path.exists(the_layer_uri))
                     self.assertTrue(the_layer_uri.startswith(OUTPUT_DIRECTORY))
         # Check the number of per exposure output is the same as the number
@@ -207,13 +209,13 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         self.assertEqual(0, result['status'], result['message'])
         self.assertLess(0, len(result['output']))
         num_exposure_output = 0
-        for key, layer_uri in result['output'].items():
+        for key, layer_uri in list(result['output'].items()):
             if isinstance(layer_uri, basestring):
                 self.assertTrue(os.path.exists(layer_uri))
                 self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
             elif isinstance(layer_uri, dict):
                 num_exposure_output += 1
-                for the_key, the_layer_uri in layer_uri.items():
+                for the_key, the_layer_uri in list(layer_uri.items()):
                     self.assertTrue(os.path.exists(the_layer_uri))
                     self.assertTrue(the_layer_uri.startswith(OUTPUT_DIRECTORY))
         # Check the number of per exposure output is the same as the number
@@ -245,7 +247,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         result = result_delay.get()
         self.assertEqual(0, result['status'], result['message'])
         self.assertLess(0, len(result['output']))
-        for key, layer_uri in result['output'].items():
+        for key, layer_uri in list(result['output'].items()):
             self.assertTrue(os.path.exists(layer_uri))
             self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
 
@@ -256,8 +258,8 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         async_result = generate_report.delay(impact_analysis_uri)
         result = async_result.get()
         self.assertEqual(0, result['status'], result['message'])
-        for key, products in result['output'].items():
-            for product_key, product_uri in products.items():
+        for key, products in list(result['output'].items()):
+            for product_key, product_uri in list(products.items()):
                 message = 'Product %s is not found in %s' % (
                     product_key, product_uri)
                 self.assertTrue(os.path.exists(product_uri), message)
@@ -277,7 +279,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         result = result_delay.get()
         self.assertEqual(0, result['status'], result['message'])
         self.assertLess(0, len(result['output']))
-        for key, layer_uri in result['output'].items():
+        for key, layer_uri in list(result['output'].items()):
             self.assertTrue(os.path.exists(layer_uri))
             self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
 
@@ -290,14 +292,14 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         result = async_result.get()
         self.assertEqual(0, result['status'], result['message'])
         product_keys = []
-        for key, products in result['output'].items():
-            for product_key, product_uri in products.items():
+        for key, products in list(result['output'].items()):
+            for product_key, product_uri in list(products.items()):
                 product_keys.append(product_key)
                 message = 'Product %s is not found in %s' % (
                     product_key, product_uri)
                 self.assertTrue(os.path.exists(product_uri), message)
                 if custom_map_template_basename == product_key:
-                    print product_uri
+                    print(product_uri)
 
         # Check if custom map template found.
         self.assertIn(custom_map_template_basename, product_keys)
@@ -317,7 +319,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         result = result_delay.get()
         self.assertEqual(0, result['status'], result['message'])
         self.assertLess(0, len(result['output']))
-        for key, layer_uri in result['output'].items():
+        for key, layer_uri in list(result['output'].items()):
             self.assertTrue(os.path.exists(layer_uri))
             self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
 
@@ -367,13 +369,13 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         self.assertEqual(0, result['status'], result['message'])
         self.assertLess(0, len(result['output']))
         num_exposure_output = 0
-        for key, layer_uri in result['output'].items():
+        for key, layer_uri in list(result['output'].items()):
             if isinstance(layer_uri, basestring):
                 self.assertTrue(os.path.exists(layer_uri))
                 self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
             elif isinstance(layer_uri, dict):
                 num_exposure_output += 1
-                for the_key, the_layer_uri in layer_uri.items():
+                for the_key, the_layer_uri in list(layer_uri.items()):
                     self.assertTrue(os.path.exists(the_layer_uri))
                     self.assertTrue(the_layer_uri.startswith(OUTPUT_DIRECTORY))
 
@@ -393,14 +395,14 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         result = async_result.get()
         self.assertEqual(0, result['status'], result['message'])
         product_keys = []
-        for key, products in result['output'].items():
-            for product_key, product_uri in products.items():
+        for key, products in list(result['output'].items()):
+            for product_key, product_uri in list(products.items()):
                 product_keys.append(product_key)
                 message = 'Product %s is not found in %s' % (
                     product_key, product_uri)
                 self.assertTrue(os.path.exists(product_uri), message)
                 if ash_report_template_basename == product_key:
-                    print product_uri
+                    print(product_uri)
 
         # Check if custom map template found.
         self.assertIn(ash_report_template_basename, product_keys)
@@ -422,7 +424,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         result = result_delay.get()
         self.assertEqual(0, result['status'], result['message'])
         self.assertLess(0, len(result['output']))
-        for key, layer_uri in result['output'].items():
+        for key, layer_uri in list(result['output'].items()):
             self.assertTrue(os.path.exists(layer_uri))
             self.assertTrue(layer_uri.startswith(OUTPUT_DIRECTORY))
 
@@ -442,14 +444,14 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         result = async_result.get()
         self.assertEqual(0, result['status'], result['message'])
         product_keys = []
-        for key, products in result['output'].items():
-            for product_key, product_uri in products.items():
+        for key, products in list(result['output'].items()):
+            for product_key, product_uri in list(products.items()):
                 product_keys.append(product_key)
                 message = 'Product %s is not found in %s' % (
                     product_key, product_uri)
                 self.assertTrue(os.path.exists(product_uri), message)
                 if flood_report_template_basename == product_key:
-                    print product_uri
+                    print(product_uri)
 
         # Check if custom map template found.
         self.assertIn(flood_report_template_basename, product_keys)

@@ -1,5 +1,6 @@
 # coding=utf-8
 """Model factories definition for models."""
+from builtins import object
 import datetime
 import random
 import os
@@ -19,7 +20,7 @@ flood_layer_uri = os.path.abspath(flood_layer_uri)
 
 class EarthquakeFactory(DjangoModelFactory):
     """Factory class for Earthquake model."""
-    class Meta:
+    class Meta(object):
         """Meta definition."""
         model = Earthquake
 
@@ -33,7 +34,7 @@ class EarthquakeFactory(DjangoModelFactory):
 
 class BoundaryFactory(DjangoModelFactory):
     """Factory class for Boundary model."""
-    class Meta:
+    class Meta(object):
         """Meta class"""
         model = Boundary
 
@@ -63,7 +64,7 @@ class BoundaryFactory(DjangoModelFactory):
 
 
 class FloodFactory(DjangoModelFactory):
-    class Meta:
+    class Meta(object):
         model = Flood
 
     event_id = '2015112518-6-rw'

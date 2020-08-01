@@ -1,5 +1,5 @@
 # noinspection PyUnresolvedReferences
-
+from __future__ import unicode_literals
 import os
 
 from .prod import *  # noqa
@@ -49,5 +49,5 @@ EMAIL_SUBJECT_PREFIX = '[InaSAFE]'
 DEFAULT_FROM_EMAIL = 'noreply@inasafe.org'
 
 
-SITE_DOMAIN_NAME = os.environ.get(
-    'SITE_DOMAIN_NAME', 'http://realtime.inasafe.org')
+SITE_DOMAIN_NAME = unicode(os.environ.get(
+    'SITE_DOMAIN_NAME', 'http://realtime.inasafe.org'))

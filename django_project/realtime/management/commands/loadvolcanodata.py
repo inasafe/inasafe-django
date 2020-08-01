@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function
 from django.core.management.base import BaseCommand
 
 from realtime.models.volcano import load_volcano_data, Volcano
@@ -15,7 +16,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not len(args) == 2:
-            print 'Please provide filename'
+            print('Please provide filename')
             return
 
         volcano_shapefile = args[1]

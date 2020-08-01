@@ -1,4 +1,8 @@
 # coding=utf-8
+from __future__ import print_function
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import datetime
 
 import pytz
@@ -28,21 +32,21 @@ class Command(BaseCommand):
 
         if len(args) > 0 and not using_range:
             for a in args:
-                print 'Process flood : %s' % a
+                print('Process flood : %s' % a)
                 flood = Flood.objects.get(event_id=a)
                 try:
                     recalculate_impact_info(flood)
                 except Exception as e:
-                    print e
+                    print(e)
 
         elif not using_range:
             floods = Flood.objects.all().order_by('-time')
-            print 'Process flood (%s)' % len(floods)
+            print('Process flood (%s)' % len(floods))
             for flood in floods:
                 try:
                     recalculate_impact_info(flood)
                 except Exception as e:
-                    print e
+                    print(e)
 
     @staticmethod
     def recalculate_flood_from_range(start_event_id, end_event_id):
@@ -56,7 +60,7 @@ class Command(BaseCommand):
         start_time = start_time.replace(tzinfo=pytz.UTC)
         end_time = end_time.replace(tzinfo=pytz.UTC)
         time_diff = end_time - start_time
-        total_hours = int(time_diff.total_seconds() / 3600)
+        total_hours = int(old_div(time_diff.total_seconds(), 3600))
         success = 0
         failed = 0
         for i in range(0, total_hours):
@@ -64,13 +68,13 @@ class Command(BaseCommand):
             target_time = start_time + hour_diff
             event_id = target_time.strftime(format_str)
             try:
-                print 'Processing flood: %s' % event_id
+                print('Processing flood: %s' % event_id)
                 flood = Flood.objects.get(event_id=event_id)
                 recalculate_impact_info(flood)
                 success += 1
             except Exception as e:
                 failed += 1
-                print e
+                print(e)
 
-        print 'Recalculate process done'
-        print 'Success: %s. Failed: %s' % (success, failed)
+        print('Recalculate process done')
+        print('Success: %s. Failed: %s' % (success, failed))

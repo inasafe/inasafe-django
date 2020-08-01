@@ -1,5 +1,6 @@
 # coding=utf-8
 """Django forms for User related routines."""
+from builtins import object
 from django.contrib.gis import forms
 from django.contrib.auth.forms import PasswordResetForm
 from leaflet.forms.widgets import LeafletWidget
@@ -71,7 +72,7 @@ class RegistrationForm(forms.ModelForm):
         label='Receive project news and updates'
     )
 
-    class Meta:
+    class Meta(object):
         """Association between models and this form."""
         model = User
         fields = ['name', 'email', 'image', 'password', 'password2', 'website',
@@ -102,7 +103,7 @@ class RegistrationForm(forms.ModelForm):
 
 class LoginForm(forms.Form):
     """Form for user to log in."""
-    class Meta:
+    class Meta(object):
         """Meta of the form."""
         fields = ['email', 'password']
 
@@ -173,7 +174,7 @@ class BasicInformationForm(forms.ModelForm):
         label='Click your location on the map',
         widget=LeafletWidget())
 
-    class Meta:
+    class Meta(object):
         """Association between models and this form."""
         model = User
         fields = ['name', 'email', 'image', 'website', 'inasafe_roles',
@@ -201,6 +202,6 @@ class CustomPasswordResetForm(PasswordResetForm):
                 'placeholder': 'john@doe.com'})
     )
 
-    class Meta:
+    class Meta(object):
         """Association between models and this form."""
         model = User

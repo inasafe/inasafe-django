@@ -1,4 +1,6 @@
 # coding=utf-8
+from __future__ import print_function
+from builtins import input
 from getpass import getpass
 
 from django.contrib.auth.models import Group
@@ -20,13 +22,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         realtime_group = Group.objects.get(name=REST_GROUP)
-        username = raw_input('Username : ')
-        email = raw_input('Email : ')
+        username = input('Username : ')
+        email = input('Email : ')
         password = getpass()
         done = False
 
         while not done:
-            location = raw_input(
+            location = input(
                 'Location (lon lat), leave blank for default : ')
             if not location:
                 location = Point(106.8222713, -6.1856145)
@@ -40,7 +42,7 @@ class Command(BaseCommand):
                     location = Point(float(location[0]), float(location[1]))
                     done = True
                 except ValueError:
-                    print 'Give location in form (lon lat) without brace.'
+                    print('Give location in form (lon lat) without brace.')
                     pass
 
         new_user = User.objects.create_user(
@@ -54,4 +56,4 @@ class Command(BaseCommand):
         if new_user:
             new_user.groups.add(realtime_group)
             new_user.save()
-            print 'User is created'
+            print('User is created')

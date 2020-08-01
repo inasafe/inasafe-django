@@ -1,4 +1,8 @@
 # coding=utf-8
+from __future__ import print_function
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 import datetime
 
 import pytz
@@ -62,7 +66,7 @@ class Command(BaseCommand):
         start_time = start_time.replace(tzinfo=pytz.UTC)
         end_time = end_time.replace(tzinfo=pytz.UTC)
         time_diff = end_time - start_time
-        total_hours = int(time_diff.total_seconds() / 3600)
+        total_hours = int(old_div(time_diff.total_seconds(), 3600))
         total_events = 0
         for i in range(0, total_hours):
             hour_diff = datetime.timedelta(hours=i + 1)

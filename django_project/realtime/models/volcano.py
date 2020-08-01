@@ -1,4 +1,5 @@
 # coding=utf-8
+from builtins import object
 import logging
 
 from django.contrib.gis.db import models
@@ -19,7 +20,7 @@ LOGGER = logging.getLogger(LOGGER_NAME)
 class Volcano(models.Model):
     """Volcano model."""
 
-    class Meta:
+    class Meta(object):
         """Meta class."""
         app_label = 'realtime'
         verbose_name_plural = 'Volcanoes'

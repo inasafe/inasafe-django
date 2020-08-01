@@ -1,4 +1,5 @@
 # coding=utf-8
+from builtins import object
 import datetime
 
 import django_filters
@@ -76,7 +77,7 @@ class EarthquakeFilter(django_filters.FilterSet):
     location_description = django_filters.CharFilter(
         name='location_description', lookup_type='iexact')
 
-    class Meta:
+    class Meta(object):
         model = Earthquake
         fields = ['shake_id', 'max_magnitude', 'min_magnitude', 'max_time',
                   'min_time', 'max_depth', 'min_depth',

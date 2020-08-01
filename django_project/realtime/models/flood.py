@@ -1,6 +1,7 @@
 # coding=utf-8
 """Model class for flood realtime."""
 
+from builtins import object
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -11,7 +12,7 @@ from realtime.models.report import BaseEventReportModel
 
 class BoundaryAlias(models.Model):
     """Aliases for Boundary"""
-    class Meta:
+    class Meta(object):
         """Meta class"""
         app_label = 'realtime'
 
@@ -36,7 +37,7 @@ class BoundaryAlias(models.Model):
 
 class Boundary(models.Model):
     """Model for geographic boundaries"""
-    class Meta:
+    class Meta(object):
         """Meta class"""
         app_label = 'realtime'
         verbose_name_plural = 'Boundaries'
@@ -84,7 +85,7 @@ class FloodManager(models.GeoManager):
 class Flood(BaseEventModel):
     """Flood model."""
 
-    class Meta:
+    class Meta(object):
         """Meta class."""
         app_label = 'realtime'
 
@@ -195,7 +196,7 @@ class Flood(BaseEventModel):
 class FloodReport(BaseEventReportModel):
     """Flood Report models"""
 
-    class Meta:
+    class Meta(object):
         """Meta class"""
         app_label = 'realtime'
         unique_together = (('flood', 'language'), )
@@ -264,7 +265,7 @@ class FloodReport(BaseEventReportModel):
 
 class FloodEventBoundary(models.Model):
     """Flood Event Boundary model."""
-    class Meta:
+    class Meta(object):
         app_label = 'realtime'
         unique_together = (('flood', 'boundary'), )
         verbose_name_plural = 'Flood Event Boundaries'
@@ -289,7 +290,7 @@ class FloodEventBoundary(models.Model):
 
 class ImpactEventBoundary(models.Model):
     """Impact Event Boundary model."""
-    class Meta:
+    class Meta(object):
         app_label = 'realtime'
 
     flood = models.ForeignKey(

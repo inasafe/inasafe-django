@@ -1,5 +1,6 @@
 # coding=utf-8
 
+from builtins import object
 from django.core.urlresolvers import reverse
 from rest_framework import serializers
 from rest_framework_gis.serializers import (
@@ -67,7 +68,7 @@ class AshReportSerializer(serializers.ModelSerializer):
     # auto bind to get_shake_url method
     ash_url = CustomSerializerMethodField()
 
-    class Meta:
+    class Meta(object):
         model = AshReport
         fields = (
             'url',
@@ -110,7 +111,7 @@ class AshSerializer(serializers.ModelSerializer):
     # auto bind to get_url method
     url = CustomSerializerMethodField()
 
-    class Meta:
+    class Meta(object):
         model = Ash
         fields = (
             'url',
@@ -134,7 +135,7 @@ class AshGeoJsonSerializer(GeoFeatureModelSerializer):
     def get_location(self, obj):
         return obj.volcano.location
 
-    class Meta:
+    class Meta(object):
         model = Ash
         geo_field = 'location'
         id = 'id',

@@ -1,6 +1,7 @@
 # coding=utf-8
 """Model class for ash realtime."""
 
+from builtins import object
 import pytz
 from django.contrib.gis.db import models
 from django.core.urlresolvers import reverse
@@ -22,7 +23,7 @@ __copyright__ = 'imajimatika@gmail.com'
 class Ash(BaseEventModel):
     """Ash model."""
 
-    class Meta:
+    class Meta(object):
         """Meta class."""
         app_label = 'realtime'
         verbose_name_plural = 'Ashes'
@@ -141,7 +142,7 @@ class Ash(BaseEventModel):
 class AshReport(BaseEventReportModel):
     """Ash Report Model."""
 
-    class Meta:
+    class Meta(object):
         app_label = 'realtime'
         unique_together = (('ash', 'language'), )
 

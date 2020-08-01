@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import print_function
 import os
 import ast
 
@@ -52,7 +53,7 @@ else:
     sentry_handler = LOGGING_DEFAULT_HANDLER
 
 if 'raven.contrib.django.raven_compat' in INSTALLED_APPS:
-    print '*********** Setting up sentry logging ************'
+    print('*********** Setting up sentry logging ************')
     RAVEN_CONFIG = {
         'dsn': 'http://8d4da28ebc7a4f848b864910ce31c250:'
                'aa93ab1e08024b93af023931148aeedb@sentry.kartoza.com/14',

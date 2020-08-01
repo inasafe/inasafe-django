@@ -1,5 +1,9 @@
 # coding=utf-8
-import StringIO
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+import io
 import errno
 import json
 import logging
@@ -127,7 +131,7 @@ class BaseTestEarthquakeTasks(HazardScenarioBaseTestCase):
 
     # Assumming all process runs normally we should expects all asserts
     # will eventually passed.
-    bigint = sys.maxint
+    bigint = sys.maxsize
     retry_kwargs = {
         'exception': BaseException,
         'tries': bigint,
@@ -390,7 +394,7 @@ class TestEarthquakeCheckProcessedTasks(BaseTestEarthquakeTasks):
         self.assertEarthquake(initial_event)
 
         # Check that running checkprocessedeq will return a clean results
-        out = StringIO.StringIO()
+        out = io.StringIO()
         management.call_command(
             'checkprocessedeq',
             since='2018/02/19',
@@ -412,7 +416,7 @@ class TestEarthquakeCheckProcessedTasks(BaseTestEarthquakeTasks):
             initial_event.report_object.delete()
 
         # Command needs to recognize missing reports
-        out = StringIO.StringIO()
+        out = io.StringIO()
         management.call_command(
             'checkprocessedeq',
             since='2018/02/19',
@@ -439,7 +443,7 @@ class TestEarthquakeCheckProcessedTasks(BaseTestEarthquakeTasks):
             self.assertFalse(os.path.exists(impact_dirname))
 
         # Command needs to ignore missing impacts when reports were processed.
-        out = StringIO.StringIO()
+        out = io.StringIO()
         management.call_command(
             'checkprocessedeq',
             since='2018/02/19',
@@ -459,7 +463,7 @@ class TestEarthquakeCheckProcessedTasks(BaseTestEarthquakeTasks):
             initial_event.report_object.delete()
 
         # Command needs to recognize missing reports
-        out = StringIO.StringIO()
+        out = io.StringIO()
         management.call_command(
             'checkprocessedeq',
             since='2018/02/19',
@@ -519,7 +523,7 @@ class TestFloodTasks(HazardScenarioBaseTestCase):
 
         # Assumming all process runs normally we should expects all asserts
         # will eventually passed.
-        bigint = sys.maxint
+        bigint = sys.maxsize
         kwargs = {
             'exception': BaseException,
             'tries': bigint,
@@ -667,7 +671,7 @@ class TestAshTasks(HazardScenarioBaseTestCase):
 
         # Assumming all process runs normally we should expects all asserts
         # will eventually passed.
-        bigint = sys.maxint
+        bigint = sys.maxsize
         kwargs = {
             'exception': BaseException,
             'tries': bigint,

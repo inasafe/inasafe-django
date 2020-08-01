@@ -87,11 +87,12 @@ def indicator(request):
         'id': 'en',
         'name': 'English'
     }
-    for l in LANGUAGE_LIST:
-        if l['id'] == language_code:
-            selected_language = l
+    for lang in LANGUAGE_LIST:
+        if lang['id'] == language_code:
+            selected_language = lang
 
-    language_list = [l for l in LANGUAGE_LIST if not l['id'] == language_code]
+    language_list = [
+        lang for lang in LANGUAGE_LIST if not lang['id'] == language_code]
     context['language'] = {
         'selected_language': selected_language,
         'language_list': language_list,

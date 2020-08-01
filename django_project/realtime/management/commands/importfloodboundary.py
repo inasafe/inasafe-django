@@ -1,4 +1,5 @@
 # coding=utf-8
+from __future__ import print_function
 import logging
 
 import os
@@ -30,13 +31,13 @@ class Command(BaseCommand):
 
     # noqa: max-complexity=20
     def handle(self, *args, **options):
-        print args
+        print(args)
         try:
             if len(args) != 5:
                 return
             layer_path = args[0]
             if not os.path.exists(layer_path):
-                print '%s does not exists' % layer_path
+                print('%s does not exists' % layer_path)
                 return
             parent_field = args[1]
             name_field = args[2]
@@ -98,6 +99,6 @@ class Command(BaseCommand):
                     boundary_alias=boundary_alias)
                 new_boundary += 1
 
-        print 'New Boundary %s' % new_boundary
-        print 'Existing Boundary %s' % existing_boundary
+        print('New Boundary %s' % new_boundary)
+        print('Existing Boundary %s' % existing_boundary)
         LOGGER.info('Shapefile processed...')

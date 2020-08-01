@@ -1,4 +1,5 @@
 # coding=utf-8
+from builtins import object
 import json
 import logging
 import os
@@ -61,7 +62,7 @@ class MultiLanguageMixin(object):
 class ImpactMixin(MultiLanguageMixin, models.Model):
     """Generic mixin for hazard to handle multiple impact analysis."""
 
-    class Meta:
+    class Meta(object):
         abstract = True
 
     impacts = GenericRelation(Impact)
@@ -187,7 +188,7 @@ class ImpactMixin(MultiLanguageMixin, models.Model):
 class ReportMixin(MultiLanguageMixin, models.Model):
     """Generic mixin for hazard to handle multiple impact analysis report."""
 
-    class Meta:
+    class Meta(object):
         abstract = True
 
     def __init__(self, *args, **kwargs):
@@ -324,7 +325,7 @@ class ReportMixin(MultiLanguageMixin, models.Model):
 class BaseEventModel(ImpactMixin, ReportMixin, models.Model):
     """"""
 
-    class Meta:
+    class Meta(object):
         abstract = True
 
     hazard_path = models.CharField(

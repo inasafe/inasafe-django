@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # Django settings for inasafe project.
+from __future__ import unicode_literals
 import os
 import sys
 
@@ -112,4 +113,4 @@ LOCALE_PATHS = (
 
 DJANGO_ROOT = ABS_PATH('.')
 
-SITE_DOMAIN_NAME = os.environ.get('SITE_DOMAIN_NAME', 'example.com')
+SITE_DOMAIN_NAME = unicode(os.environ.get('SITE_DOMAIN_NAME', 'example.com'))
