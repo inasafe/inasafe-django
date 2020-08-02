@@ -26,7 +26,7 @@ beautifulsoup4==4.5.1
 django-tinymce==2.6
 django-filebrowser==3.7.2
 django-tinymce-filebrowser==0.2.1
-urllib3==1.24.2
+urllib3==1.25.10
 pyyaml==4.2b1
 mock==3.0.5
 future==0.18.2
