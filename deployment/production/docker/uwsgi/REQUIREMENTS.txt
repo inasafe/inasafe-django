@@ -1,5 +1,5 @@
 requests==2.21.0
-Django==1.8
+Django==2.2.24
 django-bootstrap3-datetimepicker==2.2.3
 psycopg2==2.7.1
 pytz==2016.7
