@@ -15,7 +15,8 @@ from realtime.app_settings import (
     ASH_LAYER_ORDER,
     FLOOD_EXPOSURE,
     FLOOD_REPORT_TEMPLATE_EN,
-    FLOOD_LAYER_ORDER
+    FLOOD_LAYER_ORDER,
+    REALTIME_GEONODE_ENABLE,
 )
 from realtime.tasks.headless.celery_app import app as headless_app
 from realtime.tasks.headless.inasafe_wrapper import (
@@ -26,6 +27,7 @@ from realtime.tasks.headless.inasafe_wrapper import (
     generate_report,
     get_generated_report,
     check_broker_connection,
+    push_to_geonode,
 )
 from realtime.utils import celery_worker_connected
 
@@ -88,8 +90,7 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         result = get_keywords.delay(place_layer_uri)
         keywords = result.get()
         self.assertIsNotNone(keywords)
-        self.assertEqual(
-            keywords['layer_purpose'], 'exposure')
+        self.assertEqual(keywords['layer_purpose'], 'exposure')
         self.assertEqual(keywords['exposure'], 'place')
 
         self.assertTrue(os.path.exists(earthquake_layer_uri))
@@ -458,3 +459,17 @@ class TestHeadlessCeleryTask(test.SimpleTestCase):
         # Check if the default map reports are not found
         self.assertNotIn('inasafe-map-report-portrait', product_keys)
         self.assertNotIn('inasafe-map-report-landscape', product_keys)
+
+    @unittest.skipIf(not REALTIME_GEONODE_ENABLE, 'GeoNode push is disabled.')
+    def test_push_tif_to_geonode(self):
+        """Test push tif layer to geonode functionality."""
+        async_result = push_to_geonode.delay(shakemap_layer_uri)
+        result = async_result.get()
+        self.assertEqual(result['status'], 0, result['message'])
+
+    @unittest.skipIf(not REALTIME_GEONODE_ENABLE, 'GeoNode push is disabled.')
+    def test_push_geojson_to_geonode(self):
+        """Test push geojson layer to geonode functionality."""
+        async_result = push_to_geonode.delay(flood_layer_uri)
+        result = async_result.get()
+        self.assertEqual(result['status'], 0, result['message'])

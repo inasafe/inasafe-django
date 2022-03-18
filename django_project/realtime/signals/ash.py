@@ -7,6 +7,7 @@ from django.dispatch.dispatcher import receiver
 from realtime.app_settings import LOGGER_NAME, ANALYSIS_LANGUAGES
 from realtime.models.ash import Ash
 from realtime.tasks.ash import generate_event_report, generate_hazard_layer
+from realtime.tasks.geonode import push_hazard_to_geonode
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '7/18/16'
@@ -37,5 +38,7 @@ def ash_post_save(sender, instance, **kwargs):
         if instance.analysis_flag:
             for lang in ANALYSIS_LANGUAGES:
                 generate_event_report.delay(instance, locale=lang)
+            push_hazard_to_geonode.delay(sender, instance)
+
     except BaseException as e:
         LOGGER.exception(e)

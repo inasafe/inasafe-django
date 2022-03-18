@@ -118,6 +118,21 @@ class Earthquake(BaseEventModel):
         ),
         default=False)
 
+    push_task_status = models.CharField(
+        verbose_name=_('GeoNode Push Task Status'),
+        help_text=_('The Status for the GeoNode Push Task'),
+        max_length=255,
+        default=None,
+        null=True,
+        blank=True)
+
+    push_task_result = models.TextField(
+        verbose_name=_('Report push task result'),
+        help_text=_('Task result of GeoNode Push Task'),
+        default='',
+        blank=True,
+        null=True)
+
     objects = EarthquakeManager()
 
     def __unicode__(self):

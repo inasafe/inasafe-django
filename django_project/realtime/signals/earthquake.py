@@ -7,6 +7,7 @@ from django.dispatch.dispatcher import receiver
 from realtime.app_settings import LOGGER_NAME, ANALYSIS_LANGUAGES
 from realtime.models.earthquake import Earthquake
 from realtime.tasks.earthquake import generate_event_report
+from realtime.tasks.geonode import push_hazard_to_geonode
 
 __author__ = 'Rizky Maulana Nugraha <lana.pcfre@gmail.com>'
 __date__ = '7/18/16'
@@ -31,5 +32,6 @@ def earthquake_post_save(sender, instance, **kwargs):
             for lang in ANALYSIS_LANGUAGES:
                 generate_event_report.delay(
                     instance, locale=lang)
+            push_hazard_to_geonode.delay(sender, instance)
     except BaseException:
         pass

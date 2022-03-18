@@ -501,3 +501,10 @@ load-flood-test-data:
 	@echo "Load flood test data"
 	@echo "------------------------------------------------------------------"
 	@docker-compose -p $(PROJECT_ID) exec uwsgi python manage.py loadfloodtestdata
+
+superuser:
+	@echo
+	@echo "------------------------------------------------------------------"
+	@echo "Creating a superuser in production mode"
+	@echo "------------------------------------------------------------------"
+	@docker-compose -p $(PROJECT_ID) exec uwsgi python manage.py createsuperuser
